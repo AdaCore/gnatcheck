@@ -1,0 +1,3 @@
+project Checks_Blocks is
+    for Main use ("main.adb");
+end Checks_Blocks;
