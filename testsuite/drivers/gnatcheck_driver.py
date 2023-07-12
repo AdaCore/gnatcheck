@@ -1,0 +1,216 @@
+import os
+import os.path as P
+
+from e3.testsuite.driver.diff import (
+    ReplacePath,
+    Substitute,
+)
+
+from drivers.base_driver import BaseDriver
+
+
+class GnatcheckDriver(BaseDriver):
+    """
+    This driver runs gnatcheck with the given arguments and compares the output
+    of the run to the expected output.  The expected output must be written in
+    a file called ``test.out``.
+
+
+    It has several ways of processing the output depending on the output format
+    passed. The ``format`` key can be either 'brief', 'full', 'short' or 'xml',
+    and allows to switch the way the output of GNATcheck will be triggered and
+    processed:
+
+    * In ``brief`` mode, the ``--brief`` option will be passed to GNATcheck, and
+      only stdout/err will be captured
+    * In ``short`` mode, the ``-s`` option will be passed to GNATcheck, and the
+      content of ``gnatcheck.out`` will be the output of the test
+    * ``full`` mode, is the same except the ``-s`` option is not passed. The first
+      lines of the ``gnatcheck.out`` report are stripped because they contain run
+      specific information
+    * In ``xml`` mode, the output of the test is the content of the
+      ``gnatcheck.xml`` file.
+
+    If the ``test.yaml`` contains a ``tests`` key, then its contents need to be
+    a list, and each entry of the list is a separate test which can contain a
+    specific value for any of the test keys specified here.
+
+    In this case, the test keys specified at the top level are taken as
+    default, and can be overriden in specific subtests.
+
+    Test env keys are provided for the user to execute arbitrary Python code as
+    part of the test/subtests. The ``global_python`` key can be used to alter
+    the python execution environment to store data/functions that need to be
+    called by test-specific python hooks described below.
+
+    This driver also supports performance testing.
+
+    Test arguments:
+        - ``project``: GPR build file to use (if any)
+        - ``input_sources``: Ada files to analyze (if explicit, optional if
+          project is passed)
+        - ``rule_file``: If passed, files to analyse will be fetched from this
+          file
+        - ``extra_args``: Extra arguments to pass to GNATcheck
+        - ``rules``: A list of rules with their arguments, in the gnatcheck
+          format.  Note that the list can be empty, and people can instead
+          decide to pass rules via the project file.
+        - ``scenario_variables``: Dict containing key to value associations to
+          pass as scenario variables to GNATcheck
+        - ``perf``: Enable and configure the performance testing. Perf arguments:
+            - ``default``: Time measuring repetition number as an integer
+            - ``profile-time``: Enable the time profiling or not as a boolean
+        - ``pre_python``/``post_python``: Python code to be executed
+          before/after the test
+
+    .. NOTE:: In practice, the above allows several different ways to express
+        the same test, which is not ideal. It was necessary to transition
+        painlessly existing bash tests.
+    """
+
+    perf_supported = True
+
+    modes = {
+        "gnatcheck": "gnatcheck",
+        "gnatkp": "gnatkp"
+    }
+    output_formats = set(['brief', 'full', 'short', 'xml'])
+
+    def run(self):
+        gnatcheck_env = dict(os.environ)
+
+        # Here we don't want to pollute the LKQL_RULES_PATH with this
+        # repository's LKQL rules: GNATcheck will find those itself by looking
+        # next to its executable. If we let this variable, we might end up
+        # with duplicate definitions of rules, for example if this repository
+        # is a copy of the original LKQL repository (which is actually what
+        # happens in production: the checkout used for testing is separate
+        # from that used for building).
+        gnatcheck_env["LKQL_RULES_PATH"] = ""
+        gnatcheck_env["GNATCHECK_WORKER"] = " ".join(
+            self.gnatcheck_worker_exe
+        )
+
+        globs, locs = {}, {}
+        global_python = self.test_env.get("global_python", None)
+        if global_python:
+            exec(global_python, globs, locs)
+
+        def capture_exec_python(code: str) -> None:
+            """
+            Execute the python code, and capture it's output. Add it to the
+            test's output.
+            """
+            from io import StringIO
+            from contextlib import redirect_stdout
+            f = StringIO()
+            cwd = os.getcwd()
+            os.chdir(self.test_env["working_dir"])
+            with redirect_stdout(f):
+                exec(code, globs, locs)
+            self.output += f.getvalue()
+            os.chdir(cwd)
+
+        def run_one_test(test_data):
+            output_format = test_data.get('format', 'full')
+            assert output_format in GnatcheckDriver.output_formats
+            brief = output_format == 'brief'
+            exe = GnatcheckDriver.modes[test_data.get('mode', 'gnatcheck')]
+            args = [exe, '-q']
+
+            pre_python = test_data.get('pre_python', None)
+            post_python = test_data.get('post_python', None)
+
+            # If python code to be executed pre running gnatcheck was passed
+            # for this test, run it and capture its output
+            if pre_python:
+                capture_exec_python(pre_python)
+
+            # Use the test's project, if any
+            if test_data.get('project', None):
+                args += ['-P', test_data['project']]
+
+            if test_data.get('input_sources', None):
+                args += test_data['input_sources']
+
+            if output_format == 'brief':
+                args.append('--brief')
+            elif output_format == 'xml':
+                args.append('-xml')
+            elif output_format == 'short':
+                args.append('-s')
+
+            for k, v in test_data.get('scenario_variables', {}).items():
+                args.append(f'-X{k}={v}')
+
+            for rule_dir in test_data.get('rules_dirs', []):
+                args.append(f'--rules-dir={rule_dir}')
+
+            for extra_arg in test_data.get('extra_args', []):
+                args.append(extra_arg)
+
+            rule_file = test_data.get('rule_file', None)
+            if rule_file:
+                args += ['-rules', '-from', rule_file]
+            elif test_data.get('rules', None):
+                args.append("-rules")
+                for r in test_data.get('rules', []):
+                    args.append(r)
+
+            # Run the interpreter
+            # TODO: For the moment, not trying to do anything with the error code,
+            # and instead relying solely on the diff. We might want to check that
+            # the return code is consistent at some later stage.
+
+            if self.perf_mode:
+                self.perf_run(args)
+            else:
+                label = test_data.get('label', None)
+                if label:
+                    self.output += label + "\n" + ("=" * len(label)) + "\n\n"
+
+                p = self.shell(args, catch_error=False, env=gnatcheck_env)
+
+                if output_format in ['full', 'short']:
+                    with open(
+                        P.join(self.test_env["working_dir"], "gnatcheck.out")
+                    ) as f:
+                        if output_format == 'short':
+                            self.output += f.read()
+                        else:
+                            # Strip the 10 first lines of the report, which contain
+                            # run-specific information that we don't want to
+                            # include in the test baseline.
+                            self.output += "".join(f.readlines()[9:])
+                elif output_format == 'xml':
+                    with open(
+                        P.join(self.test_env["working_dir"], "gnatcheck.xml")
+                    ) as f:
+                        self.output += f.read()
+
+                if (not brief and p.status not in [0, 1]) or (brief and p.status != 0):
+                    self.output += ">>>program returned status code {}\n".format(p.status)
+
+            # If python code to be executed post running gnatcheck was passed
+            # for this test, run it and capture its output
+            if post_python:
+                capture_exec_python(post_python)
+
+        tests = self.test_env.get("tests")
+        if tests:
+            for i, test in enumerate(tests):
+                env = self.test_env.copy()
+                for k, v in test.items():
+                    env[k] = v
+                run_one_test(env)
+                if i < len(tests) - 1:
+                    self.output += "\n"
+        else:
+            run_one_test(self.test_env)
+
+    @property
+    def output_refiners(self):
+        result = super().output_refiners + [ReplacePath(self.working_dir())]
+        if self.test_env.get("canonicalize_backslashes", False):
+            result.append(Substitute("\\", "/"))
+        return result
