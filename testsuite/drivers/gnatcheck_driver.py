@@ -4,7 +4,7 @@ import re
 import shutil
 import xml.etree.ElementTree as ET
 
-from drivers.base_driver import BaseDriver, TaggedLines
+from base_driver import BaseDriver, TaggedLines
 
 from e3.testsuite.driver.diff import (
     PatternSubstitute,
