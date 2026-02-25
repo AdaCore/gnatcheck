@@ -78,7 +78,7 @@ test:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   parallel:
     matrix:
-      - PLAN_ENTRY: [lkql_jit, lkql_native_jit]
+      - PLAN_ENTRY: [gnatcheck_native_jit]
 
 # We also run the integration testsuite to make sure the MR is not breaking the
 # GNATstudio integration.
