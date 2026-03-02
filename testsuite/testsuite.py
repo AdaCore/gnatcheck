@@ -21,12 +21,6 @@ from e3.testsuite.testcase_finder import (
 from drivers import (
     checker_driver,
     gnatcheck_driver,
-    interpreter_driver,
-    parser_driver,
-    java_driver,
-    benchmarks_driver,
-    refactor_driver,
-    nanopass_driver,
 )
 
 
@@ -97,14 +91,8 @@ class StandardTestFinder(YAMLTestFinder):
 class LKQLTestsuite(Testsuite):
     tests_subdir = "tests"
     test_driver_map = {
-        "parser": parser_driver.ParserDriver,
-        "interpreter": interpreter_driver.InterpreterDriver,
-        "java": java_driver.JavaDriver,
         "checker": checker_driver.CheckerDriver,
         "gnatcheck": gnatcheck_driver.GnatcheckDriver,
-        "benchmarks": benchmarks_driver.BenchmarksDriver,
-        "refactor": refactor_driver.RefactorDriver,
-        "nanopass": nanopass_driver.NanopassDriver,
     }
 
     def add_options(self, parser: ArgumentParser) -> None:

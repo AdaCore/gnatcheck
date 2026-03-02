@@ -132,10 +132,10 @@ Function Declaration
 .. lkql_doc_class:: ParameterDecl
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/fun_decl.svg
+  :file: ../generated/railroad-diagrams/fun_decl.svg
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/param.svg
+  :file: ../generated/railroad-diagrams/param.svg
 
 Allows the user to declare an LKQL function that can be used to factor some
 computation:
@@ -206,7 +206,7 @@ Value Declaration
 .. lkql_doc_class:: ValDecl
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/val_decl.svg
+  :file: ../generated/railroad-diagrams/val_decl.svg
 
 Declare a named value (often called a variable or constant in other languages):
 
@@ -253,7 +253,7 @@ Block Expression
 .. lkql_doc_class:: BlockBodyExpr
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/block_expr.svg
+  :file: ../generated/railroad-diagrams/block_expr.svg
 
 The block expression is useful to declare temporary named values and execute
 intermediate expressions. This can be useful to share the result of a
@@ -335,7 +335,7 @@ Call Expression
 .. lkql_doc_class:: Arg
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/fun_call.svg
+  :file: ../generated/railroad-diagrams/fun_call.svg
 
 LKQL values of the ``Function`` type can be invoked with the call expression:
 
@@ -369,7 +369,7 @@ Constructor call
 .. lkql_doc_class:: ConstructorCall
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/constructor_call.svg
+  :file: ../generated/railroad-diagrams/constructor_call.svg
 
 You can call node constructors to create new nodes possibly used for the
 tree rewriting layer of LKQL. The result of a constructor call is a value
@@ -436,7 +436,7 @@ Comparison Expression
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/comp_expr.svg
+  :file: ../generated/railroad-diagrams/comp_expr.svg
 
 Comparison expressions are used to compare an object to another object, or
 pattern. All those constructions are evaluated as booleans.
@@ -490,7 +490,7 @@ Object Literal
 .. lkql_doc_class:: AtObjectAssoc
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/objectlit.svg
+  :file: ../generated/railroad-diagrams/objectlit.svg
 
 An object literal is a literal representation of an object value:
 
@@ -500,7 +500,7 @@ An object literal is a literal representation of an object value:
   {a: 1, b: "foo", c: null, d: [1, 2, 3, 4]}
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/at_object_lit.svg
+  :file: ../generated/railroad-diagrams/at_object_lit.svg
 
 "@" object literals are quite the same as standard objects literals, but each
 associated value is wrapped in a list (if not already one). You are also
@@ -537,7 +537,7 @@ List Literal
 .. lkql_doc_class:: ListLiteral
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/listlit.svg
+  :file: ../generated/railroad-diagrams/listlit.svg
 
 A list literal is simply a literal representation of a list:
 
@@ -558,7 +558,7 @@ List Comprehension
 .. lkql_doc_class:: ListCompAssoc
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/listcomp.svg
+  :file: ../generated/railroad-diagrams/listcomp.svg
 
 A list comprehension allows the user to create a new list by iterating on an
 existing collection, applying a mapping operation, and eventually a filtering
@@ -603,7 +603,7 @@ If Expression
 .. lkql_doc_class:: CondExpr
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/if_then_else.svg
+  :file: ../generated/railroad-diagrams/if_then_else.svg
 
 If expressions are traditional conditional expressions composed of a condition,
 an expression executed when the condition is true, and and expression executed
@@ -630,7 +630,7 @@ Match Expression
 .. lkql_doc_class:: MatchArm
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/match_expr.svg
+  :file: ../generated/railroad-diagrams/match_expr.svg
 
 This expression is a pattern matching expression, and reuses the same patterns
 as the query part of the language. Matchers will be evaluated in order against
@@ -656,7 +656,7 @@ Tuple Literal
 .. lkql_doc_class:: Tuple
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/tuple_expr.svg
+  :file: ../generated/railroad-diagrams/tuple_expr.svg
 
 The tuple literal is used to create a value of the ``Tuple`` composite type:
 
@@ -679,7 +679,7 @@ Anonymous Function
 .. lkql_doc_class:: BaseFunction
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/anonymous_function.svg
+  :file: ../generated/railroad-diagrams/anonymous_function.svg
 
 LKQL supports first class functions, and anonymous functions expressions (or
 lambdas). Thus, you can create anonymous functional values:
@@ -889,7 +889,7 @@ Query Expression
 .. lkql_doc_class:: QueryKind
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/query.svg
+  :file: ../generated/railroad-diagrams/query.svg
 
 The query expression is extremely simple, and most of the complexity lies in
 the upcoming sections about patterns.
@@ -961,10 +961,10 @@ Pattern
 .. lkql_doc_class:: BasePattern
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/pattern.svg
+  :file: ../generated/railroad-diagrams/pattern.svg
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/value_pattern.svg
+  :file: ../generated/railroad-diagrams/value_pattern.svg
 
 Patterns are by far the most complex part of the query language subset, but at
 its core, the concept of a pattern is very simple:
@@ -1009,7 +1009,7 @@ Nested Sub Patterns
 .. lkql_doc_class:: PatternDetailDelimiter
 
 .. raw:: html
-    :file: ../../lkql/build/railroad-diagrams/pattern_arg.svg
+    :file: ../generated/railroad-diagrams/pattern_arg.svg
 
 Inside the optional parentheses of node patterns, the user can add sub-patterns
 that will help refine the query. Those patterns can be of three different
@@ -1075,7 +1075,7 @@ Integer Pattern
 .. lkql_doc_class:: IntegerPattern
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/integer_pattern.svg
+  :file: ../generated/railroad-diagrams/integer_pattern.svg
 
 You can match simple integer values with this pattern:
 
@@ -1089,7 +1089,7 @@ Bool Pattern
 .. lkql_doc_class:: BoolPattern
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/bool_pattern.svg
+  :file: ../generated/railroad-diagrams/bool_pattern.svg
 
 You can match simple boolean values with this pattern:
 
@@ -1103,7 +1103,7 @@ Regex Pattern
 .. lkql_doc_class:: RegexPattern
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/regex_pattern.svg
+  :file: ../generated/railroad-diagrams/regex_pattern.svg
 
 You can match simple string values with this pattern, but you can also do more
 complicated matching based on regular expressions:
@@ -1119,7 +1119,7 @@ Tuple Pattern
 .. lkql_doc_class:: TuplePattern
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/tuple_pattern.svg
+  :file: ../generated/railroad-diagrams/tuple_pattern.svg
 
 You can match tuple values with this pattern, elements being matched with
 component patterns:
@@ -1140,7 +1140,7 @@ List Pattern
 .. lkql_doc_class:: SplatPattern
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/list_pattern.svg
+  :file: ../generated/railroad-diagrams/list_pattern.svg
 
 You can match list values with this pattern, destructuring them and matching
 their elements against arbitrary value patterns:
@@ -1169,7 +1169,7 @@ Object Pattern
 .. lkql_doc_class:: SplatPattern
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/object_pattern.svg
+  :file: ../generated/railroad-diagrams/object_pattern.svg
 
 You can match object values with this pattern, associating each object key
 with an arbitrary value pattern:
@@ -1300,10 +1300,10 @@ Selector Declaration
 .. lkql_doc_class:: Unpack
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/selector_decl.svg
+  :file: ../generated/railroad-diagrams/selector_decl.svg
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/selector_arm.svg
+  :file: ../generated/railroad-diagrams/selector_arm.svg
 
 Selectors are a special form of functions that return a ``LasyList`` of values.
 They're widely used in the query subset of LKQL, allowing the easy expression
@@ -1355,7 +1355,7 @@ be created via the call to the** ``rec`` **built-in operation.**
 The ``rec`` built-in operation looks like a function call.
 
 .. raw:: html
-  :file: ../../lkql/build/railroad-diagrams/selector_expr.svg
+  :file: ../generated/railroad-diagrams/selector_expr.svg
 
 It takes one or two expressions, which can be prefixed by the splat operator
 ``*``.
