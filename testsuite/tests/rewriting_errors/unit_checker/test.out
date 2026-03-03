@@ -1,4 +1,11 @@
-custom.lkql:3:5: error: Auto fixes not available for unit checks
-  3 |     auto_fix=(n, ctx) => ()
-    |     ^^^^^^^^^^^^^^^^^^^^^^^
+custom.lkql:1:1: error: Auto fixes not available for unit checks
+  1 |  @unit_check(
+    | _^
+    ||
+    || ~~~ 2 other lines ~~~
+    ||
+  4 || )
+    ||_^
+
 error: Unknown rule name "custom"
+

@@ -1,5 +1,4 @@
-gnatcheck: error: test.lkql:3:05: Unknown symbol: blah
-gnatcheck: error: Errors during analysis
+test.lkql:3:5: error: Unknown symbol: blah
 1. Summary
 
    fully compliant sources               : 1
@@ -13,7 +12,7 @@ gnatcheck: error: Errors during analysis
    rule exemption warnings               : 0
    compilation errors                    : 0
    exempted violations                   : 0
-   internal errors                       : 2
+   internal errors                       : 1
 
 2. Exempted Coding Standard Violations
 
