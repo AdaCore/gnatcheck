@@ -69,6 +69,9 @@ package body Lkql_Checker is
    --  $PREFIX/lib and $PREFIX/lib/libadalang, to allow worker processes
    --  that rely on dynamic libraries to find their dependencies without
    --  requiring users to explicitly set these paths.
+   --  Finally add the $PREFIX/bin directory to the PATH to ensure the worker
+   --  of the current installation is chosen over other possible LKQL
+   --  installations.
 
    procedure Print_LKQL_Rules
      (File                   : File_Type;
@@ -159,6 +162,7 @@ package body Lkql_Checker is
          Lkql : constant String := Compose (Compose (Prefix, "share"), "lkql");
          Kp   : constant String := Compose (Lkql, "kp");
 
+         Bin     : constant String := Compose (Prefix, "bin");
          Lib     : constant String := Compose (Prefix, "lib");
          Lib_LAL : constant String := Compose (Lib, "libadalang");
       begin
@@ -166,6 +170,7 @@ package body Lkql_Checker is
          Add_Path ("LKQL_PATH", Kp);
          Add_Path ("LKQL_PATH", Lib);
 
+         Add_Path ("PATH", Bin);
          Add_Path ("PATH", Lib);
          Add_Path ("PATH", Lib_LAL);
 
