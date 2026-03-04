@@ -74,9 +74,9 @@ iterative way.
   Start an LKQL REPL (read-eval-print loop). This switch is incompatible with
   the ``-S, --script-path`` one.
 
-``--keep-going-on-missing-file``
-  Don't stop the interpreter if an Ada source file is missing, just print a
-  warning message instead.
+``--missing-file-is-error``
+  If an Ada source file is missing, emit an error message instead of a warning
+  one.
 
 ``-P, --project=<project>``
   GPR file to fetch Ada sources from for the interpreter.
@@ -102,7 +102,7 @@ list of Ada sources to use. Here is an example usage:
 
 .. code-block::
 
-  lkql run --keep-going-on-missing-file -S script.lkql main.adb
+  lkql run -S script.lkql main.adb
 
 
 ``lkql check``
@@ -139,6 +139,9 @@ This is an internal entry point mainly used to test GNATcheck rules.
 ``-v, --verbose``
   Enable the verbose mode.
 
+``--missing-file-is-error``
+  If an Ada source file is missing, emit an error message instead of a warning
+  one.
 
 ``-r, --rule=<rule>``
   Enable the given rule for the current run. This option is cumulative.
