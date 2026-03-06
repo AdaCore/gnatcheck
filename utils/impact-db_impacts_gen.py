@@ -13,7 +13,7 @@ from impactdb import db
 res = {}
 
 
-def format_impacts(impacts: [str]) -> str:
+def format_impacts(impacts: list[str]) -> str:
     gnat = list(db.config["gnat"].keys())
     return ",".join(list(map(lambda i: i + ".*" if i in gnat else i, impacts)))
 
@@ -22,7 +22,7 @@ def format_name(name: str) -> str:
     return "kp_" + name.lower().replace("-", "_")
 
 
-def list_impacts(issues: [str]) -> None:
+def list_impacts(issues: list[str]) -> None:
     entries = os.path.join(os.path.dirname(inspect.getfile(db)), "..", "entries")
     entries = [e for e in db.load(entries) if e.type == "kp"]
     for e in entries:
