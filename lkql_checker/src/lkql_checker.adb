@@ -119,8 +119,10 @@ package body Lkql_Checker is
          Prefix : constant String :=
            Containing_Directory (Containing_Directory (Executable.all));
 
-         Lkql : constant String := Compose (Compose (Prefix, "share"), "lkql");
-         Kp   : constant String := Compose (Lkql, "kp");
+         Lkql     : constant String :=
+           Compose (Compose (Prefix, "share"), "lkql");
+         Kp       : constant String := Compose (Lkql, "kp");
+         Specific : constant String := Compose (Kp, "specific");
 
          Bin     : constant String := Compose (Prefix, "bin");
          Lib     : constant String := Compose (Prefix, "lib");
@@ -128,6 +130,7 @@ package body Lkql_Checker is
       begin
          Add_Path ("LKQL_PATH", Lkql);
          Add_Path ("LKQL_PATH", Kp);
+         Add_Path ("LKQL_PATH", Specific);
          Add_Path ("LKQL_PATH", Lib);
 
          Add_Path ("PATH", Bin);
