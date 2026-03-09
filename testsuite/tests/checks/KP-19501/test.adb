@@ -2,7 +2,7 @@ procedure Test is
   type Bit_T is range 0 .. 1;
   type Bits_T is array (Integer range <>) of Bit_T;
 
-  N_Array_Actual_Size_C : constant := 100;
+  N_Array_Actual_Size_C : Integer := 100;
   subtype Message_Length_T is Integer range 0 .. N_Array_Actual_Size_C;
 
   function Get_Buffer return Bits_T is
