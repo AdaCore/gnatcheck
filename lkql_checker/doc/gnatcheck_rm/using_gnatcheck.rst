@@ -70,6 +70,11 @@ The following switches control the general ``gnatcheck`` behavior
   for tool output files. Has no effect if no project is specified as
   tool argument.
 
+  .. note::
+
+    This option can be used to safely run concurrent parallel jobs of GNATcheck
+    or GNATkp.
+
   .. index:: --no_objects_dir
 
 ``--no_objects_dir``
