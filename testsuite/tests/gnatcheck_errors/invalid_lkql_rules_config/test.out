@@ -1,10 +1,10 @@
 Invalid syntax
 ==============
 
-gnatcheck: error: invalid_syntax.lkql:1:01: Cannot parse <val_decl>
-gnatcheck: error: invalid_syntax.lkql:3:01: Expected Upper_Identifier, got '}'
-gnatcheck: error: invalid_syntax.lkql:3:01: End of input expected, got "R_Curl"
-gnatcheck: error: Syntax errors in invalid_syntax.lkql: stopping interpreter (invalid_syntax.lkql)
+invalid_syntax.lkql:1:1: error: Cannot parse <val_decl>
+invalid_syntax.lkql:3:1: error: Expected Upper_Identifier, got '}'
+invalid_syntax.lkql:3:1: error: End of input expected, got "R_Curl"
+gnatcheck: error: Error(s) in the LKQL rule file (invalid_syntax.lkql)
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -12,7 +12,8 @@ try "gnatcheck --help" for more information.
 Invalid LKQL semantic
 =====================
 
-gnatcheck: error: invalid_semantic.lkql:1:25: Type error: expected Int but got Bool (invalid_semantic.lkql)
+invalid_semantic.lkql:1:25: error: Type error: expected Int but got Bool
+gnatcheck: error: Error(s) in the LKQL rule file (invalid_semantic.lkql)
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

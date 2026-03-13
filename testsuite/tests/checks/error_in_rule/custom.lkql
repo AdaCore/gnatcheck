@@ -1,0 +1,3 @@
+@check
+fun custom(node) =
+    node is GotoStmt when 1 + ""

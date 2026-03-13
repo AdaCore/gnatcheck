@@ -3,3 +3,4 @@ main.adb:3:4: rule violation: Custom rule violation
   |    ^^^^^^^^^
 
 error: Rule "custom" is not defining any auto-fixing function
+

@@ -1,0 +1,7 @@
+custom.lkql:3:31: error: Type error: expected Int but got Str
+  3 |     node is GotoStmt when 1 + ""
+    |                               ^^
+main.adb:3:4: hint: Error occurred when analyzing <GotoStmt main.adb:3:4-3:13>
+  3 |    goto lbl;
+    |    ^^^^^^^^^
+
