@@ -40,14 +40,6 @@ package Lkql_Checker.Rules is
    --  Exception to raise when an unexpected valud is provided to a rule
    --  processing function.
 
-   type Rule_States is (Enabled, Disabled);
-   --  Each rule and alias may have one of the following states:
-   --   Enabled -  the rule/alias should be checked at the moment, this state
-   --              may be changed during the gnatcheck run (as a result of
-   --              passing a control comment in the analyzed source)
-   --   Disabled - the rule/alias is disabled for the given gnatcheck run,
-   --              this state cannot be changed during the gnatcheck run
-
    ----------------
    -- Rule types --
    ----------------
