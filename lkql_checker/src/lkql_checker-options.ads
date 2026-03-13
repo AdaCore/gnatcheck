@@ -4,7 +4,7 @@
 --
 
 --  This package defines interfaces that provide support to process and store
---  input for the GNATcheck tool.
+--  inputs for the tool.
 
 with Ada.Containers.Vectors;
 with Ada.Environment_Variables;
@@ -74,7 +74,7 @@ package Lkql_Checker.Options is
    ----------------------------------------
 
    --  The flags listed below are not set by some options, but they are
-   --  computed from gnatcheck command line and rule options
+   --  computed from tool command line and rule options
 
    Argument_File_Specified : Boolean := False;
    --  Flag indicating if some argument file is specified for the tool call.
@@ -126,9 +126,9 @@ package Lkql_Checker.Options is
    --  Whether the help message about the new instance system has already been
    --  emitted. This message should be removed in 26.0.
 
-   --------------------------------------
-   -- Controlling the gnatcheck report --
-   --------------------------------------
+   ----------------------------------
+   -- Controlling the final report --
+   ----------------------------------
 
    User_Info_File           : GNAT.OS_Lib.String_Access;
    User_Info_File_Full_Path : GNAT.OS_Lib.String_Access;
@@ -138,7 +138,7 @@ package Lkql_Checker.Options is
    --  not created in the report file.
 
    Individual_Rules_Set : Boolean := False;
-   --  Flags used to detect if all the rules specified for a given gnatcheck
+   --  Flags used to detect if all the rules specified for a given checker
    --  call, should be set when parsing rule options.
 
    Legacy_Rule_File_Name : Unbounded_String := Null_Unbounded_String;
@@ -168,7 +168,7 @@ package Lkql_Checker.Options is
    package GPR_Args is
       Parser : Argument_Parser :=
         Create_Argument_Parser
-          (Help                 => "GNATcheck GPR specific options",
+          (Help                 => "GPR specific options",
            Incremental          => False,
            Generate_Help_Flag   => False,
            Custom_Error_Handler =>
@@ -213,7 +213,11 @@ package Lkql_Checker.Options is
            Name             => "Log mode",
            Legacy_Long_Form => True,
            Help             =>
-             "duplicate all messages sent to stderr in gnatcheck.log");
+             "duplicate all messages sent to stderr in "
+             & Lkql_Checker_Mode_Image
+             & ".log");
+      --  Here we don't use the ``Lkql_Checker_Mode_Image`` function to avoid
+      --  elaboration circularity.
 
       package Version is new
         Parse_Flag
@@ -266,7 +270,7 @@ package Lkql_Checker.Options is
    package Tool_Args is
       Parser : Argument_Parser :=
         Create_Argument_Parser
-          (Help                 => "GNATcheck help",
+          (Help                 => Lkql_Checker_Mode_Image & " help",
            Incremental          => True,
            Generate_Help_Flag   => False,
            Custom_Error_Handler =>
@@ -529,8 +533,7 @@ package Lkql_Checker.Options is
            Arg_Type                  => Unbounded_String,
            Accumulate                => True,
            Allow_Collated_Short_Form => False,
-           Help                      =>
-             "enable the given rules for the GNATcheck run");
+           Help                      => "enable the given rules for the run");
 
       package Rule_File is new
         Parse_Option

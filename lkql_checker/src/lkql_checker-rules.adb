@@ -2717,8 +2717,8 @@ package body Lkql_Checker.Rules is
       First_Param    : Boolean := True;
 
       procedure Postprocess_Args;
-      --  Perform the required post-processing on mapped args to emit an LKQL
-      --  file usable by GNATcheck.
+      --  Perform the required post-processing on mapped args to emit a valid
+      --  LKQL rule configuration file.
 
       procedure Postprocess_Args is
          Lower_Rule_Name : constant String := To_Lower (Rule_Name (Rule));

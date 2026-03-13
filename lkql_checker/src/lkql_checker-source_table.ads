@@ -197,7 +197,7 @@ package Lkql_Checker.Source_Table is
    --
    --  * first, we compare lengths of L and R Base_Names. The reason is to
    --    have in source processing bodies being processed before their subunits
-   --    (if any). This is important for gnatcheck, because if we have a
+   --    (if any). This is important for analysis, because if we have a
    --    generic instantiation in a separate body, the tree created for this
    --    separate body does not contains the structures for expanded body,
    --    but the tree for enclosing body does. So we have to process a subunit

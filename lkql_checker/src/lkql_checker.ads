@@ -11,7 +11,14 @@ package Lkql_Checker is
    Mode : Lkql_Checker_Mode;
    --  The mode of the driver, either GNATcheck or GNATkp.
 
-   function Lkql_Checker_Mode_Image return String;
+   function Lkql_Checker_Mode_Name (Mode : Lkql_Checker_Mode) return String
+   is (case Mode is
+         when Gnatcheck_Mode => "gnatcheck",
+         when Gnatkp_Mode    => "gnatkp");
+   --  Return the name associated to the given Mode.
+
+   function Lkql_Checker_Mode_Image return String
+   is (Lkql_Checker_Mode_Name (Mode));
    --  Get the Lkql_Checker_Mode image.
    --
    --  TODO: Use the Put_Image attribute for Lkql_Checker_Mode instead when
@@ -19,7 +26,4 @@ package Lkql_Checker is
 
    procedure Main (Mode : Lkql_Checker_Mode);
    --  Main entry point to Lkql_Checker.
-private
-   function Lkql_Checker_Mode_Name (Mode : Lkql_Checker_Mode) return String;
-   --  Return the name associated to the given Mode.
 end Lkql_Checker;

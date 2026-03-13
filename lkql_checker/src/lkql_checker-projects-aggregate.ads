@@ -62,8 +62,8 @@ package Lkql_Checker.Projects.Aggregate is
 
    procedure Process_Aggregated_Projects (My_Project : Arg_Project_Type'Class)
    with Pre => Num_Of_Aggregated_Projects > 1;
-   --  Iterates through the projects being aggregated and spawns gnatcheck
-   --  for each of them.
+   --  Iterates through the projects being aggregated and spawns a checker
+   --  process for each of them.
    --  This will create one specific report for each project being aggregated
    --  and an umbrella report that lists all the (non-aggregate) project that
    --  have been processed and corresponding report files.

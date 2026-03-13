@@ -54,7 +54,7 @@ package body Lkql_Checker.Compiler is
    --  Does the following adjustments:
    --
    --  * Remove from the diagnostic message the reference to the configuration
-   --    file with restriction pragmas that is created by gnatcheck.
+   --    file with restriction pragmas that is created by the driver.
    --
    --  * Remove warning and style markers for Warning, Style, Restriction
    --    messages.
@@ -87,8 +87,8 @@ package body Lkql_Checker.Compiler is
 
    function Get_Available_Targets return String_Sets.Set;
    --  Call the ``gprconfig`` tool to list all currently available targets. If
-   --  you want the list of available targets when GNATcheck has been started,
-   --  use the ``Available_Targets`` global to avoid useless calls.
+   --  you want the list of available targets when the driver has been
+   --  started, use the ``Available_Targets`` global to avoid useless calls.
 
    function Get_Available_Targets return String_Sets.Set is
       Res                    : String_Sets.Set;
@@ -160,7 +160,8 @@ package body Lkql_Checker.Compiler is
    end Get_Available_Targets;
 
    Available_Targets : constant String_Sets.Set := Get_Available_Targets;
-   --  Cache containing all available targets when GNATcheck has been started.
+   --  Cache containing all available targets when the driver has been
+   --  started.
 
    ---------------------------------------------------------
    -- Data structures and routines for restriction checks --
@@ -337,7 +338,7 @@ package body Lkql_Checker.Compiler is
 
       procedure Analyze_Line (Msg : String);
       --  Analyze one line containing a builder output. Insert the relevant
-      --  messages into gnatcheck diagnoses table.
+      --  messages into the diagnoses table.
 
       procedure Process_Worker_Message
         (Message : String; Printer : access procedure (S, L : String));
@@ -421,7 +422,7 @@ package body Lkql_Checker.Compiler is
             return;
          end if;
 
-         --  A gnatcheck message emitted by the worker
+         --  A checking message emitted by the worker
          if Msg (Msg_Start .. Msg_Start + 6) = "check: " then
             if Msg (Msg_End) /= ']' then
                Format_Error;
@@ -512,7 +513,7 @@ package body Lkql_Checker.Compiler is
             return;
          end if;
 
-         --  Skip restriction message not coming from the GNATcheck config file
+         --  Skip restriction message not coming from the config file
          if Message_Kind = Restriction
            and then Path_Index (Msg, Checker_Config_File.all) = 0
          then
@@ -1545,7 +1546,7 @@ package body Lkql_Checker.Compiler is
       Success : Boolean;
       Cursor  : String_Maps.Cursor;
    begin
-      --  Checking for 'e' and 's' that should not be supplied for gnatcheck
+      --  Checking for 'e' and 's' that should not be supplied for the
       --  Warnings rule.
 
       for J in Param'Range loop
@@ -1875,8 +1876,8 @@ package body Lkql_Checker.Compiler is
       Args          : Argument_List (1 .. 128);
       Num_Args      : Integer := 0;
    begin
-      --  Call the GNATcheck worker with the '--parse-lkql-config' option to
-      --  get the rule configuration from the provided rule file.
+      --  Call the checker worker with the '--parse-lkql-config' option to get
+      --  the rule configuration from the provided rule file.
       for Arg of Split_Command loop
          if Worker = null then
             Worker := Locate_Exec_On_Path (Arg);
@@ -2065,8 +2066,8 @@ package body Lkql_Checker.Compiler is
 
    begin
       --  This function returns non-empty result only if .d parameter is
-      --  specified for Warnings rule or if --show-rule gnatcheck option is
-      --  set (that is, if Diag ends with "[style_checks:<option>]"
+      --  specified for Warnings rule or if --show-rule option is set (that is
+      --  if Diag ends with "[style_checks:<option>])"
 
       First_Idx := Index (Diag, String_To_Search);
 
@@ -2089,8 +2090,8 @@ package body Lkql_Checker.Compiler is
 
    begin
       --  This function returns non-empty result only if .d parameter is
-      --  specified for Warnings rule or if --show-rule gnatcheck option is
-      --  set (that is, if Diag ends with "[warnings:<option>]"
+      --  specified for Warnings rule or if --show-rule option is set (that is
+      --  if Diag ends with "[warnings:<option>])"
 
       First_Idx := Index (Diag, String_To_Search);
 

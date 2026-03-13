@@ -540,8 +540,8 @@ package body Lkql_Checker.Projects is
          if My_Project.Tree.Root_Project.Kind = K_Aggregate then
             --  We cannot load sources when the number of aggregated projects
             --  is more than one (ambiguities in terms of Ada units may then
-            --  arise). Let's check here, and run gnatcheck on
-            --  each aggregated project when necessary.
+            --  arise). Let's check here, and run the checker on each
+            --  aggregated project when necessary.
 
             Lkql_Checker.Projects.Aggregate.Collect_Aggregated_Projects
               (My_Project.Tree);
@@ -975,7 +975,7 @@ package body Lkql_Checker.Projects is
 
       if In_Aggregate_Project then
          --  We have to skip most of the checks because this call does not do
-         --  anything except spawning another gnatcheck for individual projects
+         --  anything except spawning another checker for individual projects
 
          Set_Global_Result_Dirs (Checker_Prj);
          goto Processing_Aggregate_Project;
@@ -1011,7 +1011,7 @@ package body Lkql_Checker.Projects is
         or Check_Restrictions
         or Tool_Args.Check_Semantic.Get;
 
-      --  If GNATcheck is in KP mode and there is a command line specified KP
+      --  If the driver is in KP mode and there is a command line specified KP
       --  version, we have to iterate over all implemented rules to enable
       --  those which match the version.
       if Mode = Gnatkp_Mode

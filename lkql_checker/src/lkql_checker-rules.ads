@@ -3,8 +3,9 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
---  This is the top of gnatcheck hierarchy that defines individual rules, rule
---  table and rule checking process. It contains some basic type declarations
+--  This is the top of the checker hierarchy that defines individual rules,
+--  rule table and rule checking process. It contains some basic type
+--  declarations.
 
 with Ada.Characters.Handling;         use Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Ordered_Sets;
@@ -37,7 +38,7 @@ package Lkql_Checker.Rules is
    subtype Rule_Params is Exemption_Parameters.Set;
 
    Invalid_Value : exception;
-   --  Exception to raise when an unexpected valud is provided to a rule
+   --  Exception to raise when an unexpected value is provided to a rule
    --  processing function.
 
    ----------------
@@ -83,8 +84,8 @@ package Lkql_Checker.Rules is
 
    type Rule_Info is record
       Name : Unbounded_String;
-      --  The only means of rule identification outside gnatcheck. All the
-      --  rules implemented in gnatcheck should have unique names, the casing
+      --  The only means of rule identification outside the checker. All the
+      --  rules implemented in the tool should have unique names, the casing
       --  is not important.
 
       Defined_At : Unbounded_String;
@@ -93,7 +94,7 @@ package Lkql_Checker.Rules is
 
       Remediation_Level : Remediation_Levels := Medium;
       --  The remediation level of the rule, the default value is Medium but
-      --  it may be updated during the GNATcheck execution.
+      --  it may be updated during the execution.
 
       Help_Info : Unbounded_String;
       --  Short help information for the rule
@@ -199,7 +200,7 @@ package Lkql_Checker.Rules is
    --  prints instance with the provided `Mode`.
    --  The ``For_Worker`` boolean tells whether this procedure should emit an
    --  LKQL rule configuration file for the worker or for it to be used by
-   --  another GNATcheck run.
+   --  another run.
 
    procedure Print_Compiler_Rule_To_LKQL_File
      (Compiler_Rule : Rule_Id;

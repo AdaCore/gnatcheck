@@ -191,8 +191,8 @@ package Lkql_Checker.Projects is
    --  Sets the directory to place the global tool results into.
 
    procedure Register_Tool_Attributes (My_Project : Arg_Project_Type);
-   --  Register tool specific attributes. In particular, gnatcheck needs
-   --  to recognise Codepeer.File_Patterns.
+   --  Register tool specific attributes. In particular, GNATcheck needs
+   --  to recognize Codepeer.File_Patterns.
 
    procedure Print_GPR_Registry (My_Project : Arg_Project_Type);
    --  If it has been required in the provided project option, print the GPR

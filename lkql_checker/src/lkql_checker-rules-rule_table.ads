@@ -3,9 +3,9 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
---  This package defines the table for storing rules to be checked by
---  gnatcheck. For any rule the only means to get into this table is the
---  call to the Register_Rule procedure
+--  This package defines the table for storing rules to be checked by the
+--  tool. For any rule the only means to get into this table is the call to
+--  the Register_Rule procedure.
 
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Hash;
@@ -42,12 +42,12 @@ package Lkql_Checker.Rules.Rule_Table is
    --  allowed next to ':' or to ','.
    --
    --  <rule_id> should be the name (identifier) of a rule that is currently
-   --  implemented in gnatcheck, casing is not important
+   --  implemented in the checker, casing is not important.
    --
    --  If the actual does not correspond to any of these formats, or if
    --  <rule_id> does not correspond to any of the rules currently implemented
-   --  in gnatcheck, the warning message is generated and nothing is changed in
-   --  the state of the currently implemented rules
+   --  in the checker, the warning message is generated and nothing is changed
+   --  in the state of the currently implemented rules
    --
    --  Defined_At should be set to an empty string when processing the rule
    --  option from a command line, or to the short name of the rule file.
@@ -84,8 +84,8 @@ package Lkql_Checker.Rules.Rule_Table is
    --  Process the given LKQL file as a rule configuration file and populate
    --  the global rule table with its content.
    --
-   --  This procedure calls the GNATcheck worker with the `--parse-lkql-config`
-   --  option to extract all information from the LKQL file.
+   --  This procedure calls the worker with the `--parse-lkql-config` option
+   --  to extract all information from the LKQL file.
 
    procedure Process_Compiler_Instances;
    --  Procedure to process instantiated compiler-based rules and prepare all
@@ -99,7 +99,7 @@ package Lkql_Checker.Rules.Rule_Table is
 
    procedure Rules_Help;
    --  Outputs into Stderr the help info for all the rules currently
-   --  implemented in gnatcheck. This procedure does not know about rule
+   --  implemented in the checker. This procedure does not know about rule
    --  categories and prints out a flat rule list.
 
    procedure XML_Help;
@@ -155,11 +155,11 @@ package Lkql_Checker.Rules.Rule_Table is
    --  this function does nothing.
 
    procedure Turn_All_Rules_Off;
-   --  Turns OFF all the rules currently implemented in gnatcheck
+   --  Turns OFF all the rules currently implemented in the checker
 
    procedure Turn_All_Rules_On;
-   --  Turns ON all the rules currently implemented in gnatcheck. This function
-   --  will only turn on rules that are not enabled yet.
+   --  Turns ON all the rules currently implemented in the checker. This
+   --  function will only turn on rules that are not enabled yet.
 
    function Rule_Name (Rule : Rule_Id) return String;
    --  Returns the name of the rule.

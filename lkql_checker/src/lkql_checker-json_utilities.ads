@@ -3,8 +3,7 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
---  This package offer high level abstractions for manipulating JSON data
---  during the GNATcheck process.
+--  This package offer high level abstractions for manipulating JSON data.
 
 with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
