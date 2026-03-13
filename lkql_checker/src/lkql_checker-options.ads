@@ -59,9 +59,6 @@ package Lkql_Checker.Options is
    --  tool (includes both wrong parameters and wrong combinations of correct
    --  parameters).
 
-   Legacy : Boolean := False;
-   --  If True, run in legacy mode, with no support for additional rule files.
-
    Exempted_Units : GNAT.OS_Lib.String_Access := null;
    --  '--ignore=<filename>
    --  File containing a list of units to be exempted. (Depending on a tool,
@@ -349,7 +346,6 @@ package Lkql_Checker.Options is
            Long       => "--rules-dir",
            Arg_Type   => Unbounded_String,
            Accumulate => True,
-           Enabled    => not Legacy,
            Help       =>
              "specify an alternate directory containing rule files");
 

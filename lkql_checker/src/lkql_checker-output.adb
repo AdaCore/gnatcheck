@@ -588,12 +588,8 @@ package body Lkql_Checker.Output is
         (" --check-semantic     - check semantic validity of the source files");
       Put_Line
         (" --charset=<charset>  - specify the charset of the source files");
-
-      if not Legacy then
-         Put_Line
-           (" --rules-dir=<dir>    - specify an alternate directory containing rule files");
-      end if;
-
+      Put_Line
+        (" --rules-dir=<dir>    - specify an alternate directory containing rule files");
       Put_Line ("");
       Put_Line
         (" --include-file=filename - add the content of filename into generated report");
