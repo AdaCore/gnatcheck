@@ -36,11 +36,6 @@ package Lkql_Checker.Rules is
 
    subtype Rule_Params is Exemption_Parameters.Set;
 
-   subtype Diagnosis_Variant is Natural;
-   --  Used to numerate the variants of diagnostic message for the same rule.
-   --  Zero means that the rule has exactly one variant of the diagnostic
-   --  message
-
    Invalid_Value : exception;
    --  Exception to raise when an unexpected valud is provided to a rule
    --  processing function.
