@@ -953,7 +953,7 @@ package body Lkql_Checker.Rules.Rule_Table is
 
    procedure Process_LKQL_Rule_File (LKQL_RF_Name : String) is
       JSON_Config_File_Name : constant String :=
-        Global_Report_Dir.all & "gnatcheck-rules.json.out";
+        Global_Report_Dir.all & Lkql_Checker_Mode_Image & "-rules.json.out";
       Parser_Pid            : Process_Id;
       Waited_Pid            : Process_Id;
       Success               : Boolean;

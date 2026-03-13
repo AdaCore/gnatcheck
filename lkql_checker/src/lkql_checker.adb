@@ -112,7 +112,12 @@ package body Lkql_Checker is
    ---------------
 
    function File_Name (Id : String; Job : Natural) return String
-   is (Global_Report_Dir.all & "gnatcheck-" & Id & Image (Job) & ".TMP");
+   is (Global_Report_Dir.all
+       & Lkql_Checker_Mode_Image
+       & '-'
+       & Id
+       & Image (Job)
+       & ".TMP");
    --  Return the full path for a temp file with a given Id
 
    ------------------------------------
