@@ -70,6 +70,11 @@ The following switches control the general ``gnatcheck`` behavior
   for tool output files. Has no effect if no project is specified as
   tool argument.
 
+  .. note::
+
+    This option can be used to safely run concurrent parallel jobs of GNATcheck
+    or GNATkp.
+
   .. index:: --no_objects_dir
 
 ``--no_objects_dir``
@@ -112,8 +117,8 @@ The following switches control the general ``gnatcheck`` behavior
 
   .. index:: -j
 
-``-j``\ nnnn
-  Use *nnnn* processes to analyze the source files.
+``-j=n``
+  Use *n* processes to analyze the source files.
   On a multi-core machine, this speeds up processing by analyzing subset of
   files separately under multiple processes running in parallel. If ``n`` is 0,
   then the maximum number processes is the number of core processors detected
@@ -141,8 +146,8 @@ The following switches control the general ``gnatcheck`` behavior
 
   .. index:: -m
 
-``-m``\ nnnn
-  Maximum number of diagnostics to be sent to :file:`stdout`, where *nnnn* is in
+``-m=n``
+  Maximum number of diagnostics to be sent to :file:`stdout`, where *n* is in
   the range 0...1000;
   the default value is 0, which means that there is no limitation on the number of
   diagnostic messages to be output.
