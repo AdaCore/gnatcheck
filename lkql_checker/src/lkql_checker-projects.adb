@@ -499,16 +499,16 @@ package body Lkql_Checker.Projects is
       My_Project.Tree.Restrict_Autoconf_To_Languages
         (Language_Id_Set.To_Set (GPR2.Ada_Language));
 
-      --  Always suffix the subdirectories by "gnatcheck"
+      --  Always suffix the subdirectories by the name of the current mode
       if My_Project.Options.Subdirs = Null_Unbounded_String then
          My_Project.Options.Add_Switch
-           (GPR2.Options.Subdirs, "gnatcheck", Override => True);
+           (GPR2.Options.Subdirs, Lkql_Checker_Mode_Image, Override => True);
       else
          My_Project.Options.Add_Switch
            (GPR2.Options.Subdirs,
             To_String (My_Project.Options.Subdirs)
             & GNAT.OS_Lib.Directory_Separator
-            & "gnatcheck",
+            & Lkql_Checker_Mode_Image,
             Override => True);
       end if;
 

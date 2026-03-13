@@ -1,0 +1,8 @@
+driver: gnatcheck
+mode: gnatkp
+format: short
+subdirs: custom_subdirs
+project: prj.gpr
+rules:
+  - +Rkp_19198
+post_python: ls("custom_subdirs/gnatkp")

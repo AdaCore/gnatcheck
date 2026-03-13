@@ -4,10 +4,10 @@ gnatcheck: error: error when calling gprbuild, raw output:
 
 gprbuild: *** compilation phase failed
    no exempted violations detected
-main.adb:3:05: rule violation: goto statement
+main.adb:3:04: rule violation: goto statement
    no rule exemption problems detected
-main.adb:6:05: error: "Put_Line" is undefined
-main.adb:6:05: error: possible missing "with Ada.Text_IO; use Ada.Text_IO"
+main.adb:6:04: error: "Put_Line" is undefined
+main.adb:6:04: error: possible missing "with Ada.Text_IO; use Ada.Text_IO"
    no internal error detected
 Running "ls custom_subdirs/gnatcheck"...
 gnatcheck-log1.TMP
