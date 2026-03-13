@@ -54,15 +54,15 @@ procedure Main is
    Dyn_Index  : Dyn_Arr;
    Mult_Index : Multidim_Dyn_Arr;
 
-   Qual_Expr_1 : Stat_Int := Stat_Int'(C_S'Length);  --  FLAG
+   Qual_Expr_1 : Stat_Int := Stat_Int'(C_S'Length);  --  NOFLAG
    Qual_Expr_2 : Dyn_Int := Dyn_Int'(S'Length);      --  FLAG
    Qual_Expr_3 : Dyn_Int := Dyn_Int'(C_S'Length);    --  FLAG
    Qual_Expr_4 : Dyn_Int := Dyn_Int'(C_S'Size);      --  FLAG
 begin
    Process_Int (S'Length);              --  NOFLAG
    Process_Int (C_S'Length);            --  NOFLAG
-   Process_Stat_Int (S'Length);         --  FLAG
-   Process_Stat_Int (C_S'Length);       --  FLAG
+   Process_Stat_Int (S'Length);         --  NOFLAG
+   Process_Stat_Int (C_S'Length);       --  NOFLAG
    Process_Dyn_Int (S'Length);          --  FLAG
    Process_Dyn_Int (C_S'Length);        --  FLAG
    Process_Dyn_Int (C_S'Size);          --  FLAG
@@ -75,8 +75,8 @@ begin
    Process_Multiple (S'Length, S'Size);      --  FLAG
    Process_Multiple (C_S'Length, C_S'Size);  --  FLAG
 
-   Stat_Assign := S'Length;      --  FLAG
-   Stat_Assign := C_S'Length;    --  FLAG
+   Stat_Assign := S'Length;      --  NOFLAG
+   Stat_Assign := C_S'Length;    --  NOFLAG
    Dyn_Assign  := S'Length;      --  FLAG
    Dyn_Assign  := C_S'Length;    --  FLAG
    Dyn_Assign  := C_S'Size;      --  FLAG

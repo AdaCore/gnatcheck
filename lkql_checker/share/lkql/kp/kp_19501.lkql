@@ -3,12 +3,12 @@ import stdlib
 fun is_int_attr(expr) =
     |" Returns whether the given expression is a universal-integer valued
     |" attribute reference.
-    expr is AttributeRef
-    when expr.p_expression_type() == expr.p_universal_int_type()
+    expr is AttributeRef when
+        expr.p_expression_type() == expr.p_universal_int_type()
 
-fun is_subject_to_constraint(name) =
+fun is_subject_to_dynamic_constraint(name) =
     |" Returns whether the given name refers to a subtype subject to a
-    |" constraint.
+    |" dynamic constraint.
     {
         val decl = match name
            | DefiningName => name.p_basic_decl()
@@ -16,11 +16,48 @@ fun is_subject_to_constraint(name) =
 
         match decl
         | (ComponentDef | DiscriminantSpec | ObjectDecl | ParamSpec) =>
-            decl.f_type_expr is SubtypeIndication
-            and stdlib.is_subtype_indication_constrained(decl.f_type_expr)
-        | SubtypeDecl => stdlib.is_subtype_indication_constrained(decl.f_subtype)
+            is_type_expr_dynamically_defined(decl.f_type_expr)
+        | SubtypeDecl => is_type_expr_dynamically_defined(decl.f_subtype)
     }
 
+fun is_type_expr_dynamically_defined(type_expr) =
+    |" Return whether the provided TypeExpr defines dynamic checking semantics.
+    |" It can be dynamic predicate or dynamic constraints.
+    {
+        val constraint = get_constraint(type_expr);
+        if constraint is not null
+        then not is_constraint_static(constraint)
+        else has_dynamic_predicate(type_expr.p_designated_type_decl())
+    }
+
+fun get_constraint(type_expr) =
+    |" Return constraints of the type represented by the provided TypeExpr or
+    |" null if there are none.
+    match type_expr.p_subtype_constraint()
+    | c@Constraint => c
+    | null =>
+        match type_expr.p_designated_type_decl()
+        | s@SubtypeDecl => get_constraint(s.f_subtype)
+        | * => null
+
+fun is_constraint_static(constraint) =
+    |" Get whether the provided constraint is statically known.
+    match constraint
+    | r@RangeConstraint => r.f_range.f_range.p_is_static_expr()
+    | * => false
+
+fun has_dynamic_predicate(type_decl) =
+    |" Return whether the provided BaseTypeDecl defines a dynamic predicate.
+    |" This function will also look in type parents
+    {
+        val full_decl = type_decl.p_full_view();
+        (
+            full_decl.p_has_aspect("Predicate")
+            and not full_decl.p_is_statically_predicated()
+        )
+        or full_decl.p_has_aspect("Dynamic_Predicate")
+        or full_decl.p_base_type() is b@BaseTypeDecl when has_dynamic_predicate(b)
+    }
 
 @check(help="possible occurrence of KP 19501",
        message="possible occurrence of KP 19501")
@@ -37,15 +74,15 @@ fun kp_19501(node) =
     match node
     | CallExpr(p_is_call(): true) =>
         stdlib.any([
-            is_int_attr(p.actual) and is_subject_to_constraint(p.param)
+            is_int_attr(p.actual)
+            and is_subject_to_dynamic_constraint(p.param)
             for p in node.p_call_params()
         ])
     | AssignStmt =>
-        is_int_attr(node.f_expr) and is_subject_to_constraint(node.f_dest)
+        is_int_attr(node.f_expr) and is_subject_to_dynamic_constraint(node.f_dest)
     | QualExpr(f_suffix: ParenExpr(f_expr: operand)) =>
         is_int_attr(operand)
-        and node.f_prefix is Name
-        and is_subject_to_constraint(node.f_prefix)
+        and node.f_prefix is n@Name when is_subject_to_dynamic_constraint(n)
     | CallExpr(p_kind(): "array_index") =>
         stdlib.any([
             is_int_attr(p.f_r_expr)
