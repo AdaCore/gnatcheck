@@ -45,6 +45,10 @@ package Lkql_Checker.Output is
    --  newline following the ``New_Line`` parameter.
    --  If ``Log_Message`` is ``True``, add the message to the ``Log_File``.
 
+   procedure Print_In_Tty (Message : String; New_Line : Boolean := True);
+   --  Same as the ``Print`` procedure, but send the message only if Stderr is
+   --  a TTY. The message isn't isn't added to the ``Log_File``.
+
    Indent_String : constant String := "   ";
    --  Used as indentation element in various output
 

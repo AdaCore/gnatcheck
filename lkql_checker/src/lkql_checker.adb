@@ -278,10 +278,9 @@ package body Lkql_Checker is
 
       if not Tool_Args.Quiet_Mode and not Tool_Args.Progress_Indicator_Mode.Get
       then
-         Print
+         Print_In_Tty
            ("Jobs remaining:" & Integer'Image (Total_Jobs) & ASCII.CR,
-            New_Line    => False,
-            Log_Message => False);
+            New_Line => False);
       end if;
 
       --  Process each job with all rules and a different subset of files
@@ -327,25 +326,23 @@ package body Lkql_Checker is
                        Integer'Image ((Current * 100) / Total_Jobs);
                   begin
                      Percent (1) := '(';
-                     Print
+                     Print_In_Tty
                        ("completed"
                         & Integer'Image (Current)
                         & " out of"
                         & Integer'Image (Total_Jobs)
                         & " "
                         & Percent
-                        & "%)...",
-                        Log_Message => False);
+                        & "%)...");
                   end;
                elsif not Tool_Args.Quiet_Mode then
-                  Print
-                    (Message     =>
+                  Print_In_Tty
+                    (Message  =>
                        "Jobs remaining:"
                        & Integer'Image (Total_Jobs - Current)
                        & "     "
                        & ASCII.CR,
-                     New_Line    => False,
-                     Log_Message => False);
+                     New_Line => False);
                end if;
 
                if Pid = GPRbuild_Pid then
