@@ -1073,18 +1073,13 @@ package body Lkql_Checker.Projects is
          Process_Exemptions (Exempted_Units.all);
       end if;
 
-      Total_Sources := Total_Sources_To_Process;
-
-      if Total_Sources = 0 then
+      if Total_Sources_To_Process = 0 then
          Error ("no existing file to process");
          Nothing_To_Do := True;
          return;
       end if;
 
       --  If we are here - we have sources to check and rules to apply
-
-      Sources_Left := Total_Sources;
-
       <<Processing_Aggregate_Project>>
 
       Ada.Directories.Create_Path (Global_Report_Dir.all);

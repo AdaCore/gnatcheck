@@ -4,7 +4,6 @@
 --
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
-with Ada.Directories;
 with Ada.Exceptions;          use Ada.Exceptions;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
@@ -16,9 +15,8 @@ with GNAT.OS_Lib;               use GNAT.OS_Lib;
 with GNAT.Table;
 with GNAT.Task_Lock;
 
-with Lkql_Checker.Diagnoses;        use Lkql_Checker.Diagnoses;
-with Lkql_Checker.Output;           use Lkql_Checker.Output;
-with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
+with Lkql_Checker.Diagnoses; use Lkql_Checker.Diagnoses;
+with Lkql_Checker.Output;    use Lkql_Checker.Output;
 
 with GPR2.Build.Source;
 with GPR2.Path_Name;
@@ -331,35 +329,6 @@ package body Lkql_Checker.Source_Table is
       Free (Full_Source_Name_String);
    end Add_Source_To_Process;
 
-   ------------------------------
-   -- Adjust_From_Source_Table --
-   ------------------------------
-
-   procedure Adjust_From_Source_Table (S : in out String) is
-      SF : SF_Id;
-   begin
-      SF := File_Find (SF_Name => S, Use_Short_Name => True);
-
-      if Present (SF) then
-         declare
-            Result : constant String := Short_Source_Name (SF);
-         begin
-            if S'Length = Result'Length then
-               S := Result;
-            end if;
-         end;
-      end if;
-   end Adjust_From_Source_Table;
-
-   -------------
-   -- CU_Name --
-   -------------
-
-   function CU_Name (SF : SF_Id) return String is
-   begin
-      return Source_Table (SF).CU_Name.all;
-   end CU_Name;
-
    ----------------------
    -- Exempted_Sources --
    ----------------------
@@ -449,34 +418,6 @@ package body Lkql_Checker.Source_Table is
       end if;
 
    end File_Name_Is_Less_Than;
-
-   ---------------------------
-   -- Files_In_Temp_Storage --
-   ---------------------------
-
-   function Files_In_Temp_Storage return Natural is
-   begin
-      return Natural (Length (Temporary_File_Storage));
-   end Files_In_Temp_Storage;
-
-   --------------------------------
-   -- First_File_In_Temp_Storage --
-   --------------------------------
-
-   function First_File_In_Temp_Storage return String is
-   begin
-      return
-        Ada.Directories.Simple_Name (Element (First (Temporary_File_Storage)));
-   end First_File_In_Temp_Storage;
-
-   --------------------------------
-   -- Get_Compiler_Out_File_Name --
-   --------------------------------
-
-   function Get_Compiler_Out_File_Name (SF : SF_Id) return String is
-   begin
-      return "COMPILER_OUT_" & Image (Integer (SF));
-   end Get_Compiler_Out_File_Name;
 
    ----------
    -- Hash --
@@ -746,15 +687,6 @@ package body Lkql_Checker.Source_Table is
       return SF in First_SF_Id .. Last_Argument_Source;
    end Is_Argument_Source;
 
-   ----------------------
-   -- Is_Needed_Source --
-   ----------------------
-
-   function Is_Needed_Source (SF : SF_Id) return Boolean is
-   begin
-      return SF in Last_Argument_Source + 1 .. Source_File_Table.Last;
-   end Is_Needed_Source;
-
    -----------------
    -- Last_Source --
    -----------------
@@ -839,46 +771,6 @@ package body Lkql_Checker.Source_Table is
 
       return Result;
    end Non_Case_Sensitive_File_Find;
-
-   -------------------
-   -- Output_Source --
-   -------------------
-
-   procedure Output_Source (SF : SF_Id) is
-      N : constant String := Natural'Image (Sources_Left);
-   begin
-      if Tool_Args.Progress_Indicator_Mode.Get then
-         declare
-            Current : constant Integer := Total_Sources - Sources_Left + 1;
-            Percent : String :=
-              Integer'Image ((Current * 100) / Total_Sources);
-         begin
-            Percent (1) := '(';
-            Info
-              ("completed"
-               & Integer'Image (Current)
-               & " out of"
-               & Integer'Image (Total_Sources)
-               & " "
-               & Percent
-               & "%)...");
-         end;
-      end if;
-
-      if Tool_Args.Verbose.Get then
-         Info ("[" & N (2 .. N'Last) & "] " & Short_Source_Name (SF));
-
-      elsif not (Tool_Args.Quiet_Mode
-                 or else Tool_Args.Progress_Indicator_Mode.Get)
-      then
-         Print
-           ("Units remaining:" & N & "     " & ASCII.CR,
-            New_Line    => False,
-            Log_Message => False);
-      end if;
-
-      Sources_Left := Sources_Left - 1;
-   end Output_Source;
 
    -------------
    -- Present --
@@ -1075,15 +967,6 @@ package body Lkql_Checker.Source_Table is
       return Result;
    end Same_Name_File_Find;
 
-   -----------------
-   -- Set_CU_Name --
-   -----------------
-
-   procedure Set_CU_Name (SF : SF_Id; N : String) is
-   begin
-      Source_Table (SF).CU_Name := new String'(N);
-   end Set_CU_Name;
-
    ---------------------
    -- Set_Source_Info --
    ---------------------
@@ -1151,13 +1034,10 @@ package body Lkql_Checker.Source_Table is
       Source_Table (SF).Status := S;
 
       case S is
-         when Not_A_Legal_Source =>
-            Illegal_Sources := Illegal_Sources + 1;
-
-         when Error_Detected     =>
+         when Error_Detected =>
             Tool_Failures := Tool_Failures + 1;
 
-         when others             =>
+         when others         =>
             null;
       end case;
 
@@ -1208,15 +1088,6 @@ package body Lkql_Checker.Source_Table is
    begin
       Include (Temporary_File_Storage, Fname);
    end Store_Sources_To_Process;
-
-   ---------------------
-   -- Suffixless_Name --
-   ---------------------
-
-   function Suffixless_Name (SF : SF_Id) return String is
-   begin
-      return Source_Table (SF).Suffixless_Name.all;
-   end Suffixless_Name;
 
    ------------------------------
    -- Total_Sources_To_Process --
