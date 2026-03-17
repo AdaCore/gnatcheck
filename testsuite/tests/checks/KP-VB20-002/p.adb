@@ -1,3 +1,5 @@
+with System;
+
 procedure P is
    type Test_Data_Word_Type is mod 2 ** 16;
    type Test_Data_Type is array (1..32) of Test_Data_Word_Type;
