@@ -182,6 +182,22 @@ package body Lkql_Checker.String_Utilities is
       return S;
    end Remove_Quotes;
 
+   -------------------
+   -- Escape_String --
+   -------------------
+
+   function Escape_String (S : String) return String is
+      S_AS : constant String := Replace_Char (S, '\', "\\");
+      S_LF : constant String := Replace_Char (S_AS, ASCII.LF, "\n");
+      S_CR : constant String := Replace_Char (S_LF, ASCII.CR, "\r");
+      S_HT : constant String := Replace_Char (S_CR, ASCII.HT, "\t");
+      S_BS : constant String := Replace_Char (S_HT, ASCII.BS, "\b");
+      S_FF : constant String := Replace_Char (S_BS, ASCII.FF, "\f");
+      S_DQ : constant String := Replace_Char (S_FF, '"', "\""");
+   begin
+      return S_DQ;
+   end Escape_String;
+
    -----------
    -- Split --
    -----------

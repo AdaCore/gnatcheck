@@ -43,14 +43,19 @@ package Lkql_Checker.String_Utilities is
    --  Removes surrounding quotes or double-quotes from the provided string
    --  if any, else just return the string.
 
-   function Escape_Quotes (S : String) return String
-   is (Replace (S, """", "\"""));
-   --  Escape all quotes in the given string by adding a '\` before each of
-   --  them.
+   function Escape_String (S : String) return String;
+   --  Escape all escapable sequences from the provided string and return the
+   --  result.
 
    function Is_White_Space (Ch : Character) return Boolean
    is (Ch in ' ' | ASCII.HT);
    --  Checks if the argument is either a space or HT character
+
+   function Replace_Char
+     (S : String; C : Character; Replacement : String) return String
+   is (Replace (S, String'(1 => C), Replacement));
+   --  Replace all occurrences of the provided character by the replacement
+   --  string.
 
    function Read_File (FD : File_Descriptor) return String_Access;
    function Read_File (File_Name : String) return String_Access;

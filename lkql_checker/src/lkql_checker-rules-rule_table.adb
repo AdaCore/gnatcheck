@@ -1850,7 +1850,7 @@ package body Lkql_Checker.Rules.Rule_Table is
                         & "<arg name="""
                         & To_String (To_Text (Arg.Name))
                         & """ value="""
-                        & Escape_Quotes (To_String (To_Text (Arg.Value)))
+                        & Escape_String (To_String (To_Text (Arg.Value)))
                         & """ />");
                   end loop;
                   Print (3 * Indent_String & "</instance>");

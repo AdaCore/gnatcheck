@@ -2323,14 +2323,18 @@ package body Lkql_Checker.Rules is
    procedure Append_String_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
       Name  : Wide_Wide_String;
-      Value : Unbounded_Wide_Wide_String) is
+      Value : Unbounded_Wide_Wide_String)
+   is
+      Escaped_Value : constant String :=
+        Escape_String (To_String (To_Wide_Wide_String (Value)));
    begin
       if Length (Value) /= 0 then
          Args.Append
            (Rule_Argument'
               (Name  => To_Unbounded_Text (Name),
                Value =>
-                 To_Unbounded_Text ('"' & To_Wide_Wide_String (Value) & '"')));
+                 To_Unbounded_Text
+                   ('"' & To_Wide_Wide_String (Escaped_Value) & '"')));
       end if;
    end Append_String_Param;
 
