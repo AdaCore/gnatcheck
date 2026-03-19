@@ -252,6 +252,17 @@ package body Lkql_Checker.Output is
       Emit_Message (Message, New_Line => New_Line, Log_Message => Log_Message);
    end Print;
 
+   ------------------
+   -- Print_In_Tty --
+   ------------------
+
+   procedure Print_In_Tty (Message : String; New_Line : Boolean := True) is
+   begin
+      if isatty (fileno (stderr)) /= 0 then
+         Print (Message, New_Line => New_Line, Log_Message => False);
+      end if;
+   end Print_In_Tty;
+
    ------------------------
    -- Print_Version_Info --
    ------------------------
