@@ -1,0 +1,10 @@
+<gnatcheck_worker_exe> --target=<target> -d --log-file=<working-dir>/gnatcheck-log1.TMP --files-from=<working-dir>/gnatcheck-files1.TMP --rules-from=<working-dir>/gnatcheck-rules0.TMP
+   no exempted violations detected
+without_header.adb:1:01: rule violation: compilation unit does not start with header
+   no rule exemption problems detected
+   no language violations detected
+   no internal error detected
+Running "cat gnatcheck-rules0.TMP"...
+val rules = @{
+    headers: [{header: "--  /"This is a header file/"//x/n--  'with multiple lines'/n--  This is a tab /"/t/""}]
+}

@@ -1,0 +1,12 @@
+driver: gnatcheck
+format: short
+canonicalize_target: true
+input_sources:
+  - with_header.adb
+  - without_header.adb
+rules:
+  - +Rheaders:header.txt
+extra_args:
+  - -d
+post_python: >
+  cat("gnatcheck-rules0.TMP")
