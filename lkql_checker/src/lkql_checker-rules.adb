@@ -12,6 +12,8 @@ with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.OS_Lib;
 with GNAT.String_Split;         use GNAT.String_Split;
 
+with GNATCOLL.Utils; use GNATCOLL.Utils;
+
 with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
 with Lkql_Checker.JSON_Utilities;   use Lkql_Checker.JSON_Utilities;
 with Lkql_Checker.Options;          use Lkql_Checker.Options;
@@ -1433,8 +1435,13 @@ package body Lkql_Checker.Rules is
 
          --  Headers rule takes a file name as parameter, containing the
          --  header contents.
+         --  We canonicalize line endings because the file content is going to
+         --  be compared with a libadalang parsing result which also
+         --  canonicalize line endings.
          if Rule_Name (Instance) = "headers" then
-            if not Tagged_Instance.Load_File (To_Load => Param) then
+            if not Tagged_Instance.Load_File
+                     (To_Load => Param, Canonicalize_Line_Endings => True)
+            then
                Emit_File_Load_Error (Instance, Param);
             end if;
          else
@@ -4326,8 +4333,9 @@ package body Lkql_Checker.Rules is
    ---------------
 
    function Load_File
-     (Instance : in out One_String_Parameter_Instance'Class; To_Load : String)
-      return Boolean
+     (Instance                  : in out One_String_Parameter_Instance'Class;
+      To_Load                   : String;
+      Canonicalize_Line_Endings : Boolean := False) return Boolean
    is
       Abs_Name : constant String := Find_File (To_Load);
       Str      : GNAT.OS_Lib.String_Access;
@@ -4342,13 +4350,30 @@ package body Lkql_Checker.Rules is
          --  If `Last` is null or less, then the file is empty.
          --  Thus don't append anything to the rule parameter.
          if Last > 0 then
-            --  Strip trailing end of line
+            --  Strip trailing line feed
             if Str (Str'Last) = ASCII.LF then
                Last := Last - 1;
             end if;
 
-            Ada.Strings.Wide_Wide_Unbounded.Set_Unbounded_Wide_Wide_String
-              (Instance.Param, To_Wide_Wide_String (Str (1 .. Last)));
+            --  Strip trailing carriage return
+            if Str (Last) = ASCII.CR then
+               Last := Last - 1;
+            end if;
+
+            --  If required, canonicalize all line endings sequences
+            declare
+               Result : constant String :=
+                 (if Canonicalize_Line_Endings
+                  then
+                    Replace
+                      (Str (1 .. Last), ASCII.CR & ASCII.LF, (1 => ASCII.LF))
+                  else Str (1 .. Last));
+            begin
+               Ada.Strings.Wide_Wide_Unbounded.Set_Unbounded_Wide_Wide_String
+                 (Instance.Param, To_Wide_Wide_String (Result));
+            end;
+
+            --  Finally release the loaded file content
             GNAT.OS_Lib.Free (Str);
          end if;
          return True;
