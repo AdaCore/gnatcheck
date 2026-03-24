@@ -1,0 +1,32 @@
+test.adb:25:15: rule violation: out parameter 'I' is read in exception handler: <ExceptionHandler [] test.adb:32:7-34:39>
+25 |       Change (I);       --  FLAG
+   |               ^
+
+test.adb:26:15: rule violation: out parameter 'Test.K' is read in exception handler: <ExceptionHandler [] test.adb:32:7-34:39>
+26 |       Change (Test.K);  --  FLAG
+   |               ^^^^^^
+
+test.adb:29:15: rule violation: out parameter 'B' is read in exception handler: <ExceptionHandler [] test.adb:35:7-36:29>
+29 |       Change (B);       --  FLAG
+   |               ^
+
+test.adb:51:16: rule violation: out parameter 'M' is read in exception handler: <ExceptionHandler [] test.adb:53:7-54:39>
+51 |       Change2 (M, N);  --  FLAG for M, NOFLAG for N: N is not read in handler
+   |                ^
+
+test.adb:62:18: rule violation: out parameter 'P' is read in exception handler: <ExceptionHandler [] test.adb:65:7-66:39>
+62 |          Change (P);  --  FLAG: call is nested inside an inner block
+   |                  ^
+
+test.adb:72:15: rule violation: out parameter 'L' is read in exception handler: <ExceptionHandler [] test.adb:74:7-75:39>
+72 |       Change (L);  --  FLAG
+   |               ^
+
+test.adb:79:15: rule violation: out parameter 'R' is read in exception handler: <ExceptionHandler [] test.adb:81:7-82:39>
+79 |       Change (R);  --  FLAG
+   |               ^
+
+test.adb:86:15: rule violation: out parameter 'R' is read in exception handler: <ExceptionHandler [] test.adb:88:7-89:39>
+86 |       Change (R);  --  FLAG
+   |               ^
+
