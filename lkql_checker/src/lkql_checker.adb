@@ -326,7 +326,7 @@ package body Lkql_Checker is
                        Integer'Image ((Current * 100) / Total_Jobs);
                   begin
                      Percent (1) := '(';
-                     Print_In_Tty
+                     Print
                        ("completed"
                         & Integer'Image (Current)
                         & " out of"
