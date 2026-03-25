@@ -89,8 +89,6 @@
 --  and 3 above. For step 2, see the procedure Process_Project_File
 --  that combines all the steps of loading and analyzing the project file.
 
-with GNAT.OS_Lib; use GNAT.OS_Lib;
-
 with GPR2.Containers;
 with GPR2.Options;
 with GPR2.Project.Tree;
@@ -158,10 +156,6 @@ package Lkql_Checker.Projects is
    --  If My_Project.Is_Specified then returns the full normalized name of the
    --  project file, otherwise returns an empty string.
 
-   function Source_CGPR (My_Project : Arg_Project_Type) return String;
-   --  If a source CGPR has been specified then returns its value, otherwise
-   --  returns an empty string.
-
    function Target (My_Project : Arg_Project_Type) return String;
    --  Target name as it is specified by the command-line ``--target=...``
    --  option, or by the ``'Target`` attribute in the argument project file.
@@ -170,21 +164,6 @@ package Lkql_Checker.Projects is
    --  Ada runtime as specified via ``--RTS=...`` in the command-line, or by
    --  the ``Runtime`` attribute. If no Ada runtime has been selected, this
    --  function returns an empty string.
-
-   function Subdir_Name (My_Project : Arg_Project_Type) return String;
-   --  Return the subdir name to use, if one was set explicitly.
-
-   function Follow_Symbolic_Links
-     (My_Project : Arg_Project_Type) return Boolean;
-   --  Get whether the project as been loaded with the ``-eL`` switch that
-   --  enable the symbolic links following.
-
-   procedure Append_External_Variables
-     (My_Project : Arg_Project_Type;
-      Args       : in out Argument_List;
-      Last       : in out Natural);
-   --  Append a "-XVAR=value" string for each external variable stored in the
-   --  provided project options.
 
    procedure Set_External_Values (My_Project : in out Arg_Project_Type);
    --  For each value of an external variable that has been stored as a result

@@ -13,6 +13,7 @@ with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
 
 with GNAT.Directory_Operations;
 with GNAT.Regexp; use GNAT.Regexp;
+with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
 with Lkql_Checker.Diagnoses;
@@ -953,19 +954,6 @@ package body Lkql_Checker.Projects is
       end if;
    end Source_Prj;
 
-   -----------------
-   -- Source_CGPR --
-   -----------------
-
-   function Source_CGPR (My_Project : Arg_Project_Type) return String is
-   begin
-      if My_Project.Options.Config_Project.Is_Defined then
-         return String (My_Project.Options.Config_Project.Name);
-      else
-         return "";
-      end if;
-   end Source_CGPR;
-
    ------------
    -- Target --
    ------------
@@ -992,47 +980,6 @@ package body Lkql_Checker.Projects is
          return String (My_Project.Tree.Runtime (GPR2.Ada_Language));
       end if;
    end Ada_Runtime;
-
-   -----------------
-   -- Subdir_Name --
-   -----------------
-
-   function Subdir_Name (My_Project : Arg_Project_Type) return String is
-   begin
-      return To_String (My_Project.Options.Subdirs);
-   end Subdir_Name;
-
-   ---------------------------
-   -- Follow_Symbolic_Links --
-   ---------------------------
-
-   function Follow_Symbolic_Links
-     (My_Project : Arg_Project_Type) return Boolean is
-   begin
-      return My_Project.Options.Resolve_Links;
-   end Follow_Symbolic_Links;
-
-   -------------------------------
-   -- Append_External_Variables --
-   -------------------------------
-
-   procedure Append_External_Variables
-     (My_Project : Arg_Project_Type;
-      Args       : in out Argument_List;
-      Last       : in out Natural)
-   is
-      use GPR2.Context.Key_Value;
-
-      procedure Place_In_Args (C : Cursor);
-      procedure Place_In_Args (C : Cursor) is
-      begin
-         Last := Last + 1;
-         Args (Last) :=
-           new String'("-X" & String (Key (C)) & '=' & Element (C));
-      end Place_In_Args;
-   begin
-      My_Project.Options.Context.Iterate (Place_In_Args'Access);
-   end Append_External_Variables;
 
    ---------------------
    -- Store_Main_Unit --
