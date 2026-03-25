@@ -88,31 +88,17 @@ package body Lkql_Checker is
    procedure Schedule_Files;
    --  Schedule jobs per set of files
 
-   --------------------------
-   --  Lkql_Checker_Image  --
-   --------------------------
-
-   function Lkql_Checker_Mode_Image return String
-   is (Lkql_Checker_Mode_Name (Mode));
-
-   ------------------------------
-   --  Lkql_Checker_Mode_Name  --
-   ------------------------------
-
-   function Lkql_Checker_Mode_Name (Mode : Lkql_Checker_Mode) return String is
-   begin
-      return
-        (case Mode is
-           when Gnatcheck_Mode => "gnatcheck",
-           when Gnatkp_Mode    => "gnatkp");
-   end Lkql_Checker_Mode_Name;
-
    ---------------
    -- File_Name --
    ---------------
 
    function File_Name (Id : String; Job : Natural) return String
-   is (Global_Report_Dir.all & "gnatcheck-" & Id & Image (Job) & ".TMP");
+   is (Global_Report_Dir.all
+       & Lkql_Checker_Mode_Image
+       & '-'
+       & Id
+       & Image (Job)
+       & ".TMP");
    --  Return the full path for a temp file with a given Id
 
    ------------------------------------
@@ -313,8 +299,8 @@ package body Lkql_Checker is
                   Current := Total_Jobs;
                   Tool_Failures := @ + 1;
                   Error
-                    ("error while waiting for gnatcheck process, output "
-                     & "may be incomplete.");
+                    ("error while waiting for a process, output may be "
+                     & "incomplete.");
                   return;
                end if;
 
@@ -399,9 +385,7 @@ package body Lkql_Checker is
 
             Close (File);
 
-            --  Spawn a GNATcheck worker with -rules -from=rules0.txt
-            --  -files=files?.txt
-
+            --  Spawn a checker worker
             Pids (Job) :=
               Spawn_Checker_Worker
                 (File_Name ("rules", 0),
@@ -528,7 +512,7 @@ package body Lkql_Checker is
          From_Project_File => True);
 
       --  Finally, we parse remaining switches from the command-line with the
-      --  GNATcheck arguments parser.
+      --  tool arguments parser.
       Scan_Tool_Arguments
         (Args              => To_XString_Array (Remaining_Args),
          From_Project_File => False);
@@ -680,7 +664,7 @@ package body Lkql_Checker is
       end if;
 
       if In_Aggregate_Project then
-         --  In this case we spawn gnatcheck for each project being aggregated
+         --  In this case we spawn a checker for each project being aggregated
          Lkql_Checker.Projects.Aggregate.Process_Aggregated_Projects
            (Checker_Prj);
 
@@ -693,7 +677,11 @@ package body Lkql_Checker is
          Lkql_Checker.Output.Close_Report_Files;
 
          if Tool_Failures > 0 then
-            Print ("Total gnatcheck failures:" & Tool_Failures'Img);
+            Print
+              ("Total "
+               & Lkql_Checker_Mode_Image
+               & " failures:"
+               & Tool_Failures'Img);
          end if;
       end if;
 
@@ -724,9 +712,8 @@ package body Lkql_Checker is
          elsif Missing_File_Detected
          then E_Missing_Source
 
-         --  If we are here, no problem with gnatcheck execution or rule
-         --  option or missing file definition is detected, so we can trust
-         --  gnatcheck results.
+         --  If we are here, no problem with checker execution or rule option
+         --  or missing file definition is detected, so we can trust results.
 
          elsif (Detected_Non_Exempted_Violations > 0
                 or else Detected_Compiler_Error > 0)

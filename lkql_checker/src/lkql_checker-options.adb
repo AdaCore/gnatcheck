@@ -1,5 +1,3 @@
-with Ada.Command_Line;  use Ada.Command_Line;
-with Ada.Directories;   use Ada.Directories;
 with Ada.Strings;       use Ada.Strings;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 
@@ -109,28 +107,7 @@ package body Lkql_Checker.Options is
       Unknown_Opt_Parse_Args : XString_Vector;
       Exp_It                 : Expansion_Iterator;
       Explicit_Sources       : String_Vector;
-
-      Executable : GNAT.OS_Lib.String_Access :=
-        Locate_Exec_On_Path (Command_Name);
-      Prefix     : constant String :=
-        Containing_Directory (Containing_Directory (Executable.all));
-      Lkql       : constant String :=
-        Compose (Compose (Prefix, "share"), "lkql");
-
-      --  Start of processing for Scan_Arguments
-
    begin
-      --  Set Legacy early so that this flag can be checked elsewhere.
-      --  If legacy-rules.txt is found, it means we have a full packaging
-      --  and a full gnatcheck. If the file is not found, it means we have
-      --  a reduced packaging and a legacy gnatcheck.
-
-      if not Is_Regular_File (Compose (Lkql, "legacy-rules.txt")) then
-         Legacy := True;
-      end if;
-
-      Free (Executable);
-
       --  Disallow arguments that are not allowed to be specified in project
       --  files
       --  TODO: It might be possible to have a list of subparsers and do a for

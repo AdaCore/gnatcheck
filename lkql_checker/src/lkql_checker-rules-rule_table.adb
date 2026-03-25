@@ -91,9 +91,9 @@ package body Lkql_Checker.Rules.Rule_Table is
    --  by the dynamic strings)
 
    procedure Restrictions_Help (Level : Natural);
-   --  Prints out an XML tag representing the gnatcheck Restrictions rule. Note
-   --  that the representation is incomplete: the rule may have as its
-   --  parameters either restriction identifiers or pairs
+   --  Prints out an XML tag representing the Restrictions rule. Note that the
+   --  representation is incomplete: the rule may have as its parameters
+   --  either restriction identifiers or pairs
    --  'Restriction_Identifier => Restriction_Parameter', but the generated tag
    --  includes information about restriction identifiers only, but not about
    --  parameters that may be needed by some restrictions.
@@ -953,7 +953,7 @@ package body Lkql_Checker.Rules.Rule_Table is
 
    procedure Process_LKQL_Rule_File (LKQL_RF_Name : String) is
       JSON_Config_File_Name : constant String :=
-        Global_Report_Dir.all & "gnatcheck-rules.json.out";
+        Global_Report_Dir.all & Lkql_Checker_Mode_Image & "-rules.json.out";
       Parser_Pid            : Process_Id;
       Waited_Pid            : Process_Id;
       Success               : Boolean;
@@ -1108,8 +1108,8 @@ package body Lkql_Checker.Rules.Rule_Table is
       function Check_For_Compiler_Rule
         (Comp_Rule : Rule_Id; Instance_Name : String) return Boolean;
       --  Check that the current rule option is fulfilling all requirements for
-      --  compiler-based GNATcheck rules. Returns whether the rule option
-      --  processing should continue.
+      --  compiler-based rules. Returns whether the rule option processing
+      --  should continue.
 
       Rule          : Rule_Id;
       Enable        : Boolean;
@@ -1379,8 +1379,8 @@ package body Lkql_Checker.Rules.Rule_Table is
              else ""));
 
       procedure Error_In_Rule_File (Msg : String);
-      --  Emit a GNATcheck error when there is an error during the processing
-      --  of rules defined in `LKQL_Rule_File_Name`.
+      --  Emit an error when there is an error during the processing of rules
+      --  defined in `LKQL_Rule_File_Name`.
 
       procedure Report_Extra_Arg
         (Arg_Name : UTF8_String; Arg_Value : JSON_Value);

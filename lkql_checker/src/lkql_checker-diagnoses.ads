@@ -4,9 +4,9 @@
 --
 
 --  This package defines routines for storing diagnostic messages and
---  generating final gnatcheck report. It also provides routines that
---  supports rule exemption mechanism. Note, that most of the rule exemption
---  mechanism is hidden in the body of the package.
+--  generating final report. It also provides routines that supports rule
+--  exemption mechanism. Note, that most of the rule exemption mechanism is
+--  hidden in the body of the package.
 
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -63,7 +63,7 @@ package Lkql_Checker.Diagnoses is
       Compiler_Error,
       --  Compiler diagnoses generated for illegal (non-compilable) sources
       Internal_Error
-      --  Internal gnatcheck error
+      --  Internal tool error
      );
 
    procedure Store_Diagnosis
@@ -133,7 +133,7 @@ package Lkql_Checker.Diagnoses is
 
    function Is_Exemption_Pragma (El : LAL.Analysis.Pragma_Node) return Boolean;
    --  Checks if the argument Element is the Annotate or GNAT_Annotate pragma
-   --  with the  first parameter equal to 'gnatcheck'.
+   --  with the  first parameter equal to the current checker mode.
 
    procedure Process_Exemption_Pragma (El : LAL.Analysis.Pragma_Node);
    --  Analyses the argument element and stores the

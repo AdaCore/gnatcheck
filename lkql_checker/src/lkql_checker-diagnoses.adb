@@ -112,7 +112,7 @@ package body Lkql_Checker.Diagnoses is
    procedure Print_Active_Rules_File;
    --  Prints the reference to the (actual argument or artificially created)
    --  file that contains the list of all the rules that are active for the
-   --  given gnatcheck run.
+   --  given checker run.
 
    procedure Print_Argument_Files_Summary;
    --  Prints the total numbers of: all the argument files, non-compilable
@@ -137,14 +137,14 @@ package body Lkql_Checker.Diagnoses is
 
    procedure Print_File_List_File;
    --  Prints the reference to the (actual argument or artificially created)
-   --  file that contains the list of all the files passed to gnatcheck
+   --  file that contains the list of all the files passed to the checker.
 
    procedure Print_Ignored_File_List_File;
    --  Prints the reference to the artificially created file that contains the
-   --  list of files passed to gnatcheck that have not been processed because
-   --  '--ignore=...' option. Note that it can be different from the list
-   --  provided by '--ignore=...' option - this list contains only the existing
-   --  files that have been passed as tool argument sources.
+   --  list of files passed to the checker that have not been processed
+   --  because '--ignore=...' option. Note that it can be different from the
+   --  list provided by '--ignore=...' option - this list contains only the
+   --  existing files that have been passed as tool argument sources.
 
    procedure Print_Command_Line (XML : Boolean := False);
    --  Prints the command line used to run this Lkql_Checker instance. In case
@@ -160,8 +160,8 @@ package body Lkql_Checker.Diagnoses is
    --  to 0, all the diagnoses of these kinds are reported.
 
    procedure Print_Runtime (XML : Boolean := False);
-   --  Prints the runtime version used for gnatcheck call. It is either the
-   --  parameter of --RTS option used for (actual) gnatcheck call or the
+   --  Prints the runtime version used for the checker call. It is either the
+   --  parameter of --RTS option used for the (actual) checker call or the
    --  "<default>" string if --RTS parameter is not specified. If XML is ON,
    --  prints the output into XML output file, otherwise - in the text output
    --  file.
@@ -565,8 +565,9 @@ package body Lkql_Checker.Diagnoses is
       if GPR_Args.Aggregated_Project then
          --  in case of aggregated project we have to move the index in the
          --  Prj_Out_File after S. That is, we do not need
-         --  gnatcheck_1-source-list.out, we need gnatcheck-source-list_1.out
-         --  for the sake of upward compatibility
+         --  <checker_mode>_1-source-list.out, we need
+         --  <checker_mode>-source-list_1.out for the sake of upward
+         --  compatibility.
 
          Suff_Start :=
            Index (Prj_Out_File (Prj_Out_First .. Prj_Out_Dot), "_", Backward);
@@ -2532,8 +2533,7 @@ package body Lkql_Checker.Diagnoses is
 
          if not Present (SF) then
             --  This is the case when the diagnosis is generated for
-            --  expanded generic, and the generic itself is not a
-            --  gnatcheck input.
+            --  expanded generic, and the generic itself is not an input.
             return;
          end if;
 

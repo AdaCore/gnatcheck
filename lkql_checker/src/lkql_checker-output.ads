@@ -11,7 +11,7 @@ package Lkql_Checker.Output is
 
    Error_From_Warning : Boolean;
    --  Whether a warning message has been emitted while "warnings as errors"
-   --  mode is enabled. This ensure the return code of GNATcheck is not 0.
+   --  mode is enabled. This ensure the return code of the tool is not 0.
 
    procedure Print_Version_Info;
    --  Prints into Stderr the tool version information in the following format:
@@ -142,7 +142,7 @@ package Lkql_Checker.Output is
    --  Closes the report file (and stops copying the messages into it)
 
    procedure Brief_Help;
-   --  Prints the brief gnatcheck help info into Stderr
+   --  Prints the brief tool help info into Stderr
 
    procedure Print_Usage;
    --  Similar to Brief_Help, but corresponds to the general format generated
