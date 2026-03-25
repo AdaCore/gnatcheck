@@ -161,10 +161,10 @@ package Lkql_Checker.Projects is
    --  Target name as it is specified by the command-line ``--target=...``
    --  option, or by the ``'Target`` attribute in the argument project file.
 
-   function Runtime (My_Project : Arg_Project_Type) return String;
-   --  Runtime as specified via ``--RTS=...`` in the command-line, or by the
-   --  ``Runtime`` attribute. If no runtime has been selected, this function
-   --  returns an empty string.
+   function Ada_Runtime (My_Project : Arg_Project_Type) return String;
+   --  Ada runtime as specified via ``--RTS=...`` in the command-line, or by
+   --  the ``Runtime`` attribute. If no Ada runtime has been selected, this
+   --  function returns an empty string.
 
    function Subdir_Name (My_Project : Arg_Project_Type) return String;
    --  Return the subdir name to use, if one was set explicitly.

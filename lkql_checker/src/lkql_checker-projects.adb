@@ -815,14 +815,14 @@ package body Lkql_Checker.Projects is
    -- Runtime --
    -------------
 
-   function Runtime (My_Project : Arg_Project_Type) return String is
+   function Ada_Runtime (My_Project : Arg_Project_Type) return String is
    begin
       if My_Project.Options.RTS_Map.Contains (GPR2.Ada_Language) then
          return My_Project.Options.RTS_Map.Element (GPR2.Ada_Language);
       else
          return String (My_Project.Tree.Runtime (GPR2.Ada_Language));
       end if;
-   end Runtime;
+   end Ada_Runtime;
 
    -----------------
    -- Subdir_Name --

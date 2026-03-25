@@ -1857,11 +1857,11 @@ package body Lkql_Checker.Diagnoses is
 
    procedure Print_Runtime (XML : Boolean := False) is
    begin
-      if Checker_Prj.Runtime /= "" then
+      if Checker_Prj.Ada_Runtime /= "" then
          if XML then
-            XML_Report (Checker_Prj.Runtime);
+            XML_Report (Checker_Prj.Ada_Runtime);
          else
-            Report (Checker_Prj.Runtime);
+            Report (Checker_Prj.Ada_Runtime);
          end if;
       else
          if XML then
