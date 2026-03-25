@@ -149,6 +149,11 @@ package Lkql_Checker.Projects is
    --  Removes all the temporary files created when loading a project. Does
    --  nothing of Debug_Flag_N is ON.
 
+   procedure Get_Cli_Options
+     (My_Project : Arg_Project_Type; Buffer : in out String_Vector);
+   --  Fill the provided buffer with all GPR CLI options corresponding to the
+   --  configuration of ``My_Project``.
+
    function Source_Prj (My_Project : Arg_Project_Type) return String;
    --  If My_Project.Is_Specified then returns the full normalized name of the
    --  project file, otherwise returns an empty string.

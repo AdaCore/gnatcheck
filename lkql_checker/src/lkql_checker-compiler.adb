@@ -43,6 +43,17 @@ package body Lkql_Checker.Compiler is
    function To_Mixed (A : String) return String
    renames GNAT.Case_Util.To_Mixed;
 
+   function Spawn_Process
+     (Executable_Name : String;
+      Args            : String_Vector;
+      Stdout_File     : String;
+      Stderr_File     : String := "") return Process_Id;
+   --  Spawn a non blocking process from an executable name and an argument
+   --  vector.
+   --  You can specify output files for the process' stdout and stderr. If
+   --  ``Stderr_File`` is an empty string, then stderr is redirected to stdout
+   --  and captured in ``Stdout_File``.
+
    procedure Process_Style_Options (Param : String);
    --  Stores Param as parameter of the compiler -gnaty... option as is,
    --  (if some -gnaty... parameter has already been stored, appends Param to
@@ -1492,6 +1503,42 @@ package body Lkql_Checker.Compiler is
       end if;
    end Process_Style_Check_Param;
 
+   -------------------
+   -- Spawn_Process --
+   -------------------
+
+   function Spawn_Process
+     (Executable_Name : String;
+      Args            : String_Vector;
+      Stdout_File     : String;
+      Stderr_File     : String := "") return Process_Id
+   is
+      Alloc_Args : Argument_List (1 .. Integer (Args.Length));
+      Pid        : Process_Id;
+   begin
+      --  Fill the argument list
+      for I in Alloc_Args'Range loop
+         Alloc_Args (I) := new String'(Args (I));
+      end loop;
+
+      --  Call the process
+      if Stderr_File = "" then
+         Pid := Non_Blocking_Spawn (Executable_Name, Alloc_Args, Stdout_File);
+      else
+         Pid :=
+           Non_Blocking_Spawn
+             (Executable_Name, Alloc_Args, Stdout_File, Stderr_File);
+      end if;
+
+      --  Free allocated arguments
+      for I in Alloc_Args'Range loop
+         Free (Alloc_Args (I));
+      end loop;
+
+      --  Finally return the process id
+      return Pid;
+   end Spawn_Process;
+
    ---------------------------
    -- Process_Style_Options --
    ---------------------------
@@ -1726,28 +1773,22 @@ package body Lkql_Checker.Compiler is
       Log_File    : String) return Process_Id
    is
       use GNAT.String_Split;
+      use Ada.Strings.Unbounded;
 
       Pid           : Process_Id;
       Split_Command : constant Slice_Set := Create (Worker_Name, " ");
-      Worker        : String_Access := null;
-      Prj           : constant String := Checker_Prj.Source_Prj;
-      CGPR          : constant String := Checker_Prj.Source_CGPR;
-      Args          : Argument_List (1 .. 128);
-      Num_Args      : Integer := 0;
-
-      use Ada.Strings.Unbounded;
+      Worker        : GNAT.OS_Lib.String_Access := null;
+      Args          : String_Vector;
    begin
       --  Split the worker command into the name of the executable plus its
-      --  arguments. We do that because the call to Non_Blocking_Spawn expects
-      --  the full path to the executable and the list of arguments as separate
+      --  arguments. We do that because the call to Spawn_Process expects the
+      --  full path to the executable and the list of arguments as separate
       --  arguments.
-
       for Arg of Split_Command loop
          if Worker = null then
             Worker := Locate_Exec_On_Path (Arg);
          else
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'(Arg);
+            Args.Append (Arg);
          end if;
       end loop;
 
@@ -1758,102 +1799,44 @@ package body Lkql_Checker.Compiler is
          raise Fatal_Error;
       end if;
 
-      if Tool_Args.Show_Instantiation_Chain.Get then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--show-instantiation-chain");
-      end if;
-
-      if Prj /= "" then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-P" & Prj);
-
-         if GPR_Args.Ignore_Project_Switches then
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'("--ignore-project-switches");
-         end if;
-      elsif Checker_Prj.Tree.Is_Defined
-        and then Checker_Prj.Tree.Root_Project.Path_Name.Exists
-      then
-         --  In case Prj has not been explicitly set, spawn the project option
-         --  with the default project file used by gpr.
-         Num_Args := @ + 1;
-         Args (Num_Args) :=
-           new String'
-             ("-P" & Checker_Prj.Tree.Root_Project.Path_Name.String_Value);
-      end if;
-
-      if GPR_Args.Aggregated_Project then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-A");
-         Num_Args := @ + 1;
-         Args (Num_Args) :=
-           new String'(To_String (GPR_Args.Aggregate_Subproject.Get));
-      end if;
-
-      if CGPR /= "" then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--config=" & CGPR);
-      end if;
-
-      if Checker_Prj.Runtime /= "" then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--RTS=" & Checker_Prj.Runtime);
-      end if;
-
-      if Checker_Prj.Target /= "" then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--target=" & Checker_Prj.Target);
-      end if;
-
+      --  Pass LKQL specific options
       if Tool_Args.Debug_Mode.Get then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-d");
+         Args.Append ("-d");
       end if;
 
-      Num_Args := @ + 1;
-      Args (Num_Args) := new String'("--log-file=" & Log_File);
-
-      if Checker_Prj.Follow_Symbolic_Links then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("-eL");
+      if Tool_Args.Show_Instantiation_Chain.Get then
+         Args.Append ("--show-instantiation-chain");
       end if;
 
       for Dir of Tool_Args.Rules_Dirs.Get loop
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--rules-dir=" & To_String (Dir));
+         Args.Append ("--rules-dir=" & To_String (Dir));
       end loop;
 
-      Num_Args := @ + 1;
-      Args (Num_Args) := new String'("--files-from=" & Source_File);
+      Args.Append ("--files-from=" & Source_File);
+      Args.Append ("--rules-from=" & Rule_File);
+      Args.Append ("--log-file=" & Log_File);
 
-      if Checker_Prj.Is_Specified then
-         Checker_Prj.Append_External_Variables (Args, Num_Args);
+      --  Pass GPR options
+      Checker_Prj.Get_Cli_Options (Args);
+
+      if GPR_Args.Aggregated_Project then
+         Args.Append ("-A" & To_String (GPR_Args.Aggregate_Subproject.Get));
       end if;
 
-      Num_Args := @ + 1;
-      Args (Num_Args) := new String'("--rules-from=" & Rule_File);
-
+      --  Log the spawned command for debug purposes
       if Tool_Args.Debug_Mode.Get then
-         --  For debug purposes, we don't want to put the full path to the
-         --  worker command, if it is a full path. We just want the base name
+         --  For testing purposes, we don't want to put the full path to the
+         --  worker command, if it is a full path. We just want the base name.
          Put (Base_Name (Worker.all));
-
-         for J in 1 .. Num_Args loop
-            Put (" " & Args (J).all);
+         for Arg of Args loop
+            Put (" " & Arg);
          end loop;
-
          New_Line;
       end if;
 
-      Pid :=
-        Non_Blocking_Spawn
-          (Worker.all, Args (1 .. Num_Args), Msg_File, Msg_File);
+      --  Call the GNATcheck worker and return the process id
+      Pid := Spawn_Process (Worker.all, Args, Msg_File);
       Free (Worker);
-
-      for J in Args'Range loop
-         Free (Args (J));
-      end loop;
-
       return Pid;
    end Spawn_Checker_Worker;
 
@@ -1924,130 +1907,93 @@ package body Lkql_Checker.Compiler is
    --------------------
 
    function Spawn_GPRbuild (Output_File : String) return Process_Id is
+      use Ada.Strings.Unbounded;
 
       Pid         : Process_Id;
-      GPRbuild    : String_Access := Locate_Exec_On_Path (GPRbuild_Exec);
-      Prj         : constant String := Checker_Prj.Source_Prj;
+      GPRbuild    : GNAT.OS_Lib.String_Access :=
+        Locate_Exec_On_Path (GPRbuild_Exec);
       Last_Source : constant SF_Id := Last_Argument_Source;
-      Args        : Argument_List (1 .. 128 + Integer (Last_Source));
-      Num_Args    : Integer := 0;
-
-      procedure Add_Arg (Arg : String);
-      --  Add an argument to the local argument list ``Args``.
-
-      procedure Add_Arg (Arg : String) is
-      begin
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'(Arg);
-      end Add_Arg;
-
-      use Ada.Strings.Unbounded;
+      Args        : String_Vector;
    begin
       if GPRbuild = null then
          Error ("cannot locate gprbuild executable");
          raise Fatal_Error;
       end if;
 
-      Args (1) := new String'("-c");
-      Args (2) := new String'("-s");
-      Args (3) := new String'("-k");
-      Args (4) := new String'("-q");
-      Args (5) := new String'("--subdirs=" & Checker_Prj.Subdir_Name);
-
-      Args (6) := new String'("--no-object-check");
-      Args (7) := new String'("--complete-output");
-      Args (8) := new String'("--restricted-to-languages=ada");
-      Num_Args := 8;
-
-      if Checker_Prj.Target /= "" then
-         Add_Arg ("--target=" & Checker_Prj.Target);
-      end if;
+      --  Add compiler options
+      Args.Append ("-c");
+      Args.Append ("-s");
+      Args.Append ("-k");
+      Args.Append ("-q");
+      Args.Append ("--no-object-check");
+      Args.Append ("--complete-output");
+      Args.Append ("--restricted-to-languages=ada");
 
       if Tool_Args.Jobs.Get > 1 then
-         Add_Arg ("-j" & Image (Tool_Args.Jobs.Get));
+         Args.Append ("-j" & Image (Tool_Args.Jobs.Get));
       end if;
 
-      if Prj /= "" then
-         Add_Arg ("-P" & Prj);
-      end if;
-
-      if Checker_Prj.Follow_Symbolic_Links then
-         Add_Arg ("-eL");
-      end if;
+      --  Add GPR options
+      Checker_Prj.Get_Cli_Options (Args);
 
       --  If files are specified explicitly, only compile these files
-
       if (Argument_File_Specified
           and then not Tool_Args.Transitive_Closure.Get)
         or else Tool_Args.Source_Files_Specified
       then
-         Add_Arg ("-u");
+         Args.Append ("-u");
 
          for SF in First_SF_Id .. Last_Source loop
-            Add_Arg (Short_Source_Name (SF));
+            Args.Append (Short_Source_Name (SF));
          end loop;
       else
          if Tool_Args.Transitive_Closure.Get then
-            Add_Arg ("-U");
+            Args.Append ("-U");
          end if;
 
          if not Main_Unit.Is_Empty then
             for MU of Main_Unit loop
-               Add_Arg (String (MU));
+               Args.Append (String (MU));
             end loop;
          end if;
       end if;
 
       --  Append options specified through the "-cargs" section
       for Option of Tool_Args.Cargs_Section.Get loop
-         Add_Arg (To_String (Option));
+         Args.Append (To_String (Option));
       end loop;
 
       if Analyze_Compiler_Output then
-         Add_Arg ("-gnatec=" & Checker_Config_File.all);
-         Add_Arg ("-gnatcU");
-         Add_Arg ("-gnatwnA.d");
+         Args.Append ("-gnatec=" & Checker_Config_File.all);
+         Args.Append ("-gnatcU");
+         Args.Append ("-gnatwnA.d");
 
          if Use_gnatw_Option then
-            Add_Arg (Get_Warning_Option);
+            Args.Append (Get_Warning_Option);
          end if;
 
-         Add_Arg ("-gnatyN");
+         Args.Append ("-gnatyN");
 
          if Use_gnaty_Option then
             for S of Split (Get_Style_Option, ' ') loop
-               Add_Arg (S);
+               Args.Append (S);
             end loop;
          end if;
       end if;
 
-      --  Add scenario variables to the compiler command
-      if Checker_Prj.Is_Specified then
-         Checker_Prj.Append_External_Variables (Args, Num_Args);
-      end if;
-
+      --  Display the gprbuild call for debug purpose
       if Tool_Args.Debug_Mode.Get then
          Put (GPRbuild_Exec);
-
-         for J in 1 .. Num_Args loop
-            Put (" " & Args (J).all);
+         for Arg of Args loop
+            Put (" " & Arg);
          end loop;
-
          New_Line;
       end if;
 
+      --  Spawn gprbuild and return the process id
       Pid :=
-        Non_Blocking_Spawn
-          (GPRbuild.all,
-           Args (1 .. Num_Args),
-           Output_File & ".out",
-           Output_File);
+        Spawn_Process (GPRbuild.all, Args, Output_File & ".out", Output_File);
       Free (GPRbuild);
-
-      for J in Args'Range loop
-         Free (Args (J));
-      end loop;
-
       return Pid;
    end Spawn_GPRbuild;
 
