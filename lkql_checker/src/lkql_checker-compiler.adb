@@ -1852,8 +1852,7 @@ package body Lkql_Checker.Compiler is
       Pid           : Process_Id;
       Split_Command : constant Slice_Set := Create (Worker_Name, " ");
       Worker        : String_Access := null;
-      Args          : Argument_List (1 .. 128);
-      Num_Args      : Integer := 0;
+      Args          : String_Vector;
    begin
       --  Call the checker worker with the '--parse-lkql-config' option to get
       --  the rule configuration from the provided rule file.
@@ -1861,8 +1860,7 @@ package body Lkql_Checker.Compiler is
          if Worker = null then
             Worker := Locate_Exec_On_Path (Arg);
          else
-            Num_Args := @ + 1;
-            Args (Num_Args) := new String'(Arg);
+            Args.Append (Arg);
          end if;
       end loop;
 
@@ -1872,33 +1870,25 @@ package body Lkql_Checker.Compiler is
          raise Fatal_Error;
       end if;
 
-      Num_Args := @ + 1;
-      Args (Num_Args) := new String'("--parse-lkql-config");
-      Num_Args := @ + 1;
-      Args (Num_Args) := new String'(LKQL_RF_Name);
+      Args.Append ("--parse-lkql-config");
+      Args.Append (LKQL_RF_Name);
 
       if Tool_Args.Verbose.Get then
-         Num_Args := @ + 1;
-         Args (Num_Args) := new String'("--verbose");
+         Args.Append ("--verbose");
       end if;
 
       --  Output the called command if in debug mode
       if Tool_Args.Debug_Mode.Get then
          Put (Base_Name (Worker.all));
-         for J in 1 .. Num_Args loop
-            Put (" " & Args (J).all);
+         for Arg of Args loop
+            Put (" " & Arg);
          end loop;
          New_Line;
       end if;
 
       --  Spawn the process and return the associated process ID
-      Pid :=
-        Non_Blocking_Spawn (Worker.all, Args (1 .. Num_Args), Result_File);
-
-      for J in Args'Range loop
-         Free (Args (J));
-      end loop;
-
+      Pid := Spawn_Process (Worker.all, Args, Result_File);
+      Free (Worker);
       return Pid;
    end Spawn_LKQL_Rule_File_Parser;
 
