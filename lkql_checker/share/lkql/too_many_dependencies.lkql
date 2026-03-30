@@ -16,9 +16,9 @@ fun dependencies(unit, parent) = {
     unique(match unit.f_body
            | LibraryItem(f_item: BodyNode(p_previous_part()
             : prev@BasicDecl))
-               => l & dependencies(comp_unit(prev), parent)
+               => l & dependencies(comp_unit(prev), parent).to_list
            | Subunit(f_body: *(p_previous_part(): prev@BasicDecl))
-               => l & dependencies(comp_unit(prev), parent)
+               => l & dependencies(comp_unit(prev), parent).to_list
            | * => l)
 }
 
