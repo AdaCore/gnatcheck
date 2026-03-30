@@ -1,0 +1,4 @@
+with "other";
+
+project Prj is
+end Prj;
