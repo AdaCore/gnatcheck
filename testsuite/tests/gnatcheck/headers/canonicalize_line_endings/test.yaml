@@ -1,0 +1,11 @@
+driver: gnatcheck
+format: short
+pre_python: >
+  set_line_endings("with_header_crlf.adb", "\r\n");
+  set_line_endings("header.txt", "\r\n");
+input_sources:
+  - with_header_lf.adb
+  - with_header_crlf.adb
+  - without_header.adb
+rules:
+  - +Rheaders:header.txt

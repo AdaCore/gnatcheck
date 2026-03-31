@@ -376,10 +376,13 @@ package Lkql_Checker.Rules is
      (Instance : One_String_Parameter_Instance; Indent_Level : Natural := 0);
 
    function Load_File
-     (Instance : in out One_String_Parameter_Instance'Class; To_Load : String)
-      return Boolean;
-   --  Load the `File_Name` file content in the rule parameter, then returns
-   --  if the file loading was successful.
+     (Instance                  : in out One_String_Parameter_Instance'Class;
+      To_Load                   : String;
+      Canonicalize_Line_Endings : Boolean := False) return Boolean;
+   --  Load the `To_Load` file content in the rule parameter, then returns
+   --  whether the file loading was successful.
+   --  If ``Canonicalize_Line_Endings`` is True, then all newlines characters
+   --  are canonicalized to a single LF character.
 
    -------------------------------------
    -- "One array parameter" instances --

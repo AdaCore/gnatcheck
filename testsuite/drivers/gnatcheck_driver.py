@@ -348,6 +348,20 @@ class GnatcheckDriver(BaseDriver):
             elif os.path.isdir(to_remove):
                 shutil.rmtree(to_remove)
 
+        def set_line_endings(filename: str, sequence: str):
+            """
+            Replace all line endings sequences in the specified file by the
+            provided sequence.
+            """
+            try:
+                with open(self.working_dir(filename), "r+") as f:
+                    content = f.read().replace("\n", sequence)
+                    f.seek(0)
+                    f.write(content)
+                    f.truncate()
+            except FileNotFoundError:
+                self.output += f"Cannot find the file {filename}\n"
+
         def cmd(f):
             """
             Wrap a Python function inside a logging function to add the name
@@ -356,7 +370,9 @@ class GnatcheckDriver(BaseDriver):
             """
 
             def res(*args, **kwargs):
-                args_image = f" {' '.join(args)}" if args else ""
+                args_image = (
+                    f" {' '.join([repr(a)[1: -1] for a in args])}" if args else ""
+                )
                 self.output += f'Running "{f.__name__}{args_image}"...\n'
                 f(*args, **kwargs)
 
@@ -369,6 +385,7 @@ class GnatcheckDriver(BaseDriver):
             "mkdir": cmd(mkdir),
             "ln": cmd(ln),
             "rm": cmd(rm),
+            "set_line_endings": cmd(set_line_endings),
         }, {}
         global_python = self.test_env.get("global_python", None)
         if global_python:

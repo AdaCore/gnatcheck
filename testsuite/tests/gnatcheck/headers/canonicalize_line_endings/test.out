@@ -1,0 +1,7 @@
+Running "set_line_endings with_header_crlf.adb /r/n"...
+Running "set_line_endings header.txt /r/n"...
+   no exempted violations detected
+without_header.adb:1:01: rule violation: compilation unit does not start with header
+   no rule exemption problems detected
+   no language violations detected
+   no internal error detected
