@@ -1,0 +1,10 @@
+Without "--no-project"
+======================
+
+main.adb:4:04: rule violation: redundant null statement
+
+With "--no-project"
+===================
+
+gnatcheck: error: no existing file to process
+>>>program returned status code 3
