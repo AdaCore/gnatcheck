@@ -354,8 +354,8 @@ class GnatcheckDriver(BaseDriver):
             provided sequence.
             """
             try:
-                with open(self.working_dir(filename), "r+") as f:
-                    content = f.read().replace("\n", sequence)
+                with open(self.working_dir(filename), "r+", newline="") as f:
+                    content = f.read().replace(os.linesep, sequence)
                     f.seek(0)
                     f.write(content)
                     f.truncate()
