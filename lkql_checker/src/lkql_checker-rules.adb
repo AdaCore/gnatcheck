@@ -3079,7 +3079,9 @@ package body Lkql_Checker.Rules is
               Expect_Literal (Params_Object, P_Name);
          begin
             Params_Object.Unset_Field (P_Name);
-            if not Instance.Load_File (To_Load => File_Name) then
+            if not Instance.Load_File
+                     (To_Load => File_Name, Canonicalize_Line_Endings => True)
+            then
                raise Invalid_Value with "cannot load file " & File_Name;
             end if;
          end;
