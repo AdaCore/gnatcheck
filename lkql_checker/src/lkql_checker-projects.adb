@@ -15,7 +15,7 @@ with GNAT.Regexp; use GNAT.Regexp;
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
-with Lkql_Checker.Diagnoses;
+with Lkql_Checker.Diagnostics;
 with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
 with Lkql_Checker.Options;          use Lkql_Checker.Options;
 with Lkql_Checker.Output;           use Lkql_Checker.Output;
@@ -1008,7 +1008,7 @@ package body Lkql_Checker.Projects is
          end if;
       end if;
 
-      Lkql_Checker.Diagnoses.Print_Report_Header;
+      Lkql_Checker.Diagnostics.Print_Report_Header;
 
       if Tool_Args.Text_Report_Enabled then
          Report ("");

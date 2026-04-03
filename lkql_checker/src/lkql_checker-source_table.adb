@@ -15,8 +15,8 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNAT.Table;
 with GNAT.Task_Lock;
 
-with Lkql_Checker.Diagnoses; use Lkql_Checker.Diagnoses;
-with Lkql_Checker.Output;    use Lkql_Checker.Output;
+with Lkql_Checker.Diagnostics; use Lkql_Checker.Diagnostics;
+with Lkql_Checker.Output;      use Lkql_Checker.Output;
 
 with GPR2.Build.Source;
 with GPR2.Path_Name;
@@ -169,7 +169,7 @@ package body Lkql_Checker.Source_Table is
    --  are performed:
    --
    --  - First, this routine checks if Fname is the name of some existing file,
-   --    and if it is not, generates the corresponding diagnosis and does
+   --    and if it is not, generates the corresponding diagnostic and does
    --    nothing more. If Arg_Project represents a project file being a tool
    --    parameter, it uses the corresponding project to check the file
    --    existence (no source search path should be used in this case!).
@@ -1299,13 +1299,13 @@ package body Lkql_Checker.Source_Table is
          exception
             when E : others =>
                if Tool_Args.Debug_Mode.Get then
-                  Store_Diagnosis
+                  Store_Diagnostic
                     (Full_File_Name => File_Name (Next_SF),
                      Sloc           => (1, 1),
                      Message        =>
                        "internal error: "
                        & Strip_LF (Exception_Information (E)),
-                     Diagnosis_Kind => Internal_Error,
+                     Kind           => Internal_Error,
                      SF             => Next_SF);
                end if;
          end;

@@ -29,34 +29,34 @@ with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Libadalang.Expr_Eval;
 
-package body Lkql_Checker.Diagnoses is
+package body Lkql_Checker.Diagnostics is
 
    use all type Ada.Containers.Count_Type;
 
    package LCO renames Libadalang.Common;
 
-   -----------------------
-   -- Diagnoses storage --
-   -----------------------
+   -------------------------
+   -- Diagnostics storage --
+   -------------------------
 
-   type Diag_Message is record
-      File           : Unbounded_String;
-      Sloc           : Langkit_Support.Slocs.Source_Location;
-      Text           : Unbounded_String;
-      Justification  : Unbounded_String;
-      Diagnosis_Kind : Diagnosis_Kinds;
-      Rule           : Rule_Id;
-      Instance       : Rule_Instance_Access;
-      SF             : SF_Id;
+   type Diagnostic is record
+      File          : Unbounded_String;
+      Sloc          : Langkit_Support.Slocs.Source_Location;
+      Text          : Unbounded_String;
+      Justification : Unbounded_String;
+      Kind          : Diagnostic_Kind;
+      Rule          : Rule_Id;
+      Instance      : Rule_Instance_Access;
+      SF            : SF_Id;
    end record;
 
-   function "<" (L, R : Diag_Message) return Boolean;
+   function "<" (L, R : Diagnostic) return Boolean;
 
-   function Image (Self : Diag_Message) return String;
+   function Image (Self : Diagnostic) return String;
 
    package Error_Messages_Storage is new
      Ada.Containers.Ordered_Sets
-       (Element_Type => Diag_Message,
+       (Element_Type => Diagnostic,
         "="          => "=",
         "<"          => "<");
 
@@ -65,12 +65,12 @@ package body Lkql_Checker.Diagnoses is
    Unused_Position : Error_Messages_Storage.Cursor;
    Unused_Inserted : Boolean;
 
-   -------------------------------------------
-   --  Local routines for diagnoses storage --
-   -------------------------------------------
+   --------------------------------------------
+   -- Local routines for diagnostics storage --
+   --------------------------------------------
 
    procedure Compute_Statistics;
-   --  Computes the number of violations and diagnoses of different kinds.
+   --  Computes the number of violations and diagnostics of different kinds.
    --  Results are stored in the corresponding counters in the package spec.
    --  Also computes file statistics and stores it in the following counters.
 
@@ -81,9 +81,9 @@ package body Lkql_Checker.Diagnoses is
    Sources_With_Exempted_Violations : Natural := 0;
    Ignored_Sources                  : Natural := 0;
 
-   -------------------------------------------
-   --  Local routines for report generation --
-   -------------------------------------------
+   ------------------------------------------
+   -- Local routines for report generation --
+   ------------------------------------------
 
    Rule_List_File_Name_Str           : constant String := "-rule-list";
    Source_List_File_Name_Str         : constant String := "-source-list";
@@ -118,21 +118,21 @@ package body Lkql_Checker.Diagnoses is
    --  files, files with no violations, files with violations, files with
    --  exempted violations only.
 
-   Diagnoses_To_Print : array (Rule_Violation .. Internal_Error) of Boolean :=
-     [others => False];
-   --  Specifies which diagnoses should be printed out by the following
+   Diagnostics_To_Print :
+     array (Rule_Violation .. Internal_Error) of Boolean := [others => False];
+   --  Specifies which diagnostics should be printed out by the following
    --  procedure
 
    Print_Exempted_Violations : Boolean;
    --  Flag specifying if exempted or non-exempted violations should be
-   --  printed. Has its effect only if Diagnoses_To_Print (Rule_Violation) is
+   --  printed. Has its effect only if Diagnostics_To_Print (Rule_Violation) is
    --  True.
 
-   procedure Print_Diagnoses;
-   --  Iterates through all the diagnoses and prints into the report file those
-   --  of them, for which Diagnoses_To_Print is True (and the value of
-   --  Print_Exempted_Violations either corresponds to the diagnosis or is not
-   --  applicable for the diagnosis kind).
+   procedure Print_Diagnostics;
+   --  Iterates through all the diagnostics and prints into the report file
+   --  those of them, for which Diagnostics_To_Print is True (and the value of
+   --  Print_Exempted_Violations either corresponds to the diagnostic or is
+   --  not applicable for the diagnostic kind).
 
    procedure Print_File_List_File;
    --  Prints the reference to the (actual argument or artificially created)
@@ -152,11 +152,11 @@ package body Lkql_Checker.Diagnoses is
    --  prints the output into XML output file, otherwise in the text output
    --  file.
 
-   procedure Print_Out_Diagnoses;
-   --  Duplicates diagnoses about non-exempted rule violations, exemption
+   procedure Print_Out_Diagnostics;
+   --  Duplicates diagnostics about non-exempted rule violations, exemption
    --  warnings and compiler error messages into stderr. Up to value specified
-   --  with the ``-m`` CLI option diagnoses are reported. If this value equal
-   --  to 0, all the diagnoses of these kinds are reported.
+   --  with the ``-m`` CLI option diagnostics are reported. If this value equal
+   --  to 0, all the diagnostics of these kinds are reported.
 
    procedure Print_Runtime (XML : Boolean := False);
    --  Prints the runtime version used for the checker call. It is either the
@@ -169,17 +169,16 @@ package body Lkql_Checker.Diagnoses is
    --  Prints the total numbers of: non-exempted)violations, exempted
    --  violations, exemption warnings and compiler errors.
 
-   procedure XML_Report_Diagnosis
-     (Diag : Diag_Message; Short_Report : Boolean);
-   --  Prints into XML report file the information from the diagnosis. The
+   procedure XML_Report_Diagnostic (Diag : Diagnostic; Short_Report : Boolean);
+   --  Prints into XML report file the information from the diagnostic. The
    --  boolean parameter is used to define the needed indentation level
 
    function Strip_Tag (Diag : String) return String;
    --  Strip trailing GNAT tag following the format " [-gnat<x>]", if any
 
-   ----------------------------------------------------------------------
-   --  Data structures and local routines for rule exemption mechanism --
-   ----------------------------------------------------------------------
+   ---------------------------------------------------------------------
+   -- Data structures and local routines for rule exemption mechanism --
+   ---------------------------------------------------------------------
 
    type Exemption_Kinds is (Not_An_Exemption, Exempt_On, Exempt_Off);
 
@@ -230,7 +229,7 @@ package body Lkql_Checker.Diagnoses is
       --  otherwise this is the exempted instance name.
 
       Detected : Natural;
-      --  Number of the diagnoses generated for exempted rule
+      --  Number of the diagnostics generated for exempted rule
    end record;
 
    package Exemption_Sections_Map is new
@@ -254,16 +253,16 @@ package body Lkql_Checker.Diagnoses is
    --  Checks if the given exemption identified by ``Id`` is in exempted state
 
    procedure Process_Postponed_Exemptions;
-   --  Iterate through the stored diagnoses and apply postponed exemptions to
-   --  diagnoses.
+   --  Iterate through the stored diagnostics and apply postponed exemptions to
+   --  diagnostics.
 
    procedure Turn_Off_Exemption
      (Id : Exemption_Id; Closing_Sloc : Source_Location; SF : SF_Id);
    --  Cleans up the stored exemption section for ``Name``.
 
-   -----------------------------
+   ---------------------------
    -- Parametric exemptions --
-   -----------------------------
+   ---------------------------
 
    type Parametrized_Exemption_Info is record
       Exempt_Info : Exemption_Info;
@@ -294,7 +293,7 @@ package body Lkql_Checker.Diagnoses is
    function Params_Img (Params : Rule_Params; Rule : Rule_Id) return String;
    --  Returns the string image of rule exemption parameters that are supposed
    --  to be stored in Params list (and Params is supposed to be not null) in
-   --  the format suitable for including in a diagnosis. Rule parameter is
+   --  the format suitable for including in a diagnostic. Rule parameter is
    --  needed to decide if we should fold the parameter in proper case (for
    --  sure we should not do this for Warnings rule)
 
@@ -342,8 +341,8 @@ package body Lkql_Checker.Diagnoses is
    --  checks if each of the specified parameters indeed can be used as rule
    --  exemption parameter. Returns a parsed set of parameters.
    --
-   --  If parameters are incorrect, diagnoses will be generated with the given
-   --  ``SF`` and ``SLOC``.
+   --  If parameters are incorrect, diagnostics will be generated with the
+   --  given ``SF`` and ``SLOC``.
 
    function Allows_Parametrized_Exemption (Rule : Rule_Id) return Boolean;
    --  Checks if Rule allows fine-tuned exemption (with specifying parameters
@@ -603,7 +602,7 @@ package body Lkql_Checker.Diagnoses is
       for Cursor in Exemption_Sections.Iterate loop
          Id := Exemption_Sections_Map.Key (Cursor);
          if Is_Exempted (Id) then
-            Store_Diagnosis
+            Store_Diagnostic
               (Full_File_Name => File_Name (SF),
                Sloc           =>
                  (Line_Number (Exemption_Sections (Id).Line_Start),
@@ -611,7 +610,7 @@ package body Lkql_Checker.Diagnoses is
                Message        =>
                  "no matching 'exempt_OFF' annotation for "
                  & To_String (Exemption_Sections (Id).Exempted_Name),
-               Diagnosis_Kind => Exemption_Warning,
+               Kind           => Exemption_Warning,
                SF             => SF);
             To_Turn_Off.Append (Id);
          end if;
@@ -632,7 +631,7 @@ package body Lkql_Checker.Diagnoses is
             Next_Section := First (Rule_Param_Exempt_Sections (Cursor));
 
             while Has_Element (Next_Section) loop
-               Store_Diagnosis
+               Store_Diagnostic
                  (Full_File_Name => Short_Source_Name (SF),
                   Sloc           =>
                     (Line_Number
@@ -643,7 +642,7 @@ package body Lkql_Checker.Diagnoses is
                     "no matching 'exempt_OFF' annotation for "
                     & To_String
                         (Element (Next_Section).Exempt_Info.Exempted_Name),
-                  Diagnosis_Kind => Exemption_Warning,
+                  Kind           => Exemption_Warning,
                   SF             => SF);
                Turn_Off_Parametrized_Exemption (Id, Next_Section, Sloc, SF);
                Next_Section := First (Rule_Param_Exempt_Sections (Cursor));
@@ -666,9 +665,9 @@ package body Lkql_Checker.Diagnoses is
         array (First_SF_Id .. Last_Argument_Source) of Violations_Detected :=
           [others => (False, False)];
 
-      procedure Count_Diagnoses (Position : Error_Messages_Storage.Cursor);
+      procedure Count_Diagnostics (Position : Error_Messages_Storage.Cursor);
 
-      procedure Count_Diagnoses (Position : Error_Messages_Storage.Cursor) is
+      procedure Count_Diagnostics (Position : Error_Messages_Storage.Cursor) is
          SF : constant SF_Id := Error_Messages_Storage.Element (Position).SF;
       begin
          if not Is_Argument_Source (SF) then
@@ -676,7 +675,7 @@ package body Lkql_Checker.Diagnoses is
             return;
          end if;
 
-         case Error_Messages_Storage.Element (Position).Diagnosis_Kind is
+         case Error_Messages_Storage.Element (Position).Kind is
             when Rule_Violation    =>
                if Error_Messages_Storage.Element (Position).Justification
                  = Null_Unbounded_String
@@ -697,10 +696,10 @@ package body Lkql_Checker.Diagnoses is
             when Internal_Error    =>
                Detected_Internal_Error := @ + 1;
          end case;
-      end Count_Diagnoses;
+      end Count_Diagnostics;
 
    begin
-      All_Error_Messages.Iterate (Count_Diagnoses'Access);
+      All_Error_Messages.Iterate (Count_Diagnostics'Access);
 
       for SF in First_SF_Id .. Last_Argument_Source loop
          if Source_Status (SF) in Not_A_Legal_Source | Error_Detected then
@@ -811,7 +810,7 @@ package body Lkql_Checker.Diagnoses is
    -- "<" --
    ---------
 
-   function "<" (L, R : Diag_Message) return Boolean is
+   function "<" (L, R : Diagnostic) return Boolean is
    begin
       return
         L.File < R.File
@@ -878,13 +877,13 @@ package body Lkql_Checker.Diagnoses is
       end if;
 
       if Detected_Exempted_Violations > 0 then
-         Diagnoses_To_Print :=
+         Diagnostics_To_Print :=
            [Rule_Violation    => True,
             Exemption_Warning => False,
             Compiler_Error    => False,
             Internal_Error    => False];
          Print_Exempted_Violations := True;
-         Print_Diagnoses;
+         Print_Diagnostics;
 
       else
          if Tool_Args.Text_Report_Enabled then
@@ -906,13 +905,13 @@ package body Lkql_Checker.Diagnoses is
       end if;
 
       if Detected_Non_Exempted_Violations > 0 then
-         Diagnoses_To_Print :=
+         Diagnostics_To_Print :=
            [Rule_Violation    => True,
             Exemption_Warning => False,
             Compiler_Error    => False,
             Internal_Error    => False];
          Print_Exempted_Violations := False;
-         Print_Diagnoses;
+         Print_Diagnostics;
 
       else
          if Tool_Args.Text_Report_Enabled then
@@ -934,12 +933,12 @@ package body Lkql_Checker.Diagnoses is
       end if;
 
       if Detected_Exemption_Warning > 0 then
-         Diagnoses_To_Print :=
+         Diagnostics_To_Print :=
            [Rule_Violation    => False,
             Exemption_Warning => True,
             Compiler_Error    => False,
             Internal_Error    => False];
-         Print_Diagnoses;
+         Print_Diagnostics;
 
       else
          if Tool_Args.Text_Report_Enabled then
@@ -962,12 +961,12 @@ package body Lkql_Checker.Diagnoses is
       end if;
 
       if Detected_Compiler_Error > 0 then
-         Diagnoses_To_Print :=
+         Diagnostics_To_Print :=
            [Rule_Violation    => False,
             Exemption_Warning => False,
             Compiler_Error    => True,
             Internal_Error    => False];
-         Print_Diagnoses;
+         Print_Diagnostics;
 
       else
          if Tool_Args.Text_Report_Enabled then
@@ -989,12 +988,12 @@ package body Lkql_Checker.Diagnoses is
       end if;
 
       if Detected_Internal_Error > 0 then
-         Diagnoses_To_Print :=
+         Diagnostics_To_Print :=
            [Rule_Violation    => False,
             Exemption_Warning => False,
             Compiler_Error    => False,
             Internal_Error    => True];
-         Print_Diagnoses;
+         Print_Diagnostics;
 
       else
          if Tool_Args.Text_Report_Enabled then
@@ -1044,10 +1043,10 @@ package body Lkql_Checker.Diagnoses is
          XML_Report ("</gnatcheck-report>");
       end if;
 
-      --  Sending the diagnoses into Stderr
+      --  Sending the diagnostics into Stderr
 
       if Tool_Args.Brief_Mode or not Tool_Args.Quiet_Mode then
-         Print_Out_Diagnoses;
+         Print_Out_Diagnostics;
       end if;
    end Generate_Qualification_Report;
 
@@ -1214,9 +1213,9 @@ package body Lkql_Checker.Diagnoses is
       return No_Element;
    end Exemption_Section_With_Params;
 
-   ---------------------------------------
+   --------------------------------------
    -- Map_On_Postponed_Check_Exemption --
-   ---------------------------------------
+   --------------------------------------
 
    procedure Map_On_Postponed_Check_Exemption
      (In_File       : SF_Id;
@@ -1476,29 +1475,29 @@ package body Lkql_Checker.Diagnoses is
              = Checked_Sources + Unverified_Sources);
    end Print_Argument_Files_Summary;
 
-   ---------------------
-   -- Print_Diagnoses --
-   ---------------------
+   -----------------------
+   -- Print_Diagnostics --
+   -----------------------
 
-   procedure Print_Diagnoses is
+   procedure Print_Diagnostics is
 
-      procedure Print_Specified_Diagnoses
+      procedure Print_Specified_Diagnostics
         (Position : Error_Messages_Storage.Cursor);
       --  Print the given message if relevant.
       --  Iterator for Error_Messages_Storage
 
-      -------------------------------
-      -- Print_Specified_Diagnoses --
-      -------------------------------
+      ---------------------------------
+      -- Print_Specified_Diagnostics --
+      ---------------------------------
 
-      procedure Print_Specified_Diagnoses
+      procedure Print_Specified_Diagnostics
         (Position : Error_Messages_Storage.Cursor)
       is
-         Diag : constant Diag_Message :=
+         Diag : constant Diagnostic :=
            Error_Messages_Storage.Element (Position);
       begin
-         if Diagnoses_To_Print (Diag.Diagnosis_Kind) then
-            if Diag.Diagnosis_Kind = Rule_Violation
+         if Diagnostics_To_Print (Diag.Kind) then
+            if Diag.Kind = Rule_Violation
               and then Print_Exempted_Violations
                        = (Diag.Justification = Null_Unbounded_String)
             then
@@ -1514,14 +1513,14 @@ package body Lkql_Checker.Diagnoses is
             end if;
 
             if Tool_Args.XML_Report_Enabled then
-               XML_Report_Diagnosis (Diag, Tool_Args.Short_Report);
+               XML_Report_Diagnostic (Diag, Tool_Args.Short_Report);
             end if;
          end if;
-      end Print_Specified_Diagnoses;
+      end Print_Specified_Diagnostics;
 
    begin
-      All_Error_Messages.Iterate (Print_Specified_Diagnoses'Access);
-   end Print_Diagnoses;
+      All_Error_Messages.Iterate (Print_Specified_Diagnostics'Access);
+   end Print_Diagnostics;
 
    --------------------------
    -- Print_File_List_File --
@@ -1592,9 +1591,9 @@ package body Lkql_Checker.Diagnoses is
       end if;
    end Print_File_List_File;
 
-   ----------------------------------
+   ------------------------
    -- Print_Command_Line --
-   ----------------------------------
+   ------------------------
 
    procedure Print_Command_Line (XML : Boolean := False) is
    begin
@@ -1696,56 +1695,56 @@ package body Lkql_Checker.Diagnoses is
       end if;
    end Print_Ignored_File_List_File;
 
-   -------------------------
-   -- Print_Out_Diagnoses --
-   -------------------------
+   ---------------------------
+   -- Print_Out_Diagnostics --
+   ---------------------------
 
-   procedure Print_Out_Diagnoses is
-      Max_Diagnoses      : constant Natural :=
-        (if Mode = Gnatkp_Mode then 0 else Tool_Args.Max_Diagnoses.Get);
-      Diagnoses_Reported : Natural := 0;
-      Limit_Exceeded     : Boolean := False;
+   procedure Print_Out_Diagnostics is
+      Max_Diagnostics      : constant Natural :=
+        (if Mode = Gnatkp_Mode then 0 else Tool_Args.Max_Diagnostics.Get);
+      Diagnostics_Reported : Natural := 0;
+      Limit_Exceeded       : Boolean := False;
 
-      procedure Print_Diagnosis (Position : Error_Messages_Storage.Cursor);
-      --  Print the diagnosis at the given position
+      procedure Print_Diagnostic (Position : Error_Messages_Storage.Cursor);
+      --  Print the diagnostic at the given position
 
-      procedure Count_And_Print_Diagnosis
+      procedure Count_And_Print_Diagnostic
         (Position : Error_Messages_Storage.Cursor);
-      --  Check whether the number of printed diagnoses is exceeding the limit,
-      --  then print either a warning message or the diagnosis itself.
+      --  Check whether the number of printed diagnostics is exceeding the
+      --  limit, then print either a warning message or the diagnostic itself.
 
-      procedure Print_Diagnosis (Position : Error_Messages_Storage.Cursor) is
+      procedure Print_Diagnostic (Position : Error_Messages_Storage.Cursor) is
       begin
          if Error_Messages_Storage.Element (Position).Justification
            = Null_Unbounded_String
          then
-            Diagnoses_Reported := @ + 1;
+            Diagnostics_Reported := @ + 1;
             Print
               (Strip_Tag (Image (Error_Messages_Storage.Element (Position))));
          end if;
-      end Print_Diagnosis;
+      end Print_Diagnostic;
 
-      procedure Count_And_Print_Diagnosis
+      procedure Count_And_Print_Diagnostic
         (Position : Error_Messages_Storage.Cursor) is
       begin
          if not Limit_Exceeded then
-            if Diagnoses_Reported >= Max_Diagnoses then
+            if Diagnostics_Reported >= Max_Diagnostics then
                Limit_Exceeded := True;
                Info
-                 ("maximum diagnoses reached, see the report file for full "
+                 ("maximum diagnostics reached, see the report file for full "
                   & "details");
             else
-               Print_Diagnosis (Position);
+               Print_Diagnostic (Position);
             end if;
          end if;
-      end Count_And_Print_Diagnosis;
+      end Count_And_Print_Diagnostic;
 
    begin
       All_Error_Messages.Iterate
-        ((if Max_Diagnoses > 0
-          then Count_And_Print_Diagnosis'Access
-          else Print_Diagnosis'Access));
-   end Print_Out_Diagnoses;
+        ((if Max_Diagnostics > 0
+          then Count_And_Print_Diagnostic'Access
+          else Print_Diagnostic'Access));
+   end Print_Out_Diagnostics;
 
    -------------------------
    -- Print_Report_Header --
@@ -1966,15 +1965,15 @@ package body Lkql_Checker.Diagnoses is
       Param       : Unbounded_String;
 
       procedure Exempt_Diag (Msg : String);
-      --  Store a new diagnosis aboit the current processed exempt action
+      --  Store a new diagnostic aboit the current processed exempt action
 
       procedure Exempt_Diag (Msg : String) is
       begin
-         Store_Diagnosis
+         Store_Diagnostic
            (Full_File_Name => Self.Unit.Get_Filename,
             Sloc           => Sloc_Start,
             Message        => Msg,
-            Diagnosis_Kind => Exemption_Warning,
+            Kind           => Exemption_Warning,
             SF             => SF);
       end Exempt_Diag;
 
@@ -2309,13 +2308,13 @@ package body Lkql_Checker.Diagnoses is
       begin
          if Is_Line then
             if State = "on" then
-               Store_Diagnosis
+               Store_Diagnostic
                  (Full_File_Name => Unit.Get_Filename,
                   Sloc           =>
                     Langkit_Support.Slocs.Start_Sloc (Sloc_Range (Data (El))),
                   Message        =>
                     "State should be ""off"" for line exemption",
-                  Diagnosis_Kind => Exemption_Warning,
+                  Kind           => Exemption_Warning,
                   SF             => SF);
             end if;
 
@@ -2378,11 +2377,11 @@ package body Lkql_Checker.Diagnoses is
       --
       --  1. Check that we have at least three parameters
       if Pragma_Args.Children_Count < 3 then
-         Store_Diagnosis
+         Store_Diagnostic
            (Full_File_Name => El.Unit.Get_Filename,
             Sloc           => Start_Sloc (El.Sloc_Range),
             Message        => "too few parameters for exemption, ignored",
-            Diagnosis_Kind => Exemption_Warning,
+            Kind           => Exemption_Warning,
             SF             => SF);
          return;
       end if;
@@ -2418,11 +2417,11 @@ package body Lkql_Checker.Diagnoses is
                  Sloc_Image (Start_Sloc (El.Sloc_Range)));
 
             if Is_Empty (Action.Params) then
-               Store_Diagnosis
+               Store_Diagnostic
                  (Full_File_Name => El.Unit.Get_Filename,
                   Sloc           => Start_Sloc (El.Sloc_Range),
                   Message        => "Invalid parameters",
-                  Diagnosis_Kind => Exemption_Warning,
+                  Kind           => Exemption_Warning,
                   SF             => SF);
             end if;
          end if;
@@ -2445,13 +2444,13 @@ package body Lkql_Checker.Diagnoses is
             when Property_Error =>
                --  If we couldn't evaluate the expression as a string, a
                --  property_error will have been raised. In that case, emit a
-               --  diagnosis.
-               Store_Diagnosis
+               --  diagnostic.
+               Store_Diagnostic
                  (Full_File_Name => El.Unit.Get_Filename,
                   Sloc           => Start_Sloc (El.Sloc_Range),
                   Message        =>
                     "exemption justification should be a string",
-                  Diagnosis_Kind => Exemption_Warning,
+                  Kind           => Exemption_Warning,
                   SF             => SF);
 
                --  We already notified the user of the problem, make sure we
@@ -2462,11 +2461,11 @@ package body Lkql_Checker.Diagnoses is
       end if;
 
       if Pragma_Args.Children_Count > 4 then
-         Store_Diagnosis
+         Store_Diagnostic
            (Full_File_Name => El.Unit.Get_Filename,
             Sloc           => Start_Sloc (El.Sloc_Range),
             Message        => "rule exemption may have at most 4 parameters",
-            Diagnosis_Kind => Exemption_Warning,
+            Kind           => Exemption_Warning,
             SF             => SF);
       end if;
 
@@ -2488,41 +2487,38 @@ package body Lkql_Checker.Diagnoses is
 
       Next_Par_S_Info : Parametrized_Exemption_Info;
 
-      procedure Map_Diagnosis (Position : Error_Messages_Storage.Cursor);
-      --  Maps the diagnosis pointed by the argument onto stored information
-      --  about exemption sections. If the diagnosis points to some place
-      --  inside some exemption section, and the diagnosis is not exempted,
-      --  then the diagnosis is exempted by adding the justification from the
+      procedure Map_Diagnostic (Position : Error_Messages_Storage.Cursor);
+      --  Maps the diagnostic pointed by the argument onto stored information
+      --  about exemption sections. If the diagnostic points to some place
+      --  inside some exemption section, and the diagnostic is not exempted,
+      --  then the diagnostic is exempted by adding the justification from the
       --  exemption section, and the corresponding exemption violation is
       --  counted for the given exemption section
 
-      procedure Map_Diagnosis (Position : Error_Messages_Storage.Cursor) is
-         Diag        : Diag_Message :=
-           Error_Messages_Storage.Element (Position);
+      procedure Map_Diagnostic (Position : Error_Messages_Storage.Cursor) is
+         Diag        : Diagnostic := Error_Messages_Storage.Element (Position);
          Diag_Line   : constant Positive := Positive (Diag.Sloc.Line);
          Diag_Column : constant Positive := Positive (Diag.Sloc.Column);
          SF          : constant SF_Id := Diag.SF;
          R_Name      : constant String :=
-           (if Diag.Diagnosis_Kind = Rule_Violation
-            then Rule_Name (Diag.Rule)
-            else "");
+           (if Diag.Kind = Rule_Violation then Rule_Name (Diag.Rule) else "");
          I_Name      : constant String :=
            (if Diag.Instance /= null and then Diag.Instance.Is_Alias
             then Instance_Name (Diag.Instance.all)
             else "");
          Is_Exempted : Boolean;
       begin
-         if Diag.Diagnosis_Kind /= Rule_Violation then
+         if Diag.Kind /= Rule_Violation then
             return;
          end if;
 
          if Diag.Justification /= Null_Unbounded_String then
-            --  Some diagnoses may be already exempted
+            --  Some diagnostics may be already exempted
             return;
          end if;
 
          if not Present (SF) then
-            --  This is the case when the diagnosis is generated for
+            --  This is the case when the diagnostic is generated for
             --  expanded generic, and the generic itself is not an input.
             return;
          end if;
@@ -2577,15 +2573,16 @@ package body Lkql_Checker.Diagnoses is
          if Is_Exempted then
             All_Error_Messages.Replace_Element (Position, Diag);
          end if;
-      end Map_Diagnosis;
+      end Map_Diagnostic;
 
       --  Start of processing for Process_Postponed_Exemptions
 
    begin
-      All_Error_Messages.Iterate (Map_Diagnosis'Access);
+      All_Error_Messages.Iterate (Map_Diagnostic'Access);
 
       --  Now, iterate through the stored exemption and generate exemption
-      --  warnings for those of them for which no exempted diagnoses are found.
+      --  warnings for those of them for which no exempted diagnostics are
+      --  found.
 
       for SF in First_SF_Id .. Last_Argument_Source loop
          --  Non-parametric exemption
@@ -2596,7 +2593,7 @@ package body Lkql_Checker.Diagnoses is
 
             while Next_Postponed_Section /= null loop
                if Next_Postponed_Section.Exemption_Section.Detected = 0 then
-                  Store_Diagnosis
+                  Store_Diagnostic
                     (Full_File_Name => File_Name (SF),
                      Sloc           =>
                        (Line_Number
@@ -2613,7 +2610,7 @@ package body Lkql_Checker.Diagnoses is
                        & Next_Postponed_Section
                            .Exemption_Section
                            .Line_Start'Img,
-                     Diagnosis_Kind => Exemption_Warning,
+                     Kind           => Exemption_Warning,
                      SF             => SF);
                end if;
 
@@ -2637,7 +2634,7 @@ package body Lkql_Checker.Diagnoses is
                   Next_Par_S_Info := Element (Next_Post_Param_Section);
 
                   if Next_Par_S_Info.Exempt_Info.Detected = 0 then
-                     Store_Diagnosis
+                     Store_Diagnostic
                        (Full_File_Name => File_Name (SF),
                         Sloc           =>
                           (Line_Number (Next_Par_S_Info.Exempt_Info.Line_End),
@@ -2652,7 +2649,7 @@ package body Lkql_Checker.Diagnoses is
                               (Next_Par_S_Info.Params, Next_Par_S_Info.Rule)
                           & "' in exemption section starting at line"
                           & Next_Par_S_Info.Exempt_Info.Line_Start'Img,
-                        Diagnosis_Kind => Exemption_Warning,
+                        Kind           => Exemption_Warning,
                         SF             => SF);
                   end if;
 
@@ -2776,20 +2773,20 @@ package body Lkql_Checker.Diagnoses is
                Params.Insert (Param, Position, Success);
 
                if not Success then
-                  Store_Diagnosis
-                    (Text           =>
+                  Store_Diagnostic
+                    (Text =>
                        File_Name (SF)
                        & ":"
                        & SLOC
                        & ": parameter "
                        & Param
                        & " duplicated in exemption",
-                     Diagnosis_Kind => Exemption_Warning,
-                     SF             => SF);
+                     Kind => Exemption_Warning,
+                     SF   => SF);
                end if;
             else
-               Store_Diagnosis
-                 (Text           =>
+               Store_Diagnostic
+                 (Text =>
                     File_Name (SF)
                     & ":"
                     & SLOC
@@ -2797,8 +2794,8 @@ package body Lkql_Checker.Diagnoses is
                     & Param
                     & " is not allowed in exemption for rule "
                     & Rule_Name (Rule),
-                  Diagnosis_Kind => Exemption_Warning,
-                  SF             => SF);
+                  Kind => Exemption_Warning,
+                  SF   => SF);
             end if;
          end;
 
@@ -2835,21 +2832,21 @@ package body Lkql_Checker.Diagnoses is
       return Sloc_Image (Natural (Sloc.Line), Natural (Sloc.Column));
    end Sloc_Image;
 
-   ---------------------
-   -- Store_Diagnosis --
-   ---------------------
+   ----------------------
+   -- Store_Diagnostic --
+   ----------------------
 
-   procedure Store_Diagnosis
-     (Text           : String;
-      Diagnosis_Kind : Diagnosis_Kinds;
-      SF             : SF_Id;
-      Rule           : Rule_Id := No_Rule_Id;
-      Instance       : Rule_Instance_Access := null)
+   procedure Store_Diagnostic
+     (Text     : String;
+      Kind     : Diagnostic_Kind;
+      SF       : SF_Id;
+      Rule     : Rule_Id := No_Rule_Id;
+      Instance : Rule_Instance_Access := null)
    is
       Matches : Match_Array (0 .. 5);
       Sloc    : Source_Location;
    begin
-      Match (Match_Diagnosis, Text, Matches);
+      Match (Match_Diagnostic, Text, Matches);
 
       pragma
         Assert
@@ -2860,21 +2857,21 @@ package body Lkql_Checker.Diagnoses is
       Sloc.Column :=
         Column_Number'Value (Text (Matches (4).First .. Matches (4).Last));
 
-      Store_Diagnosis
+      Store_Diagnostic
         (Full_File_Name => Text (Matches (1).First .. Matches (1).Last),
          Sloc           => Sloc,
          Message        => Text (Matches (5).First .. Matches (5).Last),
-         Diagnosis_Kind => Diagnosis_Kind,
+         Kind           => Kind,
          SF             => SF,
          Rule           => Rule,
          Instance       => Instance);
-   end Store_Diagnosis;
+   end Store_Diagnostic;
 
-   procedure Store_Diagnosis
+   procedure Store_Diagnostic
      (Full_File_Name : String;
       Message        : String;
       Sloc           : Source_Location;
-      Diagnosis_Kind : Diagnosis_Kinds;
+      Kind           : Diagnostic_Kind;
       SF             : SF_Id;
       Rule           : Rule_Id := No_Rule_Id;
       Instance       : Rule_Instance_Access := null)
@@ -2884,29 +2881,30 @@ package body Lkql_Checker.Diagnoses is
           (if Tool_Args.Full_Source_Locations.Get
            then Full_File_Name
            else Simple_Name (Full_File_Name));
-      Tmp       : Diag_Message :=
-        (Text           => To_Unbounded_String (Message),
-         Sloc           => Sloc,
-         File           => File_Name,
-         Justification  => Null_Unbounded_String,
-         Diagnosis_Kind => Diagnosis_Kind,
-         Rule           => Rule,
-         Instance       => Instance,
-         SF             => SF);
+      Tmp       : Diagnostic :=
+        (Text          => To_Unbounded_String (Message),
+         Sloc          => Sloc,
+         File          => File_Name,
+         Justification => Null_Unbounded_String,
+         Kind          => Kind,
+         Rule          => Rule,
+         Instance      => Instance,
+         SF            => SF);
    begin
-      --  We need this check to avoid diagnoses duplication. Our set container
-      --  has broken "<" relation, so Insert may add diagnoses that are already
-      --  stored in the container (see the documentation for "<" for more
+      --  We need this check to avoid diagnostics duplication. Our set
+      --  container has broken "<" relation, so Insert may add diagnostics
+      --  that are already stored in the container (see the documentation for
+      --  "<" for more
       --  details.
       if not All_Error_Messages.Contains (Tmp) then
-         if Diagnosis_Kind = Compiler_Error then
+         if Kind = Compiler_Error then
             Set_Source_Status (SF, Not_A_Legal_Source);
-         elsif Diagnosis_Kind = Internal_Error then
+         elsif Kind = Internal_Error then
             Set_Source_Status (SF, Error_Detected);
          end if;
          All_Error_Messages.Insert (Tmp, Unused_Position, Unused_Inserted);
       end if;
-   end Store_Diagnosis;
+   end Store_Diagnostic;
 
    ---------------
    -- Strip_Tag --
@@ -2978,25 +2976,25 @@ package body Lkql_Checker.Diagnoses is
       Rule_Param_Exempt_Sections (Id).Delete (Exempted_At);
    end Turn_Off_Parametrized_Exemption;
 
-   --------------------------
-   -- XML_Report_Diagnosis --
-   --------------------------
+   ---------------------------
+   -- XML_Report_Diagnostic --
+   ---------------------------
 
-   procedure XML_Report_Diagnosis (Diag : Diag_Message; Short_Report : Boolean)
+   procedure XML_Report_Diagnostic (Diag : Diagnostic; Short_Report : Boolean)
    is
       Indentation : constant Natural := (if Short_Report then 1 else 2);
       Exempted    : constant Boolean :=
-        Diag.Diagnosis_Kind = Rule_Violation
+        Diag.Kind = Rule_Violation
         and then Diag.Justification /= Null_Unbounded_String;
       Message     : constant String := Strip_Tag (To_String (Diag.Text));
       M_Start     : Natural := Message'First;
    begin
       XML_Report_No_EOL
-        ((if Diag.Diagnosis_Kind = Exemption_Warning
+        ((if Diag.Kind = Exemption_Warning
           then "<exemption-problem"
-          elsif Diag.Diagnosis_Kind = Compiler_Error
+          elsif Diag.Kind = Compiler_Error
           then "<compiler-error"
-          elsif Diag.Diagnosis_Kind = Internal_Error
+          elsif Diag.Kind = Internal_Error
           then "<internal-error"
           elsif Exempted
           then "<exempted-violation"
@@ -3017,7 +3015,7 @@ package body Lkql_Checker.Diagnoses is
              (Column_Number'Image (Diag.Sloc.Column), Left)
          & """");
 
-      if Diag.Diagnosis_Kind = Rule_Violation then
+      if Diag.Kind = Rule_Violation then
          XML_Report_No_EOL (" rule-id=""" & Rule_Name (Diag.Rule) & '"');
       end if;
 
@@ -3025,7 +3023,7 @@ package body Lkql_Checker.Diagnoses is
 
       --  Strip the "error: " tag from the diagnostic message if it is a
       --  compiler error.
-      if Diag.Diagnosis_Kind = Compiler_Error then
+      if Diag.Kind = Compiler_Error then
          M_Start := Index (Message, "error: ");
          if M_Start = 0 then
             M_Start := Message'First;
@@ -3049,23 +3047,23 @@ package body Lkql_Checker.Diagnoses is
       end if;
 
       XML_Report
-        ((if Diag.Diagnosis_Kind = Exemption_Warning
+        ((if Diag.Kind = Exemption_Warning
           then "</exemption-problem>"
-          elsif Diag.Diagnosis_Kind = Compiler_Error
+          elsif Diag.Kind = Compiler_Error
           then "</compiler-error>"
-          elsif Diag.Diagnosis_Kind = Internal_Error
+          elsif Diag.Kind = Internal_Error
           then "</internal-error>"
           elsif Exempted
           then "</exempted-violation>"
           else "</violation>"),
          Indent_Level => Indentation);
-   end XML_Report_Diagnosis;
+   end XML_Report_Diagnostic;
 
    -----------
    -- Image --
    -----------
 
-   function Image (Self : Diag_Message) return String is
+   function Image (Self : Diagnostic) return String is
       function Image (Sloc : Source_Location) return String;
       --  Custom image function for Langkit source locations, that will add a
       --  leading 0 for columns under 10.
@@ -3086,7 +3084,7 @@ package body Lkql_Checker.Diagnoses is
       end Image;
 
       Tag_String : constant String :=
-        (case Self.Diagnosis_Kind is
+        (case Self.Kind is
            when Rule_Violation    =>
              (if Self.Justification /= Null_Unbounded_String
               then "rule violation (exempted): "
@@ -3103,4 +3101,4 @@ package body Lkql_Checker.Diagnoses is
         & To_String (Self.Text);
    end Image;
 
-end Lkql_Checker.Diagnoses;
+end Lkql_Checker.Diagnostics;

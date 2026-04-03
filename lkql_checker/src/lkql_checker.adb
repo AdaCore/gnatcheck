@@ -16,7 +16,7 @@ with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
 
 with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
-with Lkql_Checker.Diagnoses;        use Lkql_Checker.Diagnoses;
+with Lkql_Checker.Diagnostics;      use Lkql_Checker.Diagnostics;
 with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
 with Lkql_Checker.Options;          use Lkql_Checker.Options;
 with Lkql_Checker.Output;           use Lkql_Checker.Output;
@@ -590,7 +590,7 @@ package body Lkql_Checker is
 
       --  Process the include file
       if Tool_Args.Include_File.Get /= Null_Unbounded_String then
-         Lkql_Checker.Diagnoses.Process_User_Filename
+         Lkql_Checker.Diagnostics.Process_User_Filename
            (To_String (Tool_Args.Include_File.Get));
       end if;
 
@@ -736,7 +736,7 @@ package body Lkql_Checker is
 
    exception
       when Parameter_Error =>
-         --  The diagnosis is already generated
+         --  The diagnostic is already generated
          Print
            ("try """
             & Lkql_Checker_Mode_Image
@@ -749,7 +749,7 @@ package body Lkql_Checker is
          OS_Exit (E_Error);
 
       when Fatal_Error =>
-         --  The diagnosis is already generated
+         --  The diagnostic is already generated
          OS_Exit (E_Error);
 
       when Ex : others =>

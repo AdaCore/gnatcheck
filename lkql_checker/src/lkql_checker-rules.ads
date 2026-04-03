@@ -141,7 +141,7 @@ package Lkql_Checker.Rules is
       Rule_Param_From_Diag : access function (Diag : String) return String;
       --  Access to a function which assumes that
       --  `Allows_Parametrized_Exemption (Rule)` is True and `Diag` is a
-      --  diagnosis emitted for `Rule`. This function returns the formal
+      --  diagnostic emitted for `Rule`. This function returns the formal
       --  parameter name which `Diag` has been generated for.
 
       Create_Instance :

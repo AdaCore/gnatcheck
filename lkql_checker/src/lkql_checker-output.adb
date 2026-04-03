@@ -557,7 +557,7 @@ package body Lkql_Checker.Output is
       Put_Line
         (" --list-rules             - print out the list of the currently implemented rules");
       Put_Line
-        (" -mn                      - n is the maximal number of diagnoses in Stderr");
+        (" -mn                      - n is the maximal number of diagnostics in Stderr");
       Put_Line
         ("                            (n in 0 .. 1000, 0 means no limit); default is 0");
       Put_Line
@@ -578,7 +578,7 @@ package body Lkql_Checker.Output is
         (" -nt                      - do not generate text report (enforces '-xml')");
       Put_Line ("");
       Put_Line
-        (" --show-rule                - append rule names to diagnoses generated");
+        (" --show-rule                - append rule names to diagnostics generated");
       Put_Line
         (" --show-instantiation-chain - show instantiation chain for reported generic construct");
       Put_Line ("");

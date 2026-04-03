@@ -190,7 +190,7 @@ package Lkql_Checker.Source_Table is
 
    --  We use an ordered set for temporary file storage to ensure as much
    --  determinism in the tool output as possible (in case if a tool prints out
-   --  the results and/or diagnoses on per-file basis).
+   --  the results and/or diagnostics on per-file basis).
 
    function File_Name_Is_Less_Than (L, R : String) return Boolean;
    --  Assuming that L and R are file names compares them as follows:

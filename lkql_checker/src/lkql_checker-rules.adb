@@ -191,9 +191,9 @@ package body Lkql_Checker.Rules is
    is (To_Lower (Param)
        in "type" | "constant" | "enum" | "exception" | "others" | "exclude");
 
-   ---------------------------------------------
-   -- Rule parameter from diagnosis functions --
-   ---------------------------------------------
+   ----------------------------------------------
+   -- Rule parameter from diagnostic functions --
+   ----------------------------------------------
 
    function No_Param_From_Diag (Ignored_Diag : String) return String
    is ("");
@@ -960,7 +960,7 @@ package body Lkql_Checker.Rules is
          & """/>");
    end Silent_Exc_Handler_Param_XML_Help;
 
-   --  == Parameter name from diagnosis
+   --  == Parameter name from diagnostic
 
    -------------------------------
    -- Id_Suffix_Param_From_Diag --
@@ -1071,7 +1071,7 @@ package body Lkql_Checker.Rules is
    begin
       if Tool_Args.Show_Rule.Get then
 
-         --  The diagnosis has the following format:
+         --  The diagnostic has the following format:
          --     foo.adb:nn:mm: use of pragma Bar [Rule_Name]
          Last_Idx := First_Idx - 2;
          First_Idx :=

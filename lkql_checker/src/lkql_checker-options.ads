@@ -288,10 +288,11 @@ package Lkql_Checker.Options is
    -- Tool specific switches --
    ----------------------------
 
-   subtype Max_Diagnoses_Count is Natural range 0 .. 1000;
+   subtype Max_Diagnostics_Count is Natural range 0 .. 1000;
 
    function Jobs_Convert (Arg : String) return Natural;
-   function Max_Diagnoses_Convert (Arg : String) return Max_Diagnoses_Count;
+   function Max_Diagnostics_Convert
+     (Arg : String) return Max_Diagnostics_Count;
 
    function Is_New_Section (Arg : XString) return Boolean;
 
@@ -423,18 +424,18 @@ package Lkql_Checker.Options is
            Name   => "Verbose mode",
            Help   => "enable the verbose mode");
 
-      package Max_Diagnoses is new
+      package Max_Diagnostics is new
         Parse_Option
           (Parser      => Parser,
            Enabled     => Mode in Gnatcheck_Mode,
            Short       => "-m",
-           Name        => "Max diagnoses",
-           Arg_Type    => Max_Diagnoses_Count,
+           Name        => "Max diagnostics",
+           Arg_Type    => Max_Diagnostics_Count,
            Default_Val => 0,
-           Convert     => Max_Diagnoses_Convert,
+           Convert     => Max_Diagnostics_Convert,
            Help        =>
-             "set the maximal number of diagnoses in stderr (0 for all "
-             & "diagnoses, default is 0)");
+             "set the maximal number of diagnostics in stderr (0 for all "
+             & "diagnostics, default is 0)");
 
       package Brief is new
         Parse_Flag
@@ -506,7 +507,7 @@ package Lkql_Checker.Options is
           (Parser  => Parser,
            Enabled => Mode in Gnatcheck_Mode,
            Long    => "--show-rule",
-           Help    => "append rule names to diagnoses generated");
+           Help    => "append rule names to diagnostics generated");
 
       package Show_Instantiation_Chain is new
         Parse_Flag

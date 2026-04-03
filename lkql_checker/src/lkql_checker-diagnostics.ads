@@ -21,15 +21,15 @@ with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 with Libadalang.Analysis;
 with Libadalang.Common;
 
-package Lkql_Checker.Diagnoses is
+package Lkql_Checker.Diagnostics is
 
    package LAL renames Libadalang;
 
-   ------------------------
-   -- Diagnoses matching --
-   ------------------------
+   --------------------------
+   -- Diagnostics matching --
+   --------------------------
 
-   Match_Diagnosis : constant Pattern_Matcher :=
+   Match_Diagnostic : constant Pattern_Matcher :=
      Compile ("^(([A-Z]:)?[^:]*):(\d+):(\d+): (.*)$");
    --  Matcher for a diagnostic
 
@@ -50,42 +50,42 @@ package Lkql_Checker.Diagnoses is
    Match_Kp_Exempt_Comment : constant Pattern_Matcher :=
      Compile ("--##\s*kp" & Common_Exempt_Comment_Match);
 
-   -----------------------
-   -- Diagnoses storage --
-   -----------------------
+   -------------------------
+   -- Diagnostics storage --
+   -------------------------
 
-   type Diagnosis_Kinds is
+   type Diagnostic_Kind is
      (Rule_Violation,
-      --  Corresponds to all rule diagnoses, including compiler checks
+      --  Corresponds to all rule diagnostics, including compiler checks
       Exemption_Warning,
       --  Warnings generated for Annotate pragmas used to implement rule
       --  exemption mechanism.
       Compiler_Error,
-      --  Compiler diagnoses generated for illegal (non-compilable) sources
+      --  Compiler diagnostics generated for illegal (non-compilable) sources
       Internal_Error
       --  Internal tool error
      );
 
-   procedure Store_Diagnosis
-     (Text           : String;
-      Diagnosis_Kind : Diagnosis_Kinds;
-      SF             : SF_Id;
-      Rule           : Rule_Id := No_Rule_Id;
-      Instance       : Rule_Instance_Access := null);
-   --  Stores a diagnosis expressed in ``Text`` with the other precisions.
-   --  This function use the other ``Store_Diagnosis`` to save the generated
-   --  diagnosis in the internal data structure.
+   procedure Store_Diagnostic
+     (Text     : String;
+      Kind     : Diagnostic_Kind;
+      SF       : SF_Id;
+      Rule     : Rule_Id := No_Rule_Id;
+      Instance : Rule_Instance_Access := null);
+   --  Stores a diagnostic expressed in ``Text`` with the other precisions.
+   --  This function uses the other ``Store_Diagnostic`` to save the generated
+   --  diagnostic in the internal data structure.
 
-   procedure Store_Diagnosis
+   procedure Store_Diagnostic
      (Full_File_Name : String;
       Message        : String;
       Sloc           : Source_Location;
-      Diagnosis_Kind : Diagnosis_Kinds;
+      Kind           : Diagnostic_Kind;
       SF             : SF_Id;
       Rule           : Rule_Id := No_Rule_Id;
       Instance       : Rule_Instance_Access := null);
-   --  Stores the diagnosis in the internal data structure. The same procedure
-   --  is used for all diagnosis kinds, in case of Exemption_Warning,
+   --  Stores the diagnostic in the internal data structure. The same procedure
+   --  is used for all diagnostic kinds, in case of Exemption_Warning,
    --  Compiler_Error and Internal_Error, Rule should be set to No_Rule_Id.
 
    function Sloc_Image (Line, Column : Natural) return String;
@@ -93,9 +93,9 @@ package Lkql_Checker.Diagnoses is
    --  Return an image of line:column with Column having a leading '0' if less
    --  than 10.
 
-   ------------------------
-   -- Diagnoses Counters --
-   ------------------------
+   --------------------------
+   -- Diagnostics Counters --
+   --------------------------
 
    Detected_Non_Exempted_Violations : Natural := 0;
    Detected_Exempted_Violations     : Natural := 0;
@@ -162,4 +162,4 @@ package Lkql_Checker.Diagnoses is
    --  parameter is used to compute the end of non-closed exemption sections
    --  for compiler checks, if any.
 
-end Lkql_Checker.Diagnoses;
+end Lkql_Checker.Diagnostics;

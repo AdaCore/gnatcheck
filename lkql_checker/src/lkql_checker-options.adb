@@ -73,21 +73,22 @@ package body Lkql_Checker.Options is
       end if;
    end Jobs_Convert;
 
-   ---------------------------
-   -- Max_Diagnoses_Convert --
-   ---------------------------
+   -----------------------------
+   -- Max_Diagnostics_Convert --
+   -----------------------------
 
-   function Max_Diagnoses_Convert (Arg : String) return Max_Diagnoses_Count is
+   function Max_Diagnostics_Convert (Arg : String) return Max_Diagnostics_Count
+   is
    begin
       begin
-         return Max_Diagnoses_Count'Value (Arg);
+         return Max_Diagnostics_Count'Value (Arg);
       exception
          when Constraint_Error =>
             raise Opt_Parse_Error
               with
-                "invalid maximum diagnoses value: " & Arg & " (max is 1000)";
+                "invalid maximum diagnostics value: " & Arg & " (max is 1000)";
       end;
-   end Max_Diagnoses_Convert;
+   end Max_Diagnostics_Convert;
 
    --------------------
    -- Is_New_Section --
