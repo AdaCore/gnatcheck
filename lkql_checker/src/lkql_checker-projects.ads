@@ -190,15 +190,15 @@ package Lkql_Checker.Projects is
 
    procedure Aggregate_Project_Report_Header (My_Project : Arg_Project_Type);
    --  Prints header in the summary report file created if the argument project
-   --  is an aggregate project. In this case a tool is spawned to run separatly
-   --  for each project being aggregated, and each such run creates its own
-   --  report separate file.
+   --  is an aggregate project. In this case a tool is spawned to run
+   --  separately for each project being aggregated, and each such run creates
+   --  its own report separate file.
 
    procedure Close_Aggregate_Project_Report (My_Project : Arg_Project_Type);
    --  Finalizes in the summary report file created if the argument project
-   --  is an aggregate project. In this case a tool is spawned to run separatly
-   --  for each project being aggregated, and each such run creates its own
-   --  report separate file.
+   --  is an aggregate project. In this case a tool is spawned to run
+   --  separately for each project being aggregated, and each such run creates
+   --  its own report separate file.
    --
    --  The default version of this procedure does nothing except closing the
    --  aggregated-project-reports tag in summary XML report file (if XML report

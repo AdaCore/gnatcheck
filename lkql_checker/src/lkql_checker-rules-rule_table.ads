@@ -151,7 +151,7 @@ package Lkql_Checker.Rules.Rule_Table is
 
    procedure Turn_Instance_Off (Instance_Name : String);
    --  Remove the instance associated with `Instance_Name` after its
-   --  normalization. If there is no instance assocaited to the provided name
+   --  normalization. If there is no instance associated to the provided name
    --  this function does nothing.
 
    procedure Turn_All_Rules_Off;
@@ -173,6 +173,6 @@ package Lkql_Checker.Rules.Rule_Table is
    --  internal data structures.
 
    procedure Clean_Up;
-   --  Release all allocated ressources for rules and instances storage.
+   --  Release all allocated resources for rules and instances storage.
 
 end Lkql_Checker.Rules.Rule_Table;

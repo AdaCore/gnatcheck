@@ -54,7 +54,7 @@ package Lkql_Checker.Rules is
 
    type Rule_Instance (Is_Alias : Boolean) is tagged record
       Rule : Rule_Id;
-      --  Identifier of the rule which is instanciated
+      --  Identifier of the rule which is instantiated
 
       Source_Mode : Source_Modes;
       --  Mode of the instance regarding the Ada sources
