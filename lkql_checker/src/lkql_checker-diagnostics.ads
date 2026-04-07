@@ -10,6 +10,7 @@
 
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Ordered_Sets;
+with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNAT.Regpat; use GNAT.Regpat;
@@ -146,6 +147,11 @@ private
         Hash            => Hash,
         Equivalent_Keys => "=");
 
+   package Exemption_Info_Vectors is new
+     Ada.Containers.Vectors
+       (Index_Type   => Positive,
+        Element_Type => Exemption_Info);
+
    ---------------------------
    -- Parametric exemptions --
    ---------------------------
@@ -213,25 +219,13 @@ private
    -- Exemptions for postponed checks --
    -------------------------------------
 
-   type Postponed_Rule_Exemption_Info;
-   type Postponed_Rule_Exemption_Info_Access is
-     access Postponed_Rule_Exemption_Info;
-
-   type Postponed_Rule_Exemption_Info is record
-      Exemption_Section      : Exemption_Info;
-      Next_Exemption_Section : Postponed_Rule_Exemption_Info_Access;
-   end record;
-
    type Postponed_Check_Exemption_Sections_Array is
-     array (SF_Id range <>) of Postponed_Rule_Exemption_Info_Access;
-
-   type Postponed_Check_Exemption_Sections_Array_Access is
-     access Postponed_Check_Exemption_Sections_Array;
+     array (SF_Id range <>) of Exemption_Info_Vectors.Vector;
 
    package Postponed_Exemption_Sections_Map is new
      Ada.Containers.Indefinite_Hashed_Maps
        (Key_Type        => Exemption_Id,
-        Element_Type    => Postponed_Check_Exemption_Sections_Array_Access,
+        Element_Type    => Postponed_Check_Exemption_Sections_Array,
         Hash            => Hash,
         Equivalent_Keys => "=");
 

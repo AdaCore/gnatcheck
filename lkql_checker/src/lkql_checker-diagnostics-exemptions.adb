@@ -164,7 +164,7 @@ package body Lkql_Checker.Diagnostics.Exemptions is
    --  Cleans up the stored exemption section for the argument Rule.
 
    procedure Map_On_Postponed_Check_Exemption
-     (Collector     : Diagnostic_Collector;
+     (Collector     : in out Diagnostic_Collector;
       In_File       : SF_Id;
       For_Name      : String;
       For_Line      : Positive;
@@ -540,15 +540,14 @@ package body Lkql_Checker.Diagnostics.Exemptions is
    --------------------------------------
 
    procedure Map_On_Postponed_Check_Exemption
-     (Collector     : Diagnostic_Collector;
+     (Collector     : in out Diagnostic_Collector;
       In_File       : SF_Id;
       For_Name      : String;
       For_Line      : Positive;
       Is_Exempted   : out Boolean;
       Justification : in out Unbounded_String)
    is
-      Id      : constant Exemption_Id := Find_Exemption_Id (For_Name);
-      Section : Postponed_Rule_Exemption_Info_Access := null;
+      Id : constant Exemption_Id := Find_Exemption_Id (For_Name);
    begin
       --  Initialize the output value to false
       Is_Exempted := False;
@@ -558,22 +557,18 @@ package body Lkql_Checker.Diagnostics.Exemptions is
       if Collector.Postponed_Exemption_Sections.Contains (Id)
         and then Is_Argument_Source (In_File)
       then
-         Section := Collector.Postponed_Exemption_Sections (Id) (In_File);
+         --  Traverse exemption sections
+         for Section of
+           Collector.Postponed_Exemption_Sections.Reference (Id) (In_File)
+         loop
+            if For_Line in Section.Line_Start .. Section.Line_End then
+               Is_Exempted := True;
+               Section.Detected := @ + 1;
+               Justification := Section.Justification;
+               exit;
+            end if;
+         end loop;
       end if;
-
-      --  Traverse exemption section chain
-      while Section /= null loop
-         if For_Line
-            in Section.Exemption_Section.Line_Start
-             .. Section.Exemption_Section.Line_End
-         then
-            Is_Exempted := True;
-            Section.Exemption_Section.Detected := @ + 1;
-            Justification := Section.Exemption_Section.Justification;
-            exit;
-         end if;
-         Section := @.Next_Exemption_Section;
-      end loop;
    end Map_On_Postponed_Check_Exemption;
 
    ----------------
@@ -1240,13 +1235,7 @@ package body Lkql_Checker.Diagnostics.Exemptions is
    procedure Process_Postponed_Exemptions
      (Collector : in out Diagnostic_Collector)
    is
-      use Parametrized_Exemption_Sections;
-
-      Next_Postponed_Section  : Postponed_Rule_Exemption_Info_Access;
-      Current_Exemption       : Exemption_Id;
-      Next_Post_Param_Section : Cursor;
-
-      Next_Par_S_Info : Parametrized_Exemption_Info;
+      Current_Exemption : Exemption_Id;
 
       procedure Map_Diagnostic (Position : Error_Messages_Storage.Cursor);
       --  Maps the diagnostic pointed by the argument onto stored
@@ -1356,35 +1345,26 @@ package body Lkql_Checker.Diagnostics.Exemptions is
          --  Non-parametric exemption
          for Cursor in Collector.Postponed_Exemption_Sections.Iterate loop
             Current_Exemption := Postponed_Exemption_Sections_Map.Key (Cursor);
-            Next_Postponed_Section :=
-              Collector.Postponed_Exemption_Sections (Current_Exemption) (SF);
 
-            while Next_Postponed_Section /= null loop
-               if Next_Postponed_Section.Exemption_Section.Detected = 0 then
+            for Section of
+              Collector.Postponed_Exemption_Sections.Reference
+                (Current_Exemption) (SF)
+            loop
+               if Section.Detected = 0 then
                   Store_Diagnostic
                     (Collector,
                      Full_File_Name => File_Name (SF),
                      Sloc           =>
-                       (Line_Number
-                          (Next_Postponed_Section.Exemption_Section.Line_End),
-                        Column_Number
-                          (Next_Postponed_Section.Exemption_Section.Col_End)),
+                       (Line_Number (Section.Line_End),
+                        Column_Number (Section.Col_End)),
                      Message        =>
                        "no detection for "
-                       & To_String
-                           (Next_Postponed_Section
-                              .Exemption_Section
-                              .Exempted_Name)
+                       & To_String (Section.Exempted_Name)
                        & " in exemption section starting at line"
-                       & Next_Postponed_Section
-                           .Exemption_Section
-                           .Line_Start'Img,
+                       & Section.Line_Start'Img,
                      Kind           => Exemption_Warning,
                      SF             => SF);
                end if;
-
-               Next_Postponed_Section :=
-                 Next_Postponed_Section.Next_Exemption_Section;
             end loop;
          end loop;
 
@@ -1392,43 +1372,29 @@ package body Lkql_Checker.Diagnostics.Exemptions is
          for Cursor in Collector.Postponed_Param_Exempt_Sections.Iterate loop
             Current_Exemption :=
               Per_Rule_Postponed_Param_Exemp_Map.Key (Cursor);
-            if not Is_Empty
-                     (Collector.Postponed_Param_Exempt_Sections
-                        (Current_Exemption) (SF))
-            then
-               Next_Post_Param_Section :=
-                 First
-                   (Collector.Postponed_Param_Exempt_Sections
-                      (Current_Exemption) (SF));
 
-               while Has_Element (Next_Post_Param_Section) loop
-                  Next_Par_S_Info := Element (Next_Post_Param_Section);
-
-                  if Next_Par_S_Info.Exempt_Info.Detected = 0 then
-                     Store_Diagnostic
-                       (Collector,
-                        Full_File_Name => File_Name (SF),
-                        Sloc           =>
-                          (Line_Number (Next_Par_S_Info.Exempt_Info.Line_End),
-                           Column_Number
-                             (Next_Par_S_Info.Exempt_Info.Col_End)),
-                        Message        =>
-                          "no detection for '"
-                          & To_String
-                              (Next_Par_S_Info.Exempt_Info.Exempted_Name)
-                          & ": "
-                          & Params_Img
-                              (Next_Par_S_Info.Params, Next_Par_S_Info.Rule)
-                          & "' in exemption section starting"
-                          & " at line"
-                          & Next_Par_S_Info.Exempt_Info.Line_Start'Img,
-                        Kind           => Exemption_Warning,
-                        SF             => SF);
-                  end if;
-
-                  Next_Post_Param_Section := Next (Next_Post_Param_Section);
-               end loop;
-            end if;
+            for Section of
+              Collector.Postponed_Param_Exempt_Sections (Current_Exemption)
+                (SF)
+            loop
+               if Section.Exempt_Info.Detected = 0 then
+                  Store_Diagnostic
+                    (Collector,
+                     Full_File_Name => File_Name (SF),
+                     Sloc           =>
+                       (Line_Number (Section.Exempt_Info.Line_End),
+                        Column_Number (Section.Exempt_Info.Col_End)),
+                     Message        =>
+                       "no detection for '"
+                       & To_String (Section.Exempt_Info.Exempted_Name)
+                       & ": "
+                       & Params_Img (Section.Params, Section.Rule)
+                       & "' in exemption section starting at line"
+                       & Section.Exempt_Info.Line_Start'Img,
+                     Kind           => Exemption_Warning,
+                     SF             => SF);
+               end if;
+            end loop;
          end loop;
       end loop;
    end Process_Postponed_Exemptions;
@@ -1458,9 +1424,7 @@ package body Lkql_Checker.Diagnostics.Exemptions is
      (Collector    : in out Diagnostic_Collector;
       Id           : Exemption_Id;
       Closing_Sloc : Source_Location;
-      SF           : SF_Id)
-   is
-      Tmp : Postponed_Rule_Exemption_Info_Access;
+      SF           : SF_Id) is
    begin
       --  Set the exemption closing source location
       Collector.Exemption_Sections (Id).Line_End :=
@@ -1468,22 +1432,16 @@ package body Lkql_Checker.Diagnostics.Exemptions is
       Collector.Exemption_Sections (Id).Col_End :=
         Natural (Closing_Sloc.Column);
 
-      --  If the map of postponed exemptions doesn't contains
-      --  exemptions related to ``Id``, then create a new array
-      --  associated to this rule.
+      --  If the map of postponed exemptions doesn't contain exemptions
+      --  related to ``Id``, create a new array associated to this rule.
       if not Collector.Postponed_Exemption_Sections.Contains (Id) then
          Collector.Postponed_Exemption_Sections.Insert
-           (Id,
-            new Postponed_Check_Exemption_Sections_Array
-                  (First_SF_Id .. Last_Argument_Source));
+           (Id, (First_SF_Id .. Last_Argument_Source => <>));
       end if;
 
-      --  Add the exemption to the postponed exemption list
-      Tmp := new Postponed_Rule_Exemption_Info;
-      Tmp.Exemption_Section := Collector.Exemption_Sections (Id);
-      Tmp.Next_Exemption_Section :=
-        Collector.Postponed_Exemption_Sections (Id) (SF);
-      Collector.Postponed_Exemption_Sections (Id) (SF) := Tmp;
+      --  Add the exemption to the postponed exemption sections
+      Collector.Postponed_Exemption_Sections.Reference (Id) (SF).Append
+        (Collector.Exemption_Sections (Id));
 
       --  Remove the exemption from the map
       Collector.Exemption_Sections.Delete (Id);
