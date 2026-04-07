@@ -3,10 +3,10 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
---  This package defines routines for storing diagnostic messages and
---  generating final report. It also provides routines that supports rule
---  exemption mechanism. Note, that most of the rule exemption mechanism is
---  hidden in the body of the package.
+--  This package defines routines for storing diagnostic messages.
+--  Report generation is provided by the child package
+--  Lkql_Checker.Diagnostics.Report. Rule exemption mechanisms are provided
+--  by the child package Lkql_Checker.Diagnostics.Exemptions.
 
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Ordered_Sets;
@@ -75,8 +75,8 @@ package Lkql_Checker.Diagnostics is
 
    function Sloc_Image (Line, Column : Natural) return String;
    function Sloc_Image (Sloc : Source_Location) return String;
-   --  Return an image of line:column with Column having a leading '0' if less
-   --  than 10.
+   --  Return an image of line:column with Column having a leading '0' if
+   --  less than 10.
 
    --------------------------
    -- Diagnostics Counters --
@@ -89,29 +89,6 @@ package Lkql_Checker.Diagnostics is
    Detected_Exemption_Warning : Natural := 0;
    Detected_Compiler_Error    : Natural := 0;
    Detected_Internal_Error    : Natural := 0;
-
-   -----------------------
-   -- Report generation --
-   -----------------------
-
-   procedure Generate_Qualification_Report
-     (Collector : in out Diagnostic_Collector);
-   --  Generate the report oriented for using as qualification materials.
-   --  There is no parameter to configure this report except
-   --  Lkql_Checker.Options.Short_Report flag.
-
-   procedure Print_Report_Header;
-   --  Generates the report header, including the date, tool version and
-   --  tool command liner invocation sequence. (We need it in spec because it
-   --  is used by Lkql_Checker.Projects.Aggregate_Project_Report_Header.
-
-   procedure Process_User_Filename (Fname : String);
-   --  Checks if Fname is the name of the existing file. If it is, sets it as
-   --  the value of Lkql_Checker.Options.User_Info_File, otherwise generates
-   --  warning and leaves User_Info_File unchanged. If User_Info_File is
-   --  already set, and Fname denotes some existing file, generates a warning
-   --  (user-defined part of the report file can be specified only once!) and
-   --  leaves User_Info_File unchanged.
 
 private
 

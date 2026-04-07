@@ -15,17 +15,18 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
 
-with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
-with Lkql_Checker.Diagnostics;      use Lkql_Checker.Diagnostics;
-with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
-with Lkql_Checker.Options;          use Lkql_Checker.Options;
-with Lkql_Checker.Output;           use Lkql_Checker.Output;
-with Lkql_Checker.Projects;         use Lkql_Checker.Projects;
+with Lkql_Checker.Compiler;           use Lkql_Checker.Compiler;
+with Lkql_Checker.Diagnostics;        use Lkql_Checker.Diagnostics;
+with Lkql_Checker.Diagnostics.Report; use Lkql_Checker.Diagnostics.Report;
+with Lkql_Checker.Ids;                use Lkql_Checker.Ids;
+with Lkql_Checker.Options;            use Lkql_Checker.Options;
+with Lkql_Checker.Output;             use Lkql_Checker.Output;
+with Lkql_Checker.Projects;           use Lkql_Checker.Projects;
 with Lkql_Checker.Projects.Aggregate;
-with Lkql_Checker.Rules;            use Lkql_Checker.Rules;
-with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
-with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
-with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
+with Lkql_Checker.Rules;              use Lkql_Checker.Rules;
+with Lkql_Checker.Rules.Rule_Table;   use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.Source_Table;       use Lkql_Checker.Source_Table;
+with Lkql_Checker.String_Utilities;   use Lkql_Checker.String_Utilities;
 
 package body Lkql_Checker is
    ----------------
@@ -594,7 +595,7 @@ package body Lkql_Checker is
 
       --  Process the include file
       if Tool_Args.Include_File.Get /= Null_Unbounded_String then
-         Lkql_Checker.Diagnostics.Process_User_Filename
+         Lkql_Checker.Diagnostics.Report.Process_User_Filename
            (To_String (Tool_Args.Include_File.Get));
       end if;
 
