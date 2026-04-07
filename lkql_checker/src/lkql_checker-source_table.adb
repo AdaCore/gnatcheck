@@ -13,7 +13,6 @@ with Ada.Text_IO;             use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNAT.Table;
-with GNAT.Task_Lock;
 
 with Lkql_Checker.Diagnostics.Exemptions;
 use Lkql_Checker.Diagnostics.Exemptions;
@@ -717,8 +716,6 @@ package body Lkql_Checker.Source_Table is
    function Next_Non_Processed_Source return SF_Id is
       Move_Next_Source : Boolean := True;
    begin
-      GNAT.Task_Lock.Lock;
-
       for J in Next_Source .. Last_Argument_Source loop
          if Source_Status (J) = Waiting and then Source_Info (J) /= Ignore_Unit
          then
@@ -734,12 +731,9 @@ package body Lkql_Checker.Source_Table is
             end if;
 
             Source_Table (J).Status := Processed;
-            GNAT.Task_Lock.Unlock;
             return J;
          end if;
       end loop;
-
-      GNAT.Task_Lock.Unlock;
       return No_SF_Id;
    end Next_Non_Processed_Source;
 
@@ -1032,9 +1026,7 @@ package body Lkql_Checker.Source_Table is
 
    procedure Set_Source_Status (SF : SF_Id; S : SF_Status) is
    begin
-      GNAT.Task_Lock.Lock;
       Source_Table (SF).Status := S;
-
       case S is
          when Error_Detected =>
             Tool_Failures := Tool_Failures + 1;
@@ -1042,8 +1034,6 @@ package body Lkql_Checker.Source_Table is
          when others         =>
             null;
       end case;
-
-      GNAT.Task_Lock.Unlock;
    end Set_Source_Status;
 
    -------------------------
