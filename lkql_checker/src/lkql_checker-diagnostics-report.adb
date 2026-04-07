@@ -69,21 +69,17 @@ package body Lkql_Checker.Diagnostics.Report is
    --  non-compilable files, files with no violations, files with
    --  violations, files with exempted violations only.
 
-   Diagnostics_To_Print :
-     array (Rule_Violation .. Internal_Error) of Boolean := [others => False];
-   --  Specifies which diagnostics should be printed out by the
-   --  following procedure
+   type Diagnostic_Kind_Filter is array (Diagnostic_Kind) of Boolean;
+   --  An array type used to filter diagnostics following their kind.
 
-   Print_Exempted_Violations : Boolean;
-   --  Flag specifying if exempted or non-exempted violations should be
-   --  printed. Has its effect only if
-   --  Diagnostics_To_Print (Rule_Violation) is True.
-
-   procedure Print_Diagnostics (Collector : in out Diagnostic_Collector);
+   procedure Print_Diagnostics
+     (Collector                      : in out Diagnostic_Collector;
+      Filter                         : Diagnostic_Kind_Filter;
+      Print_Only_Exempted_Violations : Boolean := False);
    --  Iterates through all the diagnostics and prints into the report
-   --  file those of them, for which Diagnostics_To_Print is True (and
-   --  the value of Print_Exempted_Violations either corresponds to the
-   --  diagnostic or is not applicable for the diagnostic kind).
+   --  file those of them for which match the provided filter.
+   --  Print_Only_Exempted_Violations controls whether exempted or
+   --  non-exempted rule violations are printed.
 
    procedure Print_File_List_File;
    --  Prints the reference to the (actual argument or artificially
@@ -423,13 +419,14 @@ package body Lkql_Checker.Diagnostics.Report is
       end if;
 
       if Detected_Exempted_Violations > 0 then
-         Diagnostics_To_Print :=
-           [Rule_Violation    => True,
-            Exemption_Warning => False,
-            Compiler_Error    => False,
-            Internal_Error    => False];
-         Print_Exempted_Violations := True;
-         Print_Diagnostics (Collector);
+         Print_Diagnostics
+           (Collector,
+            Filter                         =>
+              [Rule_Violation    => True,
+               Exemption_Warning => False,
+               Compiler_Error    => False,
+               Internal_Error    => False],
+            Print_Only_Exempted_Violations => True);
 
       else
          if Tool_Args.Text_Report_Enabled then
@@ -451,13 +448,13 @@ package body Lkql_Checker.Diagnostics.Report is
       end if;
 
       if Detected_Non_Exempted_Violations > 0 then
-         Diagnostics_To_Print :=
-           [Rule_Violation    => True,
-            Exemption_Warning => False,
-            Compiler_Error    => False,
-            Internal_Error    => False];
-         Print_Exempted_Violations := False;
-         Print_Diagnostics (Collector);
+         Print_Diagnostics
+           (Collector,
+            Filter =>
+              [Rule_Violation    => True,
+               Exemption_Warning => False,
+               Compiler_Error    => False,
+               Internal_Error    => False]);
 
       else
          if Tool_Args.Text_Report_Enabled then
@@ -479,12 +476,13 @@ package body Lkql_Checker.Diagnostics.Report is
       end if;
 
       if Detected_Exemption_Warning > 0 then
-         Diagnostics_To_Print :=
-           [Rule_Violation    => False,
-            Exemption_Warning => True,
-            Compiler_Error    => False,
-            Internal_Error    => False];
-         Print_Diagnostics (Collector);
+         Print_Diagnostics
+           (Collector,
+            Filter =>
+              [Rule_Violation    => False,
+               Exemption_Warning => True,
+               Compiler_Error    => False,
+               Internal_Error    => False]);
 
       else
          if Tool_Args.Text_Report_Enabled then
@@ -507,12 +505,13 @@ package body Lkql_Checker.Diagnostics.Report is
       end if;
 
       if Detected_Compiler_Error > 0 then
-         Diagnostics_To_Print :=
-           [Rule_Violation    => False,
-            Exemption_Warning => False,
-            Compiler_Error    => True,
-            Internal_Error    => False];
-         Print_Diagnostics (Collector);
+         Print_Diagnostics
+           (Collector,
+            Filter =>
+              [Rule_Violation    => False,
+               Exemption_Warning => False,
+               Compiler_Error    => True,
+               Internal_Error    => False]);
 
       else
          if Tool_Args.Text_Report_Enabled then
@@ -534,12 +533,13 @@ package body Lkql_Checker.Diagnostics.Report is
       end if;
 
       if Detected_Internal_Error > 0 then
-         Diagnostics_To_Print :=
-           [Rule_Violation    => False,
-            Exemption_Warning => False,
-            Compiler_Error    => False,
-            Internal_Error    => True];
-         Print_Diagnostics (Collector);
+         Print_Diagnostics
+           (Collector,
+            Filter =>
+              [Rule_Violation    => False,
+               Exemption_Warning => False,
+               Compiler_Error    => False,
+               Internal_Error    => True]);
 
       else
          if Tool_Args.Text_Report_Enabled then
@@ -868,7 +868,11 @@ package body Lkql_Checker.Diagnostics.Report is
    -- Print_Diagnostics --
    -----------------------
 
-   procedure Print_Diagnostics (Collector : in out Diagnostic_Collector) is
+   procedure Print_Diagnostics
+     (Collector                      : in out Diagnostic_Collector;
+      Filter                         : Diagnostic_Kind_Filter;
+      Print_Only_Exempted_Violations : Boolean := False)
+   is
 
       procedure Print_Specified_Diagnostics
         (Position : Error_Messages_Storage.Cursor);
@@ -885,9 +889,9 @@ package body Lkql_Checker.Diagnostics.Report is
          Diag : constant Diagnostic :=
            Error_Messages_Storage.Element (Position);
       begin
-         if Diagnostics_To_Print (Diag.Kind) then
+         if Filter (Diag.Kind) then
             if Diag.Kind = Rule_Violation
-              and then Print_Exempted_Violations
+              and then Print_Only_Exempted_Violations
                        = (Diag.Justification = Null_Unbounded_String)
             then
                return;
