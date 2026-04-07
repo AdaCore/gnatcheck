@@ -60,11 +60,6 @@ package body Lkql_Checker.Diagnostics is
         "="          => "=",
         "<"          => "<");
 
-   All_Error_Messages : Error_Messages_Storage.Set;
-
-   Unused_Position : Error_Messages_Storage.Cursor;
-   Unused_Inserted : Boolean;
-
    --------------------------------------------
    -- Local routines for diagnostics storage --
    --------------------------------------------
@@ -238,19 +233,6 @@ package body Lkql_Checker.Diagnostics is
         Element_Type    => Exemption_Info,
         Hash            => Hash,
         Equivalent_Keys => "=");
-   Exemption_Sections : Exemption_Sections_Map.Map;
-   --  A map to store all exemption sections, mapped from their rule
-   --  identifier.
-
-   --  Storage for currently processed exemption sections. Should have a
-   --  separate entry for each rule. (We cannot allocate it statically because
-   --  of elaboration problems - we do not know how many rules we have unlit
-   --  all of them are registered).
-
-   function Is_Exempted (Id : Exemption_Id) return Boolean
-   is (Exemption_Sections.Contains (Id)
-       and then Exemption_Sections (Id).Line_Start > 0);
-   --  Checks if the given exemption identified by ``Id`` is in exempted state
 
    procedure Process_Postponed_Exemptions;
    --  Iterate through the stored diagnostics and apply postponed exemptions to
@@ -329,9 +311,6 @@ package body Lkql_Checker.Diagnostics is
         Hash            => Hash,
         Equivalent_Keys => "=",
         "="             => Parametrized_Exemption_Sections."=");
-   Rule_Param_Exempt_Sections : Rule_Param_Exempt_Sections_Map.Map;
-   --  Map to store parameteric exemption sections mapped from their identifier
-   --  to their information record.
 
    function Parse_Exempt_Parameters
      (Rule : Rule_Id; Input : String; SF : SF_Id; SLOC : String)
@@ -354,19 +333,14 @@ package body Lkql_Checker.Diagnostics is
    --  Assumes that Param has already folded to lower case. Always returns
    --  False if Allows_Prametrized_Exemption (Rule) is False.
 
-   function Is_Param_Exempted (Id : Exemption_Id) return Boolean
-   is (Rule_Param_Exempt_Sections.Contains (Id)
-       and then not Rule_Param_Exempt_Sections (Id).Is_Empty);
-   --  Returns whether an exemption with the given ``Id`` already exists with
-   --  any actual parameters.
-
    function Exemption_Section_With_Params
      (Id : Exemption_Id; Params : Exemption_Parameters.Set)
       return Parametrized_Exemption_Sections.Cursor;
    --  Checks if an exemption with the given ``Id`` already exists with the set
    --  of parameters that are stored in ``Params``.
    --  If it is, then return a cursor pointing to the corresponding exemption
-   --  section in Rule_Param_Exempt_Sections, otherwise return ``No_Element``.
+   --  section in Collector.Rule_Param_Exempt_Sections, otherwise return
+   --  ``No_Element``.
 
    function Exemption_Section_With_One_Param
      (Id     : Exemption_Id;
@@ -457,11 +431,6 @@ package body Lkql_Checker.Diagnostics is
         Element_Type    => Postponed_Check_Exemption_Sections_Array_Access,
         Hash            => Hash,
         Equivalent_Keys => "=");
-   Postponed_Exemption_Sections : Postponed_Exemption_Sections_Map.Map;
-   --  For each argument source, stores all the exemption sections found in
-   --  this source. These sections are stored as they are processed - that is,
-   --  in alphabetical order. Sections for different kinds of checks are stored
-   --  separately.
 
    procedure Map_On_Postponed_Check_Exemption
      (In_File       : SF_Id;
@@ -496,7 +465,44 @@ package body Lkql_Checker.Diagnostics is
         Element_Type    => Per_Source_Postponed_Param_Exemp_Access,
         Hash            => Hash,
         Equivalent_Keys => "=");
-   Postponed_Param_Exempt_Sections : Per_Rule_Postponed_Param_Exemp_Map.Map;
+   --------------------------
+   -- Diagnostic_Collector --
+   --------------------------
+
+   type Diagnostic_Collector is record
+      All_Error_Messages : Error_Messages_Storage.Set;
+      --  All stored diagnostics, in order.
+
+      Exemption_Sections : Exemption_Sections_Map.Map;
+      --  Currently open (active) exemption sections, mapped from their
+      --  rule identifier. Cannot be allocated statically because the
+      --  number of rules is not known until all of them are registered.
+
+      Rule_Param_Exempt_Sections : Rule_Param_Exempt_Sections_Map.Map;
+      --  Parametric exemption sections mapped from their rule identifier.
+
+      Postponed_Exemption_Sections : Postponed_Exemption_Sections_Map.Map;
+      --  For each argument source, stores all the exemption sections
+      --  found in this source, in the order they are processed. Sections
+      --  for different kinds of checks are stored separately.
+
+      Postponed_Param_Exempt_Sections : Per_Rule_Postponed_Param_Exemp_Map.Map;
+      --  Parametric exemption sections for postponed checks, per rule.
+   end record;
+
+   Collector : Diagnostic_Collector;
+   --  Package-level singleton.
+
+   function Is_Exempted (Id : Exemption_Id) return Boolean
+   is (Collector.Exemption_Sections.Contains (Id)
+       and then Collector.Exemption_Sections (Id).Line_Start > 0);
+   --  Checks if the given exemption identified by ``Id`` is in exempted state
+
+   function Is_Param_Exempted (Id : Exemption_Id) return Boolean
+   is (Collector.Rule_Param_Exempt_Sections.Contains (Id)
+       and then not Collector.Rule_Param_Exempt_Sections (Id).Is_Empty);
+   --  Returns whether an exemption with the given ``Id`` already exists with
+   --  any actual parameters.
 
    ------------------------------------
    -- Allowed_As_Exemption_Parameter --
@@ -599,17 +605,17 @@ package body Lkql_Checker.Diagnostics is
       To_Turn_Off  : Exemption_Id_Vec.Vector;
    begin
       --  Non-parametric exemptions
-      for Cursor in Exemption_Sections.Iterate loop
+      for Cursor in Collector.Exemption_Sections.Iterate loop
          Id := Exemption_Sections_Map.Key (Cursor);
          if Is_Exempted (Id) then
             Store_Diagnostic
               (Full_File_Name => File_Name (SF),
                Sloc           =>
-                 (Line_Number (Exemption_Sections (Id).Line_Start),
-                  Column_Number (Exemption_Sections (Id).Col_Start)),
+                 (Line_Number (Collector.Exemption_Sections (Id).Line_Start),
+                  Column_Number (Collector.Exemption_Sections (Id).Col_Start)),
                Message        =>
                  "no matching 'exempt_OFF' annotation for "
-                 & To_String (Exemption_Sections (Id).Exempted_Name),
+                 & To_String (Collector.Exemption_Sections (Id).Exempted_Name),
                Kind           => Exemption_Warning,
                SF             => SF);
             To_Turn_Off.Append (Id);
@@ -623,12 +629,13 @@ package body Lkql_Checker.Diagnostics is
       To_Turn_Off.Clear;
 
       --  Parametric exemptions
-      for Cursor in Rule_Param_Exempt_Sections.Iterate loop
+      for Cursor in Collector.Rule_Param_Exempt_Sections.Iterate loop
          Id := Rule_Param_Exempt_Sections_Map.Key (Cursor);
-         if not Is_Empty (Rule_Param_Exempt_Sections (Cursor)) then
+         if not Is_Empty (Collector.Rule_Param_Exempt_Sections (Cursor)) then
             --  We cannot use set iterator here - we need to use Id and SF
             --  into processing routine
-            Next_Section := First (Rule_Param_Exempt_Sections (Cursor));
+            Next_Section :=
+              First (Collector.Rule_Param_Exempt_Sections (Cursor));
 
             while Has_Element (Next_Section) loop
                Store_Diagnostic
@@ -645,7 +652,8 @@ package body Lkql_Checker.Diagnostics is
                   Kind           => Exemption_Warning,
                   SF             => SF);
                Turn_Off_Parametrized_Exemption (Id, Next_Section, Sloc, SF);
-               Next_Section := First (Rule_Param_Exempt_Sections (Cursor));
+               Next_Section :=
+                 First (Collector.Rule_Param_Exempt_Sections (Cursor));
             end loop;
          end if;
       end loop;
@@ -699,7 +707,7 @@ package body Lkql_Checker.Diagnostics is
       end Count_Diagnostics;
 
    begin
-      All_Error_Messages.Iterate (Count_Diagnostics'Access);
+      Collector.All_Error_Messages.Iterate (Count_Diagnostics'Access);
 
       for SF in First_SF_Id .. Last_Argument_Source loop
          if Source_Status (SF) in Not_A_Legal_Source | Error_Detected then
@@ -1144,14 +1152,16 @@ package body Lkql_Checker.Diagnostics is
    begin
       --  Check if the given name is exempted at the given location with the
       --  given params.
-      if Postponed_Param_Exempt_Sections.Contains (Id) then
+      if Collector.Postponed_Param_Exempt_Sections.Contains (Id) then
          declare
             Exem_Sections : Parametrized_Exemption_Sections.Set renames
-              Postponed_Param_Exempt_Sections (Id) (SF);
+              Collector.Postponed_Param_Exempt_Sections (Id) (SF);
             Param         : constant String := Rule_Parameter (Diag, Rule);
             pragma Assert (Param /= "" or else Rule = Warnings_Id);
          begin
-            if not Is_Empty (Postponed_Param_Exempt_Sections (Id) (SF)) then
+            if not Is_Empty
+                     (Collector.Postponed_Param_Exempt_Sections (Id) (SF))
+            then
                Matching_Section :=
                  Get_Exem_Section (Exem_Sections, Param, Line, Col);
 
@@ -1200,7 +1210,7 @@ package body Lkql_Checker.Diagnostics is
       Next_Section : Cursor;
    begin
       if Is_Param_Exempted (Id) then
-         Next_Section := First (Rule_Param_Exempt_Sections (Id));
+         Next_Section := First (Collector.Rule_Param_Exempt_Sections (Id));
 
          while Has_Element (Next_Section) loop
             if Params = Element (Next_Section).Params then
@@ -1232,10 +1242,10 @@ package body Lkql_Checker.Diagnostics is
 
       --  Exemption sections are processed in argument files only. Also rule
       --  must be exempted.
-      if Postponed_Exemption_Sections.Contains (Id)
+      if Collector.Postponed_Exemption_Sections.Contains (Id)
         and then Is_Argument_Source (In_File)
       then
-         Section := Postponed_Exemption_Sections (Id) (In_File);
+         Section := Collector.Postponed_Exemption_Sections (Id) (In_File);
       end if;
 
       --  Traverse exemption section chain
@@ -1519,7 +1529,8 @@ package body Lkql_Checker.Diagnostics is
       end Print_Specified_Diagnostics;
 
    begin
-      All_Error_Messages.Iterate (Print_Specified_Diagnostics'Access);
+      Collector.All_Error_Messages.Iterate
+        (Print_Specified_Diagnostics'Access);
    end Print_Diagnostics;
 
    --------------------------
@@ -1740,7 +1751,7 @@ package body Lkql_Checker.Diagnostics is
       end Count_And_Print_Diagnostic;
 
    begin
-      All_Error_Messages.Iterate
+      Collector.All_Error_Messages.Iterate
         ((if Max_Diagnostics > 0
           then Count_And_Print_Diagnostic'Access
           else Print_Diagnostic'Access));
@@ -2084,14 +2095,14 @@ package body Lkql_Checker.Diagnostics is
                  ((if Id = R_Id then "rule " else "instance ")
                   & Exempted_Name
                   & " is already exempted at line"
-                  & Exemption_Sections (Id).Line_Start'Img);
+                  & Collector.Exemption_Sections (Id).Line_Start'Img);
                return;
             elsif Id /= R_Id and then Is_Exempted (R_Id) then
                Exempt_Diag
                  ("rule "
                   & R_Name
                   & " is already exempted at line"
-                  & Exemption_Sections (R_Id).Line_Start'Img);
+                  & Collector.Exemption_Sections (R_Id).Line_Start'Img);
                return;
             end if;
 
@@ -2105,7 +2116,8 @@ package body Lkql_Checker.Diagnostics is
                        ((if Id = R_Id then "rule " else "instance ")
                         & Exempted_Name
                         & " is already exempted with parameter(s) at line"
-                        & Element (First (Rule_Param_Exempt_Sections (Id)))
+                        & Element
+                            (First (Collector.Rule_Param_Exempt_Sections (Id)))
                             .Exempt_Info
                             .Line_Start'Img);
                      return;
@@ -2114,7 +2126,9 @@ package body Lkql_Checker.Diagnostics is
                        ("rule "
                         & R_Name
                         & " is already exempted with parameter(s) at line"
-                        & Element (First (Rule_Param_Exempt_Sections (R_Id)))
+                        & Element
+                            (First
+                               (Collector.Rule_Param_Exempt_Sections (R_Id)))
                             .Exempt_Info
                             .Line_Start'Img);
                      return;
@@ -2123,7 +2137,7 @@ package body Lkql_Checker.Diagnostics is
 
                --  If the exemption is valid insert it in the exemption
                --  sections map.
-               Exemption_Sections.Insert
+               Collector.Exemption_Sections.Insert
                  (Id,
                   (Line_Start    => Natural (Sloc_Start.Line),
                    Col_Start     => Natural (Sloc_Start.Column),
@@ -2202,12 +2216,13 @@ package body Lkql_Checker.Diagnostics is
                --  If we are here then we know for sure that the parametric
                --  exemption is correct, and there is no open exemption section
                --  for this rule and this parameter(s). So we can just add the
-               --  corresponding record to Rule_Param_Exempt_Sections:
-               if not Rule_Param_Exempt_Sections.Contains (Id) then
-                  Rule_Param_Exempt_Sections.Insert (Id, Empty);
+               --  corresponding record to
+               --  Collector.Rule_Param_Exempt_Sections:
+               if not Collector.Rule_Param_Exempt_Sections.Contains (Id) then
+                  Collector.Rule_Param_Exempt_Sections.Insert (Id, Empty);
                end if;
                Insert
-                 (Rule_Param_Exempt_Sections (Id),
+                 (Collector.Rule_Param_Exempt_Sections (Id),
                   (Exempt_Info =>
                      (Line_Start    => Natural (Sloc_Start.Line),
                       Col_Start     => Natural (Sloc_Start.Column),
@@ -2571,14 +2586,14 @@ package body Lkql_Checker.Diagnostics is
          end if;
 
          if Is_Exempted then
-            All_Error_Messages.Replace_Element (Position, Diag);
+            Collector.All_Error_Messages.Replace_Element (Position, Diag);
          end if;
       end Map_Diagnostic;
 
       --  Start of processing for Process_Postponed_Exemptions
 
    begin
-      All_Error_Messages.Iterate (Map_Diagnostic'Access);
+      Collector.All_Error_Messages.Iterate (Map_Diagnostic'Access);
 
       --  Now, iterate through the stored exemption and generate exemption
       --  warnings for those of them for which no exempted diagnostics are
@@ -2586,10 +2601,10 @@ package body Lkql_Checker.Diagnostics is
 
       for SF in First_SF_Id .. Last_Argument_Source loop
          --  Non-parametric exemption
-         for Cursor in Postponed_Exemption_Sections.Iterate loop
+         for Cursor in Collector.Postponed_Exemption_Sections.Iterate loop
             Current_Exemption := Postponed_Exemption_Sections_Map.Key (Cursor);
             Next_Postponed_Section :=
-              Postponed_Exemption_Sections (Current_Exemption) (SF);
+              Collector.Postponed_Exemption_Sections (Current_Exemption) (SF);
 
             while Next_Postponed_Section /= null loop
                if Next_Postponed_Section.Exemption_Section.Detected = 0 then
@@ -2620,15 +2635,17 @@ package body Lkql_Checker.Diagnostics is
          end loop;
 
          --  Parametric exemptions
-         for Cursor in Postponed_Param_Exempt_Sections.Iterate loop
+         for Cursor in Collector.Postponed_Param_Exempt_Sections.Iterate loop
             Current_Exemption :=
               Per_Rule_Postponed_Param_Exemp_Map.Key (Cursor);
             if not Is_Empty
-                     (Postponed_Param_Exempt_Sections (Current_Exemption) (SF))
+                     (Collector.Postponed_Param_Exempt_Sections
+                        (Current_Exemption) (SF))
             then
                Next_Post_Param_Section :=
                  First
-                   (Postponed_Param_Exempt_Sections (Current_Exemption) (SF));
+                   (Collector.Postponed_Param_Exempt_Sections
+                      (Current_Exemption) (SF));
 
                while Has_Element (Next_Post_Param_Section) loop
                   Next_Par_S_Info := Element (Next_Post_Param_Section);
@@ -2711,7 +2728,7 @@ package body Lkql_Checker.Diagnostics is
          while Exemption_Parameters.Has_Element (Next_Par) loop
             Next_Section :=
               Parametrized_Exemption_Sections.First
-                (Rule_Param_Exempt_Sections (Id));
+                (Collector.Rule_Param_Exempt_Sections (Id));
 
             while Parametrized_Exemption_Sections.Has_Element (Next_Section)
             loop
@@ -2896,13 +2913,13 @@ package body Lkql_Checker.Diagnostics is
       --  that are already stored in the container (see the documentation for
       --  "<" for more
       --  details.
-      if not All_Error_Messages.Contains (Tmp) then
+      if not Collector.All_Error_Messages.Contains (Tmp) then
          if Kind = Compiler_Error then
             Set_Source_Status (SF, Not_A_Legal_Source);
          elsif Kind = Internal_Error then
             Set_Source_Status (SF, Error_Detected);
          end if;
-         All_Error_Messages.Insert (Tmp, Unused_Position, Unused_Inserted);
+         Collector.All_Error_Messages.Insert (Tmp);
       end if;
    end Store_Diagnostic;
 
@@ -2926,24 +2943,27 @@ package body Lkql_Checker.Diagnostics is
       Tmp : Postponed_Rule_Exemption_Info_Access;
    begin
       --  Set the exemption closing source location
-      Exemption_Sections (Id).Line_End := Natural (Closing_Sloc.Line);
-      Exemption_Sections (Id).Col_End := Natural (Closing_Sloc.Column);
+      Collector.Exemption_Sections (Id).Line_End :=
+        Natural (Closing_Sloc.Line);
+      Collector.Exemption_Sections (Id).Col_End :=
+        Natural (Closing_Sloc.Column);
 
       --  If the map of postponed exemptions doesn't contains exemptions
       --  related to ``Id``, then create a new array associated to this rule.
-      if not Postponed_Exemption_Sections.Contains (Id) then
-         Postponed_Exemption_Sections.Insert
+      if not Collector.Postponed_Exemption_Sections.Contains (Id) then
+         Collector.Postponed_Exemption_Sections.Insert
            (Id, New_Postponed_Check_Exemption_Sections_Array);
       end if;
 
       --  Add the exemption to the postponed exemption list
       Tmp := new Postponed_Rule_Exemption_Info;
-      Tmp.Exemption_Section := Exemption_Sections (Id);
-      Tmp.Next_Exemption_Section := Postponed_Exemption_Sections (Id) (SF);
-      Postponed_Exemption_Sections (Id) (SF) := Tmp;
+      Tmp.Exemption_Section := Collector.Exemption_Sections (Id);
+      Tmp.Next_Exemption_Section :=
+        Collector.Postponed_Exemption_Sections (Id) (SF);
+      Collector.Postponed_Exemption_Sections (Id) (SF) := Tmp;
 
       --  Remove the exemption from the map
-      Exemption_Sections.Delete (Id);
+      Collector.Exemption_Sections.Delete (Id);
    end Turn_Off_Exemption;
 
    -------------------------------------
@@ -2965,15 +2985,15 @@ package body Lkql_Checker.Diagnostics is
 
       --  Create an posponed param exemption array for the rule if it does
       --  not exist.
-      if not Postponed_Param_Exempt_Sections.Contains (Id) then
-         Postponed_Param_Exempt_Sections.Insert
+      if not Collector.Postponed_Param_Exempt_Sections.Contains (Id) then
+         Collector.Postponed_Param_Exempt_Sections.Insert
            (Id, New_Per_Source_Postponed_Param_Exemp);
       end if;
 
       --  Insert the exemption in the postponed list for later handling, then
       --  remove the original exemption from the map.
-      Postponed_Param_Exempt_Sections (Id) (SF).Insert (New_Section);
-      Rule_Param_Exempt_Sections (Id).Delete (Exempted_At);
+      Collector.Postponed_Param_Exempt_Sections (Id) (SF).Insert (New_Section);
+      Collector.Rule_Param_Exempt_Sections (Id).Delete (Exempted_At);
    end Turn_Off_Parametrized_Exemption;
 
    ---------------------------
