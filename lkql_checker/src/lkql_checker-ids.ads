@@ -3,7 +3,7 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
---  This package defines ID type for rule map.
+--  This package defines ID types for rule map and source files.
 
 with Ada.Containers;
 with Ada.Containers.Indefinite_Vectors;
@@ -12,6 +12,19 @@ with Langkit_Support.Symbols; use Langkit_Support.Symbols;
 with Langkit_Support.Text;    use Langkit_Support.Text;
 
 package Lkql_Checker.Ids is
+
+   -------------------------
+   -- Source file id type --
+   -------------------------
+
+   Low_SF_Bound  : constant := 0;
+   High_SF_Bound : constant := 999_999;
+   --  Almost 1_000_000 source files for one run of the tool
+
+   type SF_Id is range Low_SF_Bound .. High_SF_Bound;
+
+   No_SF_Id    : constant SF_Id := Low_SF_Bound;
+   First_SF_Id : constant SF_Id := No_SF_Id + 1;
 
    -------------------------------
    -- Internal id symbol tables --

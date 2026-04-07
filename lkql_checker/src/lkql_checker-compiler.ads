@@ -10,7 +10,8 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with Lkql_Checker.Rules; use Lkql_Checker.Rules;
+with Lkql_Checker.Diagnostics; use Lkql_Checker.Diagnostics;
+with Lkql_Checker.Rules;       use Lkql_Checker.Rules;
 
 package Lkql_Checker.Compiler is
 
@@ -74,7 +75,10 @@ package Lkql_Checker.Compiler is
    --  warning ON/OFF. If Restrictions rules are specified, this file contains
    --  the corresponding Restriction_Warnings pragmas.
 
-   procedure Analyze_Output (File_Name : String; Errors : out Boolean);
+   procedure Analyze_Output
+     (Collector : in out Diagnostic_Collector;
+      File_Name : String;
+      Errors    : out Boolean);
    --  Parses the given file (typically error output of gprbuild or the worker)
    --  and store all the relevant messages.
    --  If some compiler errors are detected, set Errors to True.

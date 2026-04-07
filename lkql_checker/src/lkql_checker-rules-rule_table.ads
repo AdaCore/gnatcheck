@@ -10,6 +10,8 @@
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Hash;
 
+with Lkql_Checker.Diagnostics; use Lkql_Checker.Diagnostics;
+
 package Lkql_Checker.Rules.Rule_Table is
 
    function Present (Rule : Rule_Id) return Boolean;
@@ -80,7 +82,8 @@ package Lkql_Checker.Rules.Rule_Table is
    --  in the description of the rule options in documentation of
    --  Process_Legacy_Rule_Option is also ignored.
 
-   procedure Process_LKQL_Rule_File (LKQL_RF_Name : String);
+   procedure Process_LKQL_Rule_File
+     (Collector : in out Diagnostic_Collector; LKQL_RF_Name : String);
    --  Process the given LKQL file as a rule configuration file and populate
    --  the global rule table with its content.
    --

@@ -18,6 +18,7 @@ with GNATCOLL.Strings;   use GNATCOLL.Strings;
 with GPR2.Options.Opt_Parse;
 with GPR2.Options;
 
+with Lkql_Checker.Diagnostics;      use Lkql_Checker.Diagnostics;
 with Lkql_Checker.Projects;         use Lkql_Checker.Projects;
 with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
@@ -730,7 +731,7 @@ package Lkql_Checker.Options is
 
    Rule_Options : Vector_Options.Vector;
 
-   procedure Process_Rule_Options;
+   procedure Process_Rule_Options (Collector : in out Diagnostic_Collector);
    --  Process all the rule options found as part of scanning arguments.
 
    procedure Process_Legacy_Rule_Options

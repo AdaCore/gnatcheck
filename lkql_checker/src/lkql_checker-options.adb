@@ -209,11 +209,11 @@ package body Lkql_Checker.Options is
    -- Process_Rule_Options --
    --------------------------
 
-   procedure Process_Rule_Options is
+   procedure Process_Rule_Options (Collector : in out Diagnostic_Collector) is
    begin
       --  First of all, process the provided LKQL rule file
       if LKQL_Rule_File_Name /= Null_Unbounded_String then
-         Process_LKQL_Rule_File (To_String (LKQL_Rule_File_Name));
+         Process_LKQL_Rule_File (Collector, To_String (LKQL_Rule_File_Name));
       end if;
 
       --  Then process the legacy rule options

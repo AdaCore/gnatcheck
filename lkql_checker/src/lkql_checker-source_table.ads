@@ -9,23 +9,16 @@
 
 with Ada.Containers.Indefinite_Ordered_Sets;
 
-with Lkql_Checker.Options;  use Lkql_Checker.Options;
-with Lkql_Checker.Projects; use Lkql_Checker.Projects;
+with Lkql_Checker.Diagnostics; use Lkql_Checker.Diagnostics;
+with Lkql_Checker.Ids;         use Lkql_Checker.Ids;
+with Lkql_Checker.Options;     use Lkql_Checker.Options;
+with Lkql_Checker.Projects;    use Lkql_Checker.Projects;
 
 with GNATCOLL.Projects; use GNATCOLL.Projects;
 
 with Libadalang.Analysis; use Libadalang.Analysis;
 
 package Lkql_Checker.Source_Table is
-
-   Low_SF_Bound  : constant := 0;
-   High_SF_Bound : constant := 999_999;
-   --  Almost 1_000_000 source files for one run of the tool
-
-   type SF_Id is range Low_SF_Bound .. High_SF_Bound;
-
-   No_SF_Id    : constant SF_Id := Low_SF_Bound;
-   First_SF_Id : constant SF_Id := No_SF_Id + 1;
 
    type SF_Status is
      (Waiting,
@@ -139,7 +132,7 @@ package Lkql_Checker.Source_Table is
    --  Create the ``Analysis_Context`` that is going to be used to extract
    --  required information from the analyzed Ada sources.
 
-   procedure Process_Sources;
+   procedure Process_Sources (Collector : in out Diagnostic_Collector);
    --  Process Ada sources to extract exemption information from them.
 
    ----------------------------------------

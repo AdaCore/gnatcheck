@@ -15,8 +15,7 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNAT.Table;
 with GNAT.Task_Lock;
 
-with Lkql_Checker.Diagnostics; use Lkql_Checker.Diagnostics;
-with Lkql_Checker.Output;      use Lkql_Checker.Output;
+with Lkql_Checker.Output; use Lkql_Checker.Output;
 
 with GPR2.Build.Source;
 with GPR2.Path_Name;
@@ -1243,7 +1242,7 @@ package body Lkql_Checker.Source_Table is
    -- Process_Sources --
    ---------------------
 
-   procedure Process_Sources is
+   procedure Process_Sources (Collector : in out Diagnostic_Collector) is
       Ctx     : constant Analysis_Context := Create_Ada_Context;
       Next_SF : SF_Id;
 
@@ -1276,7 +1275,8 @@ package body Lkql_Checker.Source_Table is
                   if Current.Kind = Ada_Pragma_Node
                     and then Is_Exemption_Pragma (Current.As_Pragma_Node)
                   then
-                     Process_Exemption_Pragma (Current.As_Pragma_Node);
+                     Process_Exemption_Pragma
+                       (Collector, Current.As_Pragma_Node);
                   end if;
                end loop;
             end;
@@ -1289,18 +1289,19 @@ package body Lkql_Checker.Source_Table is
             begin
                while TR /= No_Token loop
                   if Kind (Data (TR)) = Ada_Comment then
-                     Process_Exemption_Comment (TR, Unit);
+                     Process_Exemption_Comment (Collector, TR, Unit);
                   end if;
                   TR := Next (TR);
                end loop;
             end;
 
-            Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
+            Check_Unclosed_Rule_Exemptions (Collector, Next_SF, Unit);
          exception
             when E : others =>
                if Tool_Args.Debug_Mode.Get then
                   Store_Diagnostic
-                    (Full_File_Name => File_Name (Next_SF),
+                    (Collector,
+                     Full_File_Name => File_Name (Next_SF),
                      Sloc           => (1, 1),
                      Message        =>
                        "internal error: "

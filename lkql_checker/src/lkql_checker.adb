@@ -83,7 +83,7 @@ package body Lkql_Checker is
    --  ``For_Worker`` gives the information whether this procedure should
    --  emit an LKQL file formatted for the worker.
 
-   procedure Schedule_Files;
+   procedure Schedule_Files (Collector : in out Diagnostic_Collector);
    --  Schedule jobs per set of files
 
    ---------------
@@ -213,7 +213,7 @@ package body Lkql_Checker is
    -- Schedule_Files --
    --------------------
 
-   procedure Schedule_Files is
+   procedure Schedule_Files (Collector : in out Diagnostic_Collector) is
       Minimum_Files : constant := 10;
       Num_Files     : Natural := 0;
       Num_Jobs      : Natural := 0;
@@ -331,13 +331,16 @@ package body Lkql_Checker is
 
                if Pid = GPRbuild_Pid then
                   Analyze_Output
-                    (Global_Report_Dir.all & "gprbuild.err", Status);
+                    (Collector,
+                     Global_Report_Dir.all & "gprbuild.err",
+                     Status);
                   exit when Current = Total_Jobs;
 
                else
                   for Job in Pids'Range loop
                      if Pids (Job) = Pid then
-                        Analyze_Output (File_Name ("out", Job), Status);
+                        Analyze_Output
+                          (Collector, File_Name ("out", Job), Status);
                         Process_Found := True;
 
                         if not Tool_Args.Debug_Mode.Get then
@@ -361,7 +364,7 @@ package body Lkql_Checker is
       begin
          --  Process sources to take pragma Annotate into account
 
-         Process_Sources;
+         Process_Sources (Collector);
 
          for Job in 1 .. Num_Jobs loop
             Create (File, Out_File, File_Name ("files", Job));
@@ -429,6 +432,7 @@ package body Lkql_Checker is
       Project_File_Args    : String_Vector;
       Early_Remaining_Args : XString_Vector;
       Remaining_Args       : XString_Vector;
+      Collector            : Diagnostic_Collector;
 
       procedure Close_Log_File;
 
@@ -631,7 +635,7 @@ package body Lkql_Checker is
       Process_Rules;
 
       --  And process all rule options after rule files have been loaded
-      Process_Rule_Options;
+      Process_Rule_Options (Collector);
 
       Lkql_Checker.Projects.Check_Parameters;  --  check that the rule exists
 
@@ -684,9 +688,9 @@ package body Lkql_Checker is
       else
          --  Implement -j via multiple processes. In the default (-j1, no
          --  custom worker) mode, process all sources in the main process.
-         Schedule_Files;
+         Schedule_Files (Collector);
 
-         Generate_Qualification_Report;
+         Generate_Qualification_Report (Collector);
          Lkql_Checker.Output.Close_Report_Files;
 
          if Tool_Failures > 0 then

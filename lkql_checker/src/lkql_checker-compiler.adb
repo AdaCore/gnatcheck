@@ -13,7 +13,6 @@ with Ada.Strings.Unbounded;
 with GNAT.Case_Util;
 with GNAT.Regpat; use GNAT.Regpat;
 
-with Lkql_Checker.Diagnostics;      use Lkql_Checker.Diagnostics;
 with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
 with Lkql_Checker.Options;          use Lkql_Checker.Options;
 with Lkql_Checker.Output;           use Lkql_Checker.Output;
@@ -339,7 +338,11 @@ package body Lkql_Checker.Compiler is
    -- Analyze_Builder_Output --
    ----------------------------
 
-   procedure Analyze_Output (File_Name : String; Errors : out Boolean) is
+   procedure Analyze_Output
+     (Collector : in out Diagnostic_Collector;
+      File_Name : String;
+      Errors    : out Boolean)
+   is
       Out_File : constant String := File_Name & ".out";
       Line     : String (1 .. 1024);
       Line_Len : Natural;
@@ -470,7 +473,8 @@ package body Lkql_Checker.Compiler is
                     then To_Lower (Rule_Name)
                     else To_Lower (Instance_Name));
                Store_Diagnostic
-                 (Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
+                 (Collector,
+                  Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
                   Message        =>
                     Msg (Msg_Start + 7 .. Last - 2) & Instance.Annotate_Diag,
                   Sloc           => Sloc,
@@ -532,7 +536,8 @@ package body Lkql_Checker.Compiler is
          --  Use File_Name to always use the same filename (including proper
          --  casing for case insensitive systems).
          Store_Diagnostic
-           (Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
+           (Collector,
+            Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
             Sloc           => Sloc,
             Message        =>
               Adjust_Message (Msg (Msg_Start .. Msg_End), Message_Kind),
@@ -628,7 +633,8 @@ package body Lkql_Checker.Compiler is
                   if Is_Argument_Source (SF) then
                      Errors := True;
                      Store_Diagnostic
-                       (Full_File_Name => Source_Table.File_Name (SF),
+                       (Collector,
+                        Full_File_Name => Source_Table.File_Name (SF),
                         Sloc           => (1, 1),
                         Message        =>
                           Adjust_Message ("fatal gprbuild error", Error),
@@ -674,7 +680,7 @@ package body Lkql_Checker.Compiler is
          Errors := True;
    end Analyze_Output;
 
-   -----------------
+   ----------------
    -- Annotation --
    ----------------
 
@@ -1648,7 +1654,7 @@ package body Lkql_Checker.Compiler is
 
    --------------------------------
    -- Restriction_Rule_parameter --
-   ---------------------------------
+   --------------------------------
 
    function Restriction_Rule_Parameter (Diag : String) return String is
       R_Name_Start : Natural := 0;

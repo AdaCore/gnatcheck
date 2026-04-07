@@ -951,7 +951,9 @@ package body Lkql_Checker.Rules.Rule_Table is
    -- Process_LKQL_Rule_File --
    ----------------------------
 
-   procedure Process_LKQL_Rule_File (LKQL_RF_Name : String) is
+   procedure Process_LKQL_Rule_File
+     (Collector : in out Diagnostic_Collector; LKQL_RF_Name : String)
+   is
       JSON_Config_File_Name : constant String :=
         Global_Report_Dir.all & Lkql_Checker_Mode_Image & "-rules.json.out";
       Parser_Pid            : Process_Id;
@@ -1008,7 +1010,7 @@ package body Lkql_Checker.Rules.Rule_Table is
          end;
 
          --  Process diagnostics from worker's output
-         Analyze_Output (JSON_Config_File_Name, Analyze_Error);
+         Analyze_Output (Collector, JSON_Config_File_Name, Analyze_Error);
 
          --  If the JSON parsing failed, it means that LKQL rule file
          --  processing failed and diagnostics are in the output file and
