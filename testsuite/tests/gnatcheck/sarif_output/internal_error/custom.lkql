@@ -1,0 +1,2 @@
+@check()
+fun custom(node) = 1 + "Hello"

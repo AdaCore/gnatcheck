@@ -5,6 +5,8 @@
 
 --  This package provides report generation for GNATcheck.
 
+with Ada.Calendar; use Ada.Calendar;
+
 package Lkql_Checker.Diagnostics.Report is
 
    procedure Generate_Qualification_Report
@@ -12,6 +14,17 @@ package Lkql_Checker.Diagnostics.Report is
    --  Generate the report oriented for using as qualification
    --  materials. There is no parameter to configure this report except
    --  Lkql_Checker.Options.Short_Report flag.
+
+   procedure Generate_SARIF_Report
+     (Collector   : in out Diagnostic_Collector;
+      Output_File : String;
+      Start_Time  : Time;
+      End_Time    : Time;
+      Exit_Code   : Integer);
+   --  Generate a SARIF 2.1.0 report from the diagnostics stored in
+   --  ``Collector`` and write it to ``Output_File``. Rule violations are
+   --  emitted as SARIF results; compiler and internal errors are emitted as
+   --  tool execution notifications.
 
    procedure Print_Report_Header;
    --  Generates the report header, including the date, tool version

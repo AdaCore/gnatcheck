@@ -627,7 +627,7 @@ package body Lkql_Checker.Rules is
       Print
         (Indent_Level * Indent_String
          & "<check switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & """ label="""
          & To_String (Rule.Help_Info)
          & """/>");
@@ -642,7 +642,7 @@ package body Lkql_Checker.Rules is
       Print
         (Indent_Level * Indent_String
          & "<spin switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & """ label="""
          & To_String (Rule.Help_Info)
          & """ min=""0"""
@@ -661,7 +661,7 @@ package body Lkql_Checker.Rules is
       Print
         (Indent_Level * Indent_String
          & "<field switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & """ separator="":"""
          & " label="""
          & To_String (Rule.Help_Info)
@@ -669,7 +669,7 @@ package body Lkql_Checker.Rules is
       Print
         (Indent_Level * Indent_String
          & "<check switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":"
          & Param_Name (Rule, 2)
          & """ label="""
@@ -687,7 +687,7 @@ package body Lkql_Checker.Rules is
       Print
         (Indent_Level * Indent_String
          & "<field switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & """ separator="":"""
          & " label="""
          & To_String (Rule.Help_Info)
@@ -713,7 +713,7 @@ package body Lkql_Checker.Rules is
          Print
            (Indent_Level * Indent_String
             & "<field switch=""+R"
-            & Rule_Name (Rule)
+            & Lower_Name (Rule)
             & ":"
             & Param
             & '"'
@@ -724,7 +724,7 @@ package body Lkql_Checker.Rules is
             & " (empty string disables check)"""
             & " separator=""="""
             & " switch-off=""-R"
-            & Rule_Name (Rule)
+            & Lower_Name (Rule)
             & ":"
             & Param
             & '"'
@@ -734,7 +734,7 @@ package body Lkql_Checker.Rules is
       Print
         (Indent_Level * Indent_String
          & "<check switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":Default"""
          & " label="""
          & "identifiers use standard suffixes"""
@@ -753,34 +753,34 @@ package body Lkql_Checker.Rules is
       Print
         (Indent_Level * Indent_String
          & "<default-value-dependency master-switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":Default"""
          & " slave-switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":Type_Suffix=_T""/>");
       Print
         (Indent_Level * Indent_String
          & "<default-value-dependency master-switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":Default"""
          & " slave-switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":Access_Suffix=_A""/>");
       Print
         (Indent_Level * Indent_String
          & "<default-value-dependency master-switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":Default"""
          & " slave-switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":Constant_Suffix=_C""/>");
       Print
         (Indent_Level * Indent_String
          & "<default-value-dependency master-switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":Default"""
          & " slave-switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":Renaming_Suffix=_R""/>");
    end Id_Suffix_Param_XML_Help;
 
@@ -803,7 +803,7 @@ package body Lkql_Checker.Rules is
          Print
            (Indent_Level * Indent_String
             & "<field switch=""+R"
-            & Rule_Name (Rule)
+            & Lower_Name (Rule)
             & ":"
             & Param
             & '"'
@@ -813,7 +813,7 @@ package body Lkql_Checker.Rules is
             & " (empty string disables check)"""
             & " separator=""="""
             & " switch-off=""-R"
-            & Rule_Name (Rule)
+            & Lower_Name (Rule)
             & ":"
             & Param
             & '"'
@@ -833,7 +833,7 @@ package body Lkql_Checker.Rules is
       Print
         (Indent_Level * Indent_String
          & "<check switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":Exclusive"""
          & " label=""strong check mode""/>");
    end Id_Prefix_Param_XML_Help;
@@ -884,7 +884,7 @@ package body Lkql_Checker.Rules is
       Print
         (Indent_Level * Indent_String
          & "<field switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & ":Exclude"""
          & " label="""
          & "dictionary of casing exceptions"""
@@ -899,7 +899,7 @@ package body Lkql_Checker.Rules is
    procedure Forbidden_Param_XML_Help
      (Rule : Rule_Info; Indent_Level : Natural)
    is
-      Name : constant String := Rule_Name (Rule);
+      Name : constant String := Lower_Name (Rule);
       Str  : constant String := Name (11 .. Name'Last);
    begin
       Print
@@ -953,7 +953,7 @@ package body Lkql_Checker.Rules is
       Print
         (Indent_Level * Indent_String
          & "<field switch=""+R"
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & """ separator="":"""
          & " label="""
          & To_String (Rule.Help_Info)
@@ -2449,7 +2449,7 @@ package body Lkql_Checker.Rules is
 
       --  If the rule is "parameters_out_of_order" then check that we have 5
       --  parameters.
-      if Rule.Name = "parameters_out_of_order"
+      if Lower_Name (Rule) = "parameters_out_of_order"
         and then Last /= 0
         and then Natural (Split (To_String (Instance.Param), ',').Length) /= 5
       then
@@ -2465,7 +2465,7 @@ package body Lkql_Checker.Rules is
 
       --  If the rule is "actual_parameters" then add the instance parameter
       --  in the argument vector as string tuples.
-      if Rule.Name = "actual_parameters" and then Last /= 0 then
+      if Lower_Name (Rule) = "actual_parameters" and then Last /= 0 then
          declare
             Param        : Unbounded_Wide_Wide_String;
             C            : Wide_Wide_Character;
@@ -2516,7 +2516,7 @@ package body Lkql_Checker.Rules is
                   Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
          end;
 
-      elsif Rule.Name = "exception_propagation_from_callbacks"
+      elsif Lower_Name (Rule) = "exception_propagation_from_callbacks"
         and then Last /= 0
       then
          --  If the rule is "exception_propagation_from_callbacks" then add
@@ -2679,10 +2679,10 @@ package body Lkql_Checker.Rules is
    -- Rule_Name --
    ---------------
 
-   function Rule_Name (Rule : Rule_Info) return String is
+   function Lower_Name (Rule : Rule_Info) return String is
    begin
-      return To_String (Rule.Name);
-   end Rule_Name;
+      return To_Lower (To_String (Rule.Name));
+   end Lower_Name;
 
    ----------------
    -- Is_Enabled --
@@ -2701,7 +2701,7 @@ package body Lkql_Checker.Rules is
    begin
       Print
         (" "
-         & Rule_Name (Rule)
+         & Lower_Name (Rule)
          & " - "
          & To_String (Rule.Help_Info)
          & " - "
@@ -2737,7 +2737,7 @@ package body Lkql_Checker.Rules is
       --  LKQL rule configuration file.
 
       procedure Postprocess_Args is
-         Lower_Rule_Name : constant String := To_Lower (Rule_Name (Rule));
+         Lower_Rule_Name : constant String := Lower_Name (Rule);
       begin
          if Lower_Rule_Name = "headers"
            or else Lower_Rule_Name = "name_clashes"
@@ -2855,7 +2855,7 @@ package body Lkql_Checker.Rules is
             --  Else, print a comma
             Put_Line (Rule_File, ",");
          end if;
-         Put (Rule_File, "    " & Rule_Name (Rule));
+         Put (Rule_File, "    " & Lower_Name (Rule));
 
          for Name of Instance_Names loop
             Instance := All_Rule_Instances (Name);

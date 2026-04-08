@@ -1,0 +1,217 @@
+Total gnatcheck failures: 8
+{
+  "runs": [
+    {
+      "invocations": [
+        {
+          "arguments": [
+            "-q",
+            "-P",
+            "prj.gpr",
+            "--sarif=<working-dir>/gnatcheck.sarif",
+            "--rules-dir=./",
+            "-rules"
+          ],
+          "commandLine": "COMMAND_LINE",
+          "endTimeUtc": "END_TIME",
+          "environmentVariables": "ENV_VARS",
+          "executionSuccessful": false,
+          "exitCode": 2,
+          "startTimeUtc": "START_TIME",
+          "toolExecutionNotifications": [
+            {
+              "level": "error",
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "main.adb",
+                      "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "region": {
+                      "startColumn": 1,
+                      "startLine": 1
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": "error: internal issue at custom.lkql:2:24: Type error: expected Int but got Str [custom]"
+              }
+            },
+            {
+              "level": "error",
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "main.adb",
+                      "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "region": {
+                      "startColumn": 11,
+                      "startLine": 1
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": "error: internal issue at custom.lkql:2:24: Type error: expected Int but got Str [custom]"
+              }
+            },
+            {
+              "level": "error",
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "main.adb",
+                      "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "region": {
+                      "startColumn": 18,
+                      "startLine": 1
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": "error: internal issue at custom.lkql:2:24: Type error: expected Int but got Str [custom]"
+              }
+            },
+            {
+              "level": "error",
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "main.adb",
+                      "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "region": {
+                      "startColumn": 6,
+                      "startLine": 2
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": "error: internal issue at custom.lkql:2:24: Type error: expected Int but got Str [custom]"
+              }
+            },
+            {
+              "level": "error",
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "main.adb",
+                      "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "region": {
+                      "startColumn": 4,
+                      "startLine": 3
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": "error: internal issue at custom.lkql:2:24: Type error: expected Int but got Str [custom]"
+              }
+            },
+            {
+              "level": "error",
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "main.adb",
+                      "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "region": {
+                      "startColumn": 9,
+                      "startLine": 3
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": "error: internal issue at custom.lkql:2:24: Type error: expected Int but got Str [custom]"
+              }
+            },
+            {
+              "level": "error",
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "main.adb",
+                      "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "region": {
+                      "startColumn": 5,
+                      "startLine": 4
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": "error: internal issue at custom.lkql:2:24: Type error: expected Int but got Str [custom]"
+              }
+            },
+            {
+              "level": "error",
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "main.adb",
+                      "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "region": {
+                      "startColumn": 10,
+                      "startLine": 4
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": "error: internal issue at custom.lkql:2:24: Type error: expected Int but got Str [custom]"
+              }
+            }
+          ],
+          "workingDirectory": {
+            "uri": "WORKING_DIR"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "URI_BASE_DIR": {
+          "description": {
+            "text": "Project directory if one has been used, working directory otherwise"
+          },
+          "uri": "BASE_URI"
+        }
+      },
+      "tool": {
+        "driver": {
+          "informationUri": "https://docs.adacore.com/live/wave/lkql/html/gnatcheck_rm/gnatcheck_rm.html",
+          "name": "gnatcheck",
+          "organization": "AdaCore",
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "parameters": {}
+              },
+              "id": "custom",
+              "name": "custom"
+            }
+          ],
+          "version": "VERSION"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}>>>program returned status code 2

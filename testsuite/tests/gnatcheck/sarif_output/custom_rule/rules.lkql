@@ -1,0 +1,1 @@
+val rules = @{ Custom: {Bool: true, Int: 42, Str: "from_config", list: [false, 0, "also_from_config"]} }

@@ -29,31 +29,6 @@ with Lkql_Checker.Source_Table;       use Lkql_Checker.Source_Table;
 with Lkql_Checker.String_Utilities;   use Lkql_Checker.String_Utilities;
 
 package body Lkql_Checker is
-   ----------------
-   -- Exit codes --
-   ----------------
-
-   E_Success : constant := 0;
-   --  No tool failure, no rule violation detected
-
-   E_Violation : constant := 1;
-   --  No tool failure, rule violation(s) detected
-
-   E_Error : constant := 2;
-   --  Tool failure detected
-
-   E_Missing_Source : constant := 3;
-   --  Missing at least one argument source
-
-   E_Missing_Rule_File : constant := 4;
-   --  Missing coding standard file
-
-   E_Missing_Rule : constant := 5;
-   --  Bad rule name or bad rule parameter
-
-   E_Bad_Rules : constant := 6;
-   --  Other problem with rules options
-
    ----------------------
    -- Util subprograms --
    ----------------------
@@ -430,10 +405,12 @@ package body Lkql_Checker is
 
    procedure Main is
       Time_Start           : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+      Time_End             : Ada.Calendar.Time;
       Project_File_Args    : String_Vector;
       Early_Remaining_Args : XString_Vector;
       Remaining_Args       : XString_Vector;
       Collector            : Diagnostic_Collector;
+      Exit_Code            : Integer;
 
       procedure Close_Log_File;
 
@@ -692,6 +669,7 @@ package body Lkql_Checker is
          Schedule_Files (Collector);
 
          Generate_Qualification_Report (Collector);
+
          Lkql_Checker.Output.Close_Report_Files;
 
          if Tool_Failures > 0 then
@@ -703,20 +681,11 @@ package body Lkql_Checker is
          end if;
       end if;
 
-      Lkql_Checker.Projects.Clean_Up (Lkql_Checker.Options.Checker_Prj);
+      --  Get the ending time
+      Time_End := Ada.Calendar.Clock;
 
-      if Tool_Args.Time.Get then
-         Print
-           ("Execution time:"
-            & Duration'Image (Ada.Calendar.Clock - Time_Start));
-      end if;
-
-      Lkql_Checker.Rules.Rule_Table.Clean_Up;
-
-      --  Close the log file if required
-      Close_Log_File;
-
-      OS_Exit
+      --  Compute the code to use when exiting the process
+      Exit_Code :=
         (if Tool_Failures /= 0
            or else Detected_Internal_Error /= 0
            or else Error_From_Warning
@@ -739,6 +708,32 @@ package body Lkql_Checker is
          then E_Violation
          else E_Success);
 
+      --  If required, emit the SARIF report
+      if not In_Aggregate_Project and then Tool_Args.SARIF_Report_Enabled then
+         Generate_SARIF_Report
+           (Collector,
+            Tool_Args.SARIF_Report_File_Path,
+            Time_Start,
+            Time_End,
+            Exit_Code);
+      end if;
+
+      --  Cleanup the loaded project
+      Lkql_Checker.Projects.Clean_Up (Lkql_Checker.Options.Checker_Prj);
+
+      --  Cleanup loaded rules and their instances
+      Lkql_Checker.Rules.Rule_Table.Clean_Up;
+
+      --  If required, display the run duration
+      if Tool_Args.Time.Get then
+         Print ("Execution time:" & Duration'Image (Time_End - Time_Start));
+      end if;
+
+      --  Close the log file if required
+      Close_Log_File;
+
+      --  Finally, exit the program
+      OS_Exit (Exit_Code);
    exception
       when Parameter_Error =>
          --  The diagnostic is already generated

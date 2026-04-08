@@ -4,7 +4,6 @@
 --
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
-with Ada.Directories;         use Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Exceptions;
 with Ada.Strings;             use Ada.Strings;
@@ -12,7 +11,6 @@ with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
 
 with GNAT.Regexp; use GNAT.Regexp;
-with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
 with Lkql_Checker.Diagnostics;
@@ -397,27 +395,6 @@ package body Lkql_Checker.Projects is
       return My_Project.Options.Project_File.Is_Defined;
    end Is_Specified;
 
-   -------------------------------
-   -- Get_Project_Relative_File --
-   -------------------------------
-
-   function Get_Project_Relative_File
-     (My_Project : Arg_Project_Type; Filename : String) return String is
-   begin
-      if Lkql_Checker.Options.Checker_Prj.Is_Specified
-        and then Lkql_Checker.Options.Checker_Prj.Tree.Is_Defined
-      then
-         return
-           Normalize_Pathname
-             (Containing_Directory
-                (Checker_Prj.Tree.Root_Project.Path_Name.String_Value)
-              & GNAT.OS_Lib.Directory_Separator
-              & Filename);
-      else
-         return Normalize_Pathname (Filename);
-      end if;
-   end Get_Project_Relative_File;
-
    -----------------------------
    -- Load_Aggregated_Project --
    -----------------------------
@@ -507,7 +484,7 @@ package body Lkql_Checker.Projects is
          My_Project.Options.Add_Switch
            (GPR2.Options.Subdirs,
             To_String (My_Project.Options.Subdirs)
-            & GNAT.OS_Lib.Directory_Separator
+            & Directory_Separator
             & Lkql_Checker_Mode_Image,
             Override => True);
       end if;
@@ -770,7 +747,7 @@ package body Lkql_Checker.Projects is
               else My_Project.Tree.Root_Project.Object_Directory.Dir_Name)
            else Cur_Dir.Dir_Name);
    begin
-      GNAT.OS_Lib.Free (Global_Report_Dir);
+      Free (Global_Report_Dir);
       Global_Report_Dir := new String'(Dir);
    end Set_Global_Result_Dirs;
 
@@ -1150,14 +1127,12 @@ package body Lkql_Checker.Projects is
                   then
                      if not Tool_Args.Quiet_Mode then
                         Info
-                          (Ada.Strings.Unbounded.To_String (Rule.Name)
+                          (Lower_Name (Rule)
                            & " disabled, target does not match");
                      end if;
                   else
                      if not Tool_Args.Quiet_Mode then
-                        Info
-                          (Ada.Strings.Unbounded.To_String (Rule.Name)
-                           & " enabled");
+                        Info (Lower_Name (Rule) & " enabled");
                      end if;
 
                      Instance := Rule.Create_Instance (Is_Alias => False);

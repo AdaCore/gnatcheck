@@ -47,8 +47,9 @@ options:
 
  --include-file=filename - add the content of filename into generated report
 
- -o filename   - specify the name of the text report file
- -ox filename  - specify the name of the XML report file (enforces '-xml')
+ -o filename      - specify the name of the text report file
+ -ox filename     - specify the name of the XML report file (enforces '-xml')
+ --sarif filename - enable the SARIF output while specifying the name of the report file
 
  filename                 - the name of the Ada source file to be analyzed.
                             Wildcards are allowed
@@ -121,8 +122,9 @@ options:
 
  --include-file=filename - add the content of filename into generated report
 
- -o filename   - specify the name of the text report file
- -ox filename  - specify the name of the XML report file (enforces '-xml')
+ -o filename      - specify the name of the text report file
+ -ox filename     - specify the name of the XML report file (enforces '-xml')
+ --sarif filename - enable the SARIF output while specifying the name of the report file
 
  filename                 - the name of the Ada source file to be analyzed.
                             Wildcards are allowed
@@ -195,8 +197,9 @@ options:
 
  --include-file=filename - add the content of filename into generated report
 
- -o filename   - specify the name of the text report file
- -ox filename  - specify the name of the XML report file (enforces '-xml')
+ -o filename      - specify the name of the text report file
+ -ox filename     - specify the name of the XML report file (enforces '-xml')
+ --sarif filename - enable the SARIF output while specifying the name of the report file
 
  filename                 - the name of the Ada source file to be analyzed.
                             Wildcards are allowed

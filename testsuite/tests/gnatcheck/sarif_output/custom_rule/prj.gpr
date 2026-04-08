@@ -1,0 +1,5 @@
+project Prj is
+   package Check is
+      for Rule_File use "rules.lkql";
+   end Check;
+end Prj;

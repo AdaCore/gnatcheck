@@ -6,6 +6,7 @@
 --  This package contains various output routines.
 
 with Ada.Exceptions; use Ada.Exceptions;
+with Ada.Text_IO;    use Ada.Text_IO;
 
 package Lkql_Checker.Output is
 
@@ -85,6 +86,12 @@ package Lkql_Checker.Output is
 
    function Get_Number return String;
    --  Gets numeric index from the report file name.
+
+   procedure Open_Or_Create
+     (File_Path : String; Mode : File_Mode; File : in out File_Type);
+   --  Open the specified ``File_Path`` if it already exists, otherwise create
+   --  it.
+   --  This function handles possible exceptions with the manipulated file.
 
    procedure Set_Report_Files;
    --  Creates and/or opens the tool report files, according to the current

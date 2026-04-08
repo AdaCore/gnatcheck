@@ -1,7 +1,9 @@
+import json
 import os
 import os.path as P
 import re
 import shutil
+import urllib
 import xml.etree.ElementTree as ET
 
 from base_driver import BaseDriver, TaggedLines
@@ -134,7 +136,7 @@ class GnatcheckDriver(BaseDriver):
     flag_checking_supported = True
 
     modes = {"gnatcheck": "gnatcheck", "gnatkp": "gnatkp"}
-    output_formats = set(["brief", "full", "short", "xml"])
+    output_formats = set(["brief", "full", "short", "xml", "sarif"])
 
     flag_line_pattern = re.compile(
         rf"^({BaseDriver.ada_file_pattern}):(\d+):\d+: (rule violation|warning|error)"
@@ -209,12 +211,40 @@ class GnatcheckDriver(BaseDriver):
         return res
 
     @classmethod
+    def _parse_sarif(cls, output: str) -> dict[str, TaggedLines]:
+        """
+        Parse the SARIF GNATcheck output.
+        """
+        sarif_object = json.loads(output)
+        res: dict[str, TaggedLines] = {}
+
+        def tag_line(file: str, line: int):
+            file = P.basename(file)
+            if not res.get(file):
+                res[file] = TaggedLines()
+            res[file].tag_line(line)
+
+        # Get all results from the SARIF report
+        for run in sarif_object.get("runs", []):
+            for result in run.get("results", []):
+                for loc in result.get("locations", []):
+                    file = urllib.parse.urlparse(
+                        loc["physicalLocation"]["artifactLocation"]["uri"]
+                    ).path
+                    line = loc["physicalLocation"]["region"]["startLine"]
+                    tag_line(file, line)
+
+        # Return the resulting dict
+        return res
+
+    @classmethod
     def parsers(cls):
         return {
             "full": cls._parse_full,
             "short": cls._parse_short_and_brief,
             "brief": cls._parse_short_and_brief,
             "xml": cls._parse_xml,
+            "sarif": cls._parse_sarif,
         }
 
     @classmethod
@@ -425,7 +455,8 @@ class GnatcheckDriver(BaseDriver):
             output_file_name = test_data.get("output_file")
             if output_file_name is None or output_file_name is True:
                 output_file_name = self.working_dir(
-                    f"{exe}.{'xml' if output_format == 'xml' else 'out'}"
+                    f"{exe}.{output_format if output_format in [
+                        'xml', 'sarif'] else 'out'}"
                 )
             elif output_file_name:
                 output_file_name = self.working_dir(output_file_name)
@@ -500,6 +531,8 @@ class GnatcheckDriver(BaseDriver):
                     args.append(f"-o={output_file_name}")
                 elif output_format == "xml":
                     args.append(f"-ox={output_file_name}")
+                elif output_format == "sarif":
+                    args.append(f"--sarif={output_file_name}")
 
             # Add the include file if any
             include_file = test_data.get("include_file", None)
@@ -617,7 +650,12 @@ class GnatcheckDriver(BaseDriver):
                 # Then read GNATcheck report file if there is one
                 report_file_content = ""
                 has_output_file = False
-                if output_file_name and output_format in ["full", "short", "xml"]:
+                if output_file_name and output_format in [
+                    "full",
+                    "short",
+                    "xml",
+                    "sarif",
+                ]:
                     try:
                         with open(output_file_name) as f:
                             if output_format in ["short", "xml"]:
@@ -637,6 +675,35 @@ class GnatcheckDriver(BaseDriver):
                                                 new_content,
                                             )
                                         )
+                            elif output_format == "sarif":
+                                json_content = json.load(f)
+                                for run in json_content.get("runs", []):
+                                    driver = run["tool"]["driver"]
+
+                                    # Canonicalize the driver version
+                                    driver["version"] = "VERSION"
+
+                                    # Canonicalize invocation objects
+                                    for invocation in run.get("invocations", []):
+                                        invocation["commandLine"] = "COMMAND_LINE"
+                                        invocation["workingDirectory"][
+                                            "uri"
+                                        ] = "WORKING_DIR"
+                                        invocation["environmentVariables"] = "ENV_VARS"
+                                        invocation["startTimeUtc"] = "START_TIME"
+                                        invocation["endTimeUtc"] = "END_TIME"
+
+                                    # Canonicalize base URIs
+                                    for _, base_uri in run.get(
+                                        "originalUriBaseIds", {}
+                                    ).items():
+                                        base_uri["uri"] = "BASE_URI"
+
+                                    # Finally sort enabled rules
+                                    driver["rules"].sort(key=lambda r: r["id"])
+                                report_file_content = json.dumps(
+                                    json_content, sort_keys=True, indent=2
+                                )
                             else:
                                 # Strip the 10 first lines of the report, which contain
                                 # run-specific information that we don't want to
@@ -655,7 +722,7 @@ class GnatcheckDriver(BaseDriver):
                         self.parse_flagged_lines(
                             (
                                 exec_output + report_file_content
-                                if output_format != "xml"
+                                if output_format not in ["xml", "sarif"]
                                 else report_file_content
                             ),
                             output_format,

@@ -1,0 +1,2 @@
+@check(message="My custom rule", help="A little bit of help", rule_name="CustoM")
+fun custom(node, bool=false, int=22, str="my_arg", list=[true, 23, "other_arg"]) = node is GotoStmt

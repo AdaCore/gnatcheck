@@ -495,6 +495,15 @@ package Lkql_Checker.Options is
            Help             =>
              "specify the name of the XML report file (enforces '-xml')");
 
+      package SARIF_Output is new
+        Parse_Option
+          (Parser      => Parser,
+           Long        => "--sarif",
+           Name        => "SARIF output",
+           Arg_Type    => Unbounded_String,
+           Default_Val => Null_Unbounded_String,
+           Help        => "specify the name of the SARIF report file");
+
       package Time is new
         Parse_Flag
           (Parser  => Parser,
@@ -671,6 +680,11 @@ package Lkql_Checker.Options is
 
       function XML_Report_File_Path return String;
 
+      function SARIF_Report_Enabled return Boolean
+      is (SARIF_Output.Get /= Null_Unbounded_String);
+
+      function SARIF_Report_File_Path return String;
+
       function Source_Files_Specified return Boolean
       is (Source_Files.Get /= Null_Unbounded_String);
 
@@ -702,6 +716,10 @@ package Lkql_Checker.Options is
       function XML_Report_File_Path return String
       is (Resolve_Report_File
             (XML_Output.Get, Lkql_Checker_Mode_Image & ".xml"));
+
+      function SARIF_Report_File_Path return String
+      is (Resolve_Report_File
+            (SARIF_Output.Get, Lkql_Checker_Mode_Image & ".sarif"));
    end Tool_Args;
 
    -----------------------

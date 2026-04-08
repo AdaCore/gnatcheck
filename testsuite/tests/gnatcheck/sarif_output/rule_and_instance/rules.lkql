@@ -1,0 +1,1 @@
+val rules = @{ Custom: [{}, {instance_name: "Other_Instance", Bool: true, Int: 42, Str: "from_instance", list: [false, 0, "also_from_instance"]}] }

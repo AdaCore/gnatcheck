@@ -1,6 +1,7 @@
 with "libadalang";
 with "liblkqllang";
 with "gpr2";
+with "sarif_ada";
 
 project LKQL_Checker is
    type Build_Mode_Type is ("dev", "prod");

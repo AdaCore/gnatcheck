@@ -96,6 +96,8 @@ package body Rule_Commands is
       declare
          Fn                       : constant L.Fun_Decl :=
            Check_Annotation.Parent.As_Fun_Decl;
+         Rule_Name_Arg            : constant L.Arg :=
+           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("rule_name"));
          Msg_Arg                  : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("message"));
          Help_Arg                 : constant L.Arg :=
@@ -113,6 +115,7 @@ package body Rule_Commands is
              (To_Unbounded_Text ("remediation"));
          Target_Arg               : constant L.Arg :=
            Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("target"));
+         Name                     : Unbounded_Text_Type;
          Msg                      : Unbounded_Text_Type;
          Help                     : Unbounded_Text_Type;
          Category                 : Unbounded_Text_Type;
@@ -121,7 +124,7 @@ package body Rule_Commands is
          Target                   : Regexp_Access;
          Remediation_Level        : Remediation_Levels := Medium;
          Parametric_Exemption     : Boolean := False;
-         Name                     : constant Text_Type := Fn.F_Name.Text;
+         Fn_Name                  : constant Text_Type := Fn.F_Name.Text;
 
          Param_Kind : Rule_Param_Kind;
 
@@ -188,7 +191,8 @@ package body Rule_Commands is
               Parametric_Exemption_Arg.P_Expr.Text = "true";
          end if;
 
-         Get_Text (Msg_Arg, To_Unbounded_Text (Name), Msg);
+         Get_Text (Rule_Name_Arg, To_Unbounded_Text (Fn_Name), Name);
+         Get_Text (Msg_Arg, Name, Msg);
          Get_Text (Help_Arg, Msg, Help);
          Get_Text (Category_Arg, To_Unbounded_Text ("Misc"), Category);
          Get_Text (Subcategory_Arg, To_Unbounded_Text (""), Subcategory);
@@ -196,7 +200,7 @@ package body Rule_Commands is
          if Impacts /= JSON_Null then
             declare
                Impact_Value : constant JSON_Value :=
-                 Impacts.Get (To_UTF8 (To_Lower (Name)));
+                 Impacts.Get (To_UTF8 (To_Lower (Fn_Name)));
             begin
                if Impact_Value /= JSON_Null then
                   Impact :=
@@ -259,8 +263,9 @@ package body Rule_Commands is
 
          Rc :=
            Rule_Command'
-             (Name                 => To_Unbounded_Text (To_Lower (Name)),
+             (Name                 => Name,
               Help                 => Help,
+              Message              => Msg,
               Category             => Category,
               Subcategory          => Subcategory,
               Param_Kind           => Param_Kind,

@@ -1,0 +1,1 @@
+val rules = @{ Goto_Statements: {instance_name: "My_GOTO"} }

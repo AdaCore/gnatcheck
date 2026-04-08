@@ -3,25 +3,41 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
-with Ada.Calendar;          use Ada.Calendar;
+with Ada.Characters.Handling;   use Ada.Characters.Handling;
 with Ada.Command_Line;
-with Ada.Directories;       use Ada.Directories;
+with Ada.Directories;           use Ada.Directories;
+with Ada.Environment_Variables; use Ada.Environment_Variables;
 with Ada.Exceptions;
-with Ada.Strings;           use Ada.Strings;
-with Ada.Strings.Fixed;     use Ada.Strings.Fixed;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Ada.Text_IO;           use Ada.Text_IO;
+with Ada.Strings;               use Ada.Strings;
+with Ada.Strings.Fixed;         use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;     use Ada.Strings.Unbounded;
+with Ada.Text_IO;               use Ada.Text_IO;
 
-with GNAT.OS_Lib; use GNAT.OS_Lib;
+with GNAT.Calendar.Time_IO; use GNAT.Calendar.Time_IO;
+with GNAT.OS_Lib;           use GNAT.OS_Lib;
+
+with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 with Lkql_Checker.Compiler;               use Lkql_Checker.Compiler;
 with Lkql_Checker.Diagnostics.Exemptions;
 use Lkql_Checker.Diagnostics.Exemptions;
 with Lkql_Checker.Options;                use Lkql_Checker.Options;
 with Lkql_Checker.Output;                 use Lkql_Checker.Output;
+with Lkql_Checker.Rules;                  use Lkql_Checker.Rules;
 with Lkql_Checker.Rules.Rule_Table;       use Lkql_Checker.Rules.Rule_Table;
 with Lkql_Checker.Source_Table;           use Lkql_Checker.Source_Table;
 with Lkql_Checker.String_Utilities;       use Lkql_Checker.String_Utilities;
+
+with Rule_Commands;
+
+with SARIF.Types;
+with SARIF.Types.Outputs;
+
+with VSS.JSON.Push_Writers;
+with VSS.JSON.Streams;
+with VSS.Stream_Element_Vectors.Conversions;
+with VSS.Strings.Conversions;
+with VSS.Text_Streams.Memory_UTF8_Output;
 
 package body Lkql_Checker.Diagnostics.Report is
 
@@ -93,6 +109,9 @@ package body Lkql_Checker.Diagnostics.Report is
    --  be different from the list provided by '--ignore=...' option -
    --  this list contains only the existing files that have been passed
    --  as tool argument sources.
+
+   function Get_Command_Line return String;
+   --  Get the command line that has been used to spawn the process.
 
    procedure Print_Command_Line (XML : Boolean := False);
    --  Prints the command line used to run this Lkql_Checker instance.
@@ -841,6 +860,20 @@ package body Lkql_Checker.Diagnostics.Report is
              = Checked_Sources + Unverified_Sources);
    end Print_Argument_Files_Summary;
 
+   ----------------------
+   -- Get_Command_Line --
+   ----------------------
+
+   function Get_Command_Line return String is
+      Res : Unbounded_String :=
+        To_Unbounded_String (Ada.Command_Line.Command_Name);
+   begin
+      for Arg in 1 .. Ada.Command_Line.Argument_Count loop
+         Append (Res, " " & Ada.Command_Line.Argument (Arg));
+      end loop;
+      return To_String (Res);
+   end Get_Command_Line;
+
    ------------------------
    -- Print_Command_Line --
    ------------------------
@@ -848,19 +881,9 @@ package body Lkql_Checker.Diagnostics.Report is
    procedure Print_Command_Line (XML : Boolean := False) is
    begin
       if XML then
-         XML_Report_No_EOL (Ada.Command_Line.Command_Name);
-
-         for Arg in 1 .. Ada.Command_Line.Argument_Count loop
-            XML_Report_No_EOL (" " & Ada.Command_Line.Argument (Arg));
-         end loop;
+         XML_Report_No_EOL (Get_Command_Line);
       else
-         Report_No_EOL (Ada.Command_Line.Command_Name);
-
-         for Arg in 1 .. Ada.Command_Line.Argument_Count loop
-            Report_No_EOL (" " & Ada.Command_Line.Argument (Arg));
-         end loop;
-
-         Report_EOL;
+         Text_Report (Get_Command_Line);
       end if;
    end Print_Command_Line;
 
@@ -1390,5 +1413,363 @@ package body Lkql_Checker.Diagnostics.Report is
           else "</violation>"),
          Indent_Level => Indentation);
    end XML_Report_Diagnostic;
+
+   ---------------------------
+   -- Generate_SARIF_Report --
+   ---------------------------
+
+   procedure Generate_SARIF_Report
+     (Collector   : in out Diagnostic_Collector;
+      Output_File : String;
+      Start_Time  : Time;
+      End_Time    : Time;
+      Exit_Code   : Integer)
+   is
+      use VSS.Strings.Conversions;
+      use VSS.JSON.Streams;
+
+      package ST renames SARIF.Types;
+      package SE renames SARIF.Types.Enum;
+
+      --  Variables used to collect information
+      Uri_Base_Dir         : constant Virtual_File :=
+        Create_From_UTF8 (Checker_Prj.Get_Project_Dir);
+      Uri_Base_Dir_Id      : constant String := "URI_BASE_DIR";
+      Additional_Instances : Rule_Instance_Vector.Vector;
+
+      Root       : ST.Root;
+      Driver     : ST.toolComponent;
+      Run        : ST.run;
+      Invocation : ST.invocation;
+
+      --  Variables require to emit the SARIF report
+      Writer : VSS.JSON.Push_Writers.JSON_Simple_Push_Writer;
+      Mem    :
+        aliased VSS.Text_Streams.Memory_UTF8_Output.Memory_UTF8_Output_Stream;
+      File   : File_Type;
+
+      -------------------
+      -- Local helpers --
+      -------------------
+
+      function To_Uri (File_Path : String) return String;
+      --  Turn the provided file path into an URI.
+
+      function To_Uri (File_Path : String) return String is
+         File_Unix_Path : constant String :=
+           String (Unix_Style_Full_Name (Create_From_UTF8 (File_Path)));
+      begin
+         return
+           "file://"
+           & (if Has_Prefix (File_Unix_Path, "/") then "" else "/")
+           & File_Unix_Path;
+      end To_Uri;
+
+      function Make_Artifact_Location
+        (File_Path : String; Relative_To_Base_Dir : Boolean := False)
+         return ST.artifactLocation
+      is (if Relative_To_Base_Dir
+          then
+            (uri       =>
+               To_Virtual_String
+                 (String
+                    (Unix_Style_Full_Name
+                       (Create
+                          (Relative_Path
+                             (Create_From_UTF8 (File_Path), Uri_Base_Dir))))),
+             uriBaseId => To_Virtual_String (Uri_Base_Dir_Id),
+             others    => <>)
+          else (uri => To_Virtual_String (To_Uri (File_Path)), others => <>));
+      --  Create an artifact location SARIF object from the provided file
+      --  path. If ``Relative_To_Base_Dir`` is True, the returned artifact
+      --  location is expressed relatively to the ``URI_BASE_DIR``.
+
+      function Make_Location
+        (File_Path : String; Line : Natural; Column : Natural)
+         return ST.location;
+      --  Build a SARIF location from a file path, a line and a column number.
+
+      function Make_Location
+        (File_Path : String; Line : Natural; Column : Natural)
+         return ST.location
+      is
+         Loc  : ST.location;
+         Phys : ST.physicalLocation;
+         Reg  : ST.region;
+      begin
+         --  We start by describing the concerned file by its URI
+         Phys.artifactLocation :=
+           (Is_Set => True,
+            Value  =>
+              Make_Artifact_Location
+                (File_Path, Relative_To_Base_Dir => True));
+
+         --  Then we create a region from provided line and column
+         Reg.startLine := (Is_Set => True, Value => Line);
+         Reg.startColumn := (Is_Set => True, Value => Column);
+         Phys.region := (Is_Set => True, Value => Reg);
+
+         --  Finally, we construct the result object and we return it
+         Loc.physicalLocation := (Is_Set => True, Value => Phys);
+         return Loc;
+      end Make_Location;
+
+      function Make_Config
+        (R_Id : Rule_Id; Instance : Rule_Instance_Access)
+         return ST.reportingConfiguration;
+      --  Build a SARIF rule configuration object from the provided rule and
+      --  an instance of it. If the provided instance is null, the default one
+      --  is used
+
+      function Make_Config
+        (R_Id : Rule_Id; Instance : Rule_Instance_Access)
+         return ST.reportingConfiguration
+      is
+         Rule   : constant Rule_Info := All_Rules (R_Id);
+         I      : Rule_Instance_Access;
+         Args   : Rule_Commands.Rule_Argument_Vectors.Vector;
+         Params : ST.propertyBag;
+         Res    : ST.reportingConfiguration;
+      begin
+         --  If no instance has been provided, create the default one
+         if Instance = null then
+            I := Rule.Create_Instance (False);
+            I.Source_Mode := General;
+            I.Rule := R_Id;
+         else
+            I := Instance;
+         end if;
+
+         --  Fill the configuration SARIF object
+         I.Map_Parameters (Args);
+         for Arg of Args loop
+            Params.Additional_Properties.Append
+              ((Kind => Key_Name, Key_Name => To_Virtual_String (Arg.Name)));
+            Params.Additional_Properties.Append
+              ((Kind         => String_Value,
+                String_Value => To_Virtual_String (Arg.Value)));
+         end loop;
+         Res.parameters := (Is_Set => True, Value => Params);
+         Res.enabled := True;
+
+         --  Free the default instance if one has been created
+         if Instance = null then
+            Free (I);
+         end if;
+
+         return Res;
+      end Make_Config;
+
+      procedure Add_Env_Var (Name, Value : String);
+      --  Add an environment variable to the SARIF invocation object.
+
+      procedure Add_Env_Var (Name, Value : String) is
+      begin
+         Invocation.environmentVariables.Append
+           ((Kind => Key_Name, Key_Name => To_Virtual_String (Name)));
+         Invocation.environmentVariables.Append
+           ((Kind => String_Value, String_Value => To_Virtual_String (Value)));
+      end Add_Env_Var;
+   begin
+      --  Set driver "constant" values
+      Driver.name := To_Virtual_String (Lkql_Checker_Mode_Image);
+      Driver.organization := To_Virtual_String ("AdaCore");
+      Driver.informationUri :=
+        To_Virtual_String
+          ("https://docs.adacore.com/live/wave/lkql/html/gnatcheck_rm/"
+           & "gnatcheck_rm.html");
+      Driver.version := To_Virtual_String (Lkql_Checker_Version);
+
+      --  Build the active rules list and collect additional instances
+      for Cursor in All_Rules.Iterate loop
+         declare
+            R_Id             : constant Rule_Id := Rule_Map.Key (Cursor);
+            Rule             : constant Rule_Info := Rule_Map.Element (Cursor);
+            Default_Instance : Rule_Instance_Access := null;
+            Descriptor       : ST.reportingDescriptor;
+         begin
+            if Is_Enabled (Rule) then
+               for Instance of Rule.Instances loop
+                  if Instance.Is_Alias then
+                     Additional_Instances.Append (Instance);
+                  else
+                     Default_Instance := Instance;
+                  end if;
+               end loop;
+
+               Descriptor.id := To_Virtual_String (Lower_Name (Rule));
+               Descriptor.name := To_Virtual_String (Rule.Name);
+               if Rule.Message /= Null_Unbounded_String
+                 and then Rule.Message /= Rule.Name
+               then
+                  declare
+                     Short_Desc : ST.multiformatMessageString;
+                  begin
+                     Short_Desc.text := To_Virtual_String (Rule.Message);
+                     Descriptor.shortDescription :=
+                       (Is_Set => True, Value => Short_Desc);
+                  end;
+               end if;
+               if Rule.Help_Info /= Null_Unbounded_String
+                 and then Rule.Help_Info /= Rule.Message
+               then
+                  declare
+                     Help : ST.multiformatMessageString;
+                  begin
+                     Help.text := To_Virtual_String (Rule.Help_Info);
+                     Descriptor.help := (Is_Set => True, Value => Help);
+                  end;
+               end if;
+               Descriptor.defaultConfiguration :=
+                 (Is_Set => True,
+                  Value  => Make_Config (R_Id, Default_Instance));
+               Driver.rules.Append (Descriptor);
+            end if;
+         end;
+      end loop;
+
+      --  Now add rule instances
+      for Instance of Additional_Instances loop
+         declare
+            R_Id       : constant Rule_Id := Instance.Rule;
+            Descriptor : ST.reportingDescriptor;
+            Relation   : ST.reportingDescriptorRelationship;
+         begin
+            --  Relate the instance to its rule
+            Relation.target :=
+              (id => To_Virtual_String (Get_Id_Text (R_Id)), others => <>);
+
+            --  Then add the instance as an active rule
+            Descriptor.id :=
+              To_Virtual_String (To_Lower (Instance.Instance_Name));
+            Descriptor.name := To_Virtual_String (Instance.Instance_Name);
+            Descriptor.relationships.Append (Relation);
+            Descriptor.defaultConfiguration :=
+              (Is_Set => True, Value => Make_Config (R_Id, Instance));
+            Driver.rules.Append (Descriptor);
+         end;
+      end loop;
+
+      --  Place the driver in the SARIF run object
+      Run.tool := (driver => Driver, others => <>);
+
+      --  Set the base URI of the run
+      Run.originalUriBaseIds.Append ((Kind => Start_Object));
+      Run.originalUriBaseIds.Append
+        ((Kind => Key_Name, Key_Name => To_Virtual_String (Uri_Base_Dir_Id)));
+      Run.originalUriBaseIds.Append ((Kind => Start_Object));
+      Run.originalUriBaseIds.Append
+        ((Kind => Key_Name, Key_Name => To_Virtual_String ("uri")));
+      Run.originalUriBaseIds.Append
+        ((Kind         => String_Value,
+          String_Value =>
+            To_Virtual_String
+              (To_Uri (Uri_Base_Dir.Display_Full_Name (Normalize => True)))));
+      Run.originalUriBaseIds.Append
+        ((Kind => Key_Name, Key_Name => To_Virtual_String ("description")));
+      Run.originalUriBaseIds.Append ((Kind => Start_Object));
+      Run.originalUriBaseIds.Append
+        ((Kind => Key_Name, Key_Name => To_Virtual_String ("text")));
+      Run.originalUriBaseIds.Append
+        ((Kind         => String_Value,
+          String_Value =>
+            To_Virtual_String
+              ("Project directory if one has been used, working directory"
+               & " otherwise")));
+      Run.originalUriBaseIds.Append ((Kind => End_Object));
+      Run.originalUriBaseIds.Append ((Kind => End_Object));
+      Run.originalUriBaseIds.Append ((Kind => End_Object));
+
+      --  Iterate over all diagnostics and build SARIF results
+      for Diag of Collector.All_Error_Messages loop
+         case Diag.Kind is
+            when Rule_Violation =>
+               --  When the result is a rule violation, create a result object
+               declare
+                  Res : ST.result;
+                  Loc : constant ST.location :=
+                    Make_Location
+                      (Source_Name (Diag.SF),
+                       Natural (Diag.Sloc.Line),
+                       Natural (Diag.Sloc.Column));
+               begin
+                  Res.ruleId :=
+                    To_Virtual_String
+                      (To_Lower (Instance_Name (Diag.Instance.all)));
+                  Res.level := (Is_Set => True, Value => SE.warning);
+                  Res.message.text := To_Virtual_String (Diag.Text);
+                  Res.locations.Append (Loc);
+                  if Diag.Justification /= Null_Unbounded_String then
+                     declare
+                        Supp : ST.suppression;
+                     begin
+                        Supp.kind := SE.inSource;
+                        Supp.location := (Is_Set => True, Value => Loc);
+                        Supp.justification :=
+                          To_Virtual_String (Diag.Justification);
+                        Res.suppressions.Append (Supp);
+                     end;
+                  end if;
+                  Run.results.Append (Res);
+               end;
+
+            when others         =>
+               declare
+                  Notif : ST.notification;
+                  Loc   : constant ST.location :=
+                    Make_Location
+                      (Source_Name (Diag.SF),
+                       Natural (Diag.Sloc.Line),
+                       Natural (Diag.Sloc.Column));
+                  Level : constant SE.notification_level :=
+                    (if Diag.Kind = Exemption_Warning
+                     then SE.warning
+                     else SE.error);
+               begin
+                  Notif.message.text := To_Virtual_String (Diag.Text);
+                  Notif.level := (Is_Set => True, Value => Level);
+                  Notif.locations.Append (Loc);
+                  Invocation.toolExecutionNotifications.Append (Notif);
+               end;
+         end case;
+      end loop;
+
+      --  Set useful information about the invocation
+      Invocation.workingDirectory :=
+        (Is_Set => True,
+         Value  => Make_Artifact_Location (Normalize_Pathname ("./")));
+      Invocation.commandLine := To_Virtual_String (Get_Command_Line);
+      for Arg in 1 .. Ada.Command_Line.Argument_Count loop
+         Invocation.arguments.Append
+           (To_Virtual_String (Ada.Command_Line.Argument (Arg)));
+      end loop;
+      Invocation.environmentVariables.Append
+        ((Kind => VSS.JSON.Streams.Start_Object));
+      Iterate (Add_Env_Var'Access);
+      Invocation.environmentVariables.Append
+        ((Kind => VSS.JSON.Streams.End_Object));
+      Invocation.startTimeUtc :=
+        To_Virtual_String (Image (Start_Time, ISO_Time));
+      Invocation.endTimeUtc := To_Virtual_String (Image (End_Time, ISO_Time));
+      Invocation.exitCode := (Is_Set => True, Value => Exit_Code);
+      Invocation.executionSuccessful :=
+        Exit_Code = E_Success or else Exit_Code = E_Violation;
+      Run.invocations.Append (Invocation);
+
+      --  Assemble results in the SARIF root
+      Root.runs.Append (Run);
+
+      --  Write the final SARIF report as JSON in the output file
+      Writer.Set_Stream (Mem'Unchecked_Access);
+      Writer.Start_Document;
+      ST.Outputs.Output_Root (Writer, Root);
+      Writer.End_Document;
+      Open_Or_Create (Output_File, Out_File, File);
+      Put_Line
+        (File,
+         VSS.Stream_Element_Vectors.Conversions.Unchecked_To_String
+           (Mem.Buffer));
+      Close (File);
+   end Generate_SARIF_Report;
 
 end Lkql_Checker.Diagnostics.Report;

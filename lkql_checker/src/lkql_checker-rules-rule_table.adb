@@ -146,8 +146,7 @@ package body Lkql_Checker.Rules.Rule_Table is
       return Rule_Instance_Access
    is
       Rule                     : constant Rule_Info := All_Rules (Id);
-      Normalized_Rule_Name     : constant String :=
-        To_Lower (To_String (Rule.Name));
+      Normalized_Rule_Name     : constant String := Lower_Name (Rule);
       Normalized_Instance_Name : constant String := To_Lower (Instance_Name);
       Instance                 : Rule_Instance_Access := null;
    begin
@@ -1571,7 +1570,7 @@ package body Lkql_Checker.Rules.Rule_Table is
       elsif Rule = Warnings_Id then
          return "warnings";
       else
-         return To_String (All_Rules (Rule).Name);
+         return Lower_Name (All_Rules (Rule));
       end if;
    end Rule_Name;
 
@@ -1581,10 +1580,10 @@ package body Lkql_Checker.Rules.Rule_Table is
 
    procedure Rules_Help is
       function "<" (Left, Right : Rule_Info) return Boolean
-      is (Left.Name < Right.Name);
+      is (Lower_Name (Left) < Lower_Name (Right));
 
       function Equal (Left, Right : Rule_Info) return Boolean
-      is (Left.Name = Right.Name);
+      is (Lower_Name (Left) = Lower_Name (Right));
 
       package Rule_Sets is new
         Ada.Containers.Ordered_Sets (Rule_Info, "=" => Equal);
@@ -1622,7 +1621,7 @@ package body Lkql_Checker.Rules.Rule_Table is
             for Rule of Set loop
                Print
                  (" "
-                  & To_String (Rule.Name)
+                  & Lower_Name (Rule)
                   & " - "
                   & To_String (Rule.Help_Info));
             end loop;
@@ -1724,13 +1723,13 @@ package body Lkql_Checker.Rules.Rule_Table is
    is (To_String (R.Category & "/" & R.Subcategory));
 
    function Lt (Left, Right : Rule_Info) return Boolean
-   is (Left.Name < Right.Name);
+   is (Lower_Name (Left) < Lower_Name (Right));
 
    function Category_Lt (Left, Right : Rule_Info) return Boolean
    is (Category_Name (Left) < Category_Name (Right));
 
    function Equal (Left, Right : Rule_Info) return Boolean
-   is (Left.Name = Right.Name);
+   is (Lower_Name (Left) = Lower_Name (Right));
 
    function Category_Equal (Left, Right : Rule_Info) return Boolean
    is (Category_Name (Left) = Category_Name (Right));
@@ -1834,7 +1833,10 @@ package body Lkql_Checker.Rules.Rule_Table is
       for Rule of Rule_Set loop
          if not Rule.Instances.Is_Empty then
             Print
-              (2 * Indent_String & "<rule name=""" & Rule_Name (Rule) & """>");
+              (2 * Indent_String
+               & "<rule name="""
+               & Lower_Name (Rule)
+               & """>");
 
             for Instance of Rule.Instances loop
                Instance.Map_Parameters (Args);
@@ -1907,7 +1909,7 @@ package body Lkql_Checker.Rules.Rule_Table is
       for Rule_Cursor in All_Rules.Iterate loop
          declare
             Rule          : constant Rule_Info := All_Rules (Rule_Cursor);
-            Instance_Name : constant String := To_Lower (Rule_Name (Rule));
+            Instance_Name : constant String := Lower_Name (Rule);
             Instance      : Rule_Instance_Access;
          begin
             if not All_Rule_Instances.Contains (Instance_Name) then
@@ -1938,8 +1940,10 @@ package body Lkql_Checker.Rules.Rule_Table is
 
       for R of All_Rules_Vec loop
          declare
-            Name : constant String := To_String (To_Wide_Wide_String (R.Name));
-            Id   : constant Rule_Id := Find_Rule_Id (Name);
+            Name    : constant String :=
+              To_String (To_Wide_Wide_String (R.Name));
+            Id      : constant Rule_Id := Find_Rule_Id (Name);
+            Id_Text : constant String := Get_Id_Text (Id);
          begin
             --  Check that the current rule isn't already in the stored rules
             if All_Rules.Contains (Id)
@@ -1951,8 +1955,11 @@ package body Lkql_Checker.Rules.Rule_Table is
                raise Lkql_Checker.Options.Fatal_Error;
             end if;
 
-            Rule := Create_Rule (R.Param_Kind, To_Lower (Name));
+            Rule := Create_Rule (R.Param_Kind, Id_Text);
             Rule.Name := To_Unbounded_String (Name);
+            Rule.Message :=
+              To_Unbounded_String
+                (To_String (To_Wide_Wide_String (R.Message)));
             Rule.Help_Info :=
               To_Unbounded_String (To_String (To_Wide_Wide_String (R.Help)));
 

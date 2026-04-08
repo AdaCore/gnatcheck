@@ -8,7 +8,6 @@ with Ada.Directories;         use Ada.Directories;
 with Ada.Finalization;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
-with Ada.Text_IO;             use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNAT.Traceback.Symbolic;
@@ -19,15 +18,9 @@ with Interfaces.C_Streams; use Interfaces.C_Streams;
 
 package body Lkql_Checker.Output is
 
-   -------------------
-   -- Local helpers --
-   -------------------
-
-   procedure Open_Or_Create
-     (File_Path : String; Mode : File_Mode; File : in out File_Type);
-   --  Open the specified ``File_Path`` if it already exists, otherwise create
-   --  it.
-   --  This function handles possible exceptions with the manipulated file.
+   --------------------
+   -- Open_Or_Create --
+   --------------------
 
    procedure Open_Or_Create
      (File_Path : String; Mode : File_Mode; File : in out File_Type) is
@@ -596,9 +589,12 @@ package body Lkql_Checker.Output is
       Put_Line
         (" --include-file=filename - add the content of filename into generated report");
       Put_Line ("");
-      Put_Line (" -o filename   - specify the name of the text report file");
       Put_Line
-        (" -ox filename  - specify the name of the XML report file (enforces '-xml')");
+        (" -o filename      - specify the name of the text report file");
+      Put_Line
+        (" -ox filename     - specify the name of the XML report file (enforces '-xml')");
+      Put_Line
+        (" --sarif filename - enable the SARIF output while specifying the name of the report file");
       Put_Line ("");
       Put_Line
         (" filename                 - the name of the Ada source file to be analyzed.");
