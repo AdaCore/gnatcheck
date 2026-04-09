@@ -1,9 +1,15 @@
-fun has_last_breaking_stmt(stmts) =
-    match stmts[stmts.children_count]
-    | (RaiseStmt | ReturnStmt | ExitStmt(f_cond_expr: null) | GotoStmt) => true
-    | b@BlockStmt => b.f_stmts.f_exceptions[1] == null and
-                     has_last_breaking_stmt(b.f_stmts.f_stmts)
-    | *           => false
+
+fun last_breaking_stmt(stmt_list) =
+    |" Get the last statement of the given list if it is a breaking one,
+    |" else null is returned.
+    match stmt_list[stmt_list.children_count]
+    | b@(RaiseStmt | ReturnStmt | ExitStmt(f_cond_expr: null) | GotoStmt) => b
+    | b@BlockStmt => (
+        if b.f_stmts.f_exceptions[1] == null
+        then last_breaking_stmt(b.f_stmts.f_stmts)
+        else null
+    )
+    | * => null
 
 @check(message="nested path may be moved outside if statement",
        category="Style", subcategory="Programming Practice")
@@ -21,6 +27,13 @@ fun nested_paths(node) =
     |"   This sequence of statements does not end with a breaking statement but
     |"   the sequence of statement in another path does end with a breaking statement.
     |"
+    |"     **OR**
+    |"
+    |"   This sequence of statements is in the ``ELSE`` path, ends with a breaking
+    |"   statement, and the ``IF`` path also ends with a breaking statement of a
+    |"   different kind from the one in the ``ELSE`` path (this is done to preserve
+    |"   potential "if-else" symmetry).
+    |"
     |" A breaking statement is either a raise statement, or a return statement,
     |" or an unconditional exit statement, or a goto statement or a block
     |" statement without an exception handler with the enclosed sequence of
@@ -29,7 +42,7 @@ fun nested_paths(node) =
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada
-    |"    :emphasize-lines: 3
+    |"    :emphasize-lines: 3, 20
     |"
     |"    loop
     |"       if I > K then
@@ -40,18 +53,33 @@ fun nested_paths(node) =
     |"          exit;
     |"       end if;
     |"    end loop;
+    |"
+    |"    if Condition then
+    |"       return 1;        --  NOFLAG
+    |"    else
+    |"       return 2;        --  NOFLAG
+    |"    end if;
+    |"
+    |"    if Condition then
+    |"       return 1;
+    |"    else
+    |"       goto <<label>>;  --  FLAG
+    |"    end if;
     # Match stmt lists that are either the then or the else list of an if stmt
-    node is (StmtList(parent: if_stmt@IfStmt) |
-             StmtList(parent: ElsePart(parent: if_stmt@IfStmt)))
-     when
-
-      # No "elsif" branches
-      if_stmt.f_alternatives[1] == null
-
-      # Has an "else" part
-      and if_stmt.f_else_part != null
-
-      and not has_last_breaking_stmt(node)
-      and has_last_breaking_stmt(if if_stmt.f_then_stmts == node
-                                 then if_stmt.f_else_part.f_stmts
-                                 else if_stmt.f_then_stmts)
+    node is StmtList(parent: (if_stmt@IfStmt | ElsePart(parent: if_stmt))) when
+        if_stmt.f_alternatives[1] == null
+        and if_stmt.f_else_part != null
+        and {
+            # Get the breaking statements of the current node and the other path
+            val self_bs = last_breaking_stmt(node);
+            val other_bs = last_breaking_stmt(
+                if if_stmt.f_then_stmts == node
+                then if_stmt.f_else_part.f_stmts
+                else if_stmt.f_then_stmts
+            );
+            match (self_bs, other_bs)
+            | (AdaNode, AdaNode) =>
+                node == if_stmt.f_else_part.f_stmts
+                and self_bs.kind != other_bs.kind
+            | (null, *) => other_bs is not null
+        }
