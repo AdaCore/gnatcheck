@@ -66,7 +66,7 @@ fun nested_paths(node) =
     |"       goto <<label>>;  --  FLAG
     |"    end if;
     # Match stmt lists that are either the then or the else list of an if stmt
-    node is StmtList(parent: (if_stmt@IfStmt | ElsePart(parent: if_stmt))) when
+    node is StmtList(parent: (if_stmt@IfStmt | ElsePart(parent: if_stmt@IfStmt))) when
         if_stmt.f_alternatives[1] == null
         and if_stmt.f_else_part != null
         and {
