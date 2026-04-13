@@ -1,0 +1,100 @@
+import stdlib
+
+fun passed_as_in_out_actuals_assigned(od) =
+    |" Check that variables declared by the ObjectDecl `od` are passed as
+    |" in-out actual to any subprograms that assign to the corresponding
+    |" formal.
+    stdlib.any([
+        # Check that the `od` variable reference is used as a param actual.
+        actual.parent is pa@ParamAssoc
+        when {
+            val param = pa.p_get_params()[1];
+
+            # Check that the corresponding param actual is of in-out mode and
+            # used as a write reference.
+            param.p_basic_decl() is ps@ParamSpec(f_mode: ModeInOut)
+            when stdlib.any([
+                formal.p_is_write_reference()
+                for formal in param.p_find_all_references(
+                    units().to_list, follow_renamings=true
+                ).map((r) => r.ref)
+            ])
+        }
+        # Build the list of `od` variable references to check usage as
+        # parameter actuals.
+        for actual in [
+            dn.p_find_all_references(
+                units().to_list, follow_renamings=true
+            ).map((r) => r.ref)
+            for dn in od.p_defining_names()
+        ].flatten
+    ])
+
+@check(help="flag conditional expressions initializing variables of a
+            discriminated record type with defaults, passed as in-out
+            actuals to subprograms that assign to the formals (KP-20367)",
+       message="possible occurrence of KP 20367")
+fun kp_20367(node) =
+    |" Look for conditional expressions that are used to initialize variables
+    |" of a nonlimited discriminated record type with defaults and flag them
+    |" when the variables are passed as in-out actuals to subprograms that
+    |" assign to the corresponding formals.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 7
+    |"
+    |"    -- p.adb
+    |"    with Q; use Q;
+    |"
+    |"    procedure P is
+    |"       procedure Test (Empty : Boolean) is
+    |"          R : Rec :=
+    |"            (if Empty then (D => False) else (D => True, I => 0)); -- FLAG
+    |"       begin
+    |"          Fill (R);
+    |"       end;
+    |"    begin
+    |"       Test (True);
+    |"    end;
+    |"
+    |"    -- q.ads
+    |"    package Q is
+    |"       type Rec (D : Boolean := False) is record
+    |"          case D is
+    |"             when True  => I : Integer;
+    |"             when False => null;
+    |"          end case;
+    |"       end record;
+    |"
+    |"       procedure Fill (R : in out Rec);
+    |"    end Q;
+    |"
+    |"    -- q.adb
+    |"    package body Q is
+    |"       procedure Fill (R : in out Rec) is
+    |"       begin
+    |"          R := (D => True, I => 1);
+    |"       end;
+    |"    end Q;
+    |"
+    node is ce@CondExpr
+    # The CondExpr initializes a variable.
+    when (from ce through parent select first BasicDecl)
+        is od@ObjectDecl(f_has_constant: ConstantAbsent)
+    # Consider only the topmost CondExpr
+    when {val c = (from od select first CondExpr); c == ce}
+    # The initialized variable has discriminants...
+    and od.f_type_expr.p_designated_type_decl()
+        is ctd@ConcreteTypeDecl(
+            f_discriminants: KnownDiscriminantPart
+        )
+    # ...and it is of a nonlimited record type.
+    when ctd.f_type_def is RecordTypeDef(f_has_limited: LimitedAbsent)
+    # Those discriminants have defaults and the variable is passed as in-out
+    # actual to subprograms that assign to the corresponding formal.
+    when stdlib.any([
+        decl.f_default_expr is not null
+        for decl in from ctd select DiscriminantSpec
+    ]) and passed_as_in_out_actuals_assigned(od)
