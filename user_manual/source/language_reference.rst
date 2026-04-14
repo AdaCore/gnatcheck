@@ -98,23 +98,23 @@ Composite Data Types
   Tuples are heterogeneous groups of values with a fixed size. They can be
   indexed to access inner values, a bit like Python tuples.
 
-  .. attention::
-
-    Tuples are indexed starting from ``1``, like in Lua/R/.., unlike in
-    Python/Java/..
-
 ``List``
   Lists are contiguous immutable sequences of items that can be indexed. Lists
   also support concatenation.
 
-  .. attention::
+``Stream``
+  Streams are lazy sequences of items, which means an element will not be
+  computed until it is observed. They can also be indexed (which will
+  force the computation until the indexed item).
 
-    Like tuples, Lists are indexed starting from ``1``.
+.. attention::
+
+  Tuples, Lists and Streams are indexed starting from ``1``, like in Lua/R/..,
+  unlike in Python/Java/..
 
 ``Object``
   Objects are heterogeneous records that can contain any number of key to value
   mappings, where keys are labels and values are any valid LKQL value.
-
 
 
 Declarations
@@ -398,7 +398,7 @@ Indexing Expression
 .. lkql_doc_class:: Indexing
 
 Indexing expression allows the user to access elements of a ``Tuple``,
-``List``, ``LazyList``, or ``Node``.
+``List``, ``Stream``, or ``Node``.
 
 When using the indexing expression on a node value:
 
@@ -446,7 +446,7 @@ Membership Expression
 
 .. lkql_doc_class:: InClause
 
-The membership expression verifies that a collection (``List``/``LazyList``)
+The membership expression verifies that a collection (``List``/``Stream``)
 contains the given value:
 
 .. code-block:: lkql
@@ -583,17 +583,17 @@ logic:
 
 A list comprehension is a basic language construct, that, since LKQL is purely
 functional, replaces traditional for loops. A list comprehension expression
-returns a value of the ``LazyList`` type, meaning that elements in the result
+returns a value of the ``Stream`` type, meaning that elements in the result
 aren't computed until queried:
 
 .. code-block:: lkql
 
   val lazy = [a * 2 for a in int_list if is_prime(a)]
 
-  # This will display "LazyList"
+  # This will display "Stream"
   print(lazy)
 
-  # To display all elements of a lazy list, you have to convert it to a list
+  # To display all elements of a stream, you have to convert it to a list
   print(lazy.to_list)
 
 
@@ -869,7 +869,7 @@ However:
 
 All those traversals, including the most simple built-in one, use what is
 called selectors in LKQL. Those are a way to specify a traversal, which will
-return a ``LazyList`` of nodes as a result. Here is an example of a selector
+return a ``Stream`` of nodes as a result. Here is an example of a selector
 that will go up the parent chain:
 
 .. code-block:: lkql
