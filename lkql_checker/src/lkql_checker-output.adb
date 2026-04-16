@@ -444,12 +444,12 @@ package body Lkql_Checker.Output is
 
    Dummy : Dummy_Type;
 
-   ----------------
-   -- Brief_Help --
-   ----------------
+   -----------------
+   -- Print_Usage --
+   -----------------
 
    --  TODO: Transition this help message to Opt_Parse's one
-   procedure Brief_Help is
+   procedure Print_Usage is
    begin
       pragma Style_Checks ("M200"); -- Allow long lines
 
@@ -632,15 +632,6 @@ package body Lkql_Checker.Output is
       Put_Line ("                  one parameter can be set separated by ','");
 
       pragma Style_Checks ("M79");
-   end Brief_Help;
-
-   -----------------
-   -- Print_Usage --
-   -----------------
-
-   procedure Print_Usage is
-   begin
-      Brief_Help;
       New_Line;
       Put_Line ("Report bugs to support@adacore.com");
    end Print_Usage;
