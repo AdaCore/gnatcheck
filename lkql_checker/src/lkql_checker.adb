@@ -461,8 +461,9 @@ package body Lkql_Checker is
       use type Ada.Calendar.Time;
       use Ada.Strings.Unbounded;
    begin
-      --  Register GNATcheck GPR attributes
-      Register_Tool_Attributes (Checker_Prj);
+      --  Register the custom GPR packages (Check, Codepeer) and their
+      --  attributes so that GPR2 recognizes them when parsing project files.
+      Register_Tool_Attributes;
 
       --  In a first time, we parse the GPR related switches from the
       --  command-line in order to create the project instance we're going to

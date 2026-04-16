@@ -610,7 +610,7 @@ package body Lkql_Checker.Projects is
    -- Register_Tool_Attributes --
    ------------------------------
 
-   procedure Register_Tool_Attributes (My_Project : Arg_Project_Type) is
+   procedure Register_Tool_Attributes is
       use GPR2;
       use GPR2.Project.Registry.Attribute;
    begin
