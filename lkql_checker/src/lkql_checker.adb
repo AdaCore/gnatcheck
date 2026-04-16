@@ -6,8 +6,6 @@
 --  This is the top of the Lkql_Checker hierarchy.
 
 with Ada.Calendar;
-with Ada.Command_Line;
-with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO; use Ada.Text_IO;
@@ -425,7 +423,7 @@ package body Lkql_Checker is
    -----------
    --  Main --
    -----------
-   procedure Main (Mode : Lkql_Checker_Mode) is
+   procedure Main is
       Time_Start        : constant Ada.Calendar.Time := Ada.Calendar.Clock;
       Project_File_Args : String_Vector;
       Remaining_Args    : XString_Vector;
@@ -463,9 +461,6 @@ package body Lkql_Checker is
       use type Ada.Calendar.Time;
       use Ada.Strings.Unbounded;
    begin
-      --  Set the Lkql_Checker global mode
-      Lkql_Checker.Mode := Mode;
-
       --  Register GNATcheck GPR attributes
       Register_Tool_Attributes (Checker_Prj);
 

@@ -219,8 +219,6 @@ package Lkql_Checker.Options is
              "duplicate all messages sent to stderr in "
              & Lkql_Checker_Mode_Image
              & ".log");
-      --  Here we don't use the ``Lkql_Checker_Mode_Image`` function to avoid
-      --  elaboration circularity.
 
       package Version is new
         Parse_Flag

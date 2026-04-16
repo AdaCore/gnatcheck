@@ -3,9 +3,9 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
-with Lkql_Checker; use Lkql_Checker;
+with Lkql_Checker;
 
 procedure Gnatkp is
 begin
-   Main (Gnatkp_Mode);
+   Lkql_Checker.Main;
 end Gnatkp;
