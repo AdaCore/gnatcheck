@@ -315,6 +315,7 @@ package Lkql_Checker.Options is
       package List_Rules_XML is new
         Parse_Flag
           (Parser           => Parser,
+           Enabled          => Mode in Gnatcheck_Mode,
            Name             => "List rules XML",
            Long             => "-hx",
            Help             =>
@@ -356,6 +357,7 @@ package Lkql_Checker.Options is
       package KP_Version is new
         Parse_Option
           (Parser      => Parser,
+           Enabled     => Mode in Gnatkp_Mode,
            Long        => "--kp-version",
            Name        => "KP version",
            Arg_Type    => Unbounded_String,
@@ -365,6 +367,7 @@ package Lkql_Checker.Options is
       package Lkql_Path is new
         Parse_Option_List
           (Parser     => Parser,
+           Enabled    => Mode in Gnatcheck_Mode,
            Long       => "--lkql-path",
            Arg_Type   => Unbounded_String,
            Accumulate => True,
@@ -375,6 +378,7 @@ package Lkql_Checker.Options is
       package Rules_Dirs is new
         Parse_Option_List
           (Parser     => Parser,
+           Enabled    => Mode in Gnatcheck_Mode,
            Long       => "--rules-dir",
            Arg_Type   => Unbounded_String,
            Accumulate => True,
@@ -420,6 +424,7 @@ package Lkql_Checker.Options is
       package Max_Diagnoses is new
         Parse_Option
           (Parser      => Parser,
+           Enabled     => Mode in Gnatcheck_Mode,
            Short       => "-m",
            Name        => "Max diagnoses",
            Arg_Type    => Max_Diagnoses_Count,
@@ -447,6 +452,7 @@ package Lkql_Checker.Options is
       package No_Text_Report is new
         Parse_Flag
           (Parser           => Parser,
+           Enabled          => Mode in Gnatcheck_Mode,
            Long             => "-nt",
            Name             => "No text report",
            Legacy_Long_Form => True,
@@ -456,6 +462,7 @@ package Lkql_Checker.Options is
       package XML_Report is new
         Parse_Flag
           (Parser           => Parser,
+           Enabled          => Mode in Gnatcheck_Mode,
            Long             => "-xml",
            Name             => "XML report",
            Legacy_Long_Form => True,
@@ -475,6 +482,7 @@ package Lkql_Checker.Options is
       package XML_Output is new
         Parse_Option
           (Parser           => Parser,
+           Enabled          => Mode in Gnatcheck_Mode,
            Long             => "-ox",
            Name             => "XML output",
            Arg_Type         => Unbounded_String,
@@ -485,16 +493,18 @@ package Lkql_Checker.Options is
 
       package Time is new
         Parse_Flag
-          (Parser => Parser,
-           Short  => "-t",
-           Name   => "Compute timing",
-           Help   => "print the total execution time (wall clock) on stderr");
+          (Parser  => Parser,
+           Enabled => Mode in Gnatcheck_Mode,
+           Short   => "-t",
+           Name    => "Compute timing",
+           Help    => "print the total execution time (wall clock) on stderr");
 
       package Show_Rule is new
         Parse_Flag
-          (Parser => Parser,
-           Long   => "--show-rule",
-           Help   => "append rule names to diagnoses generated");
+          (Parser  => Parser,
+           Enabled => Mode in Gnatcheck_Mode,
+           Long    => "--show-rule",
+           Help    => "append rule names to diagnoses generated");
 
       package Show_Instantiation_Chain is new
         Parse_Flag
@@ -505,21 +515,24 @@ package Lkql_Checker.Options is
 
       package Check_Redefinition is new
         Parse_Flag
-          (Parser => Parser,
-           Long   => "--check-redefinition",
-           Help   => "issue warning if a rule parameter is redefined");
+          (Parser  => Parser,
+           Enabled => Mode in Gnatcheck_Mode,
+           Long    => "--check-redefinition",
+           Help    => "issue warning if a rule parameter is redefined");
 
       package No_Object_Dir is new
         Parse_Flag
-          (Parser => Parser,
-           Long   => "--no_objects_dir",
-           Help   =>
+          (Parser  => Parser,
+           Enabled => Mode in Gnatcheck_Mode,
+           Long    => "--no_objects_dir",
+           Help    =>
              "place results in the current directory instead of the"
              & " project object directory");
 
       package Include_File is new
         Parse_Option
           (Parser      => Parser,
+           Enabled     => Mode in Gnatcheck_Mode,
            Long        => "--include-file",
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
@@ -528,6 +541,7 @@ package Lkql_Checker.Options is
       package Source_Files is new
         Parse_Option
           (Parser           => Parser,
+           Enabled          => Mode in Gnatcheck_Mode,
            Long             => "-files",
            Name             => "Source files",
            Arg_Type         => Unbounded_String,
@@ -540,6 +554,7 @@ package Lkql_Checker.Options is
       package Ignore_Files is new
         Parse_Option
           (Parser      => Parser,
+           Enabled     => Mode in Gnatcheck_Mode,
            Long        => "--ignore",
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
@@ -575,9 +590,10 @@ package Lkql_Checker.Options is
 
       package Emit_LKQL_Rule_File is new
         Parse_Flag
-          (Parser => Parser,
-           Long   => "--emit-lkql-rule-file",
-           Help   =>
+          (Parser  => Parser,
+           Enabled => Mode in Gnatcheck_Mode,
+           Long    => "--emit-lkql-rule-file",
+           Help    =>
              "emit a 'rules.lkql' file containing the rules "
              & "configuration");
 
@@ -591,6 +607,7 @@ package Lkql_Checker.Options is
       package Cargs_Section is new
         Parse_Option_List
           (Parser              => Parser,
+           Enabled             => Mode in Gnatcheck_Mode,
            Long                => "-cargs",
            Name                => "Compiler options",
            Accumulate          => True,
