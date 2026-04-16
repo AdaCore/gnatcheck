@@ -399,9 +399,9 @@ package body Lkql_Checker is
       end;
    end Schedule_Files;
 
-   -----------
-   --  Main --
-   -----------
+   ----------
+   -- Main --
+   ----------
 
    procedure Main is
       Time_Start           : constant Ada.Calendar.Time := Ada.Calendar.Clock;

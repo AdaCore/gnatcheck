@@ -177,9 +177,9 @@ package Lkql_Checker.Source_Table is
    --  be exempts/ignored and marks the corresponding units in the source
    --  table.
 
-   -----------------------------
-   --  Temporary file storage --
-   -----------------------------
+   ----------------------------
+   -- Temporary file storage --
+   ----------------------------
 
    --  We use an ordered set for temporary file storage to ensure as much
    --  determinism in the tool output as possible (in case if a tool prints out
