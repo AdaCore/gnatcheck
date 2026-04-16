@@ -48,14 +48,15 @@ package body Lkql_Checker.Options is
    -- Project_Verbosity_Convert --
    -------------------------------
 
-   function Project_Verbosity_Convert (Arg : String) return Natural is
-      Value : constant Natural := Parse_Arg_As_Natural (Arg);
+   function Project_Verbosity_Convert
+     (Arg : String) return Project_Verbosity_Level is
    begin
-      if Value > 2 then
-         raise Opt_Parse_Error with "invalid value: " & Arg;
-      else
-         return Value;
-      end if;
+      begin
+         return Project_Verbosity_Level'Value (Arg);
+      exception
+         when Constraint_Error =>
+            raise Opt_Parse_Error with "cannot parse provided value: " & Arg;
+      end;
    end Project_Verbosity_Convert;
 
    ------------------
