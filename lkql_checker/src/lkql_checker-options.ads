@@ -397,6 +397,7 @@ package Lkql_Checker.Options is
           (Parser => Parser,
            Short  => "-d",
            Name   => "Debug mode",
+           Hidden => True,
            Help   => "activate debug mode");
 
       package Progress_Indicator_Mode is new
@@ -404,6 +405,7 @@ package Lkql_Checker.Options is
           (Parser => Parser,
            Short  => "-dd",
            Name   => "Progress indicator mode",
+           Hidden => True,
            Help   => "activate progress indicator mode");
 
       package Quiet is new
