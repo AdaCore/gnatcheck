@@ -513,7 +513,9 @@ package Lkql_Checker.Options is
         Parse_Flag
           (Parser => Parser,
            Long   => "--no_objects_dir",
-           Help   => "issue warning if a rule parameter is redefined");
+           Help   =>
+             "place results in the current directory instead of the"
+             & " project object directory");
 
       package Include_File is new
         Parse_Option
