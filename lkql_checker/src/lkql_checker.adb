@@ -423,16 +423,18 @@ package body Lkql_Checker is
    -----------
    --  Main --
    -----------
+
    procedure Main is
-      Time_Start        : constant Ada.Calendar.Time := Ada.Calendar.Clock;
-      Project_File_Args : String_Vector;
-      Remaining_Args    : XString_Vector;
+      Time_Start           : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+      Project_File_Args    : String_Vector;
+      Early_Remaining_Args : XString_Vector;
+      Remaining_Args       : XString_Vector;
 
       procedure Close_Log_File;
 
       procedure Close_Log_File is
       begin
-         if GPR_Args.Log_Enabled then
+         if Early_Args.Log_Enabled then
             Lkql_Checker.Output.Close_Log_File;
          end if;
       end Close_Log_File;
@@ -465,20 +467,29 @@ package body Lkql_Checker is
       --  attributes so that GPR2 recognizes them when parsing project files.
       Register_Tool_Attributes;
 
-      --  In a first time, we parse the GPR related switches from the
-      --  command-line in order to create the project instance we're going to
-      --  use for this run.
-      if not GPR_Args.Parser.Parse (No_Arguments, Remaining_Args) then
+      --  First, parse early options (--help, --version, -log) so we can act
+      --  on the early-exit ones before doing any expensive project-file work.
+      if not Early_Args.Parser.Parse (No_Arguments, Early_Remaining_Args) then
          raise Parameter_Error;
       end if;
 
       --  Print help or version if required
-      if GPR_Args.Version.Get then
+      if Early_Args.Version.Get then
          Print_Version_Info;
          OS_Exit (E_Success);
-      elsif GPR_Args.Help.Get then
+      elsif Early_Args.Help.Get then
          Print_Usage;
          OS_Exit (E_Success);
+      end if;
+
+      --  Then parse the GPR-related switches from what Early_Args left
+      --  unrecognized.
+      if not GPR_Args.Parser.Parse
+               (To_XString_Array (Early_Remaining_Args),
+                Remaining_Args,
+                Fallback_On_Command_Line => False)
+      then
+         raise Parameter_Error;
       end if;
 
       --  Process the project file
@@ -494,7 +505,7 @@ package body Lkql_Checker is
       end if;
 
       --  Open the log file if required
-      if GPR_Args.Log_Enabled then
+      if Early_Args.Log_Enabled then
          Open_Log_File;
       end if;
 
