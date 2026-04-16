@@ -81,19 +81,17 @@ package body Lkql_Checker.Projects is
    function Verbosity
      (Self : Lkql_Checker_Reporter) return GPR2.Reporter.Verbosity_Level
    is (case GPR_Args.Project_Verbosity.Get is
-         when 0      => GPR2.Reporter.No_Warnings,
-         when 1      => GPR2.Reporter.Regular,
-         when 2      => GPR2.Reporter.Verbose,
-         when others => raise Constraint_Error with "should not happen");
+         when 0 => GPR2.Reporter.No_Warnings,
+         when 1 => GPR2.Reporter.Regular,
+         when 2 => GPR2.Reporter.Verbose);
 
    overriding
    function User_Verbosity
      (Self : Lkql_Checker_Reporter) return GPR2.Reporter.User_Verbosity_Level
    is (case GPR_Args.Project_Verbosity.Get is
-         when 0      => GPR2.Reporter.Important_Only,
-         when 1      => GPR2.Reporter.Regular,
-         when 2      => GPR2.Reporter.Verbose,
-         when others => raise Constraint_Error with "should not happen");
+         when 0 => GPR2.Reporter.Important_Only,
+         when 1 => GPR2.Reporter.Regular,
+         when 2 => GPR2.Reporter.Verbose);
 
    Gpr2_Reporter : Lkql_Checker_Reporter;
    --  Make libgpr2 report messages using the proper ``Lkql_Checker.Output``

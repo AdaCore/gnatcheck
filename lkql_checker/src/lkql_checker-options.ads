@@ -163,7 +163,10 @@ package Lkql_Checker.Options is
 
    Checker_Prj : aliased Lkql_Checker.Projects.Arg_Project_Type;
 
-   function Project_Verbosity_Convert (Arg : String) return Natural;
+   subtype Project_Verbosity_Level is Natural range 0 .. 2;
+
+   function Project_Verbosity_Convert
+     (Arg : String) return Project_Verbosity_Level;
 
    package GPR_Args is
       Parser : Argument_Parser :=
@@ -199,12 +202,12 @@ package Lkql_Checker.Options is
            Long             => "-vP",
            Name             => "Project verbosity",
            Legacy_Long_Form => True,
-           Arg_Type         => Natural,
-           Default_Val      => 0,
+           Arg_Type         => Project_Verbosity_Level,
+           Default_Val      => Project_Verbosity_Level'First,
            Convert          => Project_Verbosity_Convert,
            Help             =>
-             "verbosity level when parsing a project file (from 0 to 2, "
-             & "default is 0)");
+             "set the verbosity level for project file parsing "
+             & "(0: quiet, 1: warnings, 2: verbose; default: 0)");
 
       package Log is new
         Parse_Flag
