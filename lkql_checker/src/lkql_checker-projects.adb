@@ -217,7 +217,7 @@ package body Lkql_Checker.Projects is
 
    begin
       if Proj.Has_Attribute (Log_Attr) then
-         Lkql_Checker.Options.GPR_Args.Log_From_GPR :=
+         Lkql_Checker.Options.Early_Args.Log_From_GPR :=
            Boolean'Value (Load_Single_Attribute (Log_Attr));
       end if;
 
@@ -610,7 +610,7 @@ package body Lkql_Checker.Projects is
    -- Register_Tool_Attributes --
    ------------------------------
 
-   procedure Register_Tool_Attributes (My_Project : Arg_Project_Type) is
+   procedure Register_Tool_Attributes is
       use GPR2;
       use GPR2.Project.Registry.Attribute;
    begin

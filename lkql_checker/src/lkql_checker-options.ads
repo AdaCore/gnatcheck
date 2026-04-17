@@ -168,6 +168,71 @@ package Lkql_Checker.Options is
    function Project_Verbosity_Convert
      (Arg : String) return Project_Verbosity_Level;
 
+   ----------------------
+   -- General switches --
+   ----------------------
+
+   --  Early_Args is parsed first, before any project file is loaded. It
+   --  contains only the options that must be recognized unconditionally:
+   --  --version and --help trigger an early exit with no project processing,
+   --  and -log must be captured at this stage so that log output is available
+   --  from the very start of execution. Unrecognized arguments are passed on
+   --  to GPR_Args, then to Tool_Args.
+
+   package Early_Args is
+      Parser : Argument_Parser :=
+        Create_Argument_Parser
+          (Help                 => "general options",
+           Incremental          => False,
+           Generate_Help_Flag   => False,
+           Custom_Error_Handler =>
+             Create (Lkql_Checker_Error_Handler'(null record)),
+           Print_Help_On_Error  => False);
+
+      package Log is new
+        Parse_Flag
+          (Parser           => Parser,
+           Long             => "-log",
+           Name             => "Log mode",
+           Legacy_Long_Form => True,
+           Help             =>
+             "duplicate all messages sent to stderr in "
+             & Lkql_Checker_Mode_Image
+             & ".log");
+
+      package Version is new
+        Parse_Flag
+          (Parser => Parser,
+           Name   => "Version",
+           Long   => "--version",
+           Short  => "-V",
+           Help   => "show the tool version and exit");
+
+      package Help is new
+        Parse_Flag
+          (Parser => Parser,
+           Name   => "Help",
+           Long   => "--help",
+           Short  => "-h",
+           Help   => "show the help message and exit");
+
+      Log_From_GPR : Boolean := False;
+      --  Store whether the ``Log`` attribute has been set in the loaded GPR
+      --  file.
+
+      function Log_Enabled return Boolean
+      is (Log.Get or else Log_From_GPR);
+   end Early_Args;
+
+   -------------------------------------
+   -- Project (GPR) specific switches --
+   -------------------------------------
+
+   --  GPR_Args is parsed second, after Early_Args. It contains only options
+   --  that relate to project file processing (-P, -X, -vP, --subdirs, etc.).
+   --  It must not contain general or tool-specific options. Its results are
+   --  used to load the project before Tool_Args is processed.
+
    package GPR_Args is
       Parser : Argument_Parser :=
         Create_Argument_Parser
@@ -209,41 +274,6 @@ package Lkql_Checker.Options is
              "set the verbosity level for project file parsing "
              & "(0: quiet, 1: warnings, 2: verbose; default: 0)");
 
-      package Log is new
-        Parse_Flag
-          (Parser           => Parser,
-           Long             => "-log",
-           Name             => "Log mode",
-           Legacy_Long_Form => True,
-           Help             =>
-             "duplicate all messages sent to stderr in "
-             & Lkql_Checker_Mode_Image
-             & ".log");
-
-      package Version is new
-        Parse_Flag
-          (Parser => Parser,
-           Name   => "Version",
-           Long   => "--version",
-           Short  => "-V",
-           Help   => "show the tool version and exit");
-      --  This parser is in ``GPR_Args`` to avoid process a project file if
-      --  only the version number is required by the user.
-
-      package Help is new
-        Parse_Flag
-          (Parser => Parser,
-           Name   => "Help",
-           Long   => "--help",
-           Short  => "-h",
-           Help   => "show the help message and exit");
-      --  This parser is in ``GPR_Args`` to avoid process a project file if
-      --  only the help message is required by the user.
-
-      Log_From_GPR : Boolean := False;
-      --  Store whether the ``Log`` attribute has been set in the loaded GPR
-      --  file.
-
       package GPR2_Parser is new
         GPR2.Options.Opt_Parse.Args (Parser => Parser);
 
@@ -252,9 +282,6 @@ package Lkql_Checker.Options is
 
       function Ignore_Project_Switches return Boolean
       is (Ignore_Project_Switches_Opt.Get or Mode = Gnatkp_Mode);
-
-      function Log_Enabled return Boolean
-      is (Log.Get or else Log_From_GPR);
    end GPR_Args;
 
    ----------------------------
@@ -486,7 +513,9 @@ package Lkql_Checker.Options is
         Parse_Flag
           (Parser => Parser,
            Long   => "--no_objects_dir",
-           Help   => "issue warning if a rule parameter is redefined");
+           Help   =>
+             "place results in the current directory instead of the"
+             & " project object directory");
 
       package Include_File is new
         Parse_Option
