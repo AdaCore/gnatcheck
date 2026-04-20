@@ -1,0 +1,30 @@
+p.adb:12:10: rule violation: possible occurrence of KP 20367
+12 |         (if Empty then (D => False) else (D => True, I => 0));  --  FLAG
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+p.adb:17:10: rule violation: possible occurrence of KP 20367
+17 |         (if Empty then (D => False) else (D => True, I => 0));  --  FLAG
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+p.adb:27:10: rule violation: possible occurrence of KP 20367
+27 |         (if Empty then (D => False) else (D => True, I => 0));  --  FLAG
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+p.adb:35:10: rule violation: possible occurrence of KP 20367
+35 |          (if Empty                                                      --  FLAG
+   | __________^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+37 ||          else (if Empty then (D => False) else (D => True, I => 0)));
+   ||___________________________________________________________________^
+
+p.adb:49:10: rule violation: possible occurrence of KP 20367
+49 |          (case Empty is  --  FLAG
+   | __________^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+51 ||             when False => (D => True, I => 0));
+   ||_____________________________________________^
+
