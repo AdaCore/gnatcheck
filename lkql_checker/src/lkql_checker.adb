@@ -524,6 +524,15 @@ package body Lkql_Checker is
         (Args              => To_XString_Array (Remaining_Args),
          From_Project_File => False);
 
+      --  gnatkp requires an Ada runtime: without one the analysis cannot
+      --  proceed. Check before doing any expensive rule-processing work.
+      if Mode = Gnatkp_Mode and then Checker_Prj.Runtime = "" then
+         Error
+           ("Ada runtime not found: use --RTS or the project Runtime"
+            & " attribute to specify one");
+         raise Parameter_Error;
+      end if;
+
       --  Fetch all sources from the loaded project
       if Aggregate.Num_Of_Aggregated_Projects > 1 then
          if not Main_Unit.Is_Empty then
@@ -618,14 +627,6 @@ package body Lkql_Checker is
 
       --  And process all rule options after rule files have been loaded
       Process_Rule_Options;
-
-      --  Force some switches and perform some checks for gnatkp
-      if Mode = Gnatkp_Mode then
-         if Checker_Prj.Target = "" or else Checker_Prj.Runtime = "" then
-            Error ("missing explicit target and/or runtime");
-            OS_Exit (E_Error);
-         end if;
-      end if;
 
       Lkql_Checker.Projects.Check_Parameters;  --  check that the rule exists
 

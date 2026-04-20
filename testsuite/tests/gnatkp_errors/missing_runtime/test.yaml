@@ -1,0 +1,7 @@
+# Test that gnatkp emits a clear error when no Ada runtime is specified
+# (neither --RTS on the command line nor a Runtime attribute in the project)
+
+driver: gnatcheck
+mode: gnatkp
+gnatkp_autoconfig: false
+project: prj.gpr
