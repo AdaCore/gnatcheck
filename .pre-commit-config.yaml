@@ -5,7 +5,7 @@ repos:
         name: Format GNATcheck sources
         entry: gnatformat
         language: system
-        files: "^lkql_checker/src/.*\\.ad(b|s)$"
+        files: "^lkql_checker/(src|doc/tools/lal_api)/.*\\.ad(b|s)$"
 
   - repo: https://github.com/ambv/black
     rev: 24.10.0

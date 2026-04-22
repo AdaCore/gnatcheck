@@ -17,7 +17,7 @@ ALLSPHINXOPTS   = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) \
 DOC_LIST=gnatcheck_rm
 FMT_LIST=html pdf txt info
 
-.PHONY: help clean
+.PHONY: help clean generate
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -41,26 +41,30 @@ help:
 
 clean:
 	-rm -rf $(BUILDDIR)
+	-gprclean -P tools/lal_api/lal_api.gpr
 
 generate:
+	mkdir -p generated
+	cd tools/lal_api && gprbuild -P lal_api.gpr
+	tools/lal_api/bin/lal_api > generated/lal_api.rst
 	lkql doc-rules -O generated $(SOURCEDIR)/../share/lkql $(SOURCEDIR)/stubs
 
-%.html:
+%.html: | generate
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/$*/html
 
-%.pdf:
+%.pdf: | generate
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/$*/pdf
 	$(MAKE) -C $(BUILDDIR)/$*/pdf all-pdf LATEXOPTS="-interaction=nonstopmode"
 
-%.txt:
+%.txt: | generate
 	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/$*/txt
 	$(MAKE) -C $(BUILDDIR)/$*/txt plaintext
 
-%.info:
+%.info: | generate
 	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/$*/info
 	$(MAKE) -C $(BUILDDIR)/$*/info info
 
-%.texinfo:
+%.texinfo: | generate
 	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/$*/texinfo
 
 .PHONY: html-all

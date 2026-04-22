@@ -14,7 +14,7 @@ lkql_checker: impacts
 
 doc:
 	test -d $(RAILROAD_DIR) && echo "GNATcheck RM requires railroad diagrams"
-	mkdir user_manual/generated && cp -r $(RAILROAD_DIR) user_manual/generated
+	mkdir -p user_manual/generated && cp -r $(RAILROAD_DIR) user_manual/generated
 	cd user_manual && make clean html
 	cd lkql_checker/doc && make generate all
 
