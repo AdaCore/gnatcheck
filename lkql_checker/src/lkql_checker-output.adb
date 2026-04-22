@@ -4,13 +4,13 @@
 --
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
+with Ada.Directories;         use Ada.Directories;
 with Ada.Finalization;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Text_IO;             use Ada.Text_IO;
 
-with GNAT.Directory_Operations; use GNAT.Directory_Operations;
-with GNAT.OS_Lib;               use GNAT.OS_Lib;
+with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNAT.Traceback.Symbolic;
 
 with Lkql_Checker.Options; use Lkql_Checker.Options;
@@ -360,7 +360,7 @@ package body Lkql_Checker.Output is
 
    procedure Report_Missing_File (From_File, Missing_File : String) is
       function Format_Filename (F : String) return String
-      is (if Tool_Args.Full_Source_Locations.Get then F else Base_Name (F));
+      is (if Tool_Args.Full_Source_Locations.Get then F else Simple_Name (F));
       --  Formats filename
    begin
       Warning

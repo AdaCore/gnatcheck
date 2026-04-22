@@ -11,7 +11,6 @@ with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
 
-with GNAT.Directory_Operations;
 with GNAT.Regexp; use GNAT.Regexp;
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
@@ -409,8 +408,9 @@ package body Lkql_Checker.Projects is
       then
          return
            Normalize_Pathname
-             (GNAT.Directory_Operations.Dir_Name
+             (Containing_Directory
                 (Checker_Prj.Tree.Root_Project.Path_Name.String_Value)
+              & GNAT.OS_Lib.Directory_Separator
               & Filename);
       else
          return Normalize_Pathname (Filename);
@@ -756,7 +756,7 @@ package body Lkql_Checker.Projects is
 
       Cur_Dir : constant GPR2.Path_Name.Object :=
         GPR2.Path_Name.Create_Directory
-          (GPR2.Filename_Type (GNAT.Directory_Operations.Get_Current_Dir));
+          (GPR2.Filename_Type (Current_Directory));
 
       Dir : constant String :=
         String

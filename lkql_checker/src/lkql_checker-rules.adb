@@ -4,11 +4,11 @@
 --
 
 with Ada.Characters.Conversions; use Ada.Characters.Conversions;
+with Ada.Directories;
 with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 
-with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.OS_Lib;
 
 with GNATCOLL.Utils; use GNATCOLL.Utils;
@@ -485,9 +485,14 @@ package body Lkql_Checker.Rules is
    ---------------
 
    function Find_File (Name : String) return String is
+      Legacy_File   : constant String :=
+        Lkql_Checker.Rules.Rule_Table.Processed_Legacy_Rule_File_Name;
       Rule_File_Dir : constant String :=
-        Dir_Name
-          (Lkql_Checker.Rules.Rule_Table.Processed_Legacy_Rule_File_Name);
+        (if Legacy_File /= ""
+         then
+           Ada.Directories.Containing_Directory (Legacy_File)
+           & GNAT.OS_Lib.Directory_Separator
+         else "");
 
    begin
       if GNAT.OS_Lib.Is_Regular_File (Rule_File_Dir & Name) then

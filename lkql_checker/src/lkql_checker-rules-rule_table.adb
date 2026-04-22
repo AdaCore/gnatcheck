@@ -6,6 +6,7 @@
 with Ada.Characters.Conversions;      use Ada.Characters.Conversions;
 with Ada.Characters.Handling;         use Ada.Characters.Handling;
 with Ada.Containers.Ordered_Sets;
+with Ada.Directories;                 use Ada.Directories;
 with Ada.Exceptions;                  use Ada.Exceptions;
 with Ada.Strings;                     use Ada.Strings;
 with Ada.Strings.Fixed;               use Ada.Strings.Fixed;
@@ -13,9 +14,8 @@ with Ada.Strings.Unbounded;           use Ada.Strings.Unbounded;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Text_IO;                     use Ada.Text_IO;
 
-with GNAT.Directory_Operations; use GNAT.Directory_Operations;
-with GNAT.OS_Lib;               use GNAT.OS_Lib;
-with GNAT.Regexp;               use GNAT.Regexp;
+with GNAT.OS_Lib; use GNAT.OS_Lib;
+with GNAT.Regexp; use GNAT.Regexp;
 with GNAT.Table;
 
 with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
@@ -552,7 +552,7 @@ package body Lkql_Checker.Rules.Rule_Table is
       Success : Boolean := True;
 
       Rule_File_Name : constant String := Get_Rule_File_Name (RF_Name);
-      Rule_File_Base : constant String := Base_Name (Rule_File_Name);
+      Rule_File_Base : constant String := Simple_Name (Rule_File_Name);
 
       Include_RF_Name : String_Access;
 
@@ -1357,7 +1357,7 @@ package body Lkql_Checker.Rules.Rule_Table is
       Output_Rule_File   : constant String :=
         (if Tool_Args.Full_Source_Locations.Get
          then LKQL_Rule_File_Name
-         else Base_Name (LKQL_Rule_File_Name))
+         else Simple_Name (LKQL_Rule_File_Name))
         & ":1:1";
       Rule_Name          : constant String := Instance_Object.Get ("ruleName");
       Instance_Name      : constant String :=
