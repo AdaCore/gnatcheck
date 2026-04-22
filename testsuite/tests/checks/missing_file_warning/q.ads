@@ -1,3 +1,5 @@
+with Ada.Text_IO;
+
 with P;
 
 package Q is
