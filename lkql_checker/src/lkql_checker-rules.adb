@@ -10,7 +10,6 @@ with Ada.Strings.Maps;
 
 with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.OS_Lib;
-with GNAT.String_Split;         use GNAT.String_Split;
 
 with GNATCOLL.Utils; use GNATCOLL.Utils;
 with GNATCOLL.VFS;   use GNATCOLL.VFS;
@@ -1512,7 +1511,7 @@ package body Lkql_Checker.Rules is
                               | "access"
                               | "out")
               or else (Rule_Name (Instance) = "actual_parameters"
-                       and then Slice_Count (Create (Param, ":")) /= 3)
+                       and then Natural (Split (Param, ':').Length) /= 3)
             then
                Emit_Wrong_Parameter (Instance, Param);
                return;
@@ -2447,7 +2446,7 @@ package body Lkql_Checker.Rules is
       --  parameters.
       if Rule.Name = "parameters_out_of_order"
         and then Last /= 0
-        and then Slice_Count (Create (To_String (Instance.Param), ",")) /= 5
+        and then Natural (Split (To_String (Instance.Param), ',').Length) /= 5
       then
          Instance.Error
            ("("

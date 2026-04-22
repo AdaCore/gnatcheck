@@ -12,7 +12,6 @@ with Ada.Strings.Unbounded;
 
 with GNAT.Case_Util;
 with GNAT.Regpat; use GNAT.Regpat;
-with GNAT.String_Split;
 
 with Lkql_Checker.Diagnoses;        use Lkql_Checker.Diagnoses;
 with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
@@ -1772,11 +1771,10 @@ package body Lkql_Checker.Compiler is
       Source_File : String;
       Log_File    : String) return Process_Id
    is
-      use GNAT.String_Split;
       use Ada.Strings.Unbounded;
 
       Pid           : Process_Id;
-      Split_Command : constant Slice_Set := Create (Worker_Name, " ");
+      Split_Command : constant String_Vector := Split (Worker_Name, ' ');
       Worker        : GNAT.OS_Lib.String_Access := null;
       Args          : String_Vector;
    begin
@@ -1847,10 +1845,8 @@ package body Lkql_Checker.Compiler is
    function Spawn_LKQL_Rule_File_Parser
      (LKQL_RF_Name : String; Result_File : String) return Process_Id
    is
-      use GNAT.String_Split;
-
       Pid           : Process_Id;
-      Split_Command : constant Slice_Set := Create (Worker_Name, " ");
+      Split_Command : constant String_Vector := Split (Worker_Name, ' ');
       Worker        : String_Access := null;
       Args          : String_Vector;
    begin
