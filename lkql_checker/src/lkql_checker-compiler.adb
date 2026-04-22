@@ -12,7 +12,6 @@ with Ada.Strings.Unbounded;
 
 with GNAT.Case_Util;
 with GNAT.Regpat; use GNAT.Regpat;
-with GNAT.Strings;
 with GNAT.String_Split;
 
 with Lkql_Checker.Diagnoses;        use Lkql_Checker.Diagnoses;
@@ -565,10 +564,13 @@ package body Lkql_Checker.Compiler is
          Error ("error when calling gprbuild, raw output:");
 
          declare
-            Str : String_Access := Read_File (Out_File);
+            Content : constant String :=
+              Read_File (Create (+Out_File)).To_String;
          begin
-            Print (Str (Str'First .. Str'Last - 1));
-            Free (Str);
+            if Content'Length = 0 then
+               raise Program_Error with "file not found: " & Out_File;
+            end if;
+            Print (Content (Content'First .. Content'Last - 1));
          end;
 
          Errors := True;
@@ -805,25 +807,19 @@ package body Lkql_Checker.Compiler is
       end loop;
 
       declare
-         Config_File   : constant Virtual_File :=
+         Config_File  : constant Virtual_File :=
            Create (+Checker_Config_File.all);
-         File          : Writable_File;
-         Old_Contents  : GNAT.Strings.String_Access;
-         New_Contents  : constant String := To_String (Contents);
-         Same_Contents : Boolean;
+         File         : Writable_File;
+         New_Contents : constant String := To_String (Contents);
 
       begin
-         if Is_Regular_File (Config_File) then
-            Old_Contents := Read_File (Config_File);
-            Same_Contents := Old_Contents.all = New_Contents;
-            Free (Old_Contents);
+         if Is_Regular_File (Config_File)
+           and then Read_File (Config_File).To_String = New_Contents
+         then
+            --  Nothing more to do: we don't want to change the timestamp
+            --  of the configuration file.
 
-            if Same_Contents then
-               --  Nothing more to do: we don't want to change the timestamp
-               --  of the configuration file.
-
-               return;
-            end if;
+            return;
          end if;
 
          File := Write_File (Config_File);
