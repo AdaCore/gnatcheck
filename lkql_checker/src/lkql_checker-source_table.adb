@@ -15,7 +15,9 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNAT.Table;
 with GNAT.Task_Lock;
 
-with Lkql_Checker.Output; use Lkql_Checker.Output;
+with Lkql_Checker.Diagnostics.Exemptions;
+use Lkql_Checker.Diagnostics.Exemptions;
+with Lkql_Checker.Output;                 use Lkql_Checker.Output;
 
 with GPR2.Build.Source;
 with GPR2.Path_Name;
