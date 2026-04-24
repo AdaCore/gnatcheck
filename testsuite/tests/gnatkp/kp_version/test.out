@@ -1,0 +1,90 @@
+bare major matches all minor versions of that release
+=====================================================
+
+gnatkp: info: kp_18614 disabled, target does not match
+gnatkp: info: kp_18636 enabled
+gnatkp: info: kp_19198 enabled
+gnatkp: info: kp_19423 enabled
+gnatkp: info: kp_19501 enabled
+gnatkp: info: kp_19753 enabled
+gnatkp: info: kp_19824 enabled
+gnatkp: info: kp_ta10_002 enabled
+gnatkp: info: kp_u310_012 enabled
+gnatkp: info: kp_u701_015 enabled
+gnatkp: info: kp_u928_018 enabled
+gnatkp: info: kp_ua12_036 enabled
+gnatkp: info: kp_uc22_009 enabled
+gnatkp: info: kp_v114_047 disabled, target does not match
+gnatkp: info: kp_v127_049 enabled
+gnatkp: info: kp_v206_001 enabled
+gnatkp: info: kp_v214_016 enabled
+gnatkp: info: kp_v302_021 enabled
+gnatkp: info: kp_v329_046 enabled
+gnatkp: info: kp_v404_040 enabled
+gnatkp: info: kp_v407_011 enabled
+gnatkp: info: kp_v505_020 enabled
+gnatkp: info: kp_v616_018 enabled
+gnatkp: info: kp_v624_025 enabled
+gnatkp: info: kp_v708_029 enabled
+gnatkp: info: kp_v712_039 enabled
+gnatkp: info: kp_v719_024 enabled
+gnatkp: info: kp_v720_003 enabled
+gnatkp: info: kp_v907_005 enabled
+gnatkp: info: kp_v924_001 enabled
+gnatkp: info: kp_va03_035 enabled
+gnatkp: info: kp_va06_034 enabled
+gnatkp: info: kp_va18_003 enabled
+gnatkp: info: kp_vb20_002 enabled
+gnatkp: info: kp_w330_020 enabled
+pkg.ads:3:04: rule violation: possible occurrence of KP UC22-009
+>>>program returned status code 1
+
+exact minor version also matches
+================================
+
+gnatkp: info: kp_18614 disabled, target does not match
+gnatkp: info: kp_18636 enabled
+gnatkp: info: kp_19198 enabled
+gnatkp: info: kp_19423 enabled
+gnatkp: info: kp_19501 enabled
+gnatkp: info: kp_19753 enabled
+gnatkp: info: kp_19824 enabled
+gnatkp: info: kp_ta10_002 enabled
+gnatkp: info: kp_u310_012 enabled
+gnatkp: info: kp_u701_015 enabled
+gnatkp: info: kp_u928_018 enabled
+gnatkp: info: kp_ua12_036 enabled
+gnatkp: info: kp_uc22_009 enabled
+gnatkp: info: kp_v114_047 disabled, target does not match
+gnatkp: info: kp_v127_049 enabled
+gnatkp: info: kp_v206_001 enabled
+gnatkp: info: kp_v214_016 enabled
+gnatkp: info: kp_v302_021 enabled
+gnatkp: info: kp_v329_046 enabled
+gnatkp: info: kp_v404_040 enabled
+gnatkp: info: kp_v407_011 enabled
+gnatkp: info: kp_v505_020 enabled
+gnatkp: info: kp_v616_018 enabled
+gnatkp: info: kp_v624_025 enabled
+gnatkp: info: kp_v708_029 enabled
+gnatkp: info: kp_v712_039 enabled
+gnatkp: info: kp_v719_024 enabled
+gnatkp: info: kp_v720_003 enabled
+gnatkp: info: kp_v907_005 enabled
+gnatkp: info: kp_v924_001 enabled
+gnatkp: info: kp_va03_035 enabled
+gnatkp: info: kp_va06_034 enabled
+gnatkp: info: kp_va18_003 enabled
+gnatkp: info: kp_vb20_002 enabled
+gnatkp: info: kp_w330_020 enabled
+pkg.ads:3:04: rule violation: possible occurrence of KP UC22-009
+>>>program returned status code 1
+
+unrelated version produces no detectors
+=======================================
+
+gnatkp: error: no rule for the given kp-version
+==== Errors in 'FLAG/NOFLAG' annotations ====
+
+In file "pkg.ads":
+  - at line 3: no 'FLAG' annotation (line flagged 2 time(s))

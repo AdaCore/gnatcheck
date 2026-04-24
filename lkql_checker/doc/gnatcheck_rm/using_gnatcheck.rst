@@ -1167,6 +1167,10 @@ also be listed in the file :file:`gnatkp-rule-list.out`. The list of detected
 source locations will be generated on standard error, as well as in a file
 called :file:`gnatkp.out`.
 
+A bare major version number may also be used (e.g. ``--kp-version=21``) to
+enable all detectors relevant to any minor release of that major version
+(21.1, 21.2, etc.).
+
 You can display the list of detectors without running them by specifying
 additionally the ``--list-rules`` switch, e.g.:
 

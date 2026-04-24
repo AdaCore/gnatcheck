@@ -6,6 +6,8 @@
 with Ada.Characters.Conversions;      use Ada.Characters.Conversions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
+with Lkql_Checker.String_Utilities;
+
 with Liblkqllang.Common;
 with Liblkqllang.Generic_API.Introspection;
 use Liblkqllang.Generic_API.Introspection;
@@ -14,6 +16,31 @@ with Liblkqllang.Iterators;                 use Liblkqllang.Iterators;
 package body Rule_Commands is
 
    package LCO renames Liblkqllang.Common;
+
+   function Augment_With_Majors (Impact_Str : String) return String;
+   --  Return Impact_Str augmented with the major-version prefix of each entry,
+   --  so that a bare major version (e.g. "20") also matches in the compiled
+   --  regexp (e.g. "20.1" or "20.*").
+
+   -------------------------
+   -- Augment_With_Majors --
+   -------------------------
+
+   function Augment_With_Majors (Impact_Str : String) return String is
+      use Lkql_Checker.String_Utilities;
+      Entries : constant String_Vector := Split (Impact_Str, ',');
+      Result  : String_Vector := Entries;
+   begin
+      for E of Entries loop
+         for I in E'Range loop
+            if E (I) = '.' then
+               Result.Append (E (E'First .. I - 1));
+               exit;
+            end if;
+         end loop;
+      end loop;
+      return Join (Result, ",");
+   end Augment_With_Majors;
 
    function Find_Param_Kind
      (Params : L.Parameter_Decl_List) return Rule_Param_Kind;
@@ -206,7 +233,7 @@ package body Rule_Commands is
                   Impact :=
                     new Regexp'
                       (Compile
-                         ("{" & Impact_Value.Get & "}",
+                         ("{" & Augment_With_Majors (Impact_Value.Get) & "}",
                           Glob           => True,
                           Case_Sensitive => False));
                end if;
