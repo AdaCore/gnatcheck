@@ -13,6 +13,7 @@ with GNAT.OS_Lib;
 with GNAT.String_Split;         use GNAT.String_Split;
 
 with GNATCOLL.Utils; use GNATCOLL.Utils;
+with GNATCOLL.VFS;   use GNATCOLL.VFS;
 
 with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
 with Lkql_Checker.JSON_Utilities;   use Lkql_Checker.JSON_Utilities;
@@ -4344,25 +4345,27 @@ package body Lkql_Checker.Rules is
       Canonicalize_Line_Endings : Boolean := False) return Boolean
    is
       Abs_Name : constant String := Find_File (To_Load);
-      Str      : GNAT.OS_Lib.String_Access;
-      Last     : Natural;
    begin
-      if Abs_Name /= "" then
-         Str := Read_File (Abs_Name);
-         Ada.Strings.Unbounded.Set_Unbounded_String (Instance.File, To_Load);
+      if Abs_Name = "" then
+         return False;
+      end if;
 
-         Last := Str'Last;
+      declare
+         Content : constant String := Read_File (Create (+Abs_Name)).To_String;
+         Last    : Natural := Content'Last;
+      begin
+         Ada.Strings.Unbounded.Set_Unbounded_String (Instance.File, To_Load);
 
          --  If `Last` is null or less, then the file is empty.
          --  Thus don't append anything to the rule parameter.
          if Last > 0 then
             --  Strip trailing line feed
-            if Str (Str'Last) = ASCII.LF then
+            if Content (Content'Last) = ASCII.LF then
                Last := Last - 1;
             end if;
 
             --  Strip trailing carriage return
-            if Str (Last) = ASCII.CR then
+            if Content (Last) = ASCII.CR then
                Last := Last - 1;
             end if;
 
@@ -4372,20 +4375,18 @@ package body Lkql_Checker.Rules is
                  (if Canonicalize_Line_Endings
                   then
                     Replace
-                      (Str (1 .. Last), ASCII.CR & ASCII.LF, (1 => ASCII.LF))
-                  else Str (1 .. Last));
+                      (Content (1 .. Last),
+                       ASCII.CR & ASCII.LF,
+                       (1 => ASCII.LF))
+                  else Content (1 .. Last));
             begin
                Ada.Strings.Wide_Wide_Unbounded.Set_Unbounded_Wide_Wide_String
                  (Instance.Param, To_Wide_Wide_String (Result));
             end;
-
-            --  Finally release the loaded file content
-            GNAT.OS_Lib.Free (Str);
          end if;
-         return True;
-      else
-         return False;
-      end if;
+      end;
+
+      return True;
    end Load_File;
 
 end Lkql_Checker.Rules;

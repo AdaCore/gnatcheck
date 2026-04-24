@@ -8,8 +8,6 @@ with Ada.Containers.Indefinite_Hashed_Sets;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Strings.Hash;
 
-with GNAT.OS_Lib; use GNAT.OS_Lib;
-
 with GNATCOLL.Utils; use GNATCOLL.Utils;
 
 package Lkql_Checker.String_Utilities is
@@ -56,10 +54,6 @@ package Lkql_Checker.String_Utilities is
    is (Replace (S, String'(1 => C), Replacement));
    --  Replace all occurrences of the provided character by the replacement
    --  string.
-
-   function Read_File (FD : File_Descriptor) return String_Access;
-   function Read_File (File_Name : String) return String_Access;
-   --  Reads the entire contents of the file
 
    package String_Vectors is new
      Ada.Containers.Indefinite_Vectors (Positive, String);
