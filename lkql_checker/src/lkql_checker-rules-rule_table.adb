@@ -1988,6 +1988,9 @@ package body Lkql_Checker.Rules.Rule_Table is
             Rule.Allows_Parametrized_Exemption := R.Parametric_Exemption;
             Rule.Impact := R.Impact;
             Rule.Target := R.Target;
+            Rule.Target_String :=
+              To_Unbounded_String
+                (To_String (To_Wide_Wide_String (R.Target_String)));
             All_Rules.Insert (Id, Rule);
          end;
       end loop;

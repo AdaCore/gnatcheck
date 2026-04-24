@@ -1128,7 +1128,11 @@ package body Lkql_Checker.Projects is
                      if not Tool_Args.Quiet_Mode then
                         Info
                           (Lower_Name (Rule)
-                           & " disabled, target does not match");
+                           & " disabled, target "
+                           & Checker_Prj.Target
+                           & " not in KP targets ("
+                           & To_String (Rule.Target_String)
+                           & ")");
                      end if;
                   else
                      if not Tool_Args.Quiet_Mode then

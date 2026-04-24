@@ -82,6 +82,10 @@ package Rule_Commands is
       Target : Regexp_Access;
       --  For a KP detector, regexp to match relevant target triplets impacted,
       --  if any. Ignored if null.
+
+      Target_String : Unbounded_Text_Type;
+      --  Raw target pattern string (e.g. "x86_64-*"), set when Target is
+      --  non-null. Used for diagnostic messages.
    end record;
 
    function Create_Rule_Command

@@ -149,6 +149,7 @@ package body Rule_Commands is
          Subcategory              : Unbounded_Text_Type;
          Impact                   : Regexp_Access;
          Target                   : Regexp_Access;
+         Target_Str               : Unbounded_Text_Type;
          Remediation_Level        : Remediation_Levels := Medium;
          Parametric_Exemption     : Boolean := False;
          Fn_Name                  : constant Text_Type := Fn.F_Name.Text;
@@ -250,15 +251,20 @@ package body Rule_Commands is
             Check_String (Target_Arg);
 
             declare
-               Str : constant String :=
+               Str            : constant String :=
                  To_String (Target_Arg.P_Expr.As_String_Literal.Text);
+               Target_Pattern : constant String :=
+                 Str (Str'First + 1 .. Str'Last - 1);
             begin
                Target :=
                  new Regexp'
                    (Compile
-                      ("{" & Str (Str'First + 1 .. Str'Last - 1) & "}",
+                      ("{" & Target_Pattern & "}",
                        Glob           => True,
                        Case_Sensitive => False));
+               Target_Str :=
+                 To_Unbounded_Wide_Wide_String
+                   (To_Wide_Wide_String (Target_Pattern));
 
             exception
                when others =>
@@ -300,7 +306,8 @@ package body Rule_Commands is
               Remediation_Level    => Remediation_Level,
               Parametric_Exemption => Parametric_Exemption,
               Impact               => Impact,
-              Target               => Target);
+              Target               => Target,
+              Target_String        => Target_Str);
          return True;
       end;
    end Create_Rule_Command;
