@@ -1,0 +1,8 @@
+driver: gnatcheck
+format: brief
+lkql_rule_file: rules.lkql
+tests:
+  - label: Without "--no-project"
+  - label: With "--no-project"
+    extra_args:
+      - --no-project

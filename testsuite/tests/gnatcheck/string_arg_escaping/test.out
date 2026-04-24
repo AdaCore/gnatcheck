@@ -1,4 +1,4 @@
-<gnatcheck_worker_exe> --target=<target> -d --log-file=<working-dir>/gnatcheck-log1.TMP --files-from=<working-dir>/gnatcheck-files1.TMP --rules-from=<working-dir>/gnatcheck-rules0.TMP
+<gnatcheck_worker_exe> -d --files-from=<working-dir>/gnatcheck-files1.TMP --rules-from=<working-dir>/gnatcheck-rules0.TMP --log-file=<working-dir>/gnatcheck-log1.TMP --subdirs=gnatcheck --target=<target>
    no exempted violations detected
 without_header.adb:1:01: rule violation: compilation unit does not start with header
    no rule exemption problems detected

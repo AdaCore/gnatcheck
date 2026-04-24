@@ -1,0 +1,13 @@
+main.adb:4:04: rule violation: redundant null statement
+Running "tree ./"...
+<working-dir>/./:
+    main.adb
+    prj.gpr
+    rules.lkql
+    test.out
+    test.yaml
+<working-dir>/./hello:
+<working-dir>/./hello/obj:
+<working-dir>/./hello/obj/gnatcheck:
+    gnatcheck-log1.TMP
+    gnatcheck.out

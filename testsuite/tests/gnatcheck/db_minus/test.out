@@ -1,0 +1,4 @@
+kb: error: No valid configuration found
+prj.gpr: error: cannot create configuration file
+try "gnatcheck --help" for more information.
+>>>program returned status code 2

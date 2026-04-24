@@ -526,7 +526,7 @@ package body Lkql_Checker is
 
       --  gnatkp requires an Ada runtime: without one the analysis cannot
       --  proceed. Check before doing any expensive rule-processing work.
-      if Mode = Gnatkp_Mode and then Checker_Prj.Runtime = "" then
+      if Mode = Gnatkp_Mode and then Checker_Prj.Ada_Runtime = "" then
          Error
            ("Ada runtime not found: use --RTS or the project Runtime"
             & " attribute to specify one");

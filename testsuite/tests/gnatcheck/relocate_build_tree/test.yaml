@@ -1,0 +1,8 @@
+driver: gnatcheck
+format: brief
+project: prj.gpr
+lkql_rule_file: rules.lkql
+extra_args:
+  - --relocate-build-tree=hello
+post_python: >
+  tree("./")

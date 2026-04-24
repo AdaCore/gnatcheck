@@ -13,6 +13,7 @@ with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
 
 with GNAT.Directory_Operations;
 with GNAT.Regexp; use GNAT.Regexp;
+with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
 with Lkql_Checker.Diagnoses;
@@ -771,6 +772,175 @@ package body Lkql_Checker.Projects is
       Global_Report_Dir := new String'(Dir);
    end Set_Global_Result_Dirs;
 
+   ---------------------
+   -- Get_Cli_Options --
+   ---------------------
+
+   procedure Get_Cli_Options
+     (My_Project : Arg_Project_Type; Buffer : in out String_Vector)
+   is
+      use GPR2.Options;
+
+      Source_CGPR : constant String :=
+        (if My_Project.Options.Config_Project.Is_Defined
+         then String (My_Project.Options.Config_Project.Name)
+         else "");
+
+      procedure Add_RTS_Option
+        (Cursor : GPR2.Containers.Lang_Value_Maps.Cursor);
+      --  Util function to add a --RTS:lang=runtime option in the output
+      --  buffer.
+
+      procedure Add_X_Option (Cursor : GPR2.Context.Key_Value.Cursor);
+      --  Util function to add a -X option in the output buffer.
+
+      procedure Add_RTS_Option
+        (Cursor : GPR2.Containers.Lang_Value_Maps.Cursor)
+      is
+         use GPR2;
+         use GPR2.Containers.Lang_Value_Maps;
+      begin
+         --  The Ada runtime is handled separately
+         if Key (Cursor) /= GPR2.Ada_Language then
+            Buffer.Append
+              ("--RTS:" & Image (Key (Cursor)) & '=' & Element (Cursor));
+         end if;
+      end Add_RTS_Option;
+
+      procedure Add_X_Option (Cursor : GPR2.Context.Key_Value.Cursor) is
+         use GPR2.Context.Key_Value;
+      begin
+         Buffer.Append ("-X" & String (Key (Cursor)) & '=' & Element (Cursor));
+      end Add_X_Option;
+   begin
+      --  Here we iterate on the `Option` type to ensure a compilation error
+      --  if the options set of GPR2 changes.
+      for O in Option loop
+         case O is
+            when AP                  =>
+               --  Add the -aP options
+               for Project_Path of
+                 My_Project.Options.User_Specified_Project_Search_Path
+               loop
+                  Buffer.Append ("-aP=" & Project_Path.String_Value);
+               end loop;
+
+            when Config              =>
+               --  Add the --config option
+               if Source_CGPR /= "" then
+                  Buffer.Append ("--config=" & Source_CGPR);
+               end if;
+
+            when Db                  =>
+               --  Add the --db options
+               for Db_Path of My_Project.Tree.Get_KB.Custom_KB_Locations loop
+                  Buffer.Append ("--db=" & Db_Path.String_Value);
+               end loop;
+
+            when Db_Minus            =>
+               --  Add the --db- option
+               if not My_Project.Tree.Get_KB.Is_Default_Db then
+                  Buffer.Append ("--db-");
+               end if;
+
+            when Implicit_With       =>
+               --  Add the --implicit-with options
+               for Implicit_With of My_Project.Options.Implicit_With loop
+                  Buffer.Append
+                    ("--implicit-with=" & Implicit_With.String_Value);
+               end loop;
+
+            when Resolve_Links       =>
+               --  Add the -eL option
+               if My_Project.Options.Resolve_Links then
+                  Buffer.Append ("-eL");
+               end if;
+
+            when No_Project          =>
+               --  Add the --no-project option
+               if My_Project.Options.No_Project then
+                  Buffer.Append ("--no-project");
+               end if;
+
+            when P                   =>
+               --  Add the -P option
+               if My_Project.Source_Prj /= "" then
+                  Buffer.Append ("-P");
+                  Buffer.Append (My_Project.Source_Prj);
+               elsif My_Project.Tree.Is_Defined
+                 and then My_Project.Tree.Root_Project.Path_Name.Exists
+               then
+                  --  In case Prj has not been explicitly set, spawn the
+                  --  project option with the default project file used by
+                  --  gpr.
+                  Buffer.Append ("-P");
+                  Buffer.Append
+                    (My_Project.Tree.Root_Project.Path_Name.String_Value);
+               end if;
+
+            when Root_Dir            =>
+               --  Add the --root-dir option
+               if My_Project.Options.Root_Path.Is_Defined then
+                  Buffer.Append
+                    ("--root-dir="
+                     & My_Project.Options.Root_Path.String_Value);
+               end if;
+
+            when Relocate_Build_Tree =>
+               --  Add the --relocate-build-tree option
+               if My_Project.Options.Build_Path.Is_Defined then
+                  Buffer.Append
+                    ("--relocate-build-tree="
+                     & My_Project.Options.Build_Path.String_Value);
+               end if;
+
+            when RTS                 =>
+               --  Add the --RTS option for the Ada runtime
+               if My_Project.Ada_Runtime /= "" then
+                  Buffer.Append ("--RTS=" & My_Project.Ada_Runtime);
+               end if;
+
+               --  Add other runtimes with --RTS: options
+               My_Project.Options.RTS_Map.Iterate (Add_RTS_Option'Access);
+
+            when Src_Subdirs         =>
+               --  Add the --src-subdirs option
+               if String (My_Project.Options.Src_Subdirs) /= "" then
+                  Buffer.Append
+                    ("--src-subdirs="
+                     & String (My_Project.Options.Src_Subdirs));
+               end if;
+
+            when Subdirs             =>
+               --  Add the --subdirs option
+               if My_Project.Options.Subdirs /= "" then
+                  Buffer.Append
+                    ("--subdirs=" & To_String (My_Project.Options.Subdirs));
+               end if;
+
+            when Target              =>
+               --  Add the --target option
+               if My_Project.Target /= "" then
+                  Buffer.Append ("--target=" & My_Project.Target);
+               end if;
+
+            when X                   =>
+               --  Add the -X options
+               if My_Project.Is_Specified then
+                  My_Project.Options.Context.Iterate (Add_X_Option'Access);
+               end if;
+
+            --  We don't want to forward those options to workers
+
+            when Autoconf            =>
+               null;
+
+            when Print_GPR_Registry  =>
+               null;
+         end case;
+      end loop;
+   end Get_Cli_Options;
+
    ----------------
    -- Source_Prj --
    ----------------
@@ -783,19 +953,6 @@ package body Lkql_Checker.Projects is
          return "";
       end if;
    end Source_Prj;
-
-   -----------------
-   -- Source_CGPR --
-   -----------------
-
-   function Source_CGPR (My_Project : Arg_Project_Type) return String is
-   begin
-      if My_Project.Options.Config_Project.Is_Defined then
-         return String (My_Project.Options.Config_Project.Name);
-      else
-         return "";
-      end if;
-   end Source_CGPR;
 
    ------------
    -- Target --
@@ -815,55 +972,14 @@ package body Lkql_Checker.Projects is
    -- Runtime --
    -------------
 
-   function Runtime (My_Project : Arg_Project_Type) return String is
+   function Ada_Runtime (My_Project : Arg_Project_Type) return String is
    begin
       if My_Project.Options.RTS_Map.Contains (GPR2.Ada_Language) then
          return My_Project.Options.RTS_Map.Element (GPR2.Ada_Language);
       else
          return String (My_Project.Tree.Runtime (GPR2.Ada_Language));
       end if;
-   end Runtime;
-
-   -----------------
-   -- Subdir_Name --
-   -----------------
-
-   function Subdir_Name (My_Project : Arg_Project_Type) return String is
-   begin
-      return To_String (My_Project.Options.Subdirs);
-   end Subdir_Name;
-
-   ---------------------------
-   -- Follow_Symbolic_Links --
-   ---------------------------
-
-   function Follow_Symbolic_Links
-     (My_Project : Arg_Project_Type) return Boolean is
-   begin
-      return My_Project.Options.Resolve_Links;
-   end Follow_Symbolic_Links;
-
-   -------------------------------
-   -- Append_External_Variables --
-   -------------------------------
-
-   procedure Append_External_Variables
-     (My_Project : Arg_Project_Type;
-      Args       : in out Argument_List;
-      Last       : in out Natural)
-   is
-      use GPR2.Context.Key_Value;
-
-      procedure Place_In_Args (C : Cursor);
-      procedure Place_In_Args (C : Cursor) is
-      begin
-         Last := Last + 1;
-         Args (Last) :=
-           new String'("-X" & String (Key (C)) & '=' & Element (C));
-      end Place_In_Args;
-   begin
-      My_Project.Options.Context.Iterate (Place_In_Args'Access);
-   end Append_External_Variables;
+   end Ada_Runtime;
 
    ---------------------
    -- Store_Main_Unit --
