@@ -1106,7 +1106,8 @@ Regex Pattern
   :file: ../generated/railroad-diagrams/regex_pattern.svg
 
 You can match simple string values with this pattern, but you can also do more
-complicated matching based on regular expressions:
+complicated matching based on regular expressions. The regex syntax follows
+Python's ``re`` module flavor.
 
 .. code-block:: lkql
 
