@@ -18,3 +18,6 @@ tests:
   - label: unrelated version produces no detectors
     extra_args:
       - --kp-version=99
+  - label: malformed minor version is rejected
+    extra_args:
+      - --kp-version=24.blabla

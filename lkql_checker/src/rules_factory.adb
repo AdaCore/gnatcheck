@@ -22,6 +22,10 @@ package body Rules_Factory is
      (Dirs : Path_Array) return Virtual_File_Array;
    --  Return the absolute path of the directory containing the LKQL programs
 
+   function Get_KP_JSON (Rules_Dirs : Virtual_File_Array) return JSON_Value;
+   --  Return the parsed content of kp.json found in one of the Rules_Dirs,
+   --  or JSON_Null if no such file exists.
+
    function Get_Impacts (Rules_Dirs : Virtual_File_Array) return JSON_Value;
    --  Return all KPs' impacts. Impacts are stored in a JSON file named
    --  'kp.json'. This file should be located in one of the directories from
@@ -126,10 +130,10 @@ package body Rules_Factory is
    end Get_Rules_Directories;
 
    -----------------
-   -- Get_Impacts --
+   -- Get_KP_JSON --
    -----------------
 
-   function Get_Impacts (Rules_Dirs : Virtual_File_Array) return JSON_Value is
+   function Get_KP_JSON (Rules_Dirs : Virtual_File_Array) return JSON_Value is
    begin
       for Rules_Dir of Rules_Dirs loop
          declare
@@ -137,12 +141,44 @@ package body Rules_Factory is
             JSON_Filename : constant Virtual_File := Rules_Dir / "kp.json";
          begin
             if Is_Regular_File (JSON_Filename) then
-               return
-                 Read (Read_File (JSON_Filename).To_String).Get ("impacts");
+               return Read (Read_File (JSON_Filename).To_String);
             end if;
          end;
       end loop;
       return JSON_Null;
+   end Get_KP_JSON;
+
+   -----------------
+   -- Get_Impacts --
+   -----------------
+
+   function Get_Impacts (Rules_Dirs : Virtual_File_Array) return JSON_Value is
+      KP : constant JSON_Value := Get_KP_JSON (Rules_Dirs);
+   begin
+      if KP = JSON_Null then
+         return JSON_Null;
+      end if;
+      return KP.Get ("impacts");
    end Get_Impacts;
+
+   -------------------------
+   -- Valid_Gnat_Versions --
+   -------------------------
+
+   function Valid_Gnat_Versions
+     (Dirs : Path_Array := No_Paths) return String_Vector
+   is
+      Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
+      KP         : constant JSON_Value := Get_KP_JSON (Rules_Dirs);
+      Result     : String_Vector;
+   begin
+      if KP /= JSON_Null then
+         for Elem of JSON_Array'(Get (KP.Get ("gnat"))) loop
+            Result.Append (Get (Elem));
+         end loop;
+      end if;
+
+      return Result;
+   end Valid_Gnat_Versions;
 
 end Rules_Factory;

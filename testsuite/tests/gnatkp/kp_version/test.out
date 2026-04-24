@@ -83,7 +83,16 @@ pkg.ads:3:04: rule violation: possible occurrence of KP UC22-009
 unrelated version produces no detectors
 =======================================
 
-gnatkp: error: no rule for the given kp-version
+gnatkp: error: unknown GNAT version 99 (known versions: <versions>)
+try "gnatkp --help" for more information.
+>>>program returned status code 2
+
+malformed minor version is rejected
+===================================
+
+gnatkp: error: unknown GNAT version 24.blabla (known versions: <versions>)
+try "gnatkp --help" for more information.
+>>>program returned status code 2
 ==== Errors in 'FLAG/NOFLAG' annotations ====
 
 In file "pkg.ads":

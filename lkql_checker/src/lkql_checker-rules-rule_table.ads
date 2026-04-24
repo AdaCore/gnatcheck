@@ -174,6 +174,12 @@ package Lkql_Checker.Rules.Rule_Table is
    --  Parse all accessible LKQL files and extract rules from them, populating
    --  internal data structures.
 
+   function Is_Valid_Gnat_Version (Version : String) return Boolean;
+   --  Return True if Version is listed as a known GNAT version in kp.json.
+
+   function Gnat_Versions_List return String;
+   --  Return a comma-separated list of all known GNAT versions from kp.json.
+
    procedure Clean_Up;
    --  Release all allocated resources for rules and instances storage.
 

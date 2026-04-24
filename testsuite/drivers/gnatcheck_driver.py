@@ -833,4 +833,13 @@ class GnatcheckDriver(BaseDriver):
                 )
             )
 
+        # Remove GNAT version list from gnatkp diagnostic
+        if self.test_env.get("mode", "none") == "gnatkp":
+            result.append(
+                PatternSubstitute(
+                    "known versions: (lts|[0-9, \\.])+",
+                    "known versions: <versions>",
+                )
+            )
+
         return result
