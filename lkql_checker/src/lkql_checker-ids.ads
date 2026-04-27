@@ -84,9 +84,9 @@ package Lkql_Checker.Ids is
        or else Id = Style_Checks_Id);
    --  Get whether the given rule identifier represents a compiler-based check
 
-   function Hash (Id : Rule_Id) return Ada.Containers.Hash_Type
-   is (Hash (To_Symbol (All_Rule_Ids, Thin_Symbol (Id))));
-   --  Shortcut function to hash a rule identifier
+   function "<" (Left, Right : Rule_Id) return Boolean
+   is (Get_Id_Text (Left) < Get_Id_Text (Right));
+   --  Lexicographic order on rule names, used for ordered containers
 
    -----------------------
    -- Exemption id type --

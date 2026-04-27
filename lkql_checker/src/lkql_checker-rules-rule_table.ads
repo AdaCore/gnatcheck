@@ -8,6 +8,7 @@
 --  the Register_Rule procedure.
 
 with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Strings.Hash;
 
 with Lkql_Checker.Diagnostics; use Lkql_Checker.Diagnostics;
@@ -110,11 +111,9 @@ package Lkql_Checker.Rules.Rule_Table is
    --  GNAT Studio needs.
 
    package Rule_Map is new
-     Ada.Containers.Indefinite_Hashed_Maps
-       (Key_Type        => Rule_Id,
-        Element_Type    => Rule_Info,
-        Hash            => Hash,
-        Equivalent_Keys => "=");
+     Ada.Containers.Indefinite_Ordered_Maps
+       (Key_Type     => Rule_Id,
+        Element_Type => Rule_Info);
    All_Rules : Rule_Map.Map;
    --  This map is used to store all parsed rules associated to their
    --  identifiers.
