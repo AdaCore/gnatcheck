@@ -1306,7 +1306,7 @@ Selector Declaration
 .. raw:: html
   :file: ../generated/railroad-diagrams/selector_arm.svg
 
-Selectors are a special form of functions that return a ``LasyList`` of values.
+Selectors are a special form of functions that return a ``Stream`` of values.
 They're widely used in the query subset of LKQL, allowing the easy expression
 of traversal blueprints.
 
@@ -1375,7 +1375,7 @@ It takes one or two expressions, which can be prefixed by the splat operator
 
 .. attention::
 
-  Please note that selector call results are ``LasyList``, thus, their elements
+  Please note that selector call results are ``Stream``, thus, their elements
   are computed on demand (when accessed).
 
 Here is for example how the ``super_types`` selector is expressed in LKQL:
