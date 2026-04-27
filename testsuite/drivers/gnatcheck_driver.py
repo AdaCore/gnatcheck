@@ -39,6 +39,10 @@ class GnatcheckDriver(BaseDriver):
     * In ``xml`` mode, the output of the test is the content of the
       ``gnatcheck.xml`` file.
 
+    By default GNATcheck/kp is run with ``--quiet`` enabled.
+    Set ``quiet`` to False to disable it in order to get all the diagnostics
+    printed on stdout/stderr.
+
     If the ``test.yaml`` contains a ``tests`` key, then its contents need to be
     a list, and each entry of the list is a separate test which can contain a
     specific value for any of the test keys specified here.
@@ -103,6 +107,10 @@ class GnatcheckDriver(BaseDriver):
         - ``show_instantiation_chain`` (bool): whether to add instantiation
           chain in diagnostics concerning generic constructs.
         - ``extra_args`` (list[str]): Extra arguments to pass to GNATcheck.
+        - ``quiet`` (bool): Whether to pass the ``-q`` flag. Also suppresses
+          ``--brief`` when set to False and ``format`` is ``brief``, since
+          that flag implies quiet mode. Use False to capture info messages
+          printed on stderr. Default is True.
 
         - ``check_semantic`` (bool): Whether to add the ``--check-semantic``
           flag when running GNATcheck.
@@ -453,7 +461,10 @@ class GnatcheckDriver(BaseDriver):
             assert output_format in GnatcheckDriver.output_formats
             brief = output_format == "brief"
             exe = GnatcheckDriver.modes[test_data.get("mode", "gnatcheck")]
-            args = [exe, "-q"]
+            if test_data.get("quiet", True):
+                args = [exe, "-q"]
+            else:
+                args = [exe]
             output_file_name = test_data.get("output_file")
             if output_file_name is None or output_file_name is True:
                 output_file_name = self.working_dir(
@@ -563,7 +574,7 @@ class GnatcheckDriver(BaseDriver):
                 args += test_data["input_sources"]
 
             # Precise the wanted format to the GNATcheck command line
-            if output_format == "brief":
+            if output_format == "brief" and test_data.get("quiet", True):
                 args.append("--brief")
             elif output_format == "xml":
                 args.append("-xml")
