@@ -6,3 +6,7 @@ extra_args:
   - -eL
 pre_python: >
   ln("other_dir/other.gpr", "other.gpr")
+control:
+  - [SKIP,
+     "os == 'windows'",
+     "Symbolic links to GPR files aren't correctly handled on Windows (see eng/gpr/gpr-issues#489)"]
