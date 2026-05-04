@@ -4,14 +4,14 @@
 --
 
 with Ada.Characters.Handling; use Ada.Characters.Handling;
+with Ada.Directories;         use Ada.Directories;
 with Ada.Exceptions;          use Ada.Exceptions;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
 with Ada.Text_IO;             use Ada.Text_IO;
 
-with GNAT.Directory_Operations; use GNAT.Directory_Operations;
-with GNAT.OS_Lib;               use GNAT.OS_Lib;
+with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNAT.Table;
 with GNAT.Task_Lock;
 
@@ -263,7 +263,8 @@ package body Lkql_Checker.Source_Table is
               Case_Sensitive => True));
       Free (Short_Source_Name_String);
 
-      Short_Source_Name_String := new String'(Base_Name (Fname));
+      Short_Source_Name_String :=
+        new String'(Ada.Directories.Simple_Name (Fname));
       Hash_Index := Hash (To_Lower (Short_Source_Name_String.all));
 
       --  Check if we already have a file with the same short name:
@@ -356,9 +357,9 @@ package body Lkql_Checker.Source_Table is
    is
       Result       : SF_Id := No_SF_Id;
       Next_SF      : SF_Id;
-      Base_SF_Name : constant String := Base_Name (SF_Name);
+      Base_SF_Name : constant String := Simple_Name (SF_Name);
    begin
-      Next_SF := Hash_Table (Hash (Base_Name (SF_Name)));
+      Next_SF := Hash_Table (Hash (Simple_Name (SF_Name)));
 
       while Present (Next_SF) loop
          if (Use_Short_Name
@@ -391,8 +392,8 @@ package body Lkql_Checker.Source_Table is
 
       R_Dir_Separator : Natural := Index (R, [Directory_Separator], Backward);
 
-      Base_L : constant String := Base_Name (L);
-      Base_R : constant String := Base_Name (R);
+      Base_L : constant String := Simple_Name (L);
+      Base_R : constant String := Simple_Name (R);
 
    begin
       if Base_L'Length /= Base_R'Length then
@@ -750,11 +751,11 @@ package body Lkql_Checker.Source_Table is
    is
       Result       : SF_Id := No_SF_Id;
       Next_SF      : SF_Id;
-      Base_SF_Name : constant String := To_Lower (Base_Name (SF_Name));
+      Base_SF_Name : constant String := To_Lower (Simple_Name (SF_Name));
       Arg_Name     : constant String := To_Lower (SF_Name);
 
    begin
-      Next_SF := Hash_Table (Hash (Base_Name (SF_Name)));
+      Next_SF := Hash_Table (Hash (Simple_Name (SF_Name)));
 
       while Present (Next_SF) loop
 

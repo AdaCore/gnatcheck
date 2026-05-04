@@ -8,13 +8,12 @@ with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Ordered_Sets;
-with Ada.Directories;
+with Ada.Directories;         use Ada.Directories;
 with Ada.Exceptions;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
 with Ada.Text_IO;             use Ada.Text_IO;
 
-with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.Case_Util;
 with GNAT.OS_Lib;
 
@@ -542,8 +541,8 @@ package body Lkql_Checker.Diagnoses is
    function Auxiliary_List_File_Name (S : String) return String is
       Prj_Out_File   : constant String :=
         (if Tool_Args.Text_Report_Enabled
-         then Base_Name (Tool_Args.Text_Report_File_Path)
-         else Base_Name (Tool_Args.XML_Report_File_Path));
+         then Simple_Name (Tool_Args.Text_Report_File_Path)
+         else Simple_Name (Tool_Args.XML_Report_File_Path));
       Prj_Out_First  : constant Natural := Prj_Out_File'First;
       Prj_Out_Last   : constant Natural := Prj_Out_File'Last;
       Prj_Out_Dot    : Natural := Index (Prj_Out_File, ".", Backward);
@@ -1312,12 +1311,9 @@ package body Lkql_Checker.Diagnoses is
          declare
             Full_Rule_List_File_Name : constant String :=
               (if Tool_Args.Text_Report_File_Path /= ""
-               then
-                 GNAT.Directory_Operations.Dir_Name
-                   (Tool_Args.Text_Report_File_Path)
-               else
-                 GNAT.Directory_Operations.Dir_Name
-                   (Tool_Args.XML_Report_File_Path))
+               then Containing_Directory (Tool_Args.Text_Report_File_Path)
+               else Containing_Directory (Tool_Args.XML_Report_File_Path))
+              & GNAT.OS_Lib.Directory_Separator
               & Auxiliary_List_File_Name (Rule_List_File_Name_Str);
 
          begin
@@ -1547,12 +1543,9 @@ package body Lkql_Checker.Diagnoses is
       declare
          Full_Source_List_File_Name : constant String :=
            (if Tool_Args.Text_Report_File_Path /= ""
-            then
-              GNAT.Directory_Operations.Dir_Name
-                (Tool_Args.Text_Report_File_Path)
-            else
-              GNAT.Directory_Operations.Dir_Name
-                (Tool_Args.XML_Report_File_Path))
+            then Containing_Directory (Tool_Args.Text_Report_File_Path)
+            else Containing_Directory (Tool_Args.XML_Report_File_Path))
+           & GNAT.OS_Lib.Directory_Separator
            & Auxiliary_List_File_Name (Source_List_File_Name_Str);
 
       begin
@@ -1645,12 +1638,9 @@ package body Lkql_Checker.Diagnoses is
       declare
          Full_Ignored_Source_List_File_Name : constant String :=
            (if Tool_Args.Text_Report_File_Path /= ""
-            then
-              GNAT.Directory_Operations.Dir_Name
-                (Tool_Args.Text_Report_File_Path)
-            else
-              GNAT.Directory_Operations.Dir_Name
-                (Tool_Args.XML_Report_File_Path))
+            then Containing_Directory (Tool_Args.Text_Report_File_Path)
+            else Containing_Directory (Tool_Args.XML_Report_File_Path))
+           & GNAT.OS_Lib.Directory_Separator
            & Auxiliary_List_File_Name (Ignored_Source_List_File_Name_Str);
 
       begin
@@ -2889,7 +2879,6 @@ package body Lkql_Checker.Diagnoses is
       Rule           : Rule_Id := No_Rule_Id;
       Instance       : Rule_Instance_Access := null)
    is
-      use Ada.Directories;
       File_Name : constant Unbounded_String :=
         To_Unbounded_String
           (if Tool_Args.Full_Source_Locations.Get
