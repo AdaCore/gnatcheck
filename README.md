@@ -1,11 +1,21 @@
 # GNATcheck and GNATkp
 
-## Disclaimer
+This is the official repository for GNATcheck and GNATkp. Their source code was
+previously hosted in the [LKQL
+repository](https://gitlab.adacore-it.com/eng/libadalang/langkit-query-language)
+and has since been moved here.
 
-**This is the official repository used to manage GNATcheck and GNATkp issues.**
+## Overview
 
-This repository aims to become the main one for GNATcheck and GNATkp, which are
-in the process of being removed from the [LKQL
-repository](https://gitlab.adacore-it.com/eng/libadalang/langkit-query-language),
-where their source codes still hold.
+**GNATcheck** is a utility that checks Ada source files against a set of
+syntactic and semantic rules, which can be used to enforce coding standards or
+detect potential errors and problematic code patterns. Rules are written in
+[LKQL](https://gitlab.adacore-it.com/eng/libadalang/langkit-query-language);
+GNATcheck ships with a set of predefined rules, and users may write their own.
+
+**GNATkp** (GNAT Known Problem detector) is a special packaging of GNATcheck
+available to GNAT Pro Assurance customers. It replaces the coding standard rules
+with rules designed to detect constructs affected by known problems in official
+compiler releases. GNATkp comes in addition to, not as a replacement of,
+GNATcheck.
 
