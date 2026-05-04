@@ -251,8 +251,8 @@ package Lkql_Checker.Options is
            Default_Val => Null_Unbounded_String,
            Hidden      => True,
            Help        =>
-             "private flag - used when processing a subproject of "
-             & "a root aggregate project");
+             "name of the subproject being analyzed in an aggregate "
+             & "project run");
 
       package Ignore_Project_Switches_Opt is new
         Parse_Flag
@@ -441,8 +441,8 @@ package Lkql_Checker.Options is
           (Parser => Parser,
            Long   => "--brief",
            Help   =>
-             "brief mode: like quiet mode except that messages are "
-             & "emitted on stderr");
+             "report rule violation detections on stderr, suppress other"
+             & " messages (implies -s)");
 
       package Short is new
         Parse_Flag
@@ -609,7 +609,8 @@ package Lkql_Checker.Options is
            Name        => "file",
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
-           Help        => "read rule configuration from the given LKQL file");
+           Help        =>
+             "read rule configuration from the given LKQL rule file");
 
       package Emit_LKQL_Rule_File is new
         Parse_Flag
@@ -617,15 +618,15 @@ package Lkql_Checker.Options is
            Enabled => Mode in Gnatcheck_Mode,
            Long    => "--emit-lkql-rule-file",
            Help    =>
-             "emit a 'rules.lkql' file containing the rules "
-             & "configuration");
+             "convert the current legacy rule configuration to a 'rules.lkql'"
+             & " LKQL rule file");
 
       package Warnings_As_Errors is new
         Parse_Flag
           (Parser => Parser,
            Long   => "--warnings-as-errors",
            Short  => "-W",
-           Help   => "Treat warning messages as errors");
+           Help   => "treat warning messages as errors");
 
       package Cargs_Section is new
         Parse_Option_List
@@ -651,7 +652,7 @@ package Lkql_Checker.Options is
            Allow_Empty         => True,
            Arg_Type            => XString,
            List_Stop_Predicate => Is_New_Section,
-           Help                => "legacy rule options",
+           Help                => "deprecated rule options",
            Legacy_Long_Form    => True);
 
       ----------------------
