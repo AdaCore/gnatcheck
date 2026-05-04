@@ -540,7 +540,7 @@ package body Lkql_Checker.Output is
       Put_Line
         (" --subdirs=dir    - specify subdirectory to place the result files into");
       Put_Line
-        (" --no_objects_dir - place results into current dir instead of project dir");
+        (" --no-object-dir  - place results into current dir instead of project dir");
       Put_Line
         (" -eL              - follow all symbolic links when processing project files");
       Put_Line

@@ -564,6 +564,11 @@ package body Lkql_Checker is
            (Normalize_Pathname (To_String (Working_Dir_Path)));
       end loop;
 
+      if Tool_Args.No_Objects_Dir_Legacy.Get then
+         Warning
+           ("--no_objects_dir is deprecated, use --no-object-dir instead");
+      end if;
+
       --  Store legacy rule options before re-parsing the command-line
       if Tool_Args.Has_Legacy_Rule_Options then
          --  Process the legacy rule options section

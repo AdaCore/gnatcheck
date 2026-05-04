@@ -75,9 +75,9 @@ The following switches control the general ``gnatcheck`` behavior
     This option can be used to safely run concurrent parallel jobs of GNATcheck
     or GNATkp.
 
-  .. index:: --no_objects_dir
+  .. index:: --no-object-dir
 
-``--no_objects_dir``
+``--no-object-dir``
   Put gnatcheck output files in the current directory instead of using the
   project file's object directory.
 
