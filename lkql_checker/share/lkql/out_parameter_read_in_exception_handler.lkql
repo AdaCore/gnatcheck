@@ -1,0 +1,80 @@
+import stdlib
+
+@memoized
+fun first_reference_in_exception_handler(node, unit) =
+    |" Return the first exception handler referencing and reading ``node``
+    |" (a ``ParamAssoc``'s expression), null otherwise (``node`` must live
+    |" in the corresponding HandledStmts statements list).
+    {
+        fun get_refs(name) =
+            if name is not null
+            then name.p_find_all_references([unit], true).map((r) => r.ref)
+            else [];
+
+        # Collect all read references of node's defining name, and also of
+        # the renamed object if the defining name is a renaming.
+        val name         = node.f_r_expr.p_referenced_defining_name();
+        val renamed_obj  = if name.p_basic_decl() is ObjectDecl
+                           then name.p_basic_decl()
+                                .f_renaming_clause?.f_renamed_object
+                           else null;
+        val renamed_name = if renamed_obj is not null
+                           then renamed_obj.p_referenced_defining_name()
+                           else null;
+
+        val name_refs   = get_refs(name);
+        val rename_refs = get_refs(renamed_name);
+
+        val refs = from name_refs.to_list & rename_refs.to_list
+                   select Name(p_is_write_reference(): false);
+
+        # For each reference, check if it is in an ExceptionHandler.
+        from refs.to_list through parent select first eh@ExceptionHandler
+        # And that the corresponding HandledStmts holds node
+        when eh.parent.parent is hs@HandledStmts when node in children(hs)
+    }
+
+
+@unit_check(help="out parameter is read in exception handler",
+            category="Feature")
+fun out_parameter_read_in_exception_handler(unit) =
+    |" Flag each out parameter that is read in an exception handler:
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 10
+    |"
+    |"    procedure Change (X : out Integer) is
+    |"    begin
+    |"       X := 1;
+    |"       raise Program_Error;
+    |"    end Change;
+    |"
+    |"    L : Integer := 0;
+    |"
+    |"    begin
+    |"       Change (L);                               --  FLAG
+    |"    exception when Program_Error =>
+    |"       Ada.Text_IO.Put_Line (Integer'Image (L));
+    |"    end;
+    [
+        {message: "out parameter '" & n.f_r_expr.text
+                  & "' is read in exception handler: "
+                  & img(first_reference_in_exception_handler(n, unit)),
+         loc: n}
+
+        for n in from unit.root
+        # Select all ParamAssoc that are not inside an ExceptionHandler
+        select node@ParamAssoc(f_r_expr: Identifier | DottedName,
+                               all parent: not ExceptionHandler)
+        # It must be a ParamAssoc of a call...
+        when node.parent.parent is CallExpr(p_is_call(): true)
+        # ...and the corresponding ParamSpec must be of mode out
+        and node.p_get_params()?[1].p_basic_decl()
+            is ParamSpec(f_mode: ModeOut | ModeInOut)
+            # Check that the statements list in which the ParamAssoc lives has
+            # an associated ExceptionHandler and flag it if the ParamAssoc is
+            # read from it.
+            when first_reference_in_exception_handler(node, unit)
+    ]

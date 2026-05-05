@@ -1,0 +1,3 @@
+driver: "checker"
+rule_name: out_parameter_read_in_exception_handler
+input_sources: ["test.adb"]
