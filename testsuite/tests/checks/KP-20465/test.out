@@ -1,0 +1,16 @@
+test.adb:19:7: rule violation: possible occurrence of KP 20465 if compiled with optimization
+19 |       A : Rec_Arr;               -- FLAG: record component, single nesting
+   |       ^
+
+test.adb:29:7: rule violation: possible occurrence of KP 20465 if compiled with optimization
+29 |       A : Arr_Of_Arr;            -- FLAG: array component, single nesting
+   |       ^
+
+test.adb:39:7: rule violation: possible occurrence of KP 20465 if compiled with optimization
+39 |       A : Rec_Arr;               -- FLAG: accessed in doubly-nested subprogram
+   |       ^
+
+test.adb:54:10: rule violation: possible occurrence of KP 20465 if compiled with optimization
+54 |          A : Rec_Arr;       -- FLAG: declared in Inner, accessed in Inner_Inner
+   |          ^
+
