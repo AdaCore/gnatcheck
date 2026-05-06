@@ -526,10 +526,18 @@ package Lkql_Checker.Options is
         Parse_Flag
           (Parser  => Parser,
            Enabled => Mode in Gnatcheck_Mode,
-           Long    => "--no_objects_dir",
+           Long    => "--no-object-dir",
            Help    =>
              "place results in the current directory instead of the"
              & " project object directory");
+
+      package No_Objects_Dir_Legacy is new
+        Parse_Flag
+          (Parser  => Parser,
+           Enabled => Mode in Gnatcheck_Mode,
+           Long    => "--no_objects_dir",
+           Hidden  => True,
+           Help    => "deprecated alias for --no-object-dir");
 
       package Include_File is new
         Parse_Option
@@ -645,6 +653,9 @@ package Lkql_Checker.Options is
 
       function Brief_Mode return Boolean
       is (Brief.Get);
+
+      function No_Object_Dir_Enabled return Boolean
+      is (No_Object_Dir.Get or else No_Objects_Dir_Legacy.Get);
 
       function Text_Report_Enabled return Boolean
       is (not No_Text_Report.Get);

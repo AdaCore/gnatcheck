@@ -760,7 +760,8 @@ package body Lkql_Checker.Projects is
 
       Dir : constant String :=
         String
-          (if not Tool_Args.No_Object_Dir.Get and then Checker_Prj.Is_Specified
+          (if not Tool_Args.No_Object_Dir_Enabled
+             and then Checker_Prj.Is_Specified
            then
              (if My_Project.Tree.Root_Project.Kind
                  not in GPR2.With_Object_Dir_Kind
