@@ -1,0 +1,24 @@
+main.ads:14:4: rule violation: possible occurrence of KP 20462
+14 |    Sub_S_1_1 : Sub_Str_1 (1 .. 10);               --  FLAG
+   |    ^^^^^^^^^
+
+main.ads:15:4: rule violation: possible occurrence of KP 20462
+15 |    Sub_S_1_2 : Sub_Str_1 := "abc";                --  FLAG
+   |    ^^^^^^^^^
+
+main.ads:16:4: rule violation: possible occurrence of KP 20462
+16 |    Sub_S_2 : Sub_Str_2 (1 .. 10);                 --  FLAG
+   |    ^^^^^^^
+
+main.ads:17:4: rule violation: possible occurrence of KP 20462
+17 |    Sub_Sub_S_1 : Sub_Sub_Str_1 (1 .. 10);         --  FLAG
+   |    ^^^^^^^^^^^
+
+main.ads:18:4: rule violation: possible occurrence of KP 20462
+18 |    Dreived_Sub_S_1 : Derived_Sub_Str_1 (1 .. 10); --  FLAG
+   |    ^^^^^^^^^^^^^^^
+
+main.ads:20:4: rule violation: possible occurrence of KP 20462
+20 |    Derived_S : Derived_Str (1 .. 10); --  FLAG
+   |    ^^^^^^^^^
+
