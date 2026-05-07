@@ -1,0 +1,14 @@
+driver: gnatcheck
+mode: gnatkp
+format: brief
+tests:
+  - label: Long format
+    extra_args:
+      - '--help'
+  - label: Short format
+    extra_args:
+      - '-h'
+  - label: Ensure the provided project file isn't processed
+    extra_args:
+      - --help
+    project: prj.gpr
