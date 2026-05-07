@@ -1,0 +1,74 @@
+import stdlib
+
+fun has_composite_component(type_decl) =
+    |" Returns whether `type_decl` is an array type with a composite component.
+    type_decl.p_root_type() is TypeDecl(
+        p_is_array_type(): true,
+        f_type_def: def@ArrayTypeDef
+        when stdlib.is_composite_type(
+            def.f_component_type.f_type_expr.p_designated_type_decl()
+        )
+    )
+
+fun accessed_in_nested_subp(od, enclosing_subp) =
+    |" Returns whether any variable declared by `od` (an ObjectDecl) is
+    |" directly accessed (i.e., not merely passed as an actual parameter)
+    |" in a subprogram nested in `enclosing_subp`.
+    stdlib.any([
+        # Exclude references used as actual parameters: any ParamAssoc
+        # ancestor (before the enclosing subprogram body) indicates the
+        # reference appears inside a parameter actual expression.
+        not {
+            val p = from ref through parent
+                    select first (ParamAssoc | BaseSubpBody);
+            p is ParamAssoc
+        }
+        and {
+            val ref_subp =
+                from ref through stdlib.semantic_parent
+                select first BaseSubpBody;
+            # `ref_subp` is the innermost subprogram enclosing the reference.
+            #  It must be nested within `enclosing_subp` (i.e., the array's
+            #  enclosing subprogram is an ancestor of the reference site).
+            enclosing_subp in stdlib.semantic_parent(ref_subp)
+        }
+        for ref in od.p_defining_names().flat_map(
+            (dn) => dn.p_find_all_references(
+                [od.unit], follow_renamings=true
+            ).map((r) => r.ref)
+        )
+    ])
+
+@check(help="flag array objects with a composite component type, declared in
+            a subprogram and directly accessed in a nested subprogram",
+       message="possible occurrence of KP 20465 if compiled with optimization")
+fun kp_20465(node) =
+    |" Flag arrays with a composite component type declared in a subprogram
+    |" when the array is directly accessed in a second subprogram nested in
+    |" the first.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 6
+    |"
+    |"    procedure Outer is
+    |"       type Rec is record
+    |"          I : Integer;
+    |"       end record;
+    |"       type Arr is array (1 .. 10) of Rec;
+    |"       A : Arr;  -- FLAG
+    |"       procedure Inner is
+    |"       begin
+    |"          A (1).I := 0;
+    |"       end Inner;
+    |"    begin
+    |"       Inner;
+    |"    end Outer;
+    |"
+    node is ObjectDecl(f_has_constant: ConstantAbsent) when {
+        val enclosing_subp =
+            from node through stdlib.semantic_parent select first BaseSubpBody;
+        has_composite_component(node.f_type_expr.p_designated_type_decl())
+        and accessed_in_nested_subp(node, enclosing_subp)
+    }
