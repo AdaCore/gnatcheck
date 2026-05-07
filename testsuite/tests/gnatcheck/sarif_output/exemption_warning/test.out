@@ -1,0 +1,101 @@
+{
+  "runs": [
+    {
+      "invocations": [
+        {
+          "arguments": [
+            "-q",
+            "-P",
+            "prj.gpr",
+            "--sarif=<working-dir>/gnatcheck.sarif",
+            "-rules"
+          ],
+          "commandLine": "COMMAND_LINE",
+          "endTimeUtc": "END_TIME",
+          "environmentVariables": "ENV_VARS",
+          "executionSuccessful": true,
+          "exitCode": 1,
+          "startTimeUtc": "START_TIME",
+          "toolExecutionNotifications": [
+            {
+              "level": "warning",
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "main.adb",
+                      "uriBaseId": "URI_BASE_DIR"
+                    },
+                    "region": {
+                      "startColumn": 32,
+                      "startLine": 4
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": "no detection for goto_statements in exemption section starting at line 3"
+              }
+            }
+          ],
+          "workingDirectory": {
+            "uri": "WORKING_DIR"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "URI_BASE_DIR": {
+          "description": {
+            "text": "Project directory if one has been used, working directory otherwise"
+          },
+          "uri": "BASE_URI"
+        }
+      },
+      "results": [
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "main.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 4,
+                  "startLine": 5
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "goto statement"
+          },
+          "ruleId": "goto_statements"
+        }
+      ],
+      "tool": {
+        "driver": {
+          "informationUri": "https://docs.adacore.com/live/wave/lkql/html/gnatcheck_rm/gnatcheck_rm.html",
+          "name": "gnatcheck",
+          "organization": "AdaCore",
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "parameters": {}
+              },
+              "id": "goto_statements",
+              "name": "GOTO_Statements",
+              "shortDescription": {
+                "text": "goto statement"
+              }
+            }
+          ],
+          "version": "VERSION"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}

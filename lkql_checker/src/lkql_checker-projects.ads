@@ -89,6 +89,10 @@
 --  and 3 above. For step 2, see the procedure Process_Project_File
 --  that combines all the steps of loading and analyzing the project file.
 
+with Ada.Directories; use Ada.Directories;
+
+with GNAT.OS_Lib; use GNAT.OS_Lib;
+
 with GPR2.Containers;
 with GPR2.Options;
 with GPR2.Project.Tree;
@@ -137,8 +141,22 @@ package Lkql_Checker.Projects is
    --  Checks if the argument represents a project that corresponds to some
    --  project file specified as a tool parameter.
 
+   function Get_Project_Dir (My_Project : Arg_Project_Type) return String
+   is ((if My_Project.Is_Specified and then My_Project.Tree.Is_Defined
+        then
+          Normalize_Pathname
+            (Containing_Directory
+               (My_Project.Tree.Root_Project.Path_Name.String_Value))
+        else Normalize_Pathname ("./"))
+       & GNAT.OS_Lib.Directory_Separator);
+   --  Get the directory containing the loaded project file of ``My_Project``
+   --  if there is one, otherwise, this function returns the current working
+   --  directory.
+   --  The string returned by this function is an absolute normalized path.
+
    function Get_Project_Relative_File
-     (My_Project : Arg_Project_Type; Filename : String) return String;
+     (My_Project : Arg_Project_Type; Filename : String) return String
+   is (My_Project.Get_Project_Dir & Filename);
    --  From the given ``Filename``, get the absolute path leading to it
    --  relatively to the current project file. If there is no specified
    --  project file, then get the file from the current directory.
@@ -190,15 +208,15 @@ package Lkql_Checker.Projects is
 
    procedure Aggregate_Project_Report_Header (My_Project : Arg_Project_Type);
    --  Prints header in the summary report file created if the argument project
-   --  is an aggregate project. In this case a tool is spawned to run separatly
-   --  for each project being aggregated, and each such run creates its own
-   --  report separate file.
+   --  is an aggregate project. In this case a tool is spawned to run
+   --  separately for each project being aggregated, and each such run creates
+   --  its own report separate file.
 
    procedure Close_Aggregate_Project_Report (My_Project : Arg_Project_Type);
    --  Finalizes in the summary report file created if the argument project
-   --  is an aggregate project. In this case a tool is spawned to run separatly
-   --  for each project being aggregated, and each such run creates its own
-   --  report separate file.
+   --  is an aggregate project. In this case a tool is spawned to run
+   --  separately for each project being aggregated, and each such run creates
+   --  its own report separate file.
    --
    --  The default version of this procedure does nothing except closing the
    --  aggregated-project-reports tag in summary XML report file (if XML report

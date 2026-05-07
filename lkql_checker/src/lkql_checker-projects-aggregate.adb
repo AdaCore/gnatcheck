@@ -17,9 +17,9 @@ with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 package body Lkql_Checker.Projects.Aggregate is
 
-   --------------------------------------------
-   --  Storage for projects being aggregated --
-   --------------------------------------------
+   -------------------------------------------
+   -- Storage for projects being aggregated --
+   -------------------------------------------
 
    type Project_Record is record
       Project_Path : GPR2.Path_Name.Object := GPR2.Path_Name.Undefined;
@@ -42,9 +42,9 @@ package body Lkql_Checker.Projects.Aggregate is
    Iterator_C    : Cursor := No_Element;
    Iterator_El   : Project_Record;
 
-   ------------------------
-   --  Local subprograms --
-   ------------------------
+   -----------------------
+   -- Local subprograms --
+   -----------------------
 
    -------------
    -- "=" "<" --

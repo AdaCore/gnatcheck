@@ -15,44 +15,20 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
 
-with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
-with Lkql_Checker.Diagnoses;        use Lkql_Checker.Diagnoses;
-with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
-with Lkql_Checker.Options;          use Lkql_Checker.Options;
-with Lkql_Checker.Output;           use Lkql_Checker.Output;
-with Lkql_Checker.Projects;         use Lkql_Checker.Projects;
+with Lkql_Checker.Compiler;           use Lkql_Checker.Compiler;
+with Lkql_Checker.Diagnostics;        use Lkql_Checker.Diagnostics;
+with Lkql_Checker.Diagnostics.Report; use Lkql_Checker.Diagnostics.Report;
+with Lkql_Checker.Ids;                use Lkql_Checker.Ids;
+with Lkql_Checker.Options;            use Lkql_Checker.Options;
+with Lkql_Checker.Output;             use Lkql_Checker.Output;
+with Lkql_Checker.Projects;           use Lkql_Checker.Projects;
 with Lkql_Checker.Projects.Aggregate;
-with Lkql_Checker.Rules;            use Lkql_Checker.Rules;
-with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
-with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
-with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
+with Lkql_Checker.Rules;              use Lkql_Checker.Rules;
+with Lkql_Checker.Rules.Rule_Table;   use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.Source_Table;       use Lkql_Checker.Source_Table;
+with Lkql_Checker.String_Utilities;   use Lkql_Checker.String_Utilities;
 
 package body Lkql_Checker is
-   ----------------
-   -- Exit codes --
-   ----------------
-
-   E_Success : constant := 0;
-   --  No tool failure, no rule violation detected
-
-   E_Violation : constant := 1;
-   --  No tool failure, rule violation(s) detected
-
-   E_Error : constant := 2;
-   --  Tool failure detected
-
-   E_Missing_Source : constant := 3;
-   --  Missing at least one argument source
-
-   E_Missing_Rule_File : constant := 4;
-   --  Missing coding standard file
-
-   E_Missing_Rule : constant := 5;
-   --  Bad rule name or bad rule parameter
-
-   E_Bad_Rules : constant := 6;
-   --  Other problem with rules options
-
    ----------------------
    -- Util subprograms --
    ----------------------
@@ -83,7 +59,7 @@ package body Lkql_Checker is
    --  ``For_Worker`` gives the information whether this procedure should
    --  emit an LKQL file formatted for the worker.
 
-   procedure Schedule_Files;
+   procedure Schedule_Files (Collector : in out Diagnostic_Collector);
    --  Schedule jobs per set of files
 
    ---------------
@@ -213,7 +189,7 @@ package body Lkql_Checker is
    -- Schedule_Files --
    --------------------
 
-   procedure Schedule_Files is
+   procedure Schedule_Files (Collector : in out Diagnostic_Collector) is
       Minimum_Files : constant := 10;
       Num_Files     : Natural := 0;
       Num_Jobs      : Natural := 0;
@@ -331,13 +307,16 @@ package body Lkql_Checker is
 
                if Pid = GPRbuild_Pid then
                   Analyze_Output
-                    (Global_Report_Dir.all & "gprbuild.err", Status);
+                    (Collector,
+                     Global_Report_Dir.all & "gprbuild.err",
+                     Status);
                   exit when Current = Total_Jobs;
 
                else
                   for Job in Pids'Range loop
                      if Pids (Job) = Pid then
-                        Analyze_Output (File_Name ("out", Job), Status);
+                        Analyze_Output
+                          (Collector, File_Name ("out", Job), Status);
                         Process_Found := True;
 
                         if not Tool_Args.Debug_Mode.Get then
@@ -361,7 +340,7 @@ package body Lkql_Checker is
       begin
          --  Process sources to take pragma Annotate into account
 
-         Process_Sources;
+         Process_Sources (Collector);
 
          for Job in 1 .. Num_Jobs loop
             Create (File, Out_File, File_Name ("files", Job));
@@ -420,15 +399,18 @@ package body Lkql_Checker is
       end;
    end Schedule_Files;
 
-   -----------
-   --  Main --
-   -----------
+   ----------
+   -- Main --
+   ----------
 
    procedure Main is
       Time_Start           : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+      Time_End             : Ada.Calendar.Time;
       Project_File_Args    : String_Vector;
       Early_Remaining_Args : XString_Vector;
       Remaining_Args       : XString_Vector;
+      Collector            : Diagnostic_Collector;
+      Exit_Code            : Integer;
 
       procedure Close_Log_File;
 
@@ -590,7 +572,7 @@ package body Lkql_Checker is
 
       --  Process the include file
       if Tool_Args.Include_File.Get /= Null_Unbounded_String then
-         Lkql_Checker.Diagnoses.Process_User_Filename
+         Lkql_Checker.Diagnostics.Report.Process_User_Filename
            (To_String (Tool_Args.Include_File.Get));
       end if;
 
@@ -631,7 +613,7 @@ package body Lkql_Checker is
       Process_Rules;
 
       --  And process all rule options after rule files have been loaded
-      Process_Rule_Options;
+      Process_Rule_Options (Collector);
 
       Lkql_Checker.Projects.Check_Parameters;  --  check that the rule exists
 
@@ -684,9 +666,10 @@ package body Lkql_Checker is
       else
          --  Implement -j via multiple processes. In the default (-j1, no
          --  custom worker) mode, process all sources in the main process.
-         Schedule_Files;
+         Schedule_Files (Collector);
 
-         Generate_Qualification_Report;
+         Generate_Qualification_Report (Collector);
+
          Lkql_Checker.Output.Close_Report_Files;
 
          if Tool_Failures > 0 then
@@ -698,20 +681,11 @@ package body Lkql_Checker is
          end if;
       end if;
 
-      Lkql_Checker.Projects.Clean_Up (Lkql_Checker.Options.Checker_Prj);
+      --  Get the ending time
+      Time_End := Ada.Calendar.Clock;
 
-      if Tool_Args.Time.Get then
-         Print
-           ("Execution time:"
-            & Duration'Image (Ada.Calendar.Clock - Time_Start));
-      end if;
-
-      Lkql_Checker.Rules.Rule_Table.Clean_Up;
-
-      --  Close the log file if required
-      Close_Log_File;
-
-      OS_Exit
+      --  Compute the code to use when exiting the process
+      Exit_Code :=
         (if Tool_Failures /= 0
            or else Detected_Internal_Error /= 0
            or else Error_From_Warning
@@ -734,9 +708,35 @@ package body Lkql_Checker is
          then E_Violation
          else E_Success);
 
+      --  If required, emit the SARIF report
+      if not In_Aggregate_Project and then Tool_Args.SARIF_Report_Enabled then
+         Generate_SARIF_Report
+           (Collector,
+            Tool_Args.SARIF_Report_File_Path,
+            Time_Start,
+            Time_End,
+            Exit_Code);
+      end if;
+
+      --  Cleanup the loaded project
+      Lkql_Checker.Projects.Clean_Up (Lkql_Checker.Options.Checker_Prj);
+
+      --  Cleanup loaded rules and their instances
+      Lkql_Checker.Rules.Rule_Table.Clean_Up;
+
+      --  If required, display the run duration
+      if Tool_Args.Time.Get then
+         Print ("Execution time:" & Duration'Image (Time_End - Time_Start));
+      end if;
+
+      --  Close the log file if required
+      Close_Log_File;
+
+      --  Finally, exit the program
+      OS_Exit (Exit_Code);
    exception
       when Parameter_Error =>
-         --  The diagnosis is already generated
+         --  The diagnostic is already generated
          Print
            ("try """
             & Lkql_Checker_Mode_Image
@@ -749,7 +749,7 @@ package body Lkql_Checker is
          OS_Exit (E_Error);
 
       when Fatal_Error =>
-         --  The diagnosis is already generated
+         --  The diagnostic is already generated
          OS_Exit (E_Error);
 
       when Ex : others =>

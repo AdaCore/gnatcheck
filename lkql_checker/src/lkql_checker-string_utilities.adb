@@ -234,9 +234,9 @@ package body Lkql_Checker.String_Utilities is
          Dictionaries.Include (Dictionary, S);
       end Add_To_Dictionary;
 
-      ------------
-      --  Clear --
-      ------------
+      -----------
+      -- Clear --
+      -----------
 
       procedure Clear is
       begin

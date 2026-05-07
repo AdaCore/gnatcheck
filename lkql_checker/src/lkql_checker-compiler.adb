@@ -13,7 +13,6 @@ with Ada.Strings.Unbounded;
 with GNAT.Case_Util;
 with GNAT.Regpat; use GNAT.Regpat;
 
-with Lkql_Checker.Diagnoses;        use Lkql_Checker.Diagnoses;
 with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
 with Lkql_Checker.Options;          use Lkql_Checker.Options;
 with Lkql_Checker.Output;           use Lkql_Checker.Output;
@@ -71,7 +70,7 @@ package body Lkql_Checker.Compiler is
    --  * If Lkql_Checker.Options.Mapping_Mode is ON, annotates the message by
    --    adding the compiler check (if for a warning message '.d' is specified,
    --    the trailing part that indicates the warning message that causes this
-   --    warning is removed from the diagnosis, and the corresponding warning
+   --    warning is removed from the diagnostic, and the corresponding warning
    --    parameter is added to the annotation, as well as the user synonym, if
    --    any.
 
@@ -79,7 +78,7 @@ package body Lkql_Checker.Compiler is
      (Message_Kind : Message_Kinds; Parameter : String) return String;
    --  Returns annotation to be added to the compiler diagnostic message if
    --  Lkql_Checker.Options.Mapping_Mode is ON. Parameter, if non-empty, is the
-   --  parameter of '-gnatw/y' option that causes the diagnosis
+   --  parameter of '-gnatw/y' option that causes the diagnostic
 
    function Get_Rule_Id (Check : Message_Kinds) return Rule_Id;
    --  Returns the Id corresponding to the given compiler check
@@ -339,7 +338,11 @@ package body Lkql_Checker.Compiler is
    -- Analyze_Builder_Output --
    ----------------------------
 
-   procedure Analyze_Output (File_Name : String; Errors : out Boolean) is
+   procedure Analyze_Output
+     (Collector : in out Diagnostic_Collector;
+      File_Name : String;
+      Errors    : out Boolean)
+   is
       Out_File : constant String := File_Name & ".out";
       Line     : String (1 .. 1024);
       Line_Len : Natural;
@@ -347,7 +350,7 @@ package body Lkql_Checker.Compiler is
 
       procedure Analyze_Line (Msg : String);
       --  Analyze one line containing a builder output. Insert the relevant
-      --  messages into the diagnoses table.
+      --  messages into the diagnostics table.
 
       procedure Process_Worker_Message
         (Message : String; Printer : access procedure (S, L : String));
@@ -361,7 +364,7 @@ package body Lkql_Checker.Compiler is
          Matches      : Match_Array (0 .. 5);
          Sloc         : Source_Location;
          SF           : SF_Id;
-         Kind         : Diagnosis_Kinds := Rule_Violation;
+         Kind         : Diagnostic_Kind := Rule_Violation;
          Message_Kind : Message_Kinds := Not_A_Message;
 
          Msg_Start : Natural;
@@ -394,7 +397,7 @@ package body Lkql_Checker.Compiler is
          --  If this format is violated we display the line as unparsable.
 
          --  Try to match the diagnostic to extract information
-         Match (Match_Diagnosis, Msg, Matches);
+         Match (Match_Diagnostic, Msg, Matches);
          if Matches (0) = No_Match then
             Format_Error;
             return;
@@ -469,12 +472,13 @@ package body Lkql_Checker.Compiler is
                    (if Instance_Name = ""
                     then To_Lower (Rule_Name)
                     else To_Lower (Instance_Name));
-               Store_Diagnosis
-                 (Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
+               Store_Diagnostic
+                 (Collector,
+                  Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
                   Message        =>
                     Msg (Msg_Start + 7 .. Last - 2) & Instance.Annotate_Diag,
                   Sloc           => Sloc,
-                  Diagnosis_Kind => Rule_Violation,
+                  Kind           => Rule_Violation,
                   SF             => SF,
                   Rule           => Instance.Rule,
                   Instance       => Instance);
@@ -531,12 +535,13 @@ package body Lkql_Checker.Compiler is
 
          --  Use File_Name to always use the same filename (including proper
          --  casing for case insensitive systems).
-         Store_Diagnosis
-           (Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
+         Store_Diagnostic
+           (Collector,
+            Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
             Sloc           => Sloc,
             Message        =>
               Adjust_Message (Msg (Msg_Start .. Msg_End), Message_Kind),
-            Diagnosis_Kind => Kind,
+            Kind           => Kind,
             SF             => SF,
             Rule           =>
               (if Message_Kind = Error
@@ -604,7 +609,7 @@ package body Lkql_Checker.Compiler is
          elsif Index (Line (1 .. Line_Len), "BUG DETECTED") /= 0 then
             --  If there is a bug box, we should skip the rest of
             --  processing to avoid storing some completely unmanageable
-            --  (for diagnoses storage) diagnoses
+            --  (for diagnostics storage) diagnostics
 
             --  Skip the next two lines of the bug box
 
@@ -627,12 +632,13 @@ package body Lkql_Checker.Compiler is
                begin
                   if Is_Argument_Source (SF) then
                      Errors := True;
-                     Store_Diagnosis
-                       (Full_File_Name => Source_Table.File_Name (SF),
+                     Store_Diagnostic
+                       (Collector,
+                        Full_File_Name => Source_Table.File_Name (SF),
                         Sloc           => (1, 1),
                         Message        =>
                           Adjust_Message ("fatal gprbuild error", Error),
-                        Diagnosis_Kind => Internal_Error,
+                        Kind           => Internal_Error,
                         SF             => SF);
                   end if;
                end;
@@ -674,7 +680,7 @@ package body Lkql_Checker.Compiler is
          Errors := True;
    end Analyze_Output;
 
-   -----------------
+   ----------------
    -- Annotation --
    ----------------
 
@@ -1648,7 +1654,7 @@ package body Lkql_Checker.Compiler is
 
    --------------------------------
    -- Restriction_Rule_parameter --
-   ---------------------------------
+   --------------------------------
 
    function Restriction_Rule_Parameter (Diag : String) return String is
       R_Name_Start : Natural := 0;

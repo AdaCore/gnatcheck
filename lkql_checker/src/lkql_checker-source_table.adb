@@ -13,10 +13,10 @@ with Ada.Text_IO;             use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNAT.Table;
-with GNAT.Task_Lock;
 
-with Lkql_Checker.Diagnoses; use Lkql_Checker.Diagnoses;
-with Lkql_Checker.Output;    use Lkql_Checker.Output;
+with Lkql_Checker.Diagnostics.Exemptions;
+use Lkql_Checker.Diagnostics.Exemptions;
+with Lkql_Checker.Output;                 use Lkql_Checker.Output;
 
 with GPR2.Build.Source;
 with GPR2.Path_Name;
@@ -169,7 +169,7 @@ package body Lkql_Checker.Source_Table is
    --  are performed:
    --
    --  - First, this routine checks if Fname is the name of some existing file,
-   --    and if it is not, generates the corresponding diagnosis and does
+   --    and if it is not, generates the corresponding diagnostic and does
    --    nothing more. If Arg_Project represents a project file being a tool
    --    parameter, it uses the corresponding project to check the file
    --    existence (no source search path should be used in this case!).
@@ -716,8 +716,6 @@ package body Lkql_Checker.Source_Table is
    function Next_Non_Processed_Source return SF_Id is
       Move_Next_Source : Boolean := True;
    begin
-      GNAT.Task_Lock.Lock;
-
       for J in Next_Source .. Last_Argument_Source loop
          if Source_Status (J) = Waiting and then Source_Info (J) /= Ignore_Unit
          then
@@ -733,12 +731,9 @@ package body Lkql_Checker.Source_Table is
             end if;
 
             Source_Table (J).Status := Processed;
-            GNAT.Task_Lock.Unlock;
             return J;
          end if;
       end loop;
-
-      GNAT.Task_Lock.Unlock;
       return No_SF_Id;
    end Next_Non_Processed_Source;
 
@@ -1031,9 +1026,7 @@ package body Lkql_Checker.Source_Table is
 
    procedure Set_Source_Status (SF : SF_Id; S : SF_Status) is
    begin
-      GNAT.Task_Lock.Lock;
       Source_Table (SF).Status := S;
-
       case S is
          when Error_Detected =>
             Tool_Failures := Tool_Failures + 1;
@@ -1041,8 +1034,6 @@ package body Lkql_Checker.Source_Table is
          when others         =>
             null;
       end case;
-
-      GNAT.Task_Lock.Unlock;
    end Set_Source_Status;
 
    -------------------------
@@ -1243,7 +1234,7 @@ package body Lkql_Checker.Source_Table is
    -- Process_Sources --
    ---------------------
 
-   procedure Process_Sources is
+   procedure Process_Sources (Collector : in out Diagnostic_Collector) is
       Ctx     : constant Analysis_Context := Create_Ada_Context;
       Next_SF : SF_Id;
 
@@ -1276,7 +1267,8 @@ package body Lkql_Checker.Source_Table is
                   if Current.Kind = Ada_Pragma_Node
                     and then Is_Exemption_Pragma (Current.As_Pragma_Node)
                   then
-                     Process_Exemption_Pragma (Current.As_Pragma_Node);
+                     Process_Exemption_Pragma
+                       (Collector, Current.As_Pragma_Node);
                   end if;
                end loop;
             end;
@@ -1289,23 +1281,24 @@ package body Lkql_Checker.Source_Table is
             begin
                while TR /= No_Token loop
                   if Kind (Data (TR)) = Ada_Comment then
-                     Process_Exemption_Comment (TR, Unit);
+                     Process_Exemption_Comment (Collector, TR, Unit);
                   end if;
                   TR := Next (TR);
                end loop;
             end;
 
-            Check_Unclosed_Rule_Exemptions (Next_SF, Unit);
+            Check_Unclosed_Rule_Exemptions (Collector, Next_SF, Unit);
          exception
             when E : others =>
                if Tool_Args.Debug_Mode.Get then
-                  Store_Diagnosis
-                    (Full_File_Name => File_Name (Next_SF),
+                  Store_Diagnostic
+                    (Collector,
+                     Full_File_Name => File_Name (Next_SF),
                      Sloc           => (1, 1),
                      Message        =>
                        "internal error: "
                        & Strip_LF (Exception_Information (E)),
-                     Diagnosis_Kind => Internal_Error,
+                     Kind           => Internal_Error,
                      SF             => Next_SF);
                end if;
          end;

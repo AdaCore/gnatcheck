@@ -54,7 +54,7 @@ package Lkql_Checker.Rules is
 
    type Rule_Instance (Is_Alias : Boolean) is tagged record
       Rule : Rule_Id;
-      --  Identifier of the rule which is instanciated
+      --  Identifier of the rule which is instantiated
 
       Source_Mode : Source_Modes;
       --  Mode of the instance regarding the Ada sources
@@ -84,9 +84,7 @@ package Lkql_Checker.Rules is
 
    type Rule_Info is record
       Name : Unbounded_String;
-      --  The only means of rule identification outside the checker. All the
-      --  rules implemented in the tool should have unique names, the casing
-      --  is not important.
+      --  Name of the rule as specified in the associated LKQL annotation.
 
       Defined_At : Unbounded_String;
       --  Location in the rule file where the rule has been enabled. Set to
@@ -95,6 +93,9 @@ package Lkql_Checker.Rules is
       Remediation_Level : Remediation_Levels := Medium;
       --  The remediation level of the rule, the default value is Medium but
       --  it may be updated during the execution.
+
+      Message : Unbounded_String;
+      --  Message emitted when the rule is violated.
 
       Help_Info : Unbounded_String;
       --  Short help information for the rule
@@ -141,7 +142,7 @@ package Lkql_Checker.Rules is
       Rule_Param_From_Diag : access function (Diag : String) return String;
       --  Access to a function which assumes that
       --  `Allows_Parametrized_Exemption (Rule)` is True and `Diag` is a
-      --  diagnosis emitted for `Rule`. This function returns the formal
+      --  diagnostic emitted for `Rule`. This function returns the formal
       --  parameter name which `Diag` has been generated for.
 
       Create_Instance :
@@ -179,7 +180,7 @@ package Lkql_Checker.Rules is
    --  Allocate a new rule information record with the given param kind. The
    --  returned pointer should be freed by the caller.
 
-   function Rule_Name (Rule : Rule_Info) return String;
+   function Lower_Name (Rule : Rule_Info) return String;
    --  Returns the rule name
 
    function Is_Enabled (Rule : Rule_Info) return Boolean;

@@ -33,9 +33,9 @@ package Lkql_Checker.Projects.Aggregate is
    --  need to know this because the case when an aggregate project aggregates
    --  only one project is a useful special case.
 
-   -----------------------
-   --  Project iterator --
-   -----------------------
+   ----------------------
+   -- Project iterator --
+   ----------------------
 
    --  This iterator should be used when all the (non-aggregate) projects are
    --  stored in internal data structures. This iterator is to be used to

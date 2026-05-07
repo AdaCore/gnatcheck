@@ -10,7 +10,8 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with Lkql_Checker.Rules; use Lkql_Checker.Rules;
+with Lkql_Checker.Diagnostics; use Lkql_Checker.Diagnostics;
+with Lkql_Checker.Rules;       use Lkql_Checker.Rules;
 
 package Lkql_Checker.Compiler is
 
@@ -74,7 +75,10 @@ package Lkql_Checker.Compiler is
    --  warning ON/OFF. If Restrictions rules are specified, this file contains
    --  the corresponding Restriction_Warnings pragmas.
 
-   procedure Analyze_Output (File_Name : String; Errors : out Boolean);
+   procedure Analyze_Output
+     (Collector : in out Diagnostic_Collector;
+      File_Name : String;
+      Errors    : out Boolean);
    --  Parses the given file (typically error output of gprbuild or the worker)
    --  and store all the relevant messages.
    --  If some compiler errors are detected, set Errors to True.
@@ -196,8 +200,8 @@ package Lkql_Checker.Compiler is
    --  that Par does not contain any leading or trailing space.
 
    function Restriction_Rule_Parameter (Diag : String) return String;
-   --  Assuming that Diag is a diagnosis string corresponding to a violation of
-   --  some restriction-based rule, returns the parameter of the rule (used
+   --  Assuming that Diag is a diagnostic string corresponding to a violation
+   --  of some restriction-based rule, returns the parameter of the rule (used
    --  in parametrized exemption sections for restrictions)
    --
    --  Restriction violation diagnostics may have many formats, thus this
@@ -218,13 +222,13 @@ package Lkql_Checker.Compiler is
    --  leading or trailing space.
 
    function Style_Rule_Parameter (Diag : String) return String;
-   --  Assuming that Diag is a diagnosis string corresponding to a violation of
-   --  some style-based rule, returns the parameter of the rule (used
+   --  Assuming that Diag is a diagnostic string corresponding to a violation
+   --  of some style-based rule, returns the parameter of the rule (used
    --  in parametrized exemption sections for style messages).
 
    function Warning_Rule_Parameter (Diag : String) return String;
-   --  Assuming that Diag is a diagnosis string corresponding to a violation of
-   --  some warning-based rule, returns the parameter of the rule (used
+   --  Assuming that Diag is a diagnostic string corresponding to a violation
+   --  of some warning-based rule, returns the parameter of the rule (used
    --  in parametrized exemption sections for warnings).
 
 end Lkql_Checker.Compiler;

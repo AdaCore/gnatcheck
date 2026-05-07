@@ -18,6 +18,7 @@ with GNATCOLL.Strings;   use GNATCOLL.Strings;
 with GPR2.Options.Opt_Parse;
 with GPR2.Options;
 
+with Lkql_Checker.Diagnostics;      use Lkql_Checker.Diagnostics;
 with Lkql_Checker.Projects;         use Lkql_Checker.Projects;
 with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
@@ -288,10 +289,11 @@ package Lkql_Checker.Options is
    -- Tool specific switches --
    ----------------------------
 
-   subtype Max_Diagnoses_Count is Natural range 0 .. 1000;
+   subtype Max_Diagnostics_Count is Natural range 0 .. 1000;
 
    function Jobs_Convert (Arg : String) return Natural;
-   function Max_Diagnoses_Convert (Arg : String) return Max_Diagnoses_Count;
+   function Max_Diagnostics_Convert
+     (Arg : String) return Max_Diagnostics_Count;
 
    function Is_New_Section (Arg : XString) return Boolean;
 
@@ -423,18 +425,18 @@ package Lkql_Checker.Options is
            Name   => "Verbose mode",
            Help   => "enable the verbose mode");
 
-      package Max_Diagnoses is new
+      package Max_Diagnostics is new
         Parse_Option
           (Parser      => Parser,
            Enabled     => Mode in Gnatcheck_Mode,
            Short       => "-m",
-           Name        => "Max diagnoses",
-           Arg_Type    => Max_Diagnoses_Count,
+           Name        => "Max diagnostics",
+           Arg_Type    => Max_Diagnostics_Count,
            Default_Val => 0,
-           Convert     => Max_Diagnoses_Convert,
+           Convert     => Max_Diagnostics_Convert,
            Help        =>
-             "set the maximal number of diagnoses in stderr (0 for all "
-             & "diagnoses, default is 0)");
+             "set the maximal number of diagnostics in stderr (0 for all "
+             & "diagnostics, default is 0)");
 
       package Brief is new
         Parse_Flag
@@ -493,6 +495,15 @@ package Lkql_Checker.Options is
            Help             =>
              "specify the name of the XML report file (enforces '-xml')");
 
+      package SARIF_Output is new
+        Parse_Option
+          (Parser      => Parser,
+           Long        => "--sarif",
+           Name        => "SARIF output",
+           Arg_Type    => Unbounded_String,
+           Default_Val => Null_Unbounded_String,
+           Help        => "specify the name of the SARIF report file");
+
       package Time is new
         Parse_Flag
           (Parser  => Parser,
@@ -506,7 +517,7 @@ package Lkql_Checker.Options is
           (Parser  => Parser,
            Enabled => Mode in Gnatcheck_Mode,
            Long    => "--show-rule",
-           Help    => "append rule names to diagnoses generated");
+           Help    => "append rule names to diagnostics generated");
 
       package Show_Instantiation_Chain is new
         Parse_Flag
@@ -669,6 +680,11 @@ package Lkql_Checker.Options is
 
       function XML_Report_File_Path return String;
 
+      function SARIF_Report_Enabled return Boolean
+      is (SARIF_Output.Get /= Null_Unbounded_String);
+
+      function SARIF_Report_File_Path return String;
+
       function Source_Files_Specified return Boolean
       is (Source_Files.Get /= Null_Unbounded_String);
 
@@ -700,6 +716,10 @@ package Lkql_Checker.Options is
       function XML_Report_File_Path return String
       is (Resolve_Report_File
             (XML_Output.Get, Lkql_Checker_Mode_Image & ".xml"));
+
+      function SARIF_Report_File_Path return String
+      is (Resolve_Report_File
+            (SARIF_Output.Get, Lkql_Checker_Mode_Image & ".sarif"));
    end Tool_Args;
 
    -----------------------
@@ -729,7 +749,7 @@ package Lkql_Checker.Options is
 
    Rule_Options : Vector_Options.Vector;
 
-   procedure Process_Rule_Options;
+   procedure Process_Rule_Options (Collector : in out Diagnostic_Collector);
    --  Process all the rule options found as part of scanning arguments.
 
    procedure Process_Legacy_Rule_Options

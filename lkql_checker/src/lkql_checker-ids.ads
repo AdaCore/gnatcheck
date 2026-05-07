@@ -3,7 +3,7 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
---  This package defines ID type for rule map.
+--  This package defines ID types for rule map and source files.
 
 with Ada.Containers;
 with Ada.Containers.Indefinite_Vectors;
@@ -12,6 +12,19 @@ with Langkit_Support.Symbols; use Langkit_Support.Symbols;
 with Langkit_Support.Text;    use Langkit_Support.Text;
 
 package Lkql_Checker.Ids is
+
+   -------------------------
+   -- Source file id type --
+   -------------------------
+
+   Low_SF_Bound  : constant := 0;
+   High_SF_Bound : constant := 999_999;
+   --  Almost 1_000_000 source files for one run of the tool
+
+   type SF_Id is range Low_SF_Bound .. High_SF_Bound;
+
+   No_SF_Id    : constant SF_Id := Low_SF_Bound;
+   First_SF_Id : constant SF_Id := No_SF_Id + 1;
 
    -------------------------------
    -- Internal id symbol tables --
@@ -32,13 +45,7 @@ package Lkql_Checker.Ids is
    type Rule_Id is new Thin_Symbol;
    --  Define the rule identifier as a thin symbol. The symbol belongs to
    --  an internal symbol table, which contains all created rule ids. A rule
-   --  identifier represents the normalizd name of the rule.
-
-   package Rule_Id_Vec is new
-     Ada.Containers.Indefinite_Vectors
-       (Index_Type   => Natural,
-        Element_Type => Rule_Id);
-   --  A simple vector to store rule identifiers
+   --  identifier represents the normalized name of the rule.
 
    -----------------------
    -- Constant rule ids --
@@ -79,7 +86,7 @@ package Lkql_Checker.Ids is
 
    function Hash (Id : Rule_Id) return Ada.Containers.Hash_Type
    is (Hash (To_Symbol (All_Rule_Ids, Thin_Symbol (Id))));
-   --  Shortcut fonction to hash a rule identifier
+   --  Shortcut function to hash a rule identifier
 
    -----------------------
    -- Exemption id type --

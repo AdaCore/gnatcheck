@@ -51,6 +51,9 @@ package Rule_Commands is
       Name : Unbounded_Text_Type;
       --  Name of the Rule
 
+      Message : Unbounded_Text_Type;
+      --  Message for violations of the rule.
+
       Help : Unbounded_Text_Type;
       --  Short help message associated with the rule.
       --  Defaults to Message if not specified.

@@ -23,7 +23,7 @@ options:
  --config=<cgpr>           - use configuration project <cgpr>
 
  --list-rules             - print out the list of the currently implemented rules
- -mn                      - n is the maximal number of diagnoses in Stderr
+ -mn                      - n is the maximal number of diagnostics in Stderr
                             (n in 0 .. 1000, 0 means no limit); default is 0
  -jn                      - n is the maximal number of processes
  -q                       - quiet mode (do not report detections in Stderr)
@@ -36,7 +36,7 @@ options:
  -xml                     - generate report in XML format
  -nt                      - do not generate text report (enforces '-xml')
 
- --show-rule                - append rule names to diagnoses generated
+ --show-rule                - append rule names to diagnostics generated
  --show-instantiation-chain - show instantiation chain for reported generic construct
 
  --brief              - brief mode, only report detections in Stderr
@@ -47,8 +47,9 @@ options:
 
  --include-file=filename - add the content of filename into generated report
 
- -o filename   - specify the name of the text report file
- -ox filename  - specify the name of the XML report file (enforces '-xml')
+ -o filename      - specify the name of the text report file
+ -ox filename     - specify the name of the XML report file (enforces '-xml')
+ --sarif filename - enable the SARIF output while specifying the name of the report file
 
  filename                 - the name of the Ada source file to be analyzed.
                             Wildcards are allowed
@@ -97,7 +98,7 @@ options:
  --config=<cgpr>           - use configuration project <cgpr>
 
  --list-rules             - print out the list of the currently implemented rules
- -mn                      - n is the maximal number of diagnoses in Stderr
+ -mn                      - n is the maximal number of diagnostics in Stderr
                             (n in 0 .. 1000, 0 means no limit); default is 0
  -jn                      - n is the maximal number of processes
  -q                       - quiet mode (do not report detections in Stderr)
@@ -110,7 +111,7 @@ options:
  -xml                     - generate report in XML format
  -nt                      - do not generate text report (enforces '-xml')
 
- --show-rule                - append rule names to diagnoses generated
+ --show-rule                - append rule names to diagnostics generated
  --show-instantiation-chain - show instantiation chain for reported generic construct
 
  --brief              - brief mode, only report detections in Stderr
@@ -121,8 +122,9 @@ options:
 
  --include-file=filename - add the content of filename into generated report
 
- -o filename   - specify the name of the text report file
- -ox filename  - specify the name of the XML report file (enforces '-xml')
+ -o filename      - specify the name of the text report file
+ -ox filename     - specify the name of the XML report file (enforces '-xml')
+ --sarif filename - enable the SARIF output while specifying the name of the report file
 
  filename                 - the name of the Ada source file to be analyzed.
                             Wildcards are allowed
@@ -171,7 +173,7 @@ options:
  --config=<cgpr>           - use configuration project <cgpr>
 
  --list-rules             - print out the list of the currently implemented rules
- -mn                      - n is the maximal number of diagnoses in Stderr
+ -mn                      - n is the maximal number of diagnostics in Stderr
                             (n in 0 .. 1000, 0 means no limit); default is 0
  -jn                      - n is the maximal number of processes
  -q                       - quiet mode (do not report detections in Stderr)
@@ -184,7 +186,7 @@ options:
  -xml                     - generate report in XML format
  -nt                      - do not generate text report (enforces '-xml')
 
- --show-rule                - append rule names to diagnoses generated
+ --show-rule                - append rule names to diagnostics generated
  --show-instantiation-chain - show instantiation chain for reported generic construct
 
  --brief              - brief mode, only report detections in Stderr
@@ -195,8 +197,9 @@ options:
 
  --include-file=filename - add the content of filename into generated report
 
- -o filename   - specify the name of the text report file
- -ox filename  - specify the name of the XML report file (enforces '-xml')
+ -o filename      - specify the name of the text report file
+ -ox filename     - specify the name of the XML report file (enforces '-xml')
+ --sarif filename - enable the SARIF output while specifying the name of the report file
 
  filename                 - the name of the Ada source file to be analyzed.
                             Wildcards are allowed

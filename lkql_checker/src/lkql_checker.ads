@@ -10,6 +10,35 @@ with Ada.Directories;
 with Ada.Strings.Fixed;
 
 package Lkql_Checker is
+   ----------------
+   -- Exit codes --
+   ----------------
+
+   E_Success : constant := 0;
+   --  No tool failure, no rule violation detected
+
+   E_Violation : constant := 1;
+   --  No tool failure, rule violation(s) detected
+
+   E_Error : constant := 2;
+   --  Tool failure detected
+
+   E_Missing_Source : constant := 3;
+   --  Missing at least one argument source
+
+   E_Missing_Rule_File : constant := 4;
+   --  Missing coding standard file
+
+   E_Missing_Rule : constant := 5;
+   --  Bad rule name or bad rule parameter
+
+   E_Bad_Rules : constant := 6;
+   --  Other problem with rules options
+
+   -------------------
+   -- Checker modes --
+   -------------------
+
    type Lkql_Checker_Mode is (Gnatcheck_Mode, Gnatkp_Mode);
 
    Mode : constant Lkql_Checker_Mode :=

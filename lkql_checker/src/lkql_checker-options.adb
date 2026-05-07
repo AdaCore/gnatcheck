@@ -73,21 +73,22 @@ package body Lkql_Checker.Options is
       end if;
    end Jobs_Convert;
 
-   ---------------------------
-   -- Max_Diagnoses_Convert --
-   ---------------------------
+   -----------------------------
+   -- Max_Diagnostics_Convert --
+   -----------------------------
 
-   function Max_Diagnoses_Convert (Arg : String) return Max_Diagnoses_Count is
+   function Max_Diagnostics_Convert (Arg : String) return Max_Diagnostics_Count
+   is
    begin
       begin
-         return Max_Diagnoses_Count'Value (Arg);
+         return Max_Diagnostics_Count'Value (Arg);
       exception
          when Constraint_Error =>
             raise Opt_Parse_Error
               with
-                "invalid maximum diagnoses value: " & Arg & " (max is 1000)";
+                "invalid maximum diagnostics value: " & Arg & " (max is 1000)";
       end;
-   end Max_Diagnoses_Convert;
+   end Max_Diagnostics_Convert;
 
    --------------------
    -- Is_New_Section --
@@ -208,11 +209,11 @@ package body Lkql_Checker.Options is
    -- Process_Rule_Options --
    --------------------------
 
-   procedure Process_Rule_Options is
+   procedure Process_Rule_Options (Collector : in out Diagnostic_Collector) is
    begin
       --  First of all, process the provided LKQL rule file
       if LKQL_Rule_File_Name /= Null_Unbounded_String then
-         Process_LKQL_Rule_File (To_String (LKQL_Rule_File_Name));
+         Process_LKQL_Rule_File (Collector, To_String (LKQL_Rule_File_Name));
       end if;
 
       --  Then process the legacy rule options

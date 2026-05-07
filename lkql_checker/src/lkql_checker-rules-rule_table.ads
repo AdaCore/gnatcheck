@@ -10,6 +10,8 @@
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Hash;
 
+with Lkql_Checker.Diagnostics; use Lkql_Checker.Diagnostics;
+
 package Lkql_Checker.Rules.Rule_Table is
 
    function Present (Rule : Rule_Id) return Boolean;
@@ -80,7 +82,8 @@ package Lkql_Checker.Rules.Rule_Table is
    --  in the description of the rule options in documentation of
    --  Process_Legacy_Rule_Option is also ignored.
 
-   procedure Process_LKQL_Rule_File (LKQL_RF_Name : String);
+   procedure Process_LKQL_Rule_File
+     (Collector : in out Diagnostic_Collector; LKQL_RF_Name : String);
    --  Process the given LKQL file as a rule configuration file and populate
    --  the global rule table with its content.
    --
@@ -151,7 +154,7 @@ package Lkql_Checker.Rules.Rule_Table is
 
    procedure Turn_Instance_Off (Instance_Name : String);
    --  Remove the instance associated with `Instance_Name` after its
-   --  normalization. If there is no instance assocaited to the provided name
+   --  normalization. If there is no instance associated to the provided name
    --  this function does nothing.
 
    procedure Turn_All_Rules_Off;
@@ -173,6 +176,6 @@ package Lkql_Checker.Rules.Rule_Table is
    --  internal data structures.
 
    procedure Clean_Up;
-   --  Release all allocated ressources for rules and instances storage.
+   --  Release all allocated resources for rules and instances storage.
 
 end Lkql_Checker.Rules.Rule_Table;
