@@ -14,6 +14,8 @@ from e3.testsuite.driver.diff import (
     OutputRefiner,
 )
 
+from functools import reduce
+
 
 class GnatcheckDriver(BaseDriver):
     """
@@ -692,6 +694,14 @@ class GnatcheckDriver(BaseDriver):
                                         invocation["environmentVariables"] = "ENV_VARS"
                                         invocation["startTimeUtc"] = "START_TIME"
                                         invocation["endTimeUtc"] = "END_TIME"
+                                        invocation["arguments"] = [
+                                            reduce(
+                                                lambda s, ref: ref.refine(s),
+                                                self.output_refiners,
+                                                arg,
+                                            )
+                                            for arg in invocation["arguments"]
+                                        ]
 
                                     # Canonicalize base URIs
                                     for _, base_uri in run.get(
