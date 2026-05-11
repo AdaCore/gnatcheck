@@ -339,9 +339,10 @@ package body Lkql_Checker.Compiler is
    ----------------------------
 
    procedure Analyze_Output
-     (Collector : in out Diagnostic_Collector;
-      File_Name : String;
-      Errors    : out Boolean)
+     (Collector         : in out Diagnostic_Collector;
+      File_Name         : String;
+      Errors            : out Boolean;
+      Report_Unparsable : Boolean := True)
    is
       Out_File : constant String := File_Name & ".out";
       Line     : String (1 .. 1024);
@@ -370,20 +371,23 @@ package body Lkql_Checker.Compiler is
          Msg_Start : Natural;
          Msg_End   : Natural;
 
-         procedure Format_Error;
-         --  Emit an error about an unexpected format encountered and set
-         --  Errors to True.
+         procedure Unparsable_Line;
+         --  Handle the current analyzed line as unparsable.
 
-         ------------------
-         -- Format_Error --
-         ------------------
+         ---------------------
+         -- Unparsable_Line --
+         ---------------------
 
-         procedure Format_Error is
+         procedure Unparsable_Line is
          begin
-            Error ("unparsable worker output: """ & Msg & """");
-            Errors := True;
-            Detected_Internal_Error := @ + 1;
-         end Format_Error;
+            if Report_Unparsable then
+               Error ("unparsable worker output: """ & Msg & """");
+               Errors := True;
+               Detected_Internal_Error := @ + 1;
+            else
+               Print (Msg);
+            end if;
+         end Unparsable_Line;
 
       begin
          --  Skip all empty lines
@@ -399,7 +403,7 @@ package body Lkql_Checker.Compiler is
          --  Try to match the diagnostic to extract information
          Match (Match_Diagnostic, Msg, Matches);
          if Matches (0) = No_Match then
-            Format_Error;
+            Unparsable_Line;
             return;
          end if;
 
@@ -437,7 +441,7 @@ package body Lkql_Checker.Compiler is
          --  A checking message emitted by the worker
          if Msg (Msg_Start .. Msg_Start + 6) = "check: " then
             if Msg (Msg_End) /= ']' then
-               Format_Error;
+               Unparsable_Line;
                return;
             end if;
 
@@ -464,7 +468,7 @@ package body Lkql_Checker.Compiler is
                Instance : Rule_Instance_Access := null;
             begin
                if Last = 0 then
-                  Format_Error;
+                  Unparsable_Line;
                   return;
                end if;
                Instance :=
