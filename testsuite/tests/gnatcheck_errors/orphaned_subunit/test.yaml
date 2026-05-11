@@ -1,0 +1,4 @@
+driver: gnatcheck
+description: Test the error reported when a source file contains a subunit whose parent body has no corresponding stub
+rules:
+  - +RIdentifier_Prefixes
