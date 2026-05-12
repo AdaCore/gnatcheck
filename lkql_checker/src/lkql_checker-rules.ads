@@ -120,6 +120,10 @@ package Lkql_Checker.Rules is
       --  For a KP detector, regexp to match relevant target triplets impacted,
       --  if any. Ignored if null.
 
+      Target_String : Unbounded_String;
+      --  Raw target pattern string from the KP annotation (e.g. "x86_64-*").
+      --  Set when Target is non-null, used for diagnostic messages.
+
       Parameters : Text_Vector;
       --  Vector containing parameter names of the rule.
 

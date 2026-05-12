@@ -6,6 +6,8 @@
 with Ada.Characters.Conversions;      use Ada.Characters.Conversions;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 
+with Lkql_Checker.String_Utilities;
+
 with Liblkqllang.Common;
 with Liblkqllang.Generic_API.Introspection;
 use Liblkqllang.Generic_API.Introspection;
@@ -14,6 +16,31 @@ with Liblkqllang.Iterators;                 use Liblkqllang.Iterators;
 package body Rule_Commands is
 
    package LCO renames Liblkqllang.Common;
+
+   function Augment_With_Majors (Impact_Str : String) return String;
+   --  Return Impact_Str augmented with the major-version prefix of each entry,
+   --  so that a bare major version (e.g. "20") also matches in the compiled
+   --  regexp (e.g. "20.1" or "20.*").
+
+   -------------------------
+   -- Augment_With_Majors --
+   -------------------------
+
+   function Augment_With_Majors (Impact_Str : String) return String is
+      use Lkql_Checker.String_Utilities;
+      Entries : constant String_Vector := Split (Impact_Str, ',');
+      Result  : String_Vector := Entries;
+   begin
+      for E of Entries loop
+         for I in E'Range loop
+            if E (I) = '.' then
+               Result.Append (E (E'First .. I - 1));
+               exit;
+            end if;
+         end loop;
+      end loop;
+      return Join (Result, ",");
+   end Augment_With_Majors;
 
    function Find_Param_Kind
      (Params : L.Parameter_Decl_List) return Rule_Param_Kind;
@@ -122,6 +149,7 @@ package body Rule_Commands is
          Subcategory              : Unbounded_Text_Type;
          Impact                   : Regexp_Access;
          Target                   : Regexp_Access;
+         Target_Str               : Unbounded_Text_Type;
          Remediation_Level        : Remediation_Levels := Medium;
          Parametric_Exemption     : Boolean := False;
          Fn_Name                  : constant Text_Type := Fn.F_Name.Text;
@@ -206,7 +234,7 @@ package body Rule_Commands is
                   Impact :=
                     new Regexp'
                       (Compile
-                         ("{" & Impact_Value.Get & "}",
+                         ("{" & Augment_With_Majors (Impact_Value.Get) & "}",
                           Glob           => True,
                           Case_Sensitive => False));
                end if;
@@ -223,15 +251,20 @@ package body Rule_Commands is
             Check_String (Target_Arg);
 
             declare
-               Str : constant String :=
+               Str            : constant String :=
                  To_String (Target_Arg.P_Expr.As_String_Literal.Text);
+               Target_Pattern : constant String :=
+                 Str (Str'First + 1 .. Str'Last - 1);
             begin
                Target :=
                  new Regexp'
                    (Compile
-                      ("{" & Str (Str'First + 1 .. Str'Last - 1) & "}",
+                      ("{" & Target_Pattern & "}",
                        Glob           => True,
                        Case_Sensitive => False));
+               Target_Str :=
+                 To_Unbounded_Wide_Wide_String
+                   (To_Wide_Wide_String (Target_Pattern));
 
             exception
                when others =>
@@ -273,7 +306,8 @@ package body Rule_Commands is
               Remediation_Level    => Remediation_Level,
               Parametric_Exemption => Parametric_Exemption,
               Impact               => Impact,
-              Target               => Target);
+              Target               => Target,
+              Target_String        => Target_Str);
          return True;
       end;
    end Create_Rule_Command;

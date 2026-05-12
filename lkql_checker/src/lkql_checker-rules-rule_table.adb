@@ -35,6 +35,9 @@ package body Lkql_Checker.Rules.Rule_Table is
 
    subtype String_Access is GNAT.OS_Lib.String_Access;
 
+   Valid_Gnat_Versions : String_Vector;
+   --  Known GNAT versions loaded from kp.json by Process_Rules
+
    -----------------------
    -- Local subprograms --
    -----------------------
@@ -1937,6 +1940,9 @@ package body Lkql_Checker.Rules.Rule_Table is
       All_Rules_Vec :=
         Rules_Factory.All_Rules
           (Lkql_Context, Path_Array (Tool_Args.Rules_Dirs.Get));
+      Valid_Gnat_Versions :=
+        Rules_Factory.Valid_Gnat_Versions
+          (Path_Array (Tool_Args.Rules_Dirs.Get));
 
       for R of All_Rules_Vec loop
          declare
@@ -1988,10 +1994,27 @@ package body Lkql_Checker.Rules.Rule_Table is
             Rule.Allows_Parametrized_Exemption := R.Parametric_Exemption;
             Rule.Impact := R.Impact;
             Rule.Target := R.Target;
+            Rule.Target_String :=
+              To_Unbounded_String
+                (To_String (To_Wide_Wide_String (R.Target_String)));
             All_Rules.Insert (Id, Rule);
          end;
       end loop;
    end Process_Rules;
+
+   ---------------------------
+   -- Is_Valid_Gnat_Version --
+   ---------------------------
+
+   function Is_Valid_Gnat_Version (Version : String) return Boolean
+   is (Valid_Gnat_Versions.Contains (Version));
+
+   ------------------------
+   -- Gnat_Versions_List --
+   ------------------------
+
+   function Gnat_Versions_List return String
+   is (Join (Valid_Gnat_Versions, ", "));
 
    --------------
    -- Clean_Up --

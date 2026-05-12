@@ -37,7 +37,7 @@ ids = [Path(id).stem[3:].upper().replace("_", "-") for id in kps]
 list_impacts(sorted(ids))
 
 impacts = {"impacts": OrderedDict(sorted(res.items()))}
-impacts.update({"gnat": sorted(db.config["gnat"].keys())})
+impacts.update({"gnat": sorted(db.config_all_releases["gnat"].keys())})
 
 with open("./lkql_checker/share/lkql/kp/kp.json", "w", encoding="utf-8") as f:
     json.dump(impacts, f, ensure_ascii=False, indent=4)

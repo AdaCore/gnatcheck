@@ -1110,6 +1110,20 @@ package body Lkql_Checker.Projects is
       if Mode = Gnatkp_Mode
         and then Tool_Args.KP_Version.Get /= Null_Unbounded_String
       then
+         declare
+            Version : constant String := To_String (Tool_Args.KP_Version.Get);
+         begin
+            if not Is_Valid_Gnat_Version (Version) then
+               Error
+                 ("unknown GNAT version "
+                  & Version
+                  & " (known versions: "
+                  & Gnat_Versions_List
+                  & ")");
+               raise Parameter_Error;
+            end if;
+         end;
+
          for Rule_Cursor in All_Rules.Iterate loop
             declare
                Id       : constant Rule_Id := Rule_Map.Key (Rule_Cursor);
@@ -1128,7 +1142,11 @@ package body Lkql_Checker.Projects is
                      if not Tool_Args.Quiet_Mode then
                         Info
                           (Lower_Name (Rule)
-                           & " disabled, target does not match");
+                           & " disabled, target "
+                           & Checker_Prj.Target
+                           & " not in KP targets ("
+                           & To_String (Rule.Target_String)
+                           & ")");
                      end if;
                   else
                      if not Tool_Args.Quiet_Mode then
@@ -1151,7 +1169,9 @@ package body Lkql_Checker.Projects is
          if Mode = Gnatkp_Mode
            and then Tool_Args.KP_Version.Get /= Null_Unbounded_String
          then
-            Error ("no rule for the given kp-version");
+            Error
+              ("no known problems for GNAT version "
+               & To_String (Tool_Args.KP_Version.Get));
             No_Detectors_For_KP_Version := True;
             return;
          else

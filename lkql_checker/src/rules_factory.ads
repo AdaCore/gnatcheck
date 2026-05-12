@@ -8,6 +8,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Liblkqllang.Analysis;
 
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
+
 with Rule_Commands; use Rule_Commands;
 
 package Rules_Factory is
@@ -26,5 +28,9 @@ package Rules_Factory is
       return Rule_Vector;
    --  Return a vector containing Rule_Command values for every implemented
    --  check.
+
+   function Valid_Gnat_Versions
+     (Dirs : Path_Array := No_Paths) return String_Vector;
+   --  Return the list of known GNAT versions from kp.json
 
 end Rules_Factory;

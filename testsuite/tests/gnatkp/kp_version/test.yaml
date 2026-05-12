@@ -1,0 +1,23 @@
+description: |
+  Test that --kp-version accepts bare major versions (e.g. "22" to
+  match detectors relevant to 22.1, 22.2, etc.), in addition to exact
+  minor versions (e.g. "22.1"). Uses kp_uc22_009 (impact: 22.1) as
+  a representative rule.
+driver: gnatcheck
+mode: gnatkp
+format: brief
+quiet: false
+project: prj.gpr
+tests:
+  - label: bare major matches all minor versions of that release
+    extra_args:
+      - --kp-version=22
+  - label: exact minor version also matches
+    extra_args:
+      - --kp-version=22.1
+  - label: unrelated version produces no detectors
+    extra_args:
+      - --kp-version=99
+  - label: malformed minor version is rejected
+    extra_args:
+      - --kp-version=24.blabla
