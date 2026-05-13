@@ -7,6 +7,7 @@
 
 with Ada.Calendar;
 with Ada.Environment_Variables;
+with Ada.Exceptions;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO; use Ada.Text_IO;
 
@@ -14,6 +15,8 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 with GNATCOLL.Strings;   use GNATCOLL.Strings;
+
+with GPR2.Options;
 
 with Lkql_Checker.Compiler;           use Lkql_Checker.Compiler;
 with Lkql_Checker.Diagnostics;        use Lkql_Checker.Diagnostics;
@@ -479,7 +482,13 @@ package body Lkql_Checker is
       end if;
 
       --  Process the project file
-      Checker_Prj.Load_Project (GPR_Args.GPR2_Parser.Parsed_GPR2_Options);
+      begin
+         Checker_Prj.Load_Project (GPR_Args.GPR2_Parser.Parsed_GPR2_Options);
+      exception
+         when E : GPR2.Options.Usage_Error =>
+            Error (Ada.Exceptions.Exception_Message (E));
+            raise Parameter_Error;
+      end;
 
       --  Then we fetch tool specific switches from the project file if
       --  required.
