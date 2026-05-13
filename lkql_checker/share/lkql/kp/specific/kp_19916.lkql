@@ -1,0 +1,26 @@
+fun is_component_size(name) =
+    |" Get whether the provided name is "component_size"
+    name.p_name_is("component_size")
+
+fun is_invalid_size(expr)=
+    |" Get whether the provided expression is an integer and corresponds to
+    |" an invalid component size.
+    expr.p_is_static_expr()
+    and {
+        val value = expr.p_eval_as_int();
+        value > 128
+        and (value / 8) * 8 != value
+    }
+
+@check(help="possible occurrence of KP 19916 for 64 bit targets",
+       message="possible occurrence of KP 19916 for 64 bit targets")
+fun kp_19916(node) =
+    |" Flag aspect associations and clauses that defines a size both:
+    |"   * Too big for 64 bit targets (128 bits)
+    |"   * Not a multiple of 8 (byte storage unit)
+    match node
+    | AspectAssoc(f_id: name@Name) =>
+        is_component_size(name) and is_invalid_size(node.f_expr)
+    | AttributeDefClause(f_attribute_expr: AttributeRef(f_attribute: name@Name)) =>
+        is_component_size(name) and is_invalid_size(node.f_expr)
+    | * => false

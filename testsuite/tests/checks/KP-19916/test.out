@@ -1,0 +1,16 @@
+main.adb:20:9: rule violation: possible occurrence of KP 19916 for 64 bit targets
+20 |    with Component_Size => 131;  -- FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:23:9: rule violation: possible occurrence of KP 19916 for 64 bit targets
+23 |    with Component_Size => 128 + 5;  -- FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:26:9: rule violation: possible occurrence of KP 19916 for 64 bit targets
+26 |    with Component_Size => Invalid_Size;  -- FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:29:4: rule violation: possible occurrence of KP 19916 for 64 bit targets
+29 |    for Arr_Aspect_Decl'Component_Size use 131;  -- FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
