@@ -1,0 +1,16 @@
+test.adb:12:9: rule violation: possible occurrence of KP 20492
+12 |    type Arr_1 is array (1 .. 10) of Float  -- FLAG
+   |         ^^^^^
+
+test.adb:15:9: rule violation: possible occurrence of KP 20492
+15 |    type Arr_2 is array (1 .. 10) of Angle  -- FLAG
+   |         ^^^^^
+
+test.adb:18:9: rule violation: possible occurrence of KP 20492
+18 |    type Arr_3 is array (1 .. 10) of Long_Float;  -- FLAG
+   |         ^^^^^
+
+test.adb:21:9: rule violation: possible occurrence of KP 20492
+21 |    type Arr_4 is array (1 .. 10) of Coord  -- FLAG
+   |         ^^^^^
+
