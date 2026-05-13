@@ -312,7 +312,8 @@ package body Lkql_Checker is
                   Analyze_Output
                     (Collector,
                      Global_Report_Dir.all & "gprbuild.err",
-                     Status);
+                     Status,
+                     Report_Unparsable => Tool_Args.Debug_Mode.Get);
                   exit when Current = Total_Jobs;
 
                else

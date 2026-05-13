@@ -76,12 +76,16 @@ package Lkql_Checker.Compiler is
    --  the corresponding Restriction_Warnings pragmas.
 
    procedure Analyze_Output
-     (Collector : in out Diagnostic_Collector;
-      File_Name : String;
-      Errors    : out Boolean);
+     (Collector         : in out Diagnostic_Collector;
+      File_Name         : String;
+      Errors            : out Boolean;
+      Report_Unparsable : Boolean := True);
    --  Parses the given file (typically error output of gprbuild or the worker)
    --  and store all the relevant messages.
    --  If some compiler errors are detected, set Errors to True.
+   --  ``Report_Unparsable`` tells whether to emit an error when an unparsable
+   --  line is encountered in the output. If it is false, the line is simply
+   --  forwarded in the tool output.
 
    procedure Process_Restriction_Param
      (Parameter : String; Instance : Rule_Instance_Access);
