@@ -1,7 +1,7 @@
 bare major matches all minor versions of that release
 =====================================================
 
-gnatkp: info: kp_18614 disabled, target x86_64-pc-linux-gnu not in KP targets (powerpc*,leon*,sparc*)
+gnatkp: info: kp_18614 disabled, target <target> not in KP targets (powerpc*,leon*,sparc*)
 gnatkp: info: kp_18636 enabled
 gnatkp: info: kp_19198 enabled
 gnatkp: info: kp_19423 enabled
@@ -14,7 +14,7 @@ gnatkp: info: kp_u701_015 enabled
 gnatkp: info: kp_u928_018 enabled
 gnatkp: info: kp_ua12_036 enabled
 gnatkp: info: kp_uc22_009 enabled
-gnatkp: info: kp_v114_047 disabled, target x86_64-pc-linux-gnu not in KP targets (arm-elf)
+gnatkp: info: kp_v114_047 disabled, target <target> not in KP targets (arm-elf)
 gnatkp: info: kp_v127_049 enabled
 gnatkp: info: kp_v206_001 enabled
 gnatkp: info: kp_v214_016 enabled
@@ -42,7 +42,7 @@ pkg.ads:3:04: rule violation: possible occurrence of KP UC22-009
 exact minor version also matches
 ================================
 
-gnatkp: info: kp_18614 disabled, target x86_64-pc-linux-gnu not in KP targets (powerpc*,leon*,sparc*)
+gnatkp: info: kp_18614 disabled, target <target> not in KP targets (powerpc*,leon*,sparc*)
 gnatkp: info: kp_18636 enabled
 gnatkp: info: kp_19198 enabled
 gnatkp: info: kp_19423 enabled
@@ -55,7 +55,7 @@ gnatkp: info: kp_u701_015 enabled
 gnatkp: info: kp_u928_018 enabled
 gnatkp: info: kp_ua12_036 enabled
 gnatkp: info: kp_uc22_009 enabled
-gnatkp: info: kp_v114_047 disabled, target x86_64-pc-linux-gnu not in KP targets (arm-elf)
+gnatkp: info: kp_v114_047 disabled, target <target> not in KP targets (arm-elf)
 gnatkp: info: kp_v127_049 enabled
 gnatkp: info: kp_v206_001 enabled
 gnatkp: info: kp_v214_016 enabled
