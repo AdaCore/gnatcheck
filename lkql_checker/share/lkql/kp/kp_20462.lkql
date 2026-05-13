@@ -1,0 +1,13 @@
+import stdlib
+
+@check(help="flags object declarations where the subtype mark names an unconstrained subtype with the 'Linker_Section' aspect",
+       message="possible occurrence of KP 20462")
+fun kp_20462(node) =
+    |" Flag object declaration where the subtype mark names an unconstrained
+    |" subtype to which aspect or pragma ``Linker_Section`` applies.
+    node is ObjectDecl(
+        f_type_expr: si@SubtypeIndication when
+            si.f_name.p_referenced_decl() is td@BaseTypeDecl(
+                p_has_aspect("Linker_Section"): true
+            ) when not stdlib.is_constrained_subtype(td)
+    )
