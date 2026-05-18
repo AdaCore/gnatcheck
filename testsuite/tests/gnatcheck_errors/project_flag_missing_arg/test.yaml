@@ -1,0 +1,12 @@
+format: brief
+driver: gnatcheck
+description: |
+  Regression test: when -P is immediately followed by a flag-like token (e.g.
+  -q), the tool should report an error and exit with code 2 (E_Error), not
+  proceed and exit with code 1 (E_Violation).
+extra_args:
+  - -P
+  - -q
+  - prj.gpr
+rules:
+  - +Rrecursive_subprograms

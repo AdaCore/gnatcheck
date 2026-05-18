@@ -1,0 +1,3 @@
+gnatcheck: error: project file name missing after -P
+try "gnatcheck --help" for more information.
+>>>program returned status code 2
