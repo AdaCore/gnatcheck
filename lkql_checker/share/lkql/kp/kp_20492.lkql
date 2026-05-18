@@ -1,0 +1,29 @@
+import stdlib
+
+@check(help="flags array type declarations with a floating-point component type and a non-default Scalar_Storage_Order",
+       message="possible occurrence of KP 20492")
+fun kp_20492(node) =
+    |" Flag array type declarations whose component type is a floating-point
+    |" type and that specify a Scalar_Storage_Order aspect/clause with the
+    |" reverse storage order with regard to that of the target architecture.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"    :emphasize-lines: 4
+    |"
+    |"    with System;
+    |"    package P is
+    |"       type Angle is new Float range 0.0 .. 359.99;
+    |"       type Arr is array (1 .. 10) of Angle  -- FLAG
+    |"         with Scalar_Storage_Order => System.High_Order_First;
+    |"    end P;
+    |"
+    node is BaseTypeDecl when {
+        val td = node.p_full_view();
+
+        td.p_is_array_type()
+        and stdlib.has_non_default_sso(td)
+        and td.f_type_def is atd@ArrayTypeDef when
+            atd.f_component_type?.f_type_expr?.p_designated_type_decl()?.p_is_float_type()
+    }
