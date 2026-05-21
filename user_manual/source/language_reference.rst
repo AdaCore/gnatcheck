@@ -348,13 +348,13 @@ LKQL values of the ``Function`` type can be invoked with the call expression:
 
 Parameters can be passed via positional or named associations.
 
-Calls have a "safe" variant, that will return ``null`` if the callee is null:
+Calls have a "safe" variant, that will return ``()`` (Unit) if the callee is null:
 
 .. code-block:: lkql
 
   fun add(a, b) = a + b
   val fn = if true then null else add
-  fn?(1, 2) # Returns null
+  fn?(1, 2) # Returns ()
 
 Additionally, you can also call selectors via the call syntax. Selector calls
 take only one argument, which is the starting point of the selector call chain:
