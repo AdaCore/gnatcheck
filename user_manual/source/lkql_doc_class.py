@@ -8,7 +8,26 @@ from collections import defaultdict
 from docutils import nodes
 from functools import lru_cache
 
+from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
+
+import traceback
+
+logger = logging.getLogger(__name__)
+
+_LKQL_INTERNAL_CLASSES = {
+    "LkqlNode",
+    "ClassField",
+    "Declaration",
+    "ClassDecl",
+    "PassDecl",
+    "PassBlock",
+    "AddBlock",
+    "DelBlock",
+    "RewriteBlock",
+    "PrefixField",
+    "RunPass",
+}
 
 try:
     import liblkqllang
@@ -19,11 +38,14 @@ try:
         if (type(v) is type and issubclass(v, liblkqllang.LkqlNode))
     ]
 
+    for _name in _LKQL_INTERNAL_CLASSES:
+        _cls = getattr(liblkqllang, _name, None)
+        if _cls is not None:
+            _cls.documented = True
+
 except ImportError:
     liblkqllang = None
     LKQL_CLASSES = []
-
-import traceback
 
 
 @lru_cache
@@ -81,15 +103,17 @@ class LkqlDocClassDirective(SphinxDirective):
         return []
 
 
-def process_lkql_classes_coverage(app, doctree, fromdocname):
+def process_lkql_classes_coverage(app, exception):
     """
     Process the coverage of lkql classes in documentation. This will print
     warnings for every non-documented class.
     """
+    if exception:
+        return
     try:
         for cls in LKQL_CLASSES:
             if not is_class_documented(cls):
-                doctree.reporter.warning(f"Class not documented: {cls}")
+                logger.warning(f"Class not documented: {cls}")
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
 
@@ -137,7 +161,7 @@ def check_lkql_code(app, doctree, fromdocname):
 def setup(app):
     if liblkqllang:
         app.add_directive("lkql_doc_class", LkqlDocClassDirective)
-        app.connect("doctree-resolved", process_lkql_classes_coverage)
+        app.connect("build-finished", process_lkql_classes_coverage)
         app.connect("doctree-resolved", check_lkql_code)
 
     return {
