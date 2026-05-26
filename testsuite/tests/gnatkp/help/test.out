@@ -1,23 +1,21 @@
 Long format
 ===========
 
-GNATcheck: the GNAT rule checking tool
+GNATkp: the GNAT known problem detector
 
-Usage: gnatcheck [opts] [name] [-cargs opts]
+Usage: gnatkp --RTS=<runtime> [-P<proj>] [name] [opts]
 
  name is zero or more file names (wildcards allowed)
 
 general options:
 
- -log           duplicate all messages sent to stderr in gnatcheck.log
+ -log           duplicate all messages sent to stderr in gnatkp.log
  -V, --version  show the tool version and exit
  -h, --help     show the help message and exit
 
-gnatcheck help:
+gnatkp help:
 
  --list-rules              show the list of predefined rules and exit
- -hx
-           show the list of predefined rules formatted in XML and exit
  --check-semantic          check semantic validity of the source files
  --no-subprojects          process only sources of root project
  -U
@@ -25,47 +23,22 @@ gnatcheck help:
            arguments (or mains of the project if list is empty)
  --charset <charset>
            specify the charset of the source files (default is latin-1)
- --lkql-path <dir>
-           specify directories to add to the 'LKQL_PATH' environment variable
-           when spawning the LKQL worker
- --rules-dir <dir>         specify an alternate directory containing rule files
+ --kp-version <version>    enable all KP detectors matching GNAT <version>
  -l                        full pathname for file locations
  -q                        quiet mode, do not emit messages on stderr
  -v, --verbose             enable the verbose mode
- -m <n>
-           set the maximal number of diagnostics in stderr (0 for all
-           diagnostics, default is 0)
  --brief
            report rule violation detections on stderr, suppress other messages
            (implies -s)
  -s                        print the short version of the report file
- -nt                       do not generate text report (enforces '-xml')
- -xml                      generate report in XML format
  -o <file>                 specify the name of the text report file
- -ox <file>
-           specify the name of the XML report file (enforces '-xml')
  --sarif <file>            specify the name of the SARIF report file
- -t                        print the total execution time (wall clock) on stderr
- --show-rule               append rule names to diagnostics generated
  --show-instantiation-chain
            show instantiation chain for reported generic construct
- --check-redefinition      issue warning if a rule parameter is redefined
- --no-object-dir
-           place results in the current directory instead of the project object
-           directory
- --include-file <file>     add the content of filename into generated report
- -files <file>
-           the name of the text file containing a list of Ada source files to
-           analyze
- --ignore <file>           do not process sources listed in filename
  -j <n>                    the maximal number of processes
  -r, --rule <rule>         enable the given rules for the run
  --rule-file <file>        read rule configuration from the given LKQL rule file
- --emit-lkql-rule-file
-           convert the current legacy rule configuration to a 'rules.lkql' LKQL
-           rule file
  -W, --warnings-as-errors  treat warning messages as errors
- -cargs <opts>             options forwarded to the compiler
  -rules <opts>             deprecated rule options
 
 GPR specific options:
@@ -95,7 +68,7 @@ GPR specific options:
  --src-subdirs <src-subdirs>
            prepend <obj>/dir to the list of source dirs for each project
  --subdirs <subdirs>        Use dir as suffix to obj/lib/exec directories
- --target <target>          Specify a target for cross platforms
+ --target <target>          Specify a target <target> cross platforms
  -X <scenario>              Specify an external reference for Project Files
 
 
@@ -104,23 +77,21 @@ Report bugs to support@adacore.com
 Short format
 ============
 
-GNATcheck: the GNAT rule checking tool
+GNATkp: the GNAT known problem detector
 
-Usage: gnatcheck [opts] [name] [-cargs opts]
+Usage: gnatkp --RTS=<runtime> [-P<proj>] [name] [opts]
 
  name is zero or more file names (wildcards allowed)
 
 general options:
 
- -log           duplicate all messages sent to stderr in gnatcheck.log
+ -log           duplicate all messages sent to stderr in gnatkp.log
  -V, --version  show the tool version and exit
  -h, --help     show the help message and exit
 
-gnatcheck help:
+gnatkp help:
 
  --list-rules              show the list of predefined rules and exit
- -hx
-           show the list of predefined rules formatted in XML and exit
  --check-semantic          check semantic validity of the source files
  --no-subprojects          process only sources of root project
  -U
@@ -128,47 +99,22 @@ gnatcheck help:
            arguments (or mains of the project if list is empty)
  --charset <charset>
            specify the charset of the source files (default is latin-1)
- --lkql-path <dir>
-           specify directories to add to the 'LKQL_PATH' environment variable
-           when spawning the LKQL worker
- --rules-dir <dir>         specify an alternate directory containing rule files
+ --kp-version <version>    enable all KP detectors matching GNAT <version>
  -l                        full pathname for file locations
  -q                        quiet mode, do not emit messages on stderr
  -v, --verbose             enable the verbose mode
- -m <n>
-           set the maximal number of diagnostics in stderr (0 for all
-           diagnostics, default is 0)
  --brief
            report rule violation detections on stderr, suppress other messages
            (implies -s)
  -s                        print the short version of the report file
- -nt                       do not generate text report (enforces '-xml')
- -xml                      generate report in XML format
  -o <file>                 specify the name of the text report file
- -ox <file>
-           specify the name of the XML report file (enforces '-xml')
  --sarif <file>            specify the name of the SARIF report file
- -t                        print the total execution time (wall clock) on stderr
- --show-rule               append rule names to diagnostics generated
  --show-instantiation-chain
            show instantiation chain for reported generic construct
- --check-redefinition      issue warning if a rule parameter is redefined
- --no-object-dir
-           place results in the current directory instead of the project object
-           directory
- --include-file <file>     add the content of filename into generated report
- -files <file>
-           the name of the text file containing a list of Ada source files to
-           analyze
- --ignore <file>           do not process sources listed in filename
  -j <n>                    the maximal number of processes
  -r, --rule <rule>         enable the given rules for the run
  --rule-file <file>        read rule configuration from the given LKQL rule file
- --emit-lkql-rule-file
-           convert the current legacy rule configuration to a 'rules.lkql' LKQL
-           rule file
  -W, --warnings-as-errors  treat warning messages as errors
- -cargs <opts>             options forwarded to the compiler
  -rules <opts>             deprecated rule options
 
 GPR specific options:
@@ -198,7 +144,7 @@ GPR specific options:
  --src-subdirs <src-subdirs>
            prepend <obj>/dir to the list of source dirs for each project
  --subdirs <subdirs>        Use dir as suffix to obj/lib/exec directories
- --target <target>          Specify a target for cross platforms
+ --target <target>          Specify a target <target> cross platforms
  -X <scenario>              Specify an external reference for Project Files
 
 
@@ -207,23 +153,21 @@ Report bugs to support@adacore.com
 Ensure the provided project file isn't processed
 ================================================
 
-GNATcheck: the GNAT rule checking tool
+GNATkp: the GNAT known problem detector
 
-Usage: gnatcheck [opts] [name] [-cargs opts]
+Usage: gnatkp --RTS=<runtime> [-P<proj>] [name] [opts]
 
  name is zero or more file names (wildcards allowed)
 
 general options:
 
- -log           duplicate all messages sent to stderr in gnatcheck.log
+ -log           duplicate all messages sent to stderr in gnatkp.log
  -V, --version  show the tool version and exit
  -h, --help     show the help message and exit
 
-gnatcheck help:
+gnatkp help:
 
  --list-rules              show the list of predefined rules and exit
- -hx
-           show the list of predefined rules formatted in XML and exit
  --check-semantic          check semantic validity of the source files
  --no-subprojects          process only sources of root project
  -U
@@ -231,47 +175,22 @@ gnatcheck help:
            arguments (or mains of the project if list is empty)
  --charset <charset>
            specify the charset of the source files (default is latin-1)
- --lkql-path <dir>
-           specify directories to add to the 'LKQL_PATH' environment variable
-           when spawning the LKQL worker
- --rules-dir <dir>         specify an alternate directory containing rule files
+ --kp-version <version>    enable all KP detectors matching GNAT <version>
  -l                        full pathname for file locations
  -q                        quiet mode, do not emit messages on stderr
  -v, --verbose             enable the verbose mode
- -m <n>
-           set the maximal number of diagnostics in stderr (0 for all
-           diagnostics, default is 0)
  --brief
            report rule violation detections on stderr, suppress other messages
            (implies -s)
  -s                        print the short version of the report file
- -nt                       do not generate text report (enforces '-xml')
- -xml                      generate report in XML format
  -o <file>                 specify the name of the text report file
- -ox <file>
-           specify the name of the XML report file (enforces '-xml')
  --sarif <file>            specify the name of the SARIF report file
- -t                        print the total execution time (wall clock) on stderr
- --show-rule               append rule names to diagnostics generated
  --show-instantiation-chain
            show instantiation chain for reported generic construct
- --check-redefinition      issue warning if a rule parameter is redefined
- --no-object-dir
-           place results in the current directory instead of the project object
-           directory
- --include-file <file>     add the content of filename into generated report
- -files <file>
-           the name of the text file containing a list of Ada source files to
-           analyze
- --ignore <file>           do not process sources listed in filename
  -j <n>                    the maximal number of processes
  -r, --rule <rule>         enable the given rules for the run
  --rule-file <file>        read rule configuration from the given LKQL rule file
- --emit-lkql-rule-file
-           convert the current legacy rule configuration to a 'rules.lkql' LKQL
-           rule file
  -W, --warnings-as-errors  treat warning messages as errors
- -cargs <opts>             options forwarded to the compiler
  -rules <opts>             deprecated rule options
 
 GPR specific options:
@@ -301,7 +220,7 @@ GPR specific options:
  --src-subdirs <src-subdirs>
            prepend <obj>/dir to the list of source dirs for each project
  --subdirs <subdirs>        Use dir as suffix to obj/lib/exec directories
- --target <target>          Specify a target for cross platforms
+ --target <target>          Specify a target <target> cross platforms
  -X <scenario>              Specify an external reference for Project Files
 
 

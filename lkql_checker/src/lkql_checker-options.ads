@@ -194,7 +194,7 @@ package Lkql_Checker.Options is
         Parse_Flag
           (Parser           => Parser,
            Long             => "-log",
-           Name             => "Log mode",
+           Name             => "log",
            Legacy_Long_Form => True,
            Help             =>
              "duplicate all messages sent to stderr in "
@@ -204,7 +204,6 @@ package Lkql_Checker.Options is
       package Version is new
         Parse_Flag
           (Parser => Parser,
-           Name   => "Version",
            Long   => "--version",
            Short  => "-V",
            Help   => "show the tool version and exit");
@@ -212,7 +211,6 @@ package Lkql_Checker.Options is
       package Help is new
         Parse_Flag
           (Parser => Parser,
-           Name   => "Help",
            Long   => "--help",
            Short  => "-h",
            Help   => "show the help message and exit");
@@ -248,13 +246,13 @@ package Lkql_Checker.Options is
         Parse_Option
           (Parser      => Parser,
            Short       => "-A",
-           Name        => "Aggregate project",
+           Name        => "subproject",
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
            Hidden      => True,
            Help        =>
-             "private flag - used when processing a subproject of "
-             & "a root aggregate project");
+             "name of the subproject being analyzed in an aggregate "
+             & "project run");
 
       package Ignore_Project_Switches_Opt is new
         Parse_Flag
@@ -266,7 +264,7 @@ package Lkql_Checker.Options is
         Parse_Option
           (Parser           => Parser,
            Long             => "-vP",
-           Name             => "Project verbosity",
+           Name             => "level",
            Legacy_Long_Form => True,
            Arg_Type         => Project_Verbosity_Level,
            Default_Val      => Project_Verbosity_Level'First,
@@ -310,7 +308,6 @@ package Lkql_Checker.Options is
       package List_Rules is new
         Parse_Flag
           (Parser => Parser,
-           Name   => "List rules",
            Long   => "--list-rules",
            Help   => "show the list of predefined rules and exit");
 
@@ -318,7 +315,7 @@ package Lkql_Checker.Options is
         Parse_Flag
           (Parser           => Parser,
            Enabled          => Mode in Gnatcheck_Mode,
-           Name             => "List rules XML",
+           Name             => "hx",
            Long             => "-hx",
            Help             =>
              "show the list of predefined rules formatted in XML and exit",
@@ -340,7 +337,7 @@ package Lkql_Checker.Options is
         Parse_Flag
           (Parser => Parser,
            Short  => "-U",
-           Name   => "Closure",
+           Name   => "closure",
            Help   =>
              "process all units of the closure rooted in the mains "
              & "passed as arguments (or mains of the project if list "
@@ -361,7 +358,7 @@ package Lkql_Checker.Options is
           (Parser      => Parser,
            Enabled     => Mode in Gnatkp_Mode,
            Long        => "--kp-version",
-           Name        => "KP version",
+           Name        => "version",
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
            Help        => "enable all KP detectors matching GNAT <version>");
@@ -371,6 +368,7 @@ package Lkql_Checker.Options is
           (Parser     => Parser,
            Enabled    => Mode in Gnatcheck_Mode,
            Long       => "--lkql-path",
+           Name       => "dir",
            Arg_Type   => Unbounded_String,
            Accumulate => True,
            Help       =>
@@ -382,6 +380,7 @@ package Lkql_Checker.Options is
           (Parser     => Parser,
            Enabled    => Mode in Gnatcheck_Mode,
            Long       => "--rules-dir",
+           Name       => "dir",
            Arg_Type   => Unbounded_String,
            Accumulate => True,
            Help       =>
@@ -391,14 +390,14 @@ package Lkql_Checker.Options is
         Parse_Flag
           (Parser => Parser,
            Short  => "-l",
-           Name   => "Full source locations",
+           Name   => "full-pathname",
            Help   => "full pathname for file locations");
 
       package Debug_Mode is new
         Parse_Flag
           (Parser => Parser,
            Short  => "-d",
-           Name   => "Debug mode",
+           Name   => "debug",
            Hidden => True,
            Help   => "activate debug mode");
 
@@ -406,7 +405,7 @@ package Lkql_Checker.Options is
         Parse_Flag
           (Parser => Parser,
            Short  => "-dd",
-           Name   => "Progress indicator mode",
+           Name   => "show-progress",
            Hidden => True,
            Help   => "activate progress indicator mode");
 
@@ -414,7 +413,7 @@ package Lkql_Checker.Options is
         Parse_Flag
           (Parser => Parser,
            Short  => "-q",
-           Name   => "Quiet mode",
+           Name   => "quiet",
            Help   => "quiet mode, do not emit messages on stderr");
 
       package Verbose is new
@@ -422,7 +421,6 @@ package Lkql_Checker.Options is
           (Parser => Parser,
            Short  => "-v",
            Long   => "--verbose",
-           Name   => "Verbose mode",
            Help   => "enable the verbose mode");
 
       package Max_Diagnostics is new
@@ -430,7 +428,7 @@ package Lkql_Checker.Options is
           (Parser      => Parser,
            Enabled     => Mode in Gnatcheck_Mode,
            Short       => "-m",
-           Name        => "Max diagnostics",
+           Name        => "n",
            Arg_Type    => Max_Diagnostics_Count,
            Default_Val => 0,
            Convert     => Max_Diagnostics_Convert,
@@ -443,14 +441,14 @@ package Lkql_Checker.Options is
           (Parser => Parser,
            Long   => "--brief",
            Help   =>
-             "brief mode: like quiet mode except that messages are "
-             & "emitted on stderr");
+             "report rule violation detections on stderr, suppress other"
+             & " messages (implies -s)");
 
       package Short is new
         Parse_Flag
           (Parser => Parser,
            Short  => "-s",
-           Name   => "Short report",
+           Name   => "short",
            Help   => "print the short version of the report file");
 
       package No_Text_Report is new
@@ -458,7 +456,7 @@ package Lkql_Checker.Options is
           (Parser           => Parser,
            Enabled          => Mode in Gnatcheck_Mode,
            Long             => "-nt",
-           Name             => "No text report",
+           Name             => "nt",
            Legacy_Long_Form => True,
            Help             =>
              "do not generate text report (enforces '-xml')");
@@ -468,7 +466,7 @@ package Lkql_Checker.Options is
           (Parser           => Parser,
            Enabled          => Mode in Gnatcheck_Mode,
            Long             => "-xml",
-           Name             => "XML report",
+           Name             => "xml",
            Legacy_Long_Form => True,
            Help             => "generate report in XML format");
 
@@ -476,7 +474,7 @@ package Lkql_Checker.Options is
         Parse_Option
           (Parser                    => Parser,
            Short                     => "-o",
-           Name                      => "Text output",
+           Name                      => "file",
            Arg_Type                  => Unbounded_String,
            Default_Val               => Null_Unbounded_String,
            Allow_Collated_Short_Form => False,
@@ -488,7 +486,7 @@ package Lkql_Checker.Options is
           (Parser           => Parser,
            Enabled          => Mode in Gnatcheck_Mode,
            Long             => "-ox",
-           Name             => "XML output",
+           Name             => "file",
            Arg_Type         => Unbounded_String,
            Default_Val      => Null_Unbounded_String,
            Legacy_Long_Form => True,
@@ -499,7 +497,7 @@ package Lkql_Checker.Options is
         Parse_Option
           (Parser      => Parser,
            Long        => "--sarif",
-           Name        => "SARIF output",
+           Name        => "file",
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
            Help        => "specify the name of the SARIF report file");
@@ -509,7 +507,7 @@ package Lkql_Checker.Options is
           (Parser  => Parser,
            Enabled => Mode in Gnatcheck_Mode,
            Short   => "-t",
-           Name    => "Compute timing",
+           Name    => "time",
            Help    => "print the total execution time (wall clock) on stderr");
 
       package Show_Rule is new
@@ -555,6 +553,7 @@ package Lkql_Checker.Options is
           (Parser      => Parser,
            Enabled     => Mode in Gnatcheck_Mode,
            Long        => "--include-file",
+           Name        => "file",
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
            Help        => "add the content of filename into generated report");
@@ -564,7 +563,7 @@ package Lkql_Checker.Options is
           (Parser           => Parser,
            Enabled          => Mode in Gnatcheck_Mode,
            Long             => "-files",
-           Name             => "Source files",
+           Name             => "file",
            Arg_Type         => Unbounded_String,
            Default_Val      => Null_Unbounded_String,
            Legacy_Long_Form => True,
@@ -577,6 +576,7 @@ package Lkql_Checker.Options is
           (Parser      => Parser,
            Enabled     => Mode in Gnatcheck_Mode,
            Long        => "--ignore",
+           Name        => "file",
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
            Help        => "do not process sources listed in filename");
@@ -585,7 +585,7 @@ package Lkql_Checker.Options is
         Parse_Option
           (Parser      => Parser,
            Short       => "-j",
-           Name        => "Jobs",
+           Name        => "n",
            Arg_Type    => Natural,
            Default_Val => 1,
            Convert     => Jobs_Convert,
@@ -596,6 +596,7 @@ package Lkql_Checker.Options is
           (Parser                    => Parser,
            Short                     => "-r",
            Long                      => "--rule",
+           Name                      => "rule",
            Arg_Type                  => Unbounded_String,
            Accumulate                => True,
            Allow_Collated_Short_Form => False,
@@ -605,9 +606,11 @@ package Lkql_Checker.Options is
         Parse_Option
           (Parser      => Parser,
            Long        => "--rule-file",
+           Name        => "file",
            Arg_Type    => Unbounded_String,
            Default_Val => Null_Unbounded_String,
-           Help        => "read rule configuration from the given LKQL file");
+           Help        =>
+             "read rule configuration from the given LKQL rule file");
 
       package Emit_LKQL_Rule_File is new
         Parse_Flag
@@ -615,22 +618,22 @@ package Lkql_Checker.Options is
            Enabled => Mode in Gnatcheck_Mode,
            Long    => "--emit-lkql-rule-file",
            Help    =>
-             "emit a 'rules.lkql' file containing the rules "
-             & "configuration");
+             "convert the current legacy rule configuration to a 'rules.lkql'"
+             & " LKQL rule file");
 
       package Warnings_As_Errors is new
         Parse_Flag
           (Parser => Parser,
            Long   => "--warnings-as-errors",
            Short  => "-W",
-           Help   => "Treat warning messages as errors");
+           Help   => "treat warning messages as errors");
 
       package Cargs_Section is new
         Parse_Option_List
           (Parser              => Parser,
            Enabled             => Mode in Gnatcheck_Mode,
            Long                => "-cargs",
-           Name                => "Compiler options",
+           Name                => "opts",
            Accumulate          => True,
            Arg_Number          => Multiple_Args,
            Allow_Empty         => True,
@@ -643,13 +646,13 @@ package Lkql_Checker.Options is
         Parse_Option_List
           (Parser              => Parser,
            Long                => "-rules",
-           Name                => "Rule options",
+           Name                => "opts",
            Accumulate          => True,
            Arg_Number          => Multiple_Args,
            Allow_Empty         => True,
            Arg_Type            => XString,
            List_Stop_Predicate => Is_New_Section,
-           Help                => "legacy rule options",
+           Help                => "deprecated rule options",
            Legacy_Long_Form    => True);
 
       ----------------------

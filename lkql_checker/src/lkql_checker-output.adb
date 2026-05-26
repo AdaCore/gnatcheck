@@ -8,11 +8,16 @@ with Ada.Directories;         use Ada.Directories;
 with Ada.Finalization;
 with Ada.Strings;             use Ada.Strings;
 with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
+
+with GNATCOLL.JSON;      use GNATCOLL.JSON;
+with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNAT.Traceback.Symbolic;
 
-with Lkql_Checker.Options; use Lkql_Checker.Options;
+with Lkql_Checker.Options;          use Lkql_Checker.Options;
+with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with Interfaces.C_Streams; use Interfaces.C_Streams;
 
@@ -40,7 +45,7 @@ package body Lkql_Checker.Output is
    -- Output files --
    ------------------
 
-   Log_File_Name : String_Access;
+   Log_File_Name : GNAT.OS_Lib.String_Access;
    --  Variables that set the properties of the tool report and log files
 
    XML_Report_File : File_Type;
@@ -441,193 +446,150 @@ package body Lkql_Checker.Output is
    -- Print_Usage --
    -----------------
 
-   --  TODO: Transition this help message to Opt_Parse's one
    procedure Print_Usage is
+
+      function Is_Hidden_Option (Opt : JSON_Value) return Boolean
+      is (Opt.Has_Field ("hidden") and then Boolean'(Opt.Get ("hidden")));
+      --  Return True for options that should not appear in the help output.
+
+      function Option_Left_Col (Opt : JSON_Value) return String;
+      --  Build the left-column string for one option entry: flags followed by
+      --  the argument placeholder for options that take a value.
+
+      procedure Print_Section (Parser : Argument_Parser);
+      --  Print the help section for one parser, driven by Parser.JSON_Help.
+
+      function Option_Left_Col (Opt : JSON_Value) return String is
+         Kind : constant String := Opt.Get ("kind");
+         --  Parser kind: "flag", "option", "list_option", or
+         --  "list_option_accumulate".
+
+         Name : constant String := "<" & String'(Opt.Get ("name")) & ">";
+         --  Argument placeholder in angle brackets, e.g. <file>.
+
+         Short : constant String :=
+           (if Opt.Has_Field ("short_flag")
+            then Opt.Get ("short_flag")
+            else "");
+         --  Short flag string, e.g. "-r", or empty if absent.
+
+         Long : constant String :=
+           (if Opt.Has_Field ("long_flag") then Opt.Get ("long_flag") else "");
+         --  Long flag string, e.g. "--rule", or empty if absent.
+
+         Flags : constant String :=
+           (if Short /= ""
+            then Short & (if Long /= "" then ", " & Long else "")
+            else Long);
+      begin
+         if Kind = "flag" then
+            return Flags;
+         elsif Kind = "list_option" then
+            return Flags & " " & Name & " [" & Name & "...]";
+         else
+            return Flags & " " & Name;
+         end if;
+      end Option_Left_Col;
+
+      procedure Print_Section (Parser : Argument_Parser) is
+         JSON      : constant JSON_Value := Parser.JSON_Help;
+         Header    : constant String := JSON.Get ("help");
+         Opts      : constant JSON_Array := JSON.Get ("optional_parsers");
+         Col_Width : Natural := 0;
+
+         procedure Put_Option_Line (Flag_Col : String; Help : String);
+         --  Print one option entry. If the flag + help fits on one line (using
+         --  Col_Width for alignment), use single-line format; otherwise print
+         --  the flag first and the wrapped help text indented below.
+
+         procedure Put_Option_Line (Flag_Col : String; Help : String) is
+            Indent  : constant String := 11 * ' ';
+            Eff_Col : constant Natural :=
+              Natural'Max (Col_Width, Flag_Col'Length);
+            --  Effective column width: at least the flag's own length, so
+            --  padding is always non-negative even for flags wider than
+            --  Col_Width.
+            Words   : constant String_Vector := Split (Help, ' ');
+            Line    : Unbounded_String := To_Unbounded_String (Indent);
+         begin
+            --  Single-line format: " <flag><padding><help>", 80 chars max.
+            --  1 (leading space) + Eff_Col (flag) + 2 (min gap) + help.
+            if 1 + Eff_Col + 2 + Help'Length <= 80 then
+               Put_Line
+                 (" "
+                  & Flag_Col
+                  & (Eff_Col - Flag_Col'Length + 2) * ' '
+                  & Help);
+               return;
+            end if;
+
+            --  Two-line format: flag on its own line, help word-wrapped below.
+            Put_Line (" " & Flag_Col);
+            for Word of Words loop
+               if Length (Line) = Indent'Length then
+                  --  First word on the current line: always start it.
+                  Append (Line, Word);
+               elsif Length (Line) + 1 + Word'Length > 80 then
+                  --  Word doesn't fit: flush the current line and start fresh.
+                  Put_Line (To_String (Line));
+                  Line := To_Unbounded_String (Indent & Word);
+               else
+                  Append (Line, ' ' & Word);
+               end if;
+            end loop;
+            --  Flush the last (possibly only) line.
+            if Length (Line) > Indent'Length then
+               Put_Line (To_String (Line));
+            end if;
+         end Put_Option_Line;
+
+      begin
+         Put_Line (Header & ":");
+         New_Line;
+
+         --  First pass: compute the column width for flag alignment, only
+         --  considering options whose flag + help can fit on a single line.
+         for Opt of Opts loop
+            if not Is_Hidden_Option (Opt) then
+               declare
+                  Flag : constant String := Option_Left_Col (Opt);
+                  Help : constant String := Opt.Get ("help");
+               begin
+                  if 1 + Flag'Length + 2 + Help'Length <= 80 then
+                     Col_Width := Natural'Max (Col_Width, Flag'Length);
+                  end if;
+               end;
+            end if;
+         end loop;
+
+         --  Second pass: print each option with consistent alignment.
+         for Opt of Opts loop
+            if not Is_Hidden_Option (Opt) then
+               Put_Option_Line (Option_Left_Col (Opt), Opt.Get ("help"));
+            end if;
+         end loop;
+
+         New_Line;
+      end Print_Section;
+
    begin
-      pragma Style_Checks ("M200"); -- Allow long lines
-
       if Mode = Gnatkp_Mode then
-         Put_Line ("gnatkp: the GNAT known problem detector");
-         Put_Line
-           ("usage: gnatkp -Pproject [options] [-rules [-from=file] {+Rkp_id[:param]}]");
-         Put_Line ("options:");
-         Put_Line (" -V, --version  - Display version and exit");
-         Put_Line (" -h, --help - Display usage and exit");
-         Put_Line ("");
-         Put_Line
-           (" -Pproject        - Use project file project. Only one such switch can be used");
-         Put_Line
-           (" -U               - check all sources of the argument project");
-         Put_Line
-           (" -U main          - check the closure of units rooted at unit main");
-         Put_Line (" --no-subprojects - process only sources of root project");
-         Put_Line
-           (" -Xname=value     - specify an external reference for argument project file");
-         Put_Line
-           (" --subdirs=dir    - specify subdirectory to place the result files into");
-         Put_Line
-           (" -eL              - follow all symbolic links when processing project files");
-         Put_Line
-           ("-vP               - verbosity level when parsing a project file (from 0 to 2, default is 0)");
-         Put_Line (" -o filename      - specify the name of the report file");
-         Put_Line ("");
-         Put_Line
-           (" --target=targetname - specify a target for cross platforms");
-         Put_Line (" --RTS=<runtime>     - use runtime <runtime>");
-         Put_Line ("");
-         Put_Line
-           (" --list-rules             - print out the list of the available kp detectors");
-         Put_Line
-           (" -jn                      - n is the maximal number of processes");
-         Put_Line
-           (" -q                       - quiet mode (do not report detections in Stderr)");
-         Put_Line (" -v, --verbose            - enable the verbose mode");
-         Put_Line
-           (" -W, --warnings-as-errors - treat warning messages as errors");
-         Put_Line
-           (" -l                       - full pathname for file locations");
-         Put_Line ("");
-         Put_Line
-           (" --brief                - brief mode, only report detections in Stderr");
-         Put_Line
-           (" --check-semantic       - check semantic validity of the source files");
-         Put_Line
-           (" --charset=<charset>    - specify the charset of the source files");
-         Put_Line
-           (" --kp-version=<version> - enable all KP detectors matching GNAT <version>");
-         Put_Line
-           (" --rule-file=filename   - read kp configuration from the given LKQL file");
-         Put_Line
-           (" -r, --rule [kp_id]     - enable the given kp detector during the GNATKP run (this option is cumulative)");
-         Put_Line ("");
-         Put_Line (" -from=filename    - read kp options from filename");
-         Put_Line
-           (" +R<kp_id>[:param] - turn ON a given detector [with given parameter]");
-         Put_Line
-           ("   where <kp_id>   - ID of one of the currently implemented");
-         Put_Line
-           ("                     detectors, use '--list-rules' for the full list");
-         Put_Line ("");
-         Put_Line
-           ("KP detectors must be specified either implicitly via --kp-version ");
-         Put_Line ("(and optionally --target), or explicitly via -rules");
-         return;
+         Put_Line ("GNATkp: the GNAT known problem detector");
+         New_Line;
+         Put_Line ("Usage: gnatkp --RTS=<runtime> [-P<proj>] [name] [opts]");
+      else
+         Put_Line ("GNATcheck: the GNAT rule checking tool");
+         New_Line;
+         Put_Line ("Usage: gnatcheck [opts] [name] [-cargs opts]");
       end if;
+      New_Line;
+      Put_Line (" name is zero or more file names (wildcards allowed)");
+      New_Line;
 
-      Put_Line ("gnatcheck: the GNAT rule checking tool");
-      Put_Line
-        ("usage: gnatcheck [options] {filename} {-files=filename} -rules rule_switches [-cargs gcc_switches]");
-      Put_Line ("options:");
-      Put_Line (" -V, --version  - Display version and exit");
-      Put_Line (" -h, --help - Display usage and exit");
-      Put_Line ("");
-      Put_Line
-        (" -Pproject        - Use project file project. Only one such switch can be used");
-      Put_Line
-        (" -U               - check all sources of the argument project");
-      Put_Line
-        (" -U main          - check the closure of units rooted at unit main");
-      Put_Line (" --no-subprojects - process only sources of root project");
-      Put_Line
-        (" -Xname=value     - specify an external reference for argument project file");
-      Put_Line
-        (" --subdirs=dir    - specify subdirectory to place the result files into");
-      Put_Line
-        (" --no-object-dir  - place results into current dir instead of project dir");
-      Put_Line
-        (" -eL              - follow all symbolic links when processing project files");
-      Put_Line
-        ("-vP               - verbosity level when parsing a project file (from 0 to 2, default is 0)");
-      Put_Line ("");
-      Put_Line
-        (" --ignore-project-switches - ignore switches specified in the project file");
-      Put_Line
-        (" --target=targetname       - specify a target for cross platforms");
-      Put_Line (" --RTS=<runtime>           - use runtime <runtime>");
-      Put_Line
-        (" --config=<cgpr>           - use configuration project <cgpr>");
-      Put_Line ("");
-      Put_Line
-        (" --list-rules             - print out the list of the currently implemented rules");
-      Put_Line
-        (" -mn                      - n is the maximal number of diagnostics in Stderr");
-      Put_Line
-        ("                            (n in 0 .. 1000, 0 means no limit); default is 0");
-      Put_Line
-        (" -jn                      - n is the maximal number of processes");
-      Put_Line
-        (" -q                       - quiet mode (do not report detections in Stderr)");
-      Put_Line (" -t                       - report execution time in Stderr");
-      Put_Line (" -v, --verbose            - enable the verbose mode");
-      Put_Line
-        (" -W, --warnings-as-errors - treat warning messages as errors");
-      Put_Line
-        (" -l                       - full pathname for file locations");
-      Put_Line
-        (" -log                     - duplicate all messages sent to stderr in gnatcheck.log");
-      Put_Line (" -s                       - short form of the report file");
-      Put_Line (" -xml                     - generate report in XML format");
-      Put_Line
-        (" -nt                      - do not generate text report (enforces '-xml')");
-      Put_Line ("");
-      Put_Line
-        (" --show-rule                - append rule names to diagnostics generated");
-      Put_Line
-        (" --show-instantiation-chain - show instantiation chain for reported generic construct");
-      Put_Line ("");
-      Put_Line
-        (" --brief              - brief mode, only report detections in Stderr");
-      Put_Line
-        (" --check-redefinition - issue warning if a rule parameter is redefined");
-      Put_Line
-        (" --check-semantic     - check semantic validity of the source files");
-      Put_Line
-        (" --charset=<charset>  - specify the charset of the source files");
-      Put_Line
-        (" --rules-dir=<dir>    - specify an alternate directory containing rule files");
-      Put_Line ("");
-      Put_Line
-        (" --include-file=filename - add the content of filename into generated report");
-      Put_Line ("");
-      Put_Line
-        (" -o filename      - specify the name of the text report file");
-      Put_Line
-        (" -ox filename     - specify the name of the XML report file (enforces '-xml')");
-      Put_Line
-        (" --sarif filename - enable the SARIF output while specifying the name of the report file");
-      Put_Line ("");
-      Put_Line
-        (" filename                 - the name of the Ada source file to be analyzed.");
-      Put_Line ("                            Wildcards are allowed");
-      Put_Line
-        (" -files=filename          - the name of the text file containing a list of Ada");
-      Put_Line ("                            source files to analyze");
-      Put_Line
-        (" --ignore=filename        - do not process sources listed in filename");
-      Put_Line
-        (" --rule-file=filename     - read rule configuration from the given LKQL file");
-      Put_Line
-        (" -r, --rule [rule_name]   - enable the given rule during the GNATcheck run (this option is cumulative)");
-      Put_Line
-        (" --emit-lkql-rule-file    - emit a 'rules.lkql' file containing the rules configuration");
-      Put_Line ("");
-      Put_Line ("rule_switches          - a list of the following switches");
-      Put_Line ("   -from=filename      - read rule options from filename");
-      Put_Line
-        ("   +R<rule_id>[:param] - turn ON a given rule [with given parameter]");
-      Put_Line ("   -R<rule_id>         - turn OFF a given rule");
-      Put_Line
-        ("   -R<rule_id>:param   - turn OFF some of the checks for a given  rule,");
-      Put_Line
-        ("                         depending on the specified parameter");
-      Put_Line ("where <rule_id> - ID of one of the currently implemented");
-      Put_Line
-        ("                  rules, use '--list-rules' for the full list");
-      Put_Line
-        ("      param     - string representing parameter(s) of a given rule, more than");
-      Put_Line ("                  one parameter can be set separated by ','");
+      Print_Section (Early_Args.Parser);
+      Print_Section (Tool_Args.Parser);
+      Print_Section (GPR_Args.Parser);
 
-      pragma Style_Checks ("M79");
       New_Line;
       Put_Line ("Report bugs to support@adacore.com");
    end Print_Usage;
