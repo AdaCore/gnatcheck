@@ -105,3 +105,23 @@ line.ads:20:14: rule violation: more than one construct on the same line
 20 |    procedure Proc (I : in out Integer); end Line; --  FLAG
    |              ^^^^
 
+private_gen.adb:3:4: rule violation: more than one construct on the same line
+3 |    null; null;  -- FLAG (2)
+  |    ^^^^^
+
+private_gen.adb:3:10: rule violation: more than one construct on the same line
+3 |    null; null;  -- FLAG (2)
+  |          ^^^^^
+
+private_package.ads:2:20: rule violation: more than one construct on the same line
+2 | private    package Inner is        --  FLAG because the "private" here is the private part delimiter
+  |                    ^^^^^
+
+private_proc.adb:3:4: rule violation: more than one construct on the same line
+3 |    null; null;  -- FLAG (2)
+  |    ^^^^^
+
+private_proc.adb:3:10: rule violation: more than one construct on the same line
+3 |    null; null;  -- FLAG (2)
+  |          ^^^^^
+
