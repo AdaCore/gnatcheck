@@ -541,6 +541,10 @@ to provide parameters to rules through LKQL rule files.
       ]
     }
 
+  This will make the rule run multiple times (one for each instance) with
+  different configurations. Use the ``--show-rule`` to differentiate violation
+  messages from different instances of the same rule.
+
   Moreover, each instance must be identifiable through a unique name, thus the
   following configuration is invalid and will lead to a GNATcheck error:
 
@@ -611,6 +615,11 @@ the following configuration will raise an error:
     val spark_rules = @{
       Forbidden_Attributes: {Forbidden: ["Length"], instance_name: "Forbid_Attr"}
     }
+
+  Defining multiple instances of the same rule across multiple rule sets is the
+  same as defining multiple instances in the same rule set. Use the
+  ``--show-rule`` CLI flag to add instance names to the GNATcheck violations
+  output and differentiate messages.
 
 You cannot provide more than **one** LKQL rule file when running GNATcheck. In
 order to compose a rule file with another you have to use the
