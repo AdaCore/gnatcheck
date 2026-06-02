@@ -18,6 +18,10 @@ fun kp_19916(node) =
     |" Flag aspect associations and clauses that defines a size both:
     |"   * Too big for 64 bit targets (128 bits)
     |"   * Not a multiple of 8 (byte storage unit)
+    |"
+    |" .. warning:: This detector is not enabled by default and should only be
+    |"    used with full awareness of its behavior, as it may generate a
+    |"    significant number of false positives.
     match node
     | AspectAssoc(f_id: name@Name) =>
         is_component_size(name) and is_invalid_size(node.f_expr)
