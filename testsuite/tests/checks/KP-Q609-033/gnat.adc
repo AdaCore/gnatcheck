@@ -1,0 +1,1 @@
+pragma Restrictions (No_Local_Timing_Events);

@@ -1,0 +1,12 @@
+test.adb:9:29: rule violation: possible occurrence of KP S722-023
+9 |    S1 : constant Integer := B (0 .. 11)'Size;  --  FLAG
+  |                             ^^^^^^^^^^^^^^^^
+
+test.adb:10:29: rule violation: possible occurrence of KP S722-023
+10 |    S2 : constant Integer := Slice'Size;        --  FLAG: renaming of a slice
+   |                             ^^^^^^^^^^
+
+test.adb:19:32: rule violation: possible occurrence of KP S722-023
+19 |       S4 : constant Integer := F'Size;  --  FLAG: actual for F is a slice
+   |                                ^^^^^^
+

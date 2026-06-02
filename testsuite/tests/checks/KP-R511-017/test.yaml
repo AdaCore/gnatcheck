@@ -1,0 +1,6 @@
+driver: 'checker'
+description: |
+    Check that the KP_R511_017 rule flags subtype declarations of packed
+    arrays with an Object_Size aspect.
+rule_name: KP_R511_017
+project: 'prj.gpr'

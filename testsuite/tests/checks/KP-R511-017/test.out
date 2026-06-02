@@ -1,0 +1,4 @@
+test.adb:7:12: rule violation: possible occurrence of KP R511-017
+7 |    subtype Sub is Bits with Object_Size => 16;     --  FLAG
+  |            ^^^
+

@@ -1,0 +1,7 @@
+driver: 'checker'
+description: |
+    Check that the KP_S722_023 rule flags Size attributes applied to array
+    slices, including through renamings and generic formal objects whose
+    actual is a slice.
+rule_name: KP_S722_023
+project: 'prj.gpr'

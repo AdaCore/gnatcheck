@@ -1,0 +1,7 @@
+driver: 'checker'
+description: |
+    Check that the KP_R517_023 rule flags calls passing a component of a
+    record subject to a representation clause to an In Out or Out formal
+    parameter of an unconstrained packed array type.
+rule_name: KP_R517_023
+project: 'prj.gpr'

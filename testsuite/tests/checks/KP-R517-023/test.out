@@ -1,0 +1,8 @@
+test.adb:35:4: rule violation: possible occurrence of KP R517-023
+35 |    P (R.F);   --  FLAG
+   |    ^^^^^^^
+
+test.adb:36:4: rule violation: possible occurrence of KP R517-023
+36 |    S (R.F);   --  FLAG: in out mode
+   |    ^^^^^^^
+

@@ -1,0 +1,7 @@
+driver: 'checker'
+description: |
+    Check that the KP_P226_024 rule flags local objects containing a
+    protected object component when restriction No_Local_Protected_Objects
+    is in effect.
+rule_name: KP_P226_024
+project: 'prj.gpr'

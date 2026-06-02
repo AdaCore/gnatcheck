@@ -1,0 +1,7 @@
+driver: 'checker'
+description: |
+    Check that the KP_Q309_014 rule flags types derived, directly or
+    transitively, from packed discriminated untagged record types, and
+    leaves unpacked or tagged parent types alone.
+rule_name: KP_Q309_014
+project: 'prj.gpr'
