@@ -9,6 +9,9 @@ import sys
 from sphinx.highlighting import lexers
 import time
 
+from docutils import nodes
+from sphinx import addnodes
+
 # Add own dir path
 own_dir_path = P.dirname(P.realpath(__file__))
 sys.path.append(own_dir_path)
@@ -41,6 +44,7 @@ lexers["gpr"] = ada_pygments.GNATProjectLexer()
 
 # TODO: Add back the lkql syntax check, factor it from LKQL's user manual
 extensions = ["sphinx.ext.viewcode", "lkql_doc_class"]
+exclude_patterns = ["generated/lal_api.rst"]
 templates_path = ["_templates"]
 source_suffix = ".rst"
 master_doc = "gnatcheck_rm"
@@ -71,6 +75,7 @@ if P.isfile("favicon.ico"):
 html_logo = "adacore-logo-white.png"
 html_theme_options = {
     "style_nav_header_background": "#12284c",
+    "navigation_depth": 5,
 }
 
 latex_additional_files = ["gnat.sty"]
@@ -87,3 +92,33 @@ latex_elements = {
 latex_documents = [(master_doc, "%s.tex" % doc_name, project, "AdaCore", "manual")]
 
 texinfo_documents = [(master_doc, doc_name, project, "AdaCore", doc_name, doc_name, "")]
+
+
+def _typeref_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
+    name = text.replace("_", "")
+    if name == "Pragma":
+        name = "PragmaNode"
+    node = addnodes.pending_xref(
+        rawtext,
+        nodes.literal(name, name),
+        refdomain="std",
+        reftype="ref",
+        reftarget="lal-" + name.lower(),
+        refexplicit=True,
+    )
+    return [node], []
+
+
+def _rmlink_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
+    url = (
+        "http://www.ada-auth.org/standards/22rm/html/rm-"
+        + text.replace(".", "-")
+        + ".html"
+    )
+    node = nodes.reference(rawtext, "ARM " + text, refuri=url, **options)
+    return [node], []
+
+
+def setup(app):
+    app.add_role("typeref", _typeref_role)
+    app.add_role("rmlink", _rmlink_role)

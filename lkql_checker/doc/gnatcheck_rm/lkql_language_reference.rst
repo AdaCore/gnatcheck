@@ -8,11 +8,13 @@ LKQL API
 Libadalang API
 --------------
 
-The `libadalang API <https://docs.adacore.com/live/wave/libadalang/html/libadalang_ug/python_api_ref.html>`_
-can be called from LKQL and is the basis for most of the GNATcheck rules.
+The Libadalang API can be called from LKQL and is the basis for most of the
+GNATcheck rules.
 
 In addition, LKQL comes with a built-in standard library described in :ref:`LKQL_std`, as well as
 a LKQL stdlib module described in :ref:`LKQL_stdlib`.
+
+.. include:: ../generated/lal_api.rst
 
 .. _LKQL_std:
 
