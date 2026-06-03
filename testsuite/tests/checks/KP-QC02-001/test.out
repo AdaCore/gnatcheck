@@ -1,0 +1,8 @@
+test.adb:17:29: rule violation: possible occurrence of KP QC02-001
+17 |    S1 : constant Integer := A'Size;   --  FLAG
+   |                             ^^^^^^
+
+test.adb:18:29: rule violation: possible occurrence of KP QC02-001
+18 |    S2 : constant Integer := D'Size;   --  FLAG
+   |                             ^^^^^^
+

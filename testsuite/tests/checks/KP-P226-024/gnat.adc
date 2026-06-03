@@ -1,0 +1,1 @@
+pragma Restrictions (No_Local_Protected_Objects);

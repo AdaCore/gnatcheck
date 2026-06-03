@@ -1,0 +1,7 @@
+driver: 'checker'
+description: |
+    Check that the KP_QC02_001 rule flags Size attributes on array objects
+    whose type has an alignment clause greater than 1, directly or via a
+    parent type.
+rule_name: KP_QC02_001
+project: 'prj.gpr'

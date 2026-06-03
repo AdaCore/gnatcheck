@@ -1,0 +1,7 @@
+driver: 'checker'
+description: |
+    Check that the KP_Q609_033 rule flags local objects containing a
+    component of type Ada.Real_Time.Timing_Events.Timing_Event when
+    restriction No_Local_Timing_Events is in effect.
+rule_name: KP_Q609_033
+project: 'prj.gpr'

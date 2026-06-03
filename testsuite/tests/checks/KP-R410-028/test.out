@@ -1,0 +1,8 @@
+test.adb:27:18: rule violation: possible occurrence of KP R410-028
+27 |    for I in 1 .. Make.D loop            --  FLAG
+   |                  ^^^^
+
+test.adb:31:18: rule violation: possible occurrence of KP R410-028
+31 |    for I in 1 .. Make_Wrapper.R.D loop  --  FLAG
+   |                  ^^^^^^^^^^^^
+

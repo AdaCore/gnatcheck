@@ -1,0 +1,8 @@
+test.adb:10:29: rule violation: possible occurrence of KP Q309-014
+10 |    type Der (X : Length) is new Rec (D => X);   --  FLAG
+   |                             ^^^^^^^^^^^^^^^^
+
+test.adb:11:17: rule violation: possible occurrence of KP Q309-014
+11 |    type Der2 is new Der (X => 10);              --  FLAG
+   |                 ^^^^^^^^^^^^^^^^^
+

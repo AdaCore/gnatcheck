@@ -1,0 +1,4 @@
+test.adb:21:4: rule violation: possible occurrence of KP P226-024
+21 |    R : Rec;    --  FLAG
+   |    ^
+

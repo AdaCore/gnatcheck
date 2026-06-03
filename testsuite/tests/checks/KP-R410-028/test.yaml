@@ -1,0 +1,7 @@
+driver: 'checker'
+description: |
+    Check that the KP_R410_028 rule flags calls in loop parameter
+    specifications to functions returning a discriminated record type,
+    directly or as a component.
+rule_name: KP_R410_028
+project: 'prj.gpr'

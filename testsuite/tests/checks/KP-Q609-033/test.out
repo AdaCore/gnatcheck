@@ -1,0 +1,4 @@
+test.adb:12:4: rule violation: possible occurrence of KP Q609-033
+12 |    R : Rec;    --  FLAG
+   |    ^
+
