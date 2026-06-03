@@ -31,9 +31,11 @@ fun one_construct_per_line(node) =
     |"       I := J; J := Tmp;      --  FLAG
     |"    end Swap;
     {
-        val token_start = node.token_start();
+        val token_start = match node
+            | BasicDecl(parent: LibraryItem(f_has_private: p@PrivatePresent)) => p.token_start()
+            | * => node.token_start();
         val token_end = match node
-            | WithClause when node.next_sibling() is UseClause => node.next_sibling().token_end()
+            | WithClause(next_sibling: u@UseClause) => u.token_end()
             | * => node.token_end();
 
         node is (
