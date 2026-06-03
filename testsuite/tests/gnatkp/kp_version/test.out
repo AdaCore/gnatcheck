@@ -93,7 +93,3 @@ malformed minor version is rejected
 gnatkp: error: unknown GNAT version 24.blabla (known versions: <versions>)
 try "gnatkp --help" for more information.
 >>>program returned status code 2
-==== Errors in 'FLAG/NOFLAG' annotations ====
-
-In file "pkg.ads":
-  - at line 3: no 'FLAG' annotation (line flagged 2 time(s))
