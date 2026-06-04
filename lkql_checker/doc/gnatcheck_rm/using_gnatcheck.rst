@@ -72,8 +72,8 @@ The following switches control the general ``gnatcheck`` behavior
 
   .. note::
 
-    This option can be used to safely run concurrent parallel jobs of GNATcheck
-    or GNATkp.
+    This option can be used to safely run concurrent parallel jobs of
+    GNATcheck.
 
   .. index:: --no-object-dir
 
@@ -1144,105 +1144,6 @@ For instance, from the previous example:
 
 This will exempt the given rule or instance only for the line on which this
 comment is placed, and automatically turn it back on on the next line.
-
-.. _Using_GNATcheck_as_a_KP_Detector:
-
-Using GNATcheck as a Known Problem Detector
-===========================================
-
-If you are a GNAT Pro Assurance customer, you have access to a special
-packaging of GNATcheck called ``gnatkp`` (GNAT Known Problem detector)
-where the ``gnatcheck`` executable is replaced by ``gnatkp``, and the
-coding standard rules are replaced by rules designed to detect constructs
-affected by known problems in official compiler releases. Note that GNATkp
-comes in addition and not as a replacement of GNATcheck.
-
-You can use the command ``gnatkp --help`` to list all the switches
-relevant to GNATkp. GNATkp mostly accepts the same command arguments as
-GNATcheck and behaves in a similar way, but there are some differences that
-are described below.
-
-The easiest way to use GNATkp is by specifying the version of GNAT Pro that
-you have and letting ``gnatkp`` run all known problem detectors
-registered for this version, via the switch ``--kp-version``. For example:
-
-.. code-block:: none
-
-  gnatkp -Pproject --kp-version=21.2 --target=<my_target> --RTS=<my_runtime>
-
-will run all detectors relevant to GNAT Pro 21.2 on all files in the
-project. The list of detectors will be displayed as info messages, and will
-also be listed in the file :file:`gnatkp-rule-list.out`. The list of detected
-source locations will be generated on standard error, as well as in a file
-called :file:`gnatkp.out`.
-
-A bare major version number may also be used (e.g. ``--kp-version=21``) to
-enable all detectors relevant to any minor release of that major version
-(21.1, 21.2, etc.).
-
-You can display the list of detectors without running them by specifying
-additionally the ``--list-rules`` switch, e.g.:
-
-.. code-block:: none
-
-  gnatkp --kp-version=21.2 --list-rules --target=<my_target> --RTS=<my_runtime>
-
-You can also combine the ``--kp-version`` switch with the ``--target`` switch
-to filter out detectors not relevant for your target, e.g:
-
-.. code-block:: none
-
-  gnatkp -Pproject --kp-version=21.2 --target=powerpc-elf --RTS=<my_runtime>
-
-will only enable detectors relevant to GNAT Pro 21.2 and to the ``powerpc-elf``
-target.
-
-Note that you need to have the corresponding target GNAT compiler installed
-to use this option. By default, detectors for all targets are enabled.
-
-It is also possible to specify the custom list of detectors for GNATkp to run
-using the switch ``-r``:
-
-.. code-block:: none
-
-  gnatkp -Pproject --target=<my_target> --RTS=<my_runtime> -r kp_xxxx_xxx [-r kp_xxxx_xxx]
-
-where ``kp_xxxx_xxx`` is the name of a relevant known-problem to detect. You
-can get the list of available detectors via the command
-``gnatkp --list-rules``. When combined with the ``--kp-version`` and possibly
-``--target`` switches, ``gnatkp --list-rules`` will only list the detectors
-relevant to the version (and target) specified.
-
-.. attention::
-
-  You must provide explicit target and runtime (either through the command-line
-  or with a provided project file) when running GNATkp to ensure the result
-  soundness.
-
-.. note::
-
-  The exemption mechanism is available for GNATkp as well but you have to
-  change pragmas and comments a bit to avoid conflict with GNATcheck
-  exemptions. Thus, pragmas annotations' first argument must be ``gnatkp``
-  instead of ``gnatcheck``:
-
-  .. code-block:: ada
-
-    pragma Annotate (gnatkp, Exempt_On, "kp_19198", "Justification");
-
-  And exemption comments' first word must be ``kp`` instead of ``rule``,
-  example:
-
-  .. code-block:: ada
-
-    --## kp off kp_19198 ## Justification
-
-You can check via the GNAT Tracker interface which known problems are
-relevant to your version of GNAT and your target before deciding which
-known problems may impact you: most known problems are only relevant to a
-specific version of GNAT, a specific target, or a specific usage profile. Do
-not hesitate to contact the AdaCore support if you need help identifying the
-entries that may be relevant to you.
 
 .. _Performance_and_Memory:
 

@@ -14,7 +14,7 @@ ALLSPHINXOPTS   = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) \
 		  -c $(SOURCEDIR)/share \
 		  -d $(BUILDDIR)/$*/doctrees \
 		  $(SOURCEDIR)
-DOC_LIST=gnatcheck_rm
+DOC_LIST=gnatcheck_rm gnatkp_rm
 FMT_LIST=html pdf txt info
 
 .PHONY: help clean generate
