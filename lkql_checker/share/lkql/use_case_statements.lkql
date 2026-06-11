@@ -1,52 +1,106 @@
-# TODO: extend with use_membership.check_expr to recognize more cases.
+# TODO: recognize more expressions and condition forms.
+# Known limitations include:
+# * array elements such as A (I);
+# * comparisons with the variable on the right, such as 3 = I;
+# * parenthesized variables, such as (I) = 1;
+# * conjunctions other than Var >= E1 and Var <= E2;
+# * not in, Boolean not and xor;
+# * explicit operator calls and qualified Boolean conditions.
 
 import stdlib
 
-fun is_static_relation(expr) =
-    expr is RelationOp(f_right: Expr(p_is_static_expr(): true),
+fun get_id(expr) =
+    |" Return the left operand of the leftmost relation or membership
+    |" test in ``expr``, or ``null``.
+    match expr
+    | ParenExpr      => get_id(expr.f_expr)
+    | RelationOp     => expr.f_left
+    | MembershipExpr => expr.f_expr
+    | BinOp          => get_id(expr.f_left)
+    | *              => null
+
+fun is_discrete_var(id) =
+    |" Whether ``id`` names an object or record component of a discrete
+    |" type, with no function call in its prefix.
+    id is (Identifier(p_is_call(): false)
+           | DottedName(f_suffix: Name(p_referenced_decl():
+                                          ComponentDecl | ObjectDecl))
+             when not (from id.f_prefix select first Name(p_is_call(): true)))
+    when id.p_expression_type()?.p_is_discrete_type()
+
+fun is_static_relation(expr, id) =
+    |" Whether ``expr`` is ``id <op> E``, with ``<op>`` a predefined
+    |" relational operator and ``E`` a static expression.
+    expr is RelationOp(f_left: Name(p_name_matches(id): true),
+                       f_right: Expr(p_is_static_expr(): true),
                        f_op: op@Op when stdlib.is_predefined_op(op))
 
-fun check_alternatives(list, id) =
-    |" Check that all alternatives are of the form:
-    |" Id <relation op> static-expr
-    [x for x in list
-     if x.f_cond_expr is r@RelationOp(f_left: id2@(Identifier | DottedName))
-        when is_static_relation(r) and id2.p_name_matches(id)
-     ].length == list.length
+fun check_choice_expr(expr, id) =
+    |" Whether ``expr`` tests ``id`` against static choices only, so that it
+    |" can become a ``case`` alternative.
+    match expr
+    | ParenExpr => check_choice_expr(expr.f_expr, id)
+
+    # C1 or C2 (or else)
+    | BinOp(f_op: op@(OpOr | OpOrElse) when stdlib.is_predefined_op(op)) =>
+        check_choice_expr(expr.f_left, id) and
+        check_choice_expr(expr.f_right, id)
+
+    # Var >= E1 and Var <= E2
+    | BinOp(f_op: op@(OpAnd | OpAndThen) when stdlib.is_predefined_op(op))
+    when stdlib.strip_parenthesis(expr.f_left) is RelationOp(f_op: OpGte)
+     and stdlib.strip_parenthesis(expr.f_right) is RelationOp(f_op: OpLte) =>
+        check_choice_expr(expr.f_left, id) and
+        check_choice_expr(expr.f_right, id)
+
+    # Var in C1 | C2 ...
+    | MembershipExpr(f_op: OpIn, f_expr: Name(p_name_matches(id): true)) =>
+        stdlib.all([c.p_is_static_expr()
+                    for c in expr.f_membership_exprs.children])
+
+    # Var <op> E
+    | RelationOp => is_static_relation(expr, id)
+
+    | * => false
 
 @check(message="IF statement may be replaced by a CASE statement",
        category="Style", subcategory="Programming Practice")
 fun use_case_statements(node) =
-    |" Flag an ``if`` statement if this statement could be replaced by a
-    |" ``case`` statement. An ``if`` statement is considered as being
-    |" replaceable by a ``case`` statement if:
+    |" Flag an ``if`` statement that could be replaced by a ``case``
+    |" statement, that is an ``if`` statement with at least one ``elsif``
+    |" alternative, and whose conditions all test the same discrete
+    |" variable ``Var`` (an identifier, a qualified object or a record
+    |" component, but not a function call) using only the following forms,
+    |" possibly combined with a predefined ``or`` or ``or else``, where
+    |" ``E``, ``E1`` and ``E2`` are static and ``Var`` is always the left
+    |" operand:
     |"
-    |" * it contains at least one ``elsif`` alternative;
-    |" * all the conditions are infix calls to some predefined relation operator,
-    |"   for all of them one operand is a reference to the same variable of some
-    |"   discrete type;
-    |" * for calls to a relation operator, another operand is some static expression;
+    |" * ``Var <op> E``, ``<op>`` being a predefined relational operator;
+    |" * ``Var >= E1 and Var <= E2`` (or ``and then``), with predefined
+    |"   operators, each relation being possibly parenthesized;
+    |" * ``Var in ...``, all choices being static.
+    |"
+    |" Note that the conditions may need to be rewritten as choices, for
+    |" instance when they overlap or cover values outside the subtype of
+    |" ``Var``.
     |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada
     |"    :emphasize-lines: 1
     |"
-    |"    if I = 1 then      --  FLAG
+    |"    if I = 1 or I = 2 then   --  FLAG
     |"       I := I + 1;
-    |"    elsif I > 2 then
+    |"    elsif I in 3 .. 5 then
     |"       I := I + 2;
     |"    else
     |"       I := 0;
     |"    end if;
-    node is IfStmt(
-        f_alternatives: l@ElsifStmtPartList when l[1],
-        f_cond_expr: r@RelationOp
-        when r.f_left is id@(
-                 (Identifier when id.p_expression_type().p_is_discrete_type())
-              | (DottedName
-                  when id.f_suffix is suffix@Name
-                      when suffix.p_referenced_decl() is ComponentDecl
-                       and suffix.p_expression_type().p_is_discrete_type()))
-            when is_static_relation(r)
-             and check_alternatives(from node.f_alternatives select ElsifStmtPart, id))
+    node is IfStmt(f_alternatives: l@ElsifStmtPartList when l[1])
+    when {
+        val id = get_id(node.f_cond_expr);
+        is_discrete_var(id)
+        and check_choice_expr(node.f_cond_expr, id)
+        and stdlib.all([check_choice_expr(p.f_cond_expr, id)
+                        for p in l.children])
+    }
