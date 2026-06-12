@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 #
-# GNATcheck build configuration file
+# GNATcheck/GNATkp build configuration file
 
 # -- Project information -----------------------------------------------------
 
+import os
 from os import path as P
 import sys
 from sphinx.highlighting import lexers
@@ -42,15 +43,32 @@ lexers["gpr"] = ada_pygments.GNATProjectLexer()
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 
+# The documentation to build is selected through the DOC_NAME environment
+# variable (set by the Makefile), defaulting to the GNATcheck manual.
+doc_name = os.environ.get("DOC_NAME", "gnatcheck_rm")
+
+doc_projects = {
+    "gnatcheck_rm": "GNATcheck Reference Manual",
+    "gnatkp_rm": "GNATkp Reference Manual",
+}
+
 # TODO: Add back the lkql syntax check, factor it from LKQL's user manual
 extensions = ["sphinx.ext.viewcode", "lkql_doc_class"]
 exclude_patterns = ["generated/lal_api.rst"]
+
+# Exclude the sources of the other documentations from the build
+exclude_patterns += ["%s.rst" % name for name in doc_projects if name != doc_name] + [
+    "%s/*" % name for name in doc_projects if name != doc_name
+]
+if doc_name != "gnatcheck_rm":
+    exclude_patterns.append("generated/*")
+
 templates_path = ["_templates"]
 source_suffix = ".rst"
-master_doc = "gnatcheck_rm"
+master_doc = doc_name
 
 # General information about the project.
-project = "GNATcheck Reference Manual"
+project = doc_projects[doc_name]
 copyright = "2008-%s, AdaCore" % time.strftime("%Y")
 author = "AdaCore"
 
@@ -64,7 +82,6 @@ def get_version():
 
 version = get_version()
 release = version
-doc_name = "gnatcheck_rm"
 
 pygments_style = "sphinx"
 
