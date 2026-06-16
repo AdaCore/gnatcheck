@@ -1,16 +1,24 @@
-main.adb:20:9: rule violation: possible occurrence of KP 19916 for 64 bit targets
-20 |    with Component_Size => 131;  -- FLAG
-   |         ^^^^^^^^^^^^^^^^^^^^^
-
-main.adb:23:9: rule violation: possible occurrence of KP 19916 for 64 bit targets
-23 |    with Component_Size => 128 + 5;  -- FLAG
+main.adb:19:9: rule violation: possible occurrence of KP 19916 for 64 bit targets
+19 |    with Component_Size => Dyn_Int;  -- FLAG
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-main.adb:26:9: rule violation: possible occurrence of KP 19916 for 64 bit targets
-26 |    with Component_Size => Invalid_Size;  -- FLAG
+main.adb:22:9: rule violation: possible occurrence of KP 19916 for 64 bit targets
+22 |    with Component_Size => 131;  -- FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:25:9: rule violation: possible occurrence of KP 19916 for 64 bit targets
+25 |    with Component_Size => 128 + 5;  -- FLAG
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:28:9: rule violation: possible occurrence of KP 19916 for 64 bit targets
+28 |    with Component_Size => Invalid_Size;  -- FLAG
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-main.adb:29:4: rule violation: possible occurrence of KP 19916 for 64 bit targets
-29 |    for Arr_Aspect_Decl'Component_Size use 131;  -- FLAG
+main.adb:31:4: rule violation: possible occurrence of KP 19916 for 64 bit targets
+31 |    for Arr_Aspect_Decl'Component_Size use 131;  -- FLAG
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:34:4: rule violation: possible occurrence of KP 19916 for 64 bit targets
+34 |    for Arr_Aspect_Decl_Ref'Component_Size use Arr_Aspect_Decl'Length;  -- FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
