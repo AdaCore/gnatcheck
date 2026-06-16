@@ -5,8 +5,8 @@ fun is_component_size(name) =
 fun is_invalid_size(expr)=
     |" Get whether the provided expression is an integer and corresponds to
     |" an invalid component size.
-    expr.p_is_static_expr()
-    and {
+    not expr.p_is_static_expr()
+    or {
         val value = expr.p_eval_as_int();
         value > 128
         and (value / 8) * 8 != value
