@@ -1,0 +1,24 @@
+import stdlib
+
+fun get_actual(params, param_name) =
+    |" Get the actual expression of the parameter named ``param_name`` in the
+    |" provided ``params`` which should be a list of ``ParamAssoc``.
+    [p.actual for p in params if p.param.p_name_is(param_name)].head
+
+@check(help="flags Unchecked_Conversion instances where the source is a non-volatile access, and the target a volatile access",
+       message="possible occurrence of KP 20562")
+fun kp_20562(node) =
+    |" Flags ``Unchecked_Conversion`` instantiations location where the source
+    |" type is a non-volatile access type and the target one is a volatile
+    |" access type.
+    {
+        stdlib.is_unchecked_conversion(node) and {
+            val params = node.f_params.p_zip_with_params();
+            val source_type = get_actual(params, "source").p_referenced_decl();
+            val target_type = get_actual(params, "target").p_referenced_decl();
+            source_type.p_is_access_type()
+            and target_type.p_is_access_type()
+            and not source_type.p_accessed_type().p_has_aspect("volatile")
+            and target_type.p_accessed_type().p_has_aspect("volatile")
+        }
+    }
