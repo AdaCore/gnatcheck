@@ -34,17 +34,12 @@ fun use_clauses(unit, exempt_operator_packages=false, allowed=[]) =
     |"    If ``true``, do not flag a package name in a package use clause if it refers
     |"    to a package that only declares operators in its visible part.
     |"
-    |" .. note::
-    |"    This rule has another parameter, only available when using an LKQL rule
-    |"    options file: ``allowed``. It is a list of Ada names describing packages
-    |"    to exempt from begin flagged when used in "use" clauses. Strings in this
-    |"    list are case insensitive. Example:
+    |" *Allowed: list[string]*
+    |"    A list of Ada names describing packages to exempt from begin flagged
+    |"    when they are mentioned in "use" clauses. Strings in this list are
+    |"    case insensitive.
     |"
-    |"    .. code-block:: lkql
-    |"
-    |"       val rules = @{
-    |"          Use_Clauses: {Allowed: ["Ada.Strings.Unbounded", "Other.Package"]}
-    |"       }
+    |"    .. warning:: This parameter is only available in LKQL rule files
     |"
     |" .. rubric:: Example
     |"
