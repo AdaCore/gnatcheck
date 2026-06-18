@@ -1,7 +1,12 @@
 import stdlib
 
 @check(message="membership test", category="Feature")
-fun membership_tests(node, multi_alternative_only=false, float_types_only=false, except_assertions=false) =
+fun membership_tests(
+    node,
+    multi_alternative_only: bool = false,
+    float_types_only: bool = false,
+    except_assertions: bool = false
+) =
     |" Flag use of membership test expression.
     |"
     |" This rule has the following (optional) parameters for the ``+R`` option and

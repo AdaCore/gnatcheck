@@ -1,6 +1,6 @@
 @check(message="goto statement", rule_name="GOTO_Statements",
        category="Style", subcategory="Programming Practice")
-fun goto_statements(node, only_unconditional=false) =
+fun goto_statements(node, only_unconditional: bool = false) =
     |" Flag each occurrence of a ``goto`` statement.
     |"
     |" This rule has the following optional parameter for the ``+R`` option and for

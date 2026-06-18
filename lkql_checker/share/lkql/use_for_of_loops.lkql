@@ -44,7 +44,7 @@ fun replace_in_by_of(for_stmt, ctx) =
 @check(message="FOR loop may be replaced by a FOR OF loop",
        category="Style", subcategory="Programming Practice",
        auto_fix=replace_in_by_of)
-fun use_for_of_loops(node, n : int = 1, ignore = false) =
+fun use_for_of_loops(node, n : int = 1, ignore: bool = false) =
     |" Flag ``for ... in`` loops which could be replaced by a ``for ... of`` loop,
     |" that is, where the loop index is used only for indexing a single object
     |" on a one dimension array.

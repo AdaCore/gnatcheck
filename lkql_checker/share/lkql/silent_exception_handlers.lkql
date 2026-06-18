@@ -16,7 +16,7 @@ fun qualified_name(name) = {
 @check(message="silent exception handler",
        category="Style", subcategory="Programming Practice",
        auto_fix=(n, ctx) => ctx.add_last(n.f_stmts, new RaiseStmt(null, null)))
-fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) =
+fun silent_exception_handlers(node, subprograms: list = [], subprogram_regexps: list = []) =
     |" Flag any exception handler in which there exists at least one an execution path
     |" that does not raise an exception by a ``raise`` statement or a call to
     |" ``Ada.Exceptions.Raise_Exception`` or to ``Ada.Exceptions.Reraise_Occurrence``

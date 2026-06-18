@@ -10,7 +10,7 @@ fun match_name(name, actuals) =
 
 @check(message="direct (in)equality",
        category="Style", subcategory="Programming Practice")
-fun direct_equalities(node, actuals = []) =
+fun direct_equalities(node, actuals: list = []) =
     |" Flag infix calls to the predefined ``=`` and ``/=`` operators when one of the
     |" operands is a name of a data object provided as a rule parameter.
     |"

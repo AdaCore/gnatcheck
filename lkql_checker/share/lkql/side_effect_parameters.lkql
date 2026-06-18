@@ -12,7 +12,7 @@ fun check_list(l, functions) =
 
 @check(message="call with side effects",
        category="Style", subcategory="Programming Practice")
-fun side_effect_parameters(node, functions=[]) =
+fun side_effect_parameters(node, functions: list = []) =
     |" Flag subprogram calls and generic instantiations that have at least two actual
     |" parameters that are expressions containing a call to the same function as a
     |" subcomponent. Only calls to the functions specified as a rule parameter are

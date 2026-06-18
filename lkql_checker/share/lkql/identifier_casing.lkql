@@ -70,9 +70,15 @@ fun check_casing(id, scheme, exclude) =
 @unit_check(help="casing of defining names", remediation="EASY",
             parametric_exemption=true,
             category="Style", subcategory="Readability")
-fun identifier_casing(unit,
-                      type="", enum="", constant="", exception="", others="",
-                      exclude=[]) =
+fun identifier_casing(
+    unit,
+    type: string = "",
+    enum: string = "",
+    constant: string = "",
+    exception: string = "",
+    others: string = "",
+    exclude: list = []
+) =
     |" Flag each defining identifier that does not have a casing corresponding to the
     |" kind of entity being declared. All defining names are checked. For the
     |" defining names from the following kinds of declarations a special casing scheme

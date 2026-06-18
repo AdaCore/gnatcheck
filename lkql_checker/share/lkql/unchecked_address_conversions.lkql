@@ -15,7 +15,7 @@ fun check_uc_params(source, target, all) =
 @check(message="address-to-access conversion",
        follow_generic_instantiations=true,
        category="Style", subcategory="Programming Practice")
-fun unchecked_address_conversions(node, all=false, no_instantiations=false) =
+fun unchecked_address_conversions(node, all: bool = false, no_instantiations: bool = false) =
     |" Flag instantiations of ``Ada.Unchecked_Conversion`` if the actual for the
     |" formal type Source is the ``System.Address`` type (or a type derived from
     |" it), and the actual for the formal type ``Target`` is an access type

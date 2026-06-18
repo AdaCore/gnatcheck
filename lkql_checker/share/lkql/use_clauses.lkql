@@ -23,7 +23,7 @@ fun decls_not_only_operator(pkg) =
     }
 
 @unit_check(help="use clause", category="Feature", rule_name="USE_Clauses")
-fun use_clauses(unit, exempt_operator_packages=false, allowed=[]) =
+fun use_clauses(unit, exempt_operator_packages: bool = false, allowed: list = []) =
     |" Flag names mentioned in use clauses. Use type clauses and names mentioned
     |" in them are not flagged.
     |"

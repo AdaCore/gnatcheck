@@ -1,6 +1,6 @@
 @unit_check(help="usage of specified attributes", parametric_exemption=true,
             category="Style", subcategory="Portability")
-fun forbidden_attributes(unit, all=false, forbidden=[], allowed=[]) =
+fun forbidden_attributes(unit, all: bool = false, forbidden: list = [], allowed: list = []) =
     |" Flag each use of the specified attributes. The attributes to be detected are
     |" named in the rule's parameters.
     |"

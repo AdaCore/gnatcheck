@@ -5,9 +5,9 @@ fun check_others(stmts) =
 @unit_check(help="no OTHERS choice in exception handlers",
             category="Style", subcategory="Programming Practice")
 fun no_others_in_exception_handlers(unit,
-                                    all_handlers=false,
-                                    subprogram=false,
-                                    task=false) =
+                                    all_handlers: bool = false,
+                                    subprogram: bool = false,
+                                    task: bool = false) =
     |" Flag handled sequences of statements that do not contain exception
     |" handler with ``others``, depending on the rule parameter(s)
     |" specified.

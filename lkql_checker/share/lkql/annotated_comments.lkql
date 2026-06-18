@@ -2,7 +2,7 @@ import stdlib
 
 @unit_check(help="use of comment annotations", remediation="EASY",
             category="SPARK")
-fun annotated_comments(unit, s=[]) =
+fun annotated_comments(unit, s: list = []) =
     |" Flags comments that are used as annotations or as
     |" special sentinels/markers. Such comments have the following
     |" structure::

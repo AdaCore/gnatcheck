@@ -1,6 +1,6 @@
 @unit_check(help="usage of specified aspects", parametric_exemption=true,
             category="Style", subcategory="Portability")
-fun forbidden_aspects(unit, all=false, forbidden=[], allowed=[]) =
+fun forbidden_aspects(unit, all: bool = false, forbidden: list = [], allowed: list = []) =
     |" Flag each use of the specified aspects. The aspects to be detected are
     |" named in the rule's parameters.
     |"

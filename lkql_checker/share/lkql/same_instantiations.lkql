@@ -44,7 +44,7 @@ fun same_instance(node, library_only) =
 
 @unit_check(help="duplicate generic package instantiations (global analysis required)",
             category="Style", subcategory="Program Structure")
-fun same_instantiations(unit, library_level_only = false) =
+fun same_instantiations(unit, library_level_only: bool = false) =
     |" Flag each generic package instantiation when it can be determined that a set of
     |" the ``gnatcheck`` argument sources contains another instantiation of the same
     |" generic with the same actual parameters.

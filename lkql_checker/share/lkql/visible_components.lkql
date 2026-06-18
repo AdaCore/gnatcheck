@@ -6,7 +6,7 @@ fun has_visible_components(t) =
 
 @check(message="type defines publicly accessible components",
        category="Style", subcategory="Object Orientation")
-fun visible_components(node, tagged_only=false) =
+fun visible_components(node, tagged_only: bool = false) =
     |" Flag all the type declarations located in the visible part of a library
     |" package or a library generic package that can declare a visible component.
     |" A visible component can be declared in a *record definition* which appears

@@ -14,16 +14,16 @@ fun is_class_access(type_decl) =
             category="Style", subcategory="Readability")
 fun identifier_prefixes(
     unit,
-    type="",
-    concurrent="",
-    access="",
-    class_access="",
-    subprogram_access="",
-    derived=[],
-    constant="",
-    exception="",
-    enum="",
-    exclusive=true
+    type: string = "",
+    concurrent: string = "",
+    access: string = "",
+    class_access: string = "",
+    subprogram_access: string = "",
+    derived: list = [],
+    constant: string = "",
+    exception: string = "",
+    enum: string = "",
+    exclusive: bool = true
 ) =
     |" Flag each defining identifier that does not have a prefix corresponding
     |" to the kind of declaration it is defined by. The defining names in the
@@ -157,7 +157,6 @@ fun identifier_prefixes(
     |"
     |" *Derived*
     |"   Exempts check for derived type name prefixes
-    |"
     |"
     |" *Constant*
     |"   Exempts check for constant and number name prefixes

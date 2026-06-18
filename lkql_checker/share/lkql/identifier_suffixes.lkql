@@ -4,15 +4,15 @@ import stdlib
             parametric_exemption=true,
             category="Style", subcategory="Readability")
 fun identifier_suffixes(unit,
-                        type_suffix="",
-                        access_suffix="",
-                        access_access_suffix="",
-                        class_access_suffix="",
-                        class_subtype_suffix="",
-                        constant_suffix="",
-                        renaming_suffix="",
-                        access_obj_suffix="",
-                        interrupt_suffix="") =
+                        type_suffix: string = "",
+                        access_suffix: string = "",
+                        access_access_suffix: string = "",
+                        class_access_suffix: string = "",
+                        class_subtype_suffix: string = "",
+                        constant_suffix: string = "",
+                        renaming_suffix: string = "",
+                        access_obj_suffix: string = "",
+                        interrupt_suffix: string = "") =
     |" Flag the declaration of each identifier that does not have a suffix
     |" corresponding to the kind of entity being declared.
     |" The following declarations are checked:

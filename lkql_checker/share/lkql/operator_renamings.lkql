@@ -1,6 +1,6 @@
 @check(message="renaming of an operator",
        category="Style", subcategory="Programming Practice")
-fun operator_renamings(node, name_mismatch=false) =
+fun operator_renamings(node, name_mismatch: bool = false) =
     |" Flag subprogram renaming declarations that have an operator symbol as
     |" the name of renamed subprogram.
     |"

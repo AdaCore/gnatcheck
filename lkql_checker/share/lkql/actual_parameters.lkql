@@ -22,7 +22,7 @@ fun check_actual(name, expected) =
 
 @check(message="actual parameter mismatch",
        category="Style", subcategory="Programming Practice")
-fun actual_parameters(node, forbidden=[]) =
+fun actual_parameters(node, forbidden: list = []) =
     |" Flag situations when a specific actual parameter is passed for a specific formal
     |" parameter in the call to a specific subprogram. Subprograms, formal parameters and
     |" actual parameters to check are specified by the rule parameters.

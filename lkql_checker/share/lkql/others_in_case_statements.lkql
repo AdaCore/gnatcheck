@@ -20,7 +20,7 @@ fun remaining_values(case) =
 @check(message="OTHERS choice in case statement", remediation="EASY",
        rule_name="OTHERS_In_CASE_Statements",
        category="Style", subcategory="Programming Practice")
-fun others_in_case_statements(node, n : int = 0, ignore = false) =
+fun others_in_case_statements(node, n : int = 0, ignore: bool = false) =
     |" Flag any use of an ``others`` choice in a ``case`` statement.
     |"
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule

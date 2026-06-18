@@ -12,7 +12,7 @@ fun get_uninstantiated_subp(subp) =
 @check(help="callback may propagate exceptions (global analysis required)",
        message="callback may propagate exceptions",
        category="Style", subcategory="Programming Practice")
-fun exception_propagation_from_callbacks(node, callbacks=[]) =
+fun exception_propagation_from_callbacks(node, callbacks: list = []) =
     |" Flag an ``'Address`` or ``'Access`` attribute if:
     |"
     |" * this attribute is a reference to a subprogram;

@@ -1,6 +1,6 @@
 @check(message="local use clause", rule_name="Local_USE_Clauses",
        category="Style", subcategory="Programming Practice")
-fun local_use_clauses(node, except_use_type_clauses = false) =
+fun local_use_clauses(node, except_use_type_clauses: bool = false) =
     |" Use clauses that are not parts of compilation unit context clause are
     |" flagged.
     |"

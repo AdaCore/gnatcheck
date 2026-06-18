@@ -2,7 +2,7 @@
 # default values (all other rules with a single integer require setting a
 # value for the `n` parameter).
 @check(message="too many parameters with default value", category="Feature")
-fun default_parameters(node, n: int = 0, ignore = false) =
+fun default_parameters(node, n: int = 0, ignore: bool = false) =
     |" Flag formal part (in subprogram specifications and entry declarations)
     |" if it defines more than N parameters with default values, when N is a
     |" rule parameter. If no parameter is provided for the rule then all the

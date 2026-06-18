@@ -11,7 +11,7 @@ fun check_parents(n, statements_only) =
     | *               => check_parents(n?.parent, statements_only)
 
 @check(message="numeric literal", category="Feature")
-fun numeric_literals(node, n : int = 1, all = false, statements_only = false) =
+fun numeric_literals(node, n : int = 1, all: bool = false, statements_only: bool = false) =
     |" Flag each use of a numeric literal except for the following:
     |"
     |" * a literal occurring in the initialization expression for a constant

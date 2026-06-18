@@ -1,7 +1,7 @@
 @check(help="call to unavailable body (global analysis required)",
        message="call to unavailable body",
        category="Style", subcategory="Programming Practice")
-fun unavailable_body_calls(node, indirect_calls = false) =
+fun unavailable_body_calls(node, indirect_calls: bool = false) =
     |" Flag any subprogram call if the set of argument sources does not
     |" contain a body of the called subprogram because of any reason.
     |" Calls to formal subprograms in generic bodies are not flagged.

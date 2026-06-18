@@ -14,9 +14,10 @@ fun priority(spec, order) =
                           then index(order, "access") else index(order, "in")
 
 @check(message="parameter out of order", remediation="EASY", category="Feature")
-fun parameters_out_of_order(node,
-                            order = ["in", "access", "in_out",
-                                     "out", "defaulted_in"]) =
+fun parameters_out_of_order(
+    node,
+    order: list = ["in", "access", "in_out", "out", "defaulted_in"]
+) =
     |" Flag each parameter specification if it does not follow the required
     |" ordering of parameter specifications in a formal part. The required
     |" order may be specified by the following rule parameter:

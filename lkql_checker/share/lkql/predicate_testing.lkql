@@ -13,7 +13,7 @@ fun has_predicate(t) =
 
 @check(message="expression needs subtype predicate evaluation",
        category="Feature")
-fun predicate_testing(node, except_assertions=false) =
+fun predicate_testing(node, except_assertions: bool = false) =
     |" Flag a membership test if at least one of its membership choice contains a
     |" subtype mark denoting a subtype defined with (static or dynamic)
     |" subtype predicate.

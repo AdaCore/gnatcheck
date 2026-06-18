@@ -2,7 +2,7 @@ import stdlib
 
 @check(message="local instantiation",
        category="Style", subcategory="Programming Practice")
-fun local_instantiations(node, packages=[]) =
+fun local_instantiations(node, packages: list = []) =
     |" Non library-level generic instantiations are flagged.
     |"
     |" The rule has an optional parameter(s) for the ``+R`` option and for LKQL rule

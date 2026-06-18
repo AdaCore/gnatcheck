@@ -1,6 +1,6 @@
 @unit_check(help="usage of specified pragmas", parametric_exemption=true,
             category="Style", subcategory="Portability")
-fun forbidden_pragmas(unit, all=false, forbidden=[], allowed=[]) =
+fun forbidden_pragmas(unit, all: bool = false, forbidden: list = [], allowed: list = []) =
     |" Flag each use of the specified pragmas.  The pragmas to be detected
     |" are named in the rule's  parameters.
     |"

@@ -60,9 +60,9 @@ selector calls
        message="recursive subprogram", follow_generic_instantiations=true,
        category="Style", subcategory="Programming Practice")
 fun recursive_subprograms(node,
-                          skip_dispatching_calls=true,
-                          follow_dispatching_calls=false,
-                          follow_ghost_code=false) =
+                          skip_dispatching_calls: bool = true,
+                          follow_dispatching_calls: bool = false,
+                          follow_ghost_code: bool = false) =
     |" Flags specs (and bodies that act as specs) of recursive subprograms. A
     |" subprogram is considered as recursive in a given context if there exists
     |" a chain of direct calls starting from the body of, and ending at

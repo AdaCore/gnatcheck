@@ -15,7 +15,7 @@ fun check_loop_parent(node, n) =
 
 @check(message="nesting level of control structures too deep",
        category="Style", subcategory="Programming Practice")
-fun overly_nested_control_structures(node, n: int = 3, loops_only = false) =
+fun overly_nested_control_structures(node, n: int = 3, loops_only: bool = false) =
     |" Flag each control structure whose nesting level exceeds the value provided
     |" in the rule parameter.
     |"

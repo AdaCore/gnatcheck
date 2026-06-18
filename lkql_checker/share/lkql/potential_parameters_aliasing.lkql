@@ -3,7 +3,7 @@ import parameters_aliasing
 
 @unit_check(help="potential parameter aliasing",
             category="Style", subcategory="Programming Practice")
-fun potential_parameters_aliasing(unit, in_parameters = false) =
+fun potential_parameters_aliasing(unit, in_parameters: bool = false) =
     |" This rule is a complementary rule for the *Parameters_Aliasing* rule -
     |" it flags subprogram calls where the same variable (or a variable and its
     |" subcomponent) is given as an actual to more than one ``OUT`` or ``IN OUT``

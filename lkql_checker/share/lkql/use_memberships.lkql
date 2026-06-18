@@ -75,7 +75,7 @@ fun membership_equivalent(bin_op) =
 @check(message="expression may be replaced by a membership test",
        category="Style", subcategory="Programming Practice",
        auto_fix=(n, ctx) => ctx.replace(n, membership_equivalent(n)))
-fun use_memberships(node, short_circuit = false) =
+fun use_memberships(node, short_circuit: bool = false) =
     |" Flag expressions that could be rewritten as membership tests. Only expressions
     |" that are not subexpressions of other expressions are flagged. An expression
     |" is considered to be replaceable with an equivalent membership test if it is

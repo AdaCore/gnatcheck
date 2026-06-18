@@ -13,7 +13,7 @@ fun is_parent_primitive(body, decl, parent_type) =
 
 @check(message="non-dispatching call to primitive operation",
        category="Style", subcategory="Object Orientation")
-fun direct_calls_to_primitives(node, except_constructors=false) =
+fun direct_calls_to_primitives(node, except_constructors: bool = false) =
     |" Flag any non-dispatching call to a dispatching primitive operation, except for:
     |"
     |" * a call to the corresponding primitive of the parent type.  (This

@@ -1,6 +1,6 @@
 @check(message="use of forbidden identifier",
        category="Style", subcategory="Readability")
-fun name_clashes(node, forbidden=[]) =
+fun name_clashes(node, forbidden: list = []) =
     |" Check that certain names are not used as defining identifiers. The names that
     |" should not be used as identifiers must be listed in a dictionary file that is
     |" a rule parameter. A defining identifier is flagged if it is included in a

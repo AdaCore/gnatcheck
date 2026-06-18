@@ -1,6 +1,6 @@
 @check(message="null path", remediation="EASY",
        category="Style", subcategory="Programming Practice")
-fun null_paths(node, except_enums = false) =
+fun null_paths(node, except_enums: bool = false) =
     |" Flag a statement sequence that is a component of an ``if``, ``case`` or
     |" ``loop`` statement if this sequences consists of NULL statements only.
     |"

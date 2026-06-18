@@ -29,7 +29,7 @@ fun add_param_name(param, ctx) =
 @check(message="positional parameter association", remediation="EASY",
        category="Style", subcategory="Programming Practice",
        auto_fix=add_param_name)
-fun positional_parameters(node, all=false) =
+fun positional_parameters(node, all: bool = false) =
     |" Flag each positional parameter notation in a subprogram or entry call,
     |" except for the following:
     |"

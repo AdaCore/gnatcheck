@@ -32,7 +32,7 @@ fun enclosing_scope(node) = {
 
 @check(message="WHILE loop may be replaced by a FOR loop",
        category="Style", subcategory="Programming Practice")
-fun use_for_loops(node, no_exit = false, no_function = false) =
+fun use_for_loops(node, no_exit: bool = false, no_function: bool = false) =
     |" Flag ``while`` loops which could be replaced by a ``for`` loop. The rule detects
     |" the following code patterns:
     |"
