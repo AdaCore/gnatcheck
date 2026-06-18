@@ -19,7 +19,7 @@ fun name_clashes(node, forbidden=[]) =
     |"    values of these variables.
     |"
     |" A dictionary file is a plain text file. The maximum line length for this file
-    |" is 1024 characters.  If the line is longer than this limit, extra characters
+    |" is 1024 characters. If the line is longer than this limit, extra characters
     |" are ignored.
     |"
     |" If the name of the dictionary file does not contain any path information and
