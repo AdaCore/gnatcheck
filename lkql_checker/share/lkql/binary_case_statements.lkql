@@ -34,7 +34,7 @@ fun binary_case_statements(node, except_enums: bool = false) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Except_Enums: bool*
+    |" .. param:: except_enums
     |"    If ``true``, do not flag case statements whose selecting expression is of an
     |"    enumeration type.
     |"

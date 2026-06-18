@@ -9,7 +9,7 @@ fun global_variables(node, only_public: bool = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Only_Public: bool*
+    |" .. param:: only_public
     |"    If ``true``, do not flag variable declarations in private library (generic)
     |"    packages and in package private parts.
     |"

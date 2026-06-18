@@ -17,7 +17,7 @@ fun direct_equalities(node, actuals: list = []) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Actuals: list[string]*
+    |" .. param:: actuals
     |"    A list of full expanded Ada name of a data objects declared by object
     |"    declaration, number declaration, parameter specification, generic object
     |"    declaration or object renaming declaration. Any other parameter does not

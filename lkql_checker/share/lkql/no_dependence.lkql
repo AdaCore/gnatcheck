@@ -8,7 +8,7 @@ fun no_dependence(node, unit_names: list = []) =
     |" This rule has the following optional parameter for the ``+R`` option and for
     |" LKQL rule options files:
     |"
-    |" *Unit_Names: list[string]*
+    |" .. param:: unit_names
     |"    List of fully qualified names designating the library units that
     |"    should not be explicitly depended upon.
     |"

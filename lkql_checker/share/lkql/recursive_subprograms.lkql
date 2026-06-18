@@ -99,11 +99,13 @@ fun recursive_subprograms(node,
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Follow_Dispatching_Calls: bool*
+    |" .. skip_param:: skip_dispatching_calls
+    |"
+    |" .. param:: follow_dispatching_calls
     |"    Whether to treat a dispatching call as a set of calls to all the subprograms
     |"    the dispatching call may dispatch to.
     |"
-    |" *Follow_Ghost_Code: bool*
+    |" .. param:: follow_ghost_code
     |"    Whether to analyze ghost code and assertion code, which isn't analyzed by
     |"    this check by default.
     |"

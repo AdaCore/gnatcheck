@@ -136,7 +136,7 @@ fun parameters_aliasing(unit, in_parameters: bool = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *In_Parameters: bool*
+    |" .. param:: in_parameters
     |"    Whether to consider aliasing between ``OUT``, ``IN OUT`` and ``IN``
     |"    parameters, except for those ``IN`` parameters that are of a by-copy
     |"    type, see the definition of by-copy parameters in the Ada Standard.

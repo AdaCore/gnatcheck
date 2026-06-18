@@ -49,7 +49,7 @@ fun positional_parameters(node, all: bool = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *All: bool*
+    |" .. param:: all
     |"    If ``true``, all the positional parameter associations that can be replaced
     |"    with named associations according to language rules are flagged, except
     |"    parameters of the calls to operator functions.

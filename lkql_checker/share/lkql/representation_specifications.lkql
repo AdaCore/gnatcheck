@@ -42,7 +42,7 @@ fun representation_specifications(unit, record_rep_clauses_only: bool = false) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Record_Rep_Clauses_Only: bool*
+    |" .. param:: record_rep_clauses_only
     |"    If ``true``, only record representation clauses are flagged.
     |"
     |" .. rubric:: Example

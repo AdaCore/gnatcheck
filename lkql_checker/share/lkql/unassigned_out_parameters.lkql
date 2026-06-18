@@ -56,7 +56,7 @@ fun unassigned_out_parameters(unit, ignore_component_assignments: bool = false) 
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Ignore_Component_Assignments: bool*
+    |" .. param:: ignore_component_assignments
     |"    Whether to ignore assignments to subcomponents of an ``out`` parameter when
     |"    detecting if the parameter is assigned.
     |"

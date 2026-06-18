@@ -12,7 +12,7 @@ fun unavailable_body_calls(node, indirect_calls: bool = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Indirect_Calls: bool*
+    |" .. param:: indirect_calls
     |"    Whether to flag all the indirect calls (that is, calls through
     |"    access-to-subprogram values).
     |"

@@ -7,7 +7,7 @@ fun local_use_clauses(node, except_use_type_clauses: bool = false) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Except_USE_TYPE_Clauses: bool*
+    |" .. param:: except_use_type_clauses
     |"    If ``true``, do not flag local use type clauses.
     |"
     |" .. rubric:: Example

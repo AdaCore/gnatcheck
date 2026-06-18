@@ -7,7 +7,7 @@ fun headers(unit, header: string = "") =
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Header: string*
+    |" .. param:: header
     |"    The name of a header file.
     |"
     |" A header file is a plain text file. The rule checks that

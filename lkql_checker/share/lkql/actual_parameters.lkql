@@ -30,7 +30,7 @@ fun actual_parameters(node, forbidden: list = []) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Forbidden: list[string]*
+    |" .. param:: forbidden
     |"    A list of strings formatted as following: ``subprogram:formal:actual`` where
     |"    ``subprogram`` should be a full expanded Ada name of a subprogram, ``formal``
     |"    should be an identifier, it is treated as the name of a formal parameter of

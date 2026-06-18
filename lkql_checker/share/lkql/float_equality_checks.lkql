@@ -16,7 +16,7 @@ fun float_equality_checks(node, follow_renamings: bool = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Follow_Renamings: bool*
+    |" .. param:: follow_renamings
     |"    Whether to take renamings of predefined equality operations into account.
     |"
     |"

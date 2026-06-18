@@ -12,11 +12,11 @@ fun metrics_cyclomatic_complexity(
     |" This rule has the following parameters for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    Maximum cyclomatic complexity a body can have without being flagged, all
     |"    bodies with a higher index will be flagged.
     |"
-    |" *Exempt_Case_Statements: bool*
+    |" .. param:: exempt_case_statements
     |"    Whether to count the complexity introduced by ``case`` statement or ``case``
     |"    expression as 1.
     |"

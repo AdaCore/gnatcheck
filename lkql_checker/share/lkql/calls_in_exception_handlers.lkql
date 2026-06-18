@@ -7,7 +7,7 @@ fun calls_in_exception_handlers(node, subprograms: list = []) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Subprograms: list[string]*
+    |" .. param:: subprograms
     |"    A list of full expanded Ada name of subprograms.
     |"
     |" Note that if a rule parameter does not denote the name of an existing

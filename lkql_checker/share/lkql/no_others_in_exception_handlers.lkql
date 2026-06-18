@@ -15,19 +15,19 @@ fun no_others_in_exception_handlers(unit,
     |" This rule has three parameters for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Subprogram: bool*
+    |" .. param:: subprogram
     |"    If ``true``, flag a subprogram body if the handled sequence of statements
     |"    of this body does not contain an exception handler with ``others`` choice.
     |"    This includes the case when the body does not contain any exception handler
     |"    at all. The diagnostic message points to the beginning of the subprogram body.
     |"
-    |" *Task: bool*
+    |" .. param:: task
     |"    If ``true``, flag a task body if the handled sequence of statements of this
     |"    body does not contain an exception handler with ``others`` choice. This
     |"    includes the case when the body does not contain any exception handler at all.
     |"    The diagnostic message points to the beginning of the task body.
     |"
-    |" *All_Handlers: bool*
+    |" .. param:: all_handlers
     |"    If ``true``, flag a handled sequence of statements if it does contain at least
     |"    one exception handler, but it does not contain an exception handler with
     |"    ``others`` choice. If a handled sequence of statements does not have any

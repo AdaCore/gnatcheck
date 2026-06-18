@@ -30,11 +30,11 @@ fun use_clauses(unit, exempt_operator_packages: bool = false, allowed: list = []
     |" This rule has the following optional parameter for the ``+R`` option and for
     |" LKQL rule options files:
     |"
-    |" *Exempt_Operator_Packages: bool*
+    |" .. param:: exempt_operator_packages
     |"    If ``true``, do not flag a package name in a package use clause if it refers
     |"    to a package that only declares operators in its visible part.
     |"
-    |" *Allowed: list[string]*
+    |" .. param:: allowed
     |"    A list of Ada names describing packages to exempt from begin flagged
     |"    when they are mentioned in "use" clauses. Strings in this list are
     |"    case insensitive.

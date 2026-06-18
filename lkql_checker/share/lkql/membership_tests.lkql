@@ -12,16 +12,16 @@ fun membership_tests(
     |" This rule has the following (optional) parameters for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Multi_Alternative_Only: bool*
+    |" .. param:: multi_alternative_only
     |"    If ``true``, flag only those membership test expressions that have more than
     |"    one membership choice in the membership choice list.
     |"
-    |" *Float_Types_Only: bool*
+    |" .. param:: float_types_only
     |"    If ``true``, flag only those membership test expressions that checks objects
     |"    of floating point type and private types whose completions are floating-point
     |"    types.
     |"
-    |" *Except_Assertions: bool*
+    |" .. param:: except_assertions
     |"    If ``true``, do not flag a membership test expression if it is a subcomponent
     |"    of the following constructs:
     |"

@@ -7,7 +7,7 @@ fun forbidden_pragmas(unit, all: bool = false, forbidden: list = [], allowed: li
     |" This rule has the following parameters for the ``+R`` option and for LKQL
     |" rule options file:
     |"
-    |" *Forbidden: list[string]*
+    |" .. param:: forbidden
     |"    Adds the specified pragmas to the set of pragmas to be checked and sets
     |"    the checks for all the specified pragmas ON. An element of this list
     |"    is treated as a name of a pragma. If it does not correspond to any pragma name
@@ -16,7 +16,7 @@ fun forbidden_pragmas(unit, all: bool = false, forbidden: list = [], allowed: li
     |"    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
     |"    pragmas are added to the set of attributes to be detected.
     |"
-    |" *Allowed: list[string]*
+    |" .. param:: allowed
     |"    A list of pragmas to remove from the set of pragmas to be detected.
     |"
     |"    .. warning::
@@ -24,7 +24,7 @@ fun forbidden_pragmas(unit, all: bool = false, forbidden: list = [], allowed: li
     |"      formatting to specify it as a string with all elements separated
     |"      by semi-colons.
     |"
-    |" *All: bool*
+    |" .. param:: all
     |"    If ``true``, all pragmas are detected.
     |"
     |" Parameters are not case sensitive. If an element of *Forbidden* or *Allowed*

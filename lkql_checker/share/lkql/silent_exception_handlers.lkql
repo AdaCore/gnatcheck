@@ -26,7 +26,7 @@ fun silent_exception_handlers(node, subprograms: list = [], subprogram_regexps: 
     |" The rule has the following parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Subprograms: list[string]*
+    |" .. param:: subprograms
     |"    List of names of subprograms. An exception handler is not flagged if it
     |"    contains a call to a subprogram that has a fully expanded Ada names that
     |"    matches an element of this list.
@@ -46,6 +46,8 @@ fun silent_exception_handlers(node, subprograms: list = [], subprogram_regexps: 
     |"       val rules = @{
     |"          Silent_Exception_Handlers: {Subprograms: ["My.Expanded.Name", "|My\.Regex\..*"]}
     |"       }
+    |"
+    |" .. skip_param:: subprogram_regexps
     |"
     |" Note that if you specify the rule with parameters in a command shell, you may
     |" need to escape its parameters. The best and the safest way of using this rule

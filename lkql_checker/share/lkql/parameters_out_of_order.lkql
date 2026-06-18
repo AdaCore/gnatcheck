@@ -22,7 +22,7 @@ fun parameters_out_of_order(
     |" ordering of parameter specifications in a formal part. The required
     |" order may be specified by the following rule parameter:
     |"
-    |" *Order: list[string]*
+    |" .. param:: order
     |"   A list of string that must have 5 element and that is specifying the
     |"   required parameter order. Elements of this list must be ``in``,
     |"   ``access``, ``in_out``, ``out`` and ``defaulted_in``, each one

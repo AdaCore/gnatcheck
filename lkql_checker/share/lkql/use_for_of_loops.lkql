@@ -61,9 +61,11 @@ fun use_for_of_loops(node, n : int = 1, ignore: bool = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    Non-negative integer, indicates the minimal number of references of the form
     |"    ``<array> (Index)`` in the loop to make the loop to be flagged.
+    |"
+    |" .. skip_param:: ignore
     |"
     |" If no parameter is used for the rule, this corresponds to the parameter value 1.
     |"

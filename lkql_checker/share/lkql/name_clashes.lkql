@@ -13,7 +13,8 @@ fun name_clashes(node, forbidden: list = []) =
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Dictionary_File: string*
+    |" .. skip_param:: forbidden
+    |" *Dictionary_File: string = ""*
     |"    The name of a dictionary file. The name may contain references to environment
     |"    variables (e.g. $REPOSITORY_ROOT/my_dict.txt), they are replaced by the
     |"    values of these variables.

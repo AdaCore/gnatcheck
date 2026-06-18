@@ -16,7 +16,7 @@ fun unconstrained_array_returns(node, except_string: bool = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Except_String: bool*
+    |" .. param:: except_string
     |"    If ``true``, do not flag functions that return the predefined ``String`` type
     |"    or a type derived from it, directly or indirectly.
     |"

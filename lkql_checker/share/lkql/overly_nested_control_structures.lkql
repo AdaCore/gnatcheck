@@ -32,11 +32,11 @@ fun overly_nested_control_structures(node, n: int = 3, loops_only: bool = false)
     |" The rule has the following (optional) parameters for the ``+R`` option and for
     |" LKQL rule options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    Positive integer specifying the maximal control structure nesting
     |"    level that is not flagged. Defaults to 3 if not specified.
     |"
-    |" *Loops_Only: bool*
+    |" .. param:: loops_only
     |"    If ``true``, only loop statements are counted.
     |"
     |" .. rubric:: Example

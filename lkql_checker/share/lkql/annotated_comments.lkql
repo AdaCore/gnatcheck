@@ -31,7 +31,7 @@ fun annotated_comments(unit, s: list = []) =
     |" The rule has the following mandatory parameter for the ``+R`` option and for
     |" LKQL rule options files:
     |"
-    |" *S: list[string]*
+    |" .. param:: s
     |"    List of string with the following interpretation: the first character
     |"    is the special comment character, and the rest is the comment marker.
     |"    Items must not contain any white space.

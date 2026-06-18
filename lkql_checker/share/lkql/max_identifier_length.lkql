@@ -9,7 +9,7 @@ fun max_identifier_length(node, n: int = 20) =
     |" The rule has a mandatory parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    The maximal allowed identifier length specification.
     |"
     |" .. rubric:: Example

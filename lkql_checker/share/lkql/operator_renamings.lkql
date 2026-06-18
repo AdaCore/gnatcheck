@@ -7,7 +7,7 @@ fun operator_renamings(node, name_mismatch: bool = false) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Name_Mismatch: bool*
+    |" .. param:: name_mismatch
     |"    If ``true``, only flag when the renamed subprogram is also an operator with
     |"    a different name.
     |"

@@ -21,7 +21,7 @@ fun visible_components(node, tagged_only: bool = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Tagged_Only: bool*
+    |" .. param:: tagged_only
     |"    If ``true``, only declarations of tagged types are flagged.
     |"
     |" .. rubric:: Example

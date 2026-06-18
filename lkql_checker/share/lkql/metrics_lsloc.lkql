@@ -12,12 +12,12 @@ fun metrics_lsloc(unit, n : int = 5, subprograms: bool = false) =
     |" This rule has the following parameters for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    Maximum number of logical source lines a program declaration / body can have
     |"    without being flagged, all bodies with a higher number of LSLOC will be
     |"    flagged.
     |"
-    |" *Subprograms: bool*
+    |" .. param:: subprograms
     |"    Optional parameter specifying whether to check the rule for subprogram
     |"    bodies only.
     |"

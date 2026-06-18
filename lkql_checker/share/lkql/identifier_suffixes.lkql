@@ -63,13 +63,13 @@ fun identifier_suffixes(unit,
     |" The rule may have the following parameters for ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Default: bool*
+    |" *Default: bool = false*
     |"    If ``true``, sets the default listed above for all the names to be checked.
     |"
-    |" *Type_Suffix: string*
+    |" .. param:: type_suffix
     |"    Specifies the suffix for a type name.
     |"
-    |" *Access_Suffix: string*
+    |" .. param:: access_suffix
     |"    Specifies the suffix for an access type name. If this parameter is set, it
     |"    overrides for access types the suffix set by the ``Type_Suffix`` parameter.
     |"    For access types, this parameter may have the following format:
@@ -77,27 +77,28 @@ fun identifier_suffixes(unit,
     |"    *suffix1* suffix except for the case when the designated type is also an
     |"    access type, in this case the type name should have the *suffix1 & suffix2*
     |"    suffix.
+    |" .. skip_param:: access_access_suffix
     |"
-    |" *Class_Access_Suffix: string*
+    |" .. param:: class_access_suffix
     |"    Specifies the suffix for the name of an access type that points to some
     |"    class-wide type.
     |"    If this parameter is set, it overrides for such access types the suffix
     |"    set by the ``Type_Suffix`` or ``Access_Suffix`` parameter.
     |"
-    |" *Class_Subtype_Suffix: string*
+    |" .. param:: class_subtype_suffix
     |"    Specifies the suffix for the name of a subtype that denotes a class-wide type.
     |"
-    |" *Constant_Suffix: string*
+    |" .. param:: constant_suffix
     |"    Specifies the suffix for a constant name.
     |"
-    |" *Renaming_Suffix: string*
+    |" .. param:: renaming_suffix
     |"    Specifies the suffix for a package renaming name.
     |"
-    |" *Access_Obj_Suffix: string*
+    |" .. param:: access_obj_suffix
     |"    Specifies the suffix for objects that have an access type (including types
     |"    derived from access types).
     |"
-    |" *Interrupt_Suffix: string*
+    |" .. param:: interrupt_suffix
     |"    Specifies the suffix for protected subprograms used as interrupt handlers.
     |"
     |" You have to use the ``param_name=value`` formatting to pass arguments through

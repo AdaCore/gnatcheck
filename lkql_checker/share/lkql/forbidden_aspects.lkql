@@ -7,7 +7,7 @@ fun forbidden_aspects(unit, all: bool = false, forbidden: list = [], allowed: li
     |" This rule has the following parameters for the ``+R`` option and for LKQL
     |" rule options file:
     |"
-    |" *Forbidden: list[string]*
+    |" .. param:: forbidden
     |"    Adds the specified aspects to the set of aspects to be detected and sets
     |"    the detection checks for all the specified attributes ON. Note that if some
     |"    aspect exists also as class-wide aspect, the rule treats its normal
@@ -16,7 +16,7 @@ fun forbidden_aspects(unit, all: bool = false, forbidden: list = [], allowed: li
     |"    specifying ``Pre'Class`` as the rule parameter does not mean that the rule
     |"    will flag the ``Pre`` aspect).
     |"
-    |" *Allowed: list[string]*
+    |" .. param:: allowed
     |"    A list of aspects to remove from the set of aspects to be detected.
     |"
     |"    .. warning::
@@ -24,7 +24,7 @@ fun forbidden_aspects(unit, all: bool = false, forbidden: list = [], allowed: li
     |"      formatting to specify it as a string with all elements separated
     |"      by semi-colons.
     |"
-    |" *All: bool*
+    |" .. param:: all
     |"    If ``true``, all aspects are detected.
     |"
     |" Parameters are case insensitive. If an element of *Forbidden* or *Allowed*

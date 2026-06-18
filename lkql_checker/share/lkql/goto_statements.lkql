@@ -6,7 +6,7 @@ fun goto_statements(node, only_unconditional: bool = false) =
     |" This rule has the following optional parameter for the ``+R`` option and for
     |" LKQL rule options files:
     |"
-    |" *Only_Unconditional: bool*
+    |" .. param:: only_unconditional
     |"    If ``true``, Only flag unconditional goto statements, that is, goto statements
     |"    that are not directly enclosed in an if or a case statement.
     |"

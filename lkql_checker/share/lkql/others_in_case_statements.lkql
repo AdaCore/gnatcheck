@@ -26,9 +26,11 @@ fun others_in_case_statements(node, n : int = 0, ignore: bool = false) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    If specified, only flag if the others choice can be determined to span less
     |"    than ``N`` values (0 means no minimum value).
+    |"
+    |" .. skip_param:: ignore
     |"
     |" .. rubric:: Example
     |"

@@ -27,7 +27,7 @@ fun direct_calls_to_primitives(node, except_constructors: bool = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Except_Constructors: bool*
+    |" .. param:: except_constructors
     |"    If ``true``, do not flag non-dispatching calls to functions if the function
     |"    has a controlling result and no controlling parameters (in a traditional OO
     |"    sense such functions may be considered as constructors).

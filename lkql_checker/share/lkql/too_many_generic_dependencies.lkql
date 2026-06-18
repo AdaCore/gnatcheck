@@ -21,7 +21,7 @@ fun too_many_generic_dependencies(unit, n : int = 3) =
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    Non-negative integer specifying the maximal allowed length of the
     |"    chain of dependencies on generic units.
     |"

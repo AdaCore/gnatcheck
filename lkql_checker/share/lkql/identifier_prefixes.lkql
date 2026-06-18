@@ -64,30 +64,30 @@ fun identifier_prefixes(
     |" The rule may have the following parameters for the ``+R`` option and for LKQL
     |" rule options files:
     |"
-    |" *Type: string*
+    |" .. param:: type
     |"    Specifies the prefix for a type or subtype name.
     |"
-    |" *Concurrent: string*
+    |" .. param:: concurrent
     |"    Specifies the prefix for a task and protected type/subtype name. If this
     |"    parameter is set, it overrides for task and protected types the prefix set by
     |"    the Type parameter.
     |"
-    |" *Access: string*
+    |" .. param:: access
     |"    Specifies the prefix for an access type/subtype name. If this parameter is
     |"    set, it overrides for access types the prefix set by the ``Type``
     |"    parameter.
     |"
-    |" *Class_Access: string*
+    |" .. param:: class_access
     |"    Specifies the prefix for the name of an access type/subtype that points to some
     |"    class-wide type. If this parameter is set, it overrides for such access types
     |"    and subtypes the prefix set by the ``Type`` or ``Access`` parameter.
     |"
-    |" *Subprogram_Access: string*
+    |" .. param:: subprogram_access
     |"    Specifies the prefix for the name of an access type/subtype that points to a
     |"    subprogram. If this parameter is set, it overrides for such access
     |"    types/subtypes the prefix set by the ``Type`` or ``Access`` parameter.
     |"
-    |" *Derived: list[string]*
+    |" .. param:: derived
     |"    Specifies the prefix for a type that is directly derived from another
     |"    type or from a subtype thereof. Elements of the list must have the
     |"    ``string1:string2`` format where *string1* should be a full expanded
@@ -96,7 +96,7 @@ fun identifier_prefixes(
     |"    this parameter is set, it overrides for types that are directly
     |"    derived from the given type the prefix set by the ``Type`` parameter.
     |"
-    |" *Constant: string*
+    |" .. param:: constant
     |"    Specifies the prefix for defining names from constants and named number
     |"    declarations, including the object renaming declaration if the
     |"    renamed object is a constant.
@@ -107,16 +107,16 @@ fun identifier_prefixes(
     |"       this rule will flag each generic formal object declarations that have the prefix
     |"       specified by this parameter value.
     |"
-    |" *Enum: string*
+    |" .. param:: enum
     |"    Specifies the prefix for defining enumeration literals and for the
     |"    defining names in a function renaming declarations if the renamed
     |"    entity is an enumeration literal.
     |"
-    |" *Exception: string*
+    |" .. param:: exception
     |"    Specifies the prefix for defining names from exception declarations
     |"    and exception renaming declarations.
     |"
-    |" *Exclusive: bool*
+    |" .. param:: exclusive
     |"    If ``true``, check that only those kinds of names for which specific prefix
     |"    is defined have that prefix (e.g., only type/subtype names have prefix *T_*,
     |"    but not variable or package names), and flag all defining names that have any

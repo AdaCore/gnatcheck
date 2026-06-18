@@ -10,7 +10,7 @@ fun calls_outside_elaboration(node, forbidden: list = []) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Forbidden: list[string]*
+    |" .. param:: forbidden
     |"    A list of full expanded Ada name of subprograms.
     |"
     |" Note that if a rule parameter does not denote the name of an existing

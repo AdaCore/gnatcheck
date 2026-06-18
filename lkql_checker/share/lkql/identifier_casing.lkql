@@ -95,29 +95,29 @@ fun identifier_casing(
     |" The rule may have the following parameters for ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Type: string*
+    |" .. param:: type
     |"    Specifies casing for names from type and subtype declarations.
     |"
-    |" *Enum: string*
+    |" .. param:: enum
     |"    Specifies the casing of defining enumeration literals and for the
     |"    defining names in a function renaming declarations if the renamed
     |"    entity is an enumeration literal.
     |"
-    |" *Constant: string*
+    |" .. param:: constant
     |"    Specifies the casing for defining names from constants and named number
     |"    declarations, including the object renaming declaration if the
     |"    renamed object is a constant
     |"
-    |" *Exception: string*
+    |" .. param:: exception
     |"    Specifies the casing for names from exception declarations and exception
     |"    renaming declarations.
     |"
-    |" *Others: string*
+    |" .. param:: others
     |"    Specifies the casing for all defining names for which no special casing
     |"    scheme is specified. If this parameter is not set, the casing for the
     |"    entities that do not correspond to the specified parameters is not checked.
     |"
-    |" *Exclude: string*
+    |" .. param:: exclude
     |"    The name of a dictionary file to specify casing exceptions. The name of the
     |"    file may contain references to environment variables (e.g.
     |"    $REPOSITORY_ROOT/my_dict.txt), they are replaced by the values of these
