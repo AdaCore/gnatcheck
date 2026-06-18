@@ -16,12 +16,17 @@ fun forbidden_attributes(unit, all=false, forbidden=[], allowed=[]) =
     |"    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
     |"    attributes are added to the set of attributes to be detected.
     |"
-    |" *Allowed: string*
-    |"    A semi-colon separated list of attributes to remove from the set of attributes
-    |"    to be detected. You have to use the named parameter formatting to specify it.
+    |" *Allowed: list[string]*
+    |"    A list of attributes to remove from the set of attributes to be
+    |"    detected.
+    |"
+    |"    .. warning::
+    |"      In the legacy rule format, you have to use the named parameter
+    |"      formatting to specify it as a string with all elements separated
+    |"      by semi-colons.
     |"
     |" *All: bool*
-    |"    If ``true``, all attributes are detected; this sets the rule ON.
+    |"    If ``true``, all attributes are detected.
     |"
     |" Parameters are not case sensitive. If an element of *Forbidden* or *Allowed*
     |" does not have the syntax of an Ada identifier and therefore can not be
@@ -32,16 +37,6 @@ fun forbidden_attributes(unit, all=false, forbidden=[], allowed=[]) =
     |"
     |" The ``+R`` option with no parameters doesn't create any instance for the rule,
     |" thus, it has no effect.
-    |"
-    |" .. note::
-    |"    In LKQL rule options files, the ``Allowed`` parameter should be a list of
-    |"    strings:
-    |"
-    |"    .. code-block:: lkql
-    |"
-    |"       val rules = @{
-    |"          Forbidden_Attributes: {Forbidden: ["X", "Y", "GNAT"], Allowed: ["Z"]}
-    |"       }
     |"
     |" The rule allows parametric exemption, the parameters that are allowed in the
     |" definition of exemption sections are *Attribute_Designators*. Each

@@ -16,12 +16,16 @@ fun forbidden_aspects(unit, all=false, forbidden=[], allowed=[]) =
     |"    specifying ``Pre'Class`` as the rule parameter does not mean that the rule
     |"    will flag the ``Pre`` aspect).
     |"
-    |" *Allowed: string*
-    |"    A semi-colon separated list of aspects to remove from the set of aspects to
-    |"    be detected. You have to use the named parameter formatting to specify it.
+    |" *Allowed: list[string]*
+    |"    A list of aspects to remove from the set of aspects to be detected.
+    |"
+    |"    .. warning::
+    |"      In the legacy rule format, you have to use the named parameter
+    |"      formatting to specify it as a string with all elements separated
+    |"      by semi-colons.
     |"
     |" *All: bool*
-    |"    If ``true``, all aspects are detected; this sets the rule ON.
+    |"    If ``true``, all aspects are detected.
     |"
     |" Parameters are case insensitive. If an element of *Forbidden* or *Allowed*
     |" does not have the syntax of an Ada identifier, it is (silently) ignored, but
@@ -29,16 +33,6 @@ fun forbidden_aspects(unit, all=false, forbidden=[], allowed=[]) =
     |"
     |" The ``+R`` option with no parameters doesn't create any instance for the rule,
     |" thus, it has no effect.
-    |"
-    |" .. note::
-    |"    In LKQL rule options files, the ``Allowed`` parameter should be a list of
-    |"    strings:
-    |"
-    |"    .. code-block:: lkql
-    |"
-    |"       val rules = @{
-    |"          Forbidden_Aspects: {Forbidden: ["one", "two"], Allowed: ["two"]}
-    |"       }
     |"
     |" The rule allows parametric exemption, the parameters that are allowed in the
     |" definition of exemption sections are *Forbidden*.
