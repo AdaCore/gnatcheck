@@ -2,6 +2,7 @@ package Prefix is
    --  type
    type Root;                                 --  NOFLAG
    type Root is new integer;                  --  FLAG
+   type Other is new Integer;                 --  FLAG
    type Priv is private;                      --  FLAG
 
    --  class_access
@@ -41,9 +42,11 @@ package Prefix is
    Exc_2   : exception;                      --  FLAG
 
    --  derived type
-   type Root_1 is new Root;
+   type Root_1 is new Root;                  --  NOFLAG
    type Root2 is new Root;                   --  FLAG
    type Root_1 is new Integer;               --  FLAG
+   type Other_1 is new Other;                --  NOFLAG
+   type Root_2 is new Other;                 --  FLAG
 
    --  derived type via subtype
    subtype Type_Sub1 is Root;                --  NOFLAG

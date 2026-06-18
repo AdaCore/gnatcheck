@@ -14,15 +14,15 @@ fun is_class_access(type_decl) =
             category="Style", subcategory="Readability")
 fun identifier_prefixes(
     unit,
-    type="-",
-    concurrent="-",
-    access="-",
-    class_access="-",
-    subprogram_access="-",
+    type="",
+    concurrent="",
+    access="",
+    class_access="",
+    subprogram_access="",
     derived=[],
-    constant="-",
-    exception="-",
-    enum="-",
+    constant="",
+    exception="",
+    enum="",
     exclusive=true
 ) =
     |" Flag each defining identifier that does not have a prefix corresponding
@@ -87,14 +87,14 @@ fun identifier_prefixes(
     |"    subprogram. If this parameter is set, it overrides for such access
     |"    types/subtypes the prefix set by the ``Type`` or ``Access`` parameter.
     |"
-    |" *Derived: string*
-    |"    Specifies the prefix for a type that is directly derived from a given type or
-    |"    from a subtype thereof. The parameter must have the ``string1:string2`` format
-    |"    where *string1* should be a full expanded Ada name of the ancestor type
-    |"    (starting from the full expanded compilation unit name) and *string2* defines
-    |"    the prefix to check. If this parameter is set, it overrides for types that
-    |"    are directly derived from the given type the prefix set by the ``Type``
-    |"    parameter.
+    |" *Derived: list[string]*
+    |"    Specifies the prefix for a type that is directly derived from another
+    |"    type or from a subtype thereof. Elements of the list must have the
+    |"    ``string1:string2`` format where *string1* should be a full expanded
+    |"    Ada name of the ancestor type (starting from the full expanded
+    |"    compilation unit name) and *string2* defines the prefix to check. If
+    |"    this parameter is set, it overrides for types that are directly
+    |"    derived from the given type the prefix set by the ``Type`` parameter.
     |"
     |" *Constant: string*
     |"    Specifies the prefix for defining names from constants and named number
@@ -245,7 +245,7 @@ fun identifier_prefixes(
                 if check_previous_part_on is not null
                 then check_previous_part_on.p_previous_part() is (null | IncompleteTypeDecl)
             ) then (
-                if expected_prefix != "-" and not name.f_name.text.starts_with(expected_prefix)
+                if expected_prefix != "" and not name.f_name.text.starts_with(expected_prefix)
                 then name.text & " does not start with " & prefix_kind & " prefix " & expected_prefix
                 else check_exclusive(
                     name,
@@ -286,11 +286,14 @@ fun identifier_prefixes(
             |" invalid, unit else.
             match name.parent
             # Concurrent types
-            | p@(TaskTypeDecl | ProtectedTypeDecl | TaskBody | ProtectedBody
-                | SubtypeDecl(p_canonical_type(): TaskTypeDecl | ProtectedTypeDecl))
-              when p is not SingleTaskTypeDecl
-               and concurrent != "-"
-            =>
+            | p@(
+                TaskTypeDecl
+                | ProtectedTypeDecl
+                | TaskBody
+                | ProtectedBody
+                | SubtypeDecl(p_canonical_type(): TaskTypeDecl
+                | ProtectedTypeDecl)
+            ) when p is not SingleTaskTypeDecl and concurrent != "" =>
                 check_prefix_and_exclusive(
                     name,
                     concurrent,
@@ -305,8 +308,7 @@ fun identifier_prefixes(
                 | p@SubtypeDecl(
                     p_canonical_type(): td@TypeDecl when is_class_access(td)
                 )
-            ) when class_access != "-"
-            =>
+            ) when class_access != "" =>
                 check_prefix_and_exclusive(
                     name,
                     class_access,
@@ -321,8 +323,7 @@ fun identifier_prefixes(
                 | p@SubtypeDecl(
                     p_canonical_type(): TypeDecl(f_type_def: AccessToSubpDef)
                 )
-            ) when subprogram_access != "-"
-            =>
+            ) when subprogram_access != "" =>
                 check_prefix_and_exclusive(
                     name,
                     subprogram_access,
@@ -337,8 +338,7 @@ fun identifier_prefixes(
                 | SubtypeDecl(
                     p_canonical_type(): TypeDecl(f_type_def: AccessDef)
                 )
-            ) when access != "-"
-            =>
+            ) when access != "" =>
                 check_prefix_and_exclusive(
                     name,
                     access,
@@ -354,9 +354,9 @@ fun identifier_prefixes(
 
             # (Sub)Types derived from `derived`
             | p@(TypeDecl(f_type_def: DerivedTypeDef) | SubtypeDecl)
-              when derived != []
-               and p.p_canonical_type().p_base_type() is t@BaseTypeDecl
-                   when get_derived(t) != ""
+                when derived != []
+                    and p.p_canonical_type().p_base_type() is t@BaseTypeDecl
+                        when get_derived(t) != ""
             => {
                 val derived_res = get_derived(p.p_canonical_type().p_base_type());
                 if derived_res != ""
@@ -373,9 +373,7 @@ fun identifier_prefixes(
             | IncompleteTypeDecl => ()
 
             # Other types and subtypes
-            | p@BaseTypeDecl
-              when p is not SingleTaskTypeDecl
-            =>
+            | p@BaseTypeDecl when p is not SingleTaskTypeDecl =>
                 check_prefix_and_exclusive(
                     name,
                     type,
