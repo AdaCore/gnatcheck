@@ -47,7 +47,7 @@ generate:
 	mkdir -p generated
 	cd tools/lal_api && gprbuild -P lal_api.gpr
 	tools/lal_api/bin/lal_api > generated/lal_api.rst
-	lkql doc-rules -O generated $(SOURCEDIR)/../share/lkql $(SOURCEDIR)/stubs
+	lkql doc-rules -O generated $(SOURCEDIR)/../share/lkql $(SOURCEDIR)/../share/lkql/stubs
 
 %.html: | generate
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/$*/html
