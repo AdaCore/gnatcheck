@@ -1,0 +1,33 @@
+import stdlib
+
+@check(help="flag array aggregate choices that are qualified names denoting a statically predicated subtype from another package",
+       message="possible occurrence of KP 20573")
+fun kp_20573(node) =
+    |" Flag a qualified name used as the choice of an array aggregate
+    |" association when it denotes a statically predicated subtype declared in
+    |" a package other than the one containing the aggregate.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"
+    |"    package Enum_Static is
+    |"       subtype DT_Sub is Enum.DT_Enum
+    |"         with Static_Predicate => DT_Sub in Enum.C | Enum.E | Enum.G;
+    |"    end Enum_Static;
+    |"
+    |"    package body My_Ops is
+    |"       My_Array : XC_Array :=
+    |"         (Enum_Static.DT_Sub => False, others => True);  -- FLAG
+    |"    end My_Ops;
+    node is DottedName(parent: AlternativesList(parent: AggregateAssoc))
+    when {
+        val decl = node.p_referenced_decl();
+        decl is BaseTypeDecl
+        when decl.p_is_statically_predicated()
+         and {
+             val pkg = stdlib.enclosing_package(decl)?.p_canonical_part();
+             pkg != null
+             and pkg != stdlib.enclosing_package(node)?.p_canonical_part()
+         }
+    }

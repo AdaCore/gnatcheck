@@ -1,0 +1,8 @@
+multi_file.ads:14:7: rule violation: possible occurrence of KP 20573
+14 |      (Enum_Static.DT_Sub => False, others => True); -- FLAG
+   |       ^^^^^^^^^^^^^^^^^^
+
+single_file.ads:26:7: rule violation: possible occurrence of KP 20573
+26 |      (Inner_Static.DT_Sub => False, others => True); -- FLAG
+   |       ^^^^^^^^^^^^^^^^^^^
+
