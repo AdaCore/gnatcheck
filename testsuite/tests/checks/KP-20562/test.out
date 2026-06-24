@@ -1,0 +1,24 @@
+test.adb:25:13: rule violation: possible occurrence of KP 20562
+25 |    function Int_To_Vol_I_1 is new         -- FLAG
+   |             ^^^^^^^^^^^^^^
+
+test.adb:31:13: rule violation: possible occurrence of KP 20562
+31 |    function Int_To_Vol_I_2 is new         -- FLAG
+   |             ^^^^^^^^^^^^^^
+
+test.adb:37:13: rule violation: possible occurrence of KP 20562
+37 |    function Int_To_Vol_I_3 is new         -- FLAG
+   |             ^^^^^^^^^^^^^^
+
+test.adb:43:13: rule violation: possible occurrence of KP 20562
+43 |    function Int_To_Vol_I_Pragma is new    -- FLAG
+   |             ^^^^^^^^^^^^^^^^^^^
+
+test.adb:49:13: rule violation: possible occurrence of KP 20562
+49 |    function Int_To_S_Vol_I is new         -- FLAG
+   |             ^^^^^^^^^^^^^^
+
+test.adb:55:13: rule violation: possible occurrence of KP 20562
+55 |    function Int_To_D_Vol_I is new         -- FLAG
+   |             ^^^^^^^^^^^^^^
+
