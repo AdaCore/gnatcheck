@@ -70,9 +70,15 @@ fun check_casing(id, scheme, exclude) =
 @unit_check(help="casing of defining names", remediation="EASY",
             parametric_exemption=true,
             category="Style", subcategory="Readability")
-fun identifier_casing(unit,
-                      type="", enum="", constant="", exception="", others="",
-                      exclude=[]) =
+fun identifier_casing(
+    unit,
+    type: string = "",
+    enum: string = "",
+    constant: string = "",
+    exception: string = "",
+    others: string = "",
+    exclude: list = []
+) =
     |" Flag each defining identifier that does not have a casing corresponding to the
     |" kind of entity being declared. All defining names are checked. For the
     |" defining names from the following kinds of declarations a special casing scheme
@@ -89,44 +95,42 @@ fun identifier_casing(unit,
     |" The rule may have the following parameters for ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Type: casing_scheme*
+    |" .. param:: type
     |"    Specifies casing for names from type and subtype declarations.
     |"
-    |" *Enum: casing_scheme*
+    |" .. param:: enum
     |"    Specifies the casing of defining enumeration literals and for the
     |"    defining names in a function renaming declarations if the renamed
     |"    entity is an enumeration literal.
     |"
-    |" *Constant: casing_scheme*
+    |" .. param:: constant
     |"    Specifies the casing for defining names from constants and named number
     |"    declarations, including the object renaming declaration if the
     |"    renamed object is a constant
     |"
-    |" *Exception: casing_scheme*
+    |" .. param:: exception
     |"    Specifies the casing for names from exception declarations and exception
     |"    renaming declarations.
     |"
-    |" *Others: casing_scheme*
+    |" .. param:: others
     |"    Specifies the casing for all defining names for which no special casing
     |"    scheme is specified. If this parameter is not set, the casing for the
     |"    entities that do not correspond to the specified parameters is not checked.
     |"
-    |" *Exclude: string*
+    |" .. param:: exclude
     |"    The name of a dictionary file to specify casing exceptions. The name of the
     |"    file may contain references to environment variables (e.g.
     |"    $REPOSITORY_ROOT/my_dict.txt), they are replaced by the values of these
     |"    variables.
     |"
-    |" Where *casing_scheme* is a string and:
-    |" ::
+    |" Values provided to ``Type``, ``Enum``, ``Constant``, ``Exception`` and
+    |" ``Others`` parameters must be one of the following:
     |"
-    |"      casing_scheme ::= upper|lower|mixed
-    |"
-    |" *upper* means that the defining identifier should be upper-case.
-    |" *lower* means that the defining identifier should be lower-case
-    |" *mixed* means that the first defining identifier letter and the first
-    |" letter after each underscore should be upper-case, and all the other
-    |" letters should be lower-case
+    |" - ``upper`` means that the defining identifier should be upper-case.
+    |" - ``lower`` means that the defining identifier should be lower-case
+    |" - ``mixed`` means that the first defining identifier letter and the first
+    |"   letter after each underscore should be upper-case, and all the other
+    |"   letters should be lower-case
     |"
     |" You have to use the ``param_name=value`` formatting to pass arguments through
     |" the ``+R`` options. Example: ``+RIdentifier_Casing:Type=mixed,Others=lower``.

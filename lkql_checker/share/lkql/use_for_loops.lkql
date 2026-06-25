@@ -32,7 +32,7 @@ fun enclosing_scope(node) = {
 
 @check(message="WHILE loop may be replaced by a FOR loop",
        category="Style", subcategory="Programming Practice")
-fun use_for_loops(node, no_exit = false, no_function = false) =
+fun use_for_loops(node, no_exit: bool = false, no_function: bool = false) =
     |" Flag ``while`` loops which could be replaced by a ``for`` loop. The rule detects
     |" the following code patterns:
     |"
@@ -62,11 +62,11 @@ fun use_for_loops(node, no_exit = false, no_function = false) =
     |" This rule has the following (optional) parameters for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *No_Exit: bool*
+    |" .. param:: no_exit
     |"    If ``true``, flag only loops that do not include an exit statement that
     |"    applies to them.
     |"
-    |" *No_Function: bool*
+    |" .. param:: no_function
     |"    If ``true``, <expression> must not contain any non-operator function call.
     |"
     |" .. rubric:: Example

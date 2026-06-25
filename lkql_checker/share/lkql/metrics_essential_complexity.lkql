@@ -11,7 +11,7 @@ fun metrics_essential_complexity(unit, n : int = 3) =
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    Maximum essential complexity a body can have without being flagged, all
     |"    bodies with a higher index will be flagged.
     |"

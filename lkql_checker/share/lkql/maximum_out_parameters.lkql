@@ -23,7 +23,7 @@ fun maximum_out_parameters(unit, n: int = 3) =
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"   Positive integer specifying the maximum allowed total number of
     |"   subprogram formal parameters of modes ``out`` and ``in out``.
     |"

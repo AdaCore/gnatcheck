@@ -15,7 +15,7 @@ fun check_loop_parent(node, n) =
 
 @check(message="nesting level of control structures too deep",
        category="Style", subcategory="Programming Practice")
-fun overly_nested_control_structures(node, n: int = 3, loops_only = false) =
+fun overly_nested_control_structures(node, n: int = 3, loops_only: bool = false) =
     |" Flag each control structure whose nesting level exceeds the value provided
     |" in the rule parameter.
     |"
@@ -32,11 +32,11 @@ fun overly_nested_control_structures(node, n: int = 3, loops_only = false) =
     |" The rule has the following (optional) parameters for the ``+R`` option and for
     |" LKQL rule options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    Positive integer specifying the maximal control structure nesting
     |"    level that is not flagged. Defaults to 3 if not specified.
     |"
-    |" *Loops_Only: bool*
+    |" .. param:: loops_only
     |"    If ``true``, only loop statements are counted.
     |"
     |" .. rubric:: Example

@@ -2,7 +2,7 @@ import stdlib
 
 @check(message="function returns unconstrained array",
        follow_generic_instantiations=true, category="Feature")
-fun unconstrained_array_returns(node, except_string = false) =
+fun unconstrained_array_returns(node, except_string: bool = false) =
     |" Flag each function returning an unconstrained array. Function declarations,
     |" function bodies (and body stubs) having no separate specifications,
     |" and generic function instantiations are flagged.
@@ -16,7 +16,7 @@ fun unconstrained_array_returns(node, except_string = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Except_String: bool*
+    |" .. param:: except_string
     |"    If ``true``, do not flag functions that return the predefined ``String`` type
     |"    or a type derived from it, directly or indirectly.
     |"

@@ -25,14 +25,14 @@ fun keyword_matcher(language_version) =
 val match_uppercase = pattern("[A-Z]+")
 
 @unit_check(category="Style", subcategory="Readability")
-fun lowercase_keywords(unit, language_version="ada_2022") =
+fun lowercase_keywords(unit, language_version: string = "ada_2022") =
     |" Flag Ada keywords that are not purely lowercase, such as ``BEGIN`` or
     |" ``beGin``. The rule is language version sensitive.
     |"
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Language_Version: string*
+    |" .. param:: language_version
     |"    The version of the language on which to run the checker (supported
     |"    versions are Ada_83, Ada_95, Ada_2005, Ada_2012, and, Ada_2022 which
     |"    is also the default).

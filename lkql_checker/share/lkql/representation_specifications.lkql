@@ -32,7 +32,7 @@ fun has_rep_aspect(node) =
    has_aspect(node, "Volatile_Components")
 
 @unit_check(help="representation specification", category="Feature")
-fun representation_specifications(unit, record_rep_clauses_only=false) =
+fun representation_specifications(unit, record_rep_clauses_only: bool = false) =
     |" Flag each record representation clause, enumeration representation
     |" clause and representation attribute clause. Flag each aspect definition
     |" that defines a representation aspect. Also flag any pragma that is
@@ -42,7 +42,7 @@ fun representation_specifications(unit, record_rep_clauses_only=false) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Record_Rep_Clauses_Only: bool*
+    |" .. param:: record_rep_clauses_only
     |"    If ``true``, only record representation clauses are flagged.
     |"
     |" .. rubric:: Example

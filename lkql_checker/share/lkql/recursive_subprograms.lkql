@@ -60,9 +60,9 @@ selector calls
        message="recursive subprogram", follow_generic_instantiations=true,
        category="Style", subcategory="Programming Practice")
 fun recursive_subprograms(node,
-                          skip_dispatching_calls=true,
-                          follow_dispatching_calls=false,
-                          follow_ghost_code=false) =
+                          skip_dispatching_calls: bool = true,
+                          follow_dispatching_calls: bool = false,
+                          follow_ghost_code: bool = false) =
     |" Flags specs (and bodies that act as specs) of recursive subprograms. A
     |" subprogram is considered as recursive in a given context if there exists
     |" a chain of direct calls starting from the body of, and ending at
@@ -99,11 +99,13 @@ fun recursive_subprograms(node,
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Follow_Dispatching_Calls: bool*
+    |" .. skip_param:: skip_dispatching_calls
+    |"
+    |" .. param:: follow_dispatching_calls
     |"    Whether to treat a dispatching call as a set of calls to all the subprograms
     |"    the dispatching call may dispatch to.
     |"
-    |" *Follow_Ghost_Code: bool*
+    |" .. param:: follow_ghost_code
     |"    Whether to analyze ghost code and assertion code, which isn't analyzed by
     |"    this check by default.
     |"

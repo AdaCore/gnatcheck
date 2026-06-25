@@ -1,13 +1,13 @@
 @unit_check(help="usage of specified pragmas", parametric_exemption=true,
             category="Style", subcategory="Portability")
-fun forbidden_pragmas(unit, all=false, forbidden=[], allowed=[]) =
+fun forbidden_pragmas(unit, all: bool = false, forbidden: list = [], allowed: list = []) =
     |" Flag each use of the specified pragmas.  The pragmas to be detected
     |" are named in the rule's  parameters.
     |"
     |" This rule has the following parameters for the ``+R`` option and for LKQL
     |" rule options file:
     |"
-    |" *Forbidden: list[string]*
+    |" .. param:: forbidden
     |"    Adds the specified pragmas to the set of pragmas to be checked and sets
     |"    the checks for all the specified pragmas ON. An element of this list
     |"    is treated as a name of a pragma. If it does not correspond to any pragma name
@@ -16,12 +16,16 @@ fun forbidden_pragmas(unit, all=false, forbidden=[], allowed=[]) =
     |"    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
     |"    pragmas are added to the set of attributes to be detected.
     |"
-    |" *Allowed: string*
-    |"    A semi-colon separated list of pragmas to remove from the set of pragmas to
-    |"    be detected. You have to use the named parameter formatting to specify it.
+    |" .. param:: allowed
+    |"    A list of pragmas to remove from the set of pragmas to be detected.
     |"
-    |" *All: bool*
-    |"    If ``true``, all pragmas are detected; this sets the rule ON.
+    |"    .. warning::
+    |"      In the legacy rule format, you have to use the named parameter
+    |"      formatting to specify it as a string with all elements separated
+    |"      by semi-colons.
+    |"
+    |" .. param:: all
+    |"    If ``true``, all pragmas are detected.
     |"
     |" Parameters are not case sensitive. If an element of *Forbidden* or *Allowed*
     |" does not have the syntax of an Ada identifier and therefore can not be
@@ -38,17 +42,6 @@ fun forbidden_pragmas(unit, all=false, forbidden=[], allowed=[]) =
     |" flagged as non-exempted. To avoid this, remove the pragma ``Annotate``
     |" from the "to be flagged" list by using ``+RForbidden_Pragmas:ALL,Allowed=Annotate``
     |" rule option.
-    |"
-    |" .. note::
-    |"    In LKQL rule options files, you can specify a named ``Allowed`` parameter
-    |"    as a list of strings. This way you can exempt some pragmas from being
-    |"    flagged. Example:
-    |"
-    |"    .. code-block:: lkql
-    |"
-    |"       val rules = @{
-    |"          Forbidden_Pragmas: {Forbidden: ["gnat"], Allowed: ["Annotate"]}
-    |"       }
     |"
     |" The rule allows parametric exemption, the parameters that are allowed in the
     |" definition of exemption sections are pragma names. Each

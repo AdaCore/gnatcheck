@@ -34,7 +34,7 @@ fun check_exception_handler(param, name, h, ignore_comp) =
 
 @unit_check(help="OUT parameters do not get values in subprogram bodies",
             rule_name="Unassigned_OUT_Parameters", category="Feature")
-fun unassigned_out_parameters(unit, ignore_component_assignments=false) =
+fun unassigned_out_parameters(unit, ignore_component_assignments: bool = false) =
     |" Flag subprograms' ``out`` parameters that are not assigned.
     |"
     |" An ``out`` parameter is flagged if neither the *declarative part* nor the
@@ -56,7 +56,7 @@ fun unassigned_out_parameters(unit, ignore_component_assignments=false) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Ignore_Component_Assignments: bool*
+    |" .. param:: ignore_component_assignments
     |"    Whether to ignore assignments to subcomponents of an ``out`` parameter when
     |"    detecting if the parameter is assigned.
     |"

@@ -29,7 +29,7 @@ fun add_param_name(param, ctx) =
 @check(message="positional parameter association", remediation="EASY",
        category="Style", subcategory="Programming Practice",
        auto_fix=add_param_name)
-fun positional_parameters(node, all=false) =
+fun positional_parameters(node, all: bool = false) =
     |" Flag each positional parameter notation in a subprogram or entry call,
     |" except for the following:
     |"
@@ -49,7 +49,7 @@ fun positional_parameters(node, all=false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *All: bool*
+    |" .. param:: all
     |"    If ``true``, all the positional parameter associations that can be replaced
     |"    with named associations according to language rules are flagged, except
     |"    parameters of the calls to operator functions.

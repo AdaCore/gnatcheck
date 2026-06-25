@@ -2,7 +2,7 @@ import stdlib
 
 @check(message="call performed outside elaboration",
        category="Style", subcategory="Programming Practice")
-fun calls_outside_elaboration(node, forbidden=[]) =
+fun calls_outside_elaboration(node, forbidden: list = []) =
     |" Flag subprogram calls outside library package elaboration code. Only calls to
     |" the subprograms specified as a rule parameter are considered, renamings are
     |" not followed.
@@ -10,7 +10,7 @@ fun calls_outside_elaboration(node, forbidden=[]) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Forbidden: list[string]*
+    |" .. param:: forbidden
     |"    A list of full expanded Ada name of subprograms.
     |"
     |" Note that if a rule parameter does not denote the name of an existing

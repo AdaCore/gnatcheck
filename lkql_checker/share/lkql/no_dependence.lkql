@@ -1,14 +1,14 @@
 import stdlib
 
 @check(category="Style", subcategory="Readability", message="forbidden dependence")
-fun no_dependence(node, unit_names=[]) =
+fun no_dependence(node, unit_names: list = []) =
     |" Flag every explicit dependency (with clause) to any of the library units
     |" designated by names passed as parameters.
     |"
     |" This rule has the following optional parameter for the ``+R`` option and for
     |" LKQL rule options files:
     |"
-    |" *Unit_Names: list[string]*
+    |" .. param:: unit_names
     |"    List of fully qualified names designating the library units that
     |"    should not be explicitly depended upon.
     |"

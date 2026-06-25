@@ -1,13 +1,13 @@
 @check(message="exception handler with forbidden calls",
        category="Style", subcategory="Programming Practice")
-fun calls_in_exception_handlers(node, subprograms=[]) =
+fun calls_in_exception_handlers(node, subprograms: list = []) =
     |" Flag an exception handler if its sequence of statements contains a call to one of
     |" the subprograms specified as a rule parameter.
     |"
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Subprograms: list[string]*
+    |" .. param:: subprograms
     |"    A list of full expanded Ada name of subprograms.
     |"
     |" Note that if a rule parameter does not denote the name of an existing

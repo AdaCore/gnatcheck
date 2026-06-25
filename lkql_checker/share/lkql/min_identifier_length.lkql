@@ -8,7 +8,7 @@ fun min_identifier_length(node, n: int = 2) =
     |" The rule has a mandatory parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    The minimal allowed identifier length specification.
     |"
     |" .. rubric:: Example

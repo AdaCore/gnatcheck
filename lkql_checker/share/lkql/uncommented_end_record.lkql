@@ -22,7 +22,7 @@ fun uncommented_end_record(unit, n: int = 10) =
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    Non-negative integer specifying the maximum size (in source code lines)
     |"    of a record definition that does not require the type name as a trailing
     |"    comment.

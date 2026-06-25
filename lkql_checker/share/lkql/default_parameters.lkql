@@ -2,7 +2,7 @@
 # default values (all other rules with a single integer require setting a
 # value for the `n` parameter).
 @check(message="too many parameters with default value", category="Feature")
-fun default_parameters(node, n: int = 0, ignore = false) =
+fun default_parameters(node, n: int = 0, ignore: bool = false) =
     |" Flag formal part (in subprogram specifications and entry declarations)
     |" if it defines more than N parameters with default values, when N is a
     |" rule parameter. If no parameter is provided for the rule then all the
@@ -11,10 +11,11 @@ fun default_parameters(node, n: int = 0, ignore = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    Integer not less than 0 specifying the minimal allowed number of
     |"    defaulted parameters.
     |"
+    |" .. skip_param:: ignore
     |"
     |" .. rubric:: Example
     |"

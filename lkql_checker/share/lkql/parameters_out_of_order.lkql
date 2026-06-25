@@ -14,36 +14,30 @@ fun priority(spec, order) =
                           then index(order, "access") else index(order, "in")
 
 @check(message="parameter out of order", remediation="EASY", category="Feature")
-fun parameters_out_of_order(node,
-                            order = ["in", "access", "in_out",
-                                     "out", "defaulted_in"]) =
+fun parameters_out_of_order(
+    node,
+    order: list = ["in", "access", "in_out", "out", "defaulted_in"]
+) =
     |" Flag each parameter specification if it does not follow the required
     |" ordering of parameter specifications in a formal part. The required
-    |" order may be specified by the following rule parameters:
+    |" order may be specified by the following rule parameter:
     |"
-    |" *in*
-    |"   ``in`` non-access parameters without initialization expressions;
+    |" .. param:: order
+    |"   A list of string that must have 5 element and that is specifying the
+    |"   required parameter order. Elements of this list must be ``in``,
+    |"   ``access``, ``in_out``, ``out`` and ``defaulted_in``, each one
+    |"   designating a parameter kind. Each one should be present only once at
+    |"   the index you want this kind of parameters to be in signatures.
     |"
-    |" *access*
-    |"   ``access`` parameters  without initialization expressions;
+    |" Here is a small description about what elements in the ``Order`` list
+    |" are designating.
     |"
-    |" *in_out*
-    |"   ``in out`` parameters;
-    |"
-    |" *out*
-    |"   ``out`` parameters;
-    |"
-    |" *defaulted_in*
-    |"   parameters with initialization expressions (the order of ``access``
-    |"   and non-access parameters is not checked.
-    |"
-    |" When the rule is used with parameters, all the five parameters should
-    |" be given, and each parameter should be specified only once.
-    |"
-    |" The rule can be called without parameters, in this case it checks the
-    |" default ordering that corresponds to the order in which the
-    |" rule parameters are listed above.
-    |"
+    |" - *in* : ``in`` non-access parameters without initialization expressions
+    |" - *access* : ``access`` parameters without initialization expressions
+    |" - *in_out* : ``in out`` parameters
+    |" - *out* : ``out`` parameters
+    |" - *defaulted_in* : parameters with initialization expressions (the order
+    |"   of ``access`` and non-access parameters is not checked
     |"
     |" .. rubric:: Example
     |"

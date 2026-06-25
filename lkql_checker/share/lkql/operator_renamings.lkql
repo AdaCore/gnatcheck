@@ -1,13 +1,13 @@
 @check(message="renaming of an operator",
        category="Style", subcategory="Programming Practice")
-fun operator_renamings(node, name_mismatch=false) =
+fun operator_renamings(node, name_mismatch: bool = false) =
     |" Flag subprogram renaming declarations that have an operator symbol as
     |" the name of renamed subprogram.
     |"
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Name_Mismatch: bool*
+    |" .. param:: name_mismatch
     |"    If ``true``, only flag when the renamed subprogram is also an operator with
     |"    a different name.
     |"

@@ -13,7 +13,7 @@ fun has_predicate(t) =
 
 @check(message="expression needs subtype predicate evaluation",
        category="Feature")
-fun predicate_testing(node, except_assertions=false) =
+fun predicate_testing(node, except_assertions: bool = false) =
     |" Flag a membership test if at least one of its membership choice contains a
     |" subtype mark denoting a subtype defined with (static or dynamic)
     |" subtype predicate.
@@ -24,7 +24,7 @@ fun predicate_testing(node, except_assertions=false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Except_Assertions: bool*
+    |" .. param:: except_assertions
     |"    If ``true``, do not flag the use of non-short-circuit_operators inside
     |"    assertion-related pragmas or aspect specifications.
     |"

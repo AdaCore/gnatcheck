@@ -13,7 +13,7 @@ fun too_many_parents(node, n : int = 5) =
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"    Positive integer specifying the maximal allowed number of parents/progenitors.
     |"
     |" .. rubric:: Example

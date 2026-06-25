@@ -16,7 +16,7 @@ fun qualified_name(name) = {
 @check(message="silent exception handler",
        category="Style", subcategory="Programming Practice",
        auto_fix=(n, ctx) => ctx.add_last(n.f_stmts, new RaiseStmt(null, null)))
-fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) =
+fun silent_exception_handlers(node, subprograms: list = [], subprogram_regexps: list = []) =
     |" Flag any exception handler in which there exists at least one an execution path
     |" that does not raise an exception by a ``raise`` statement or a call to
     |" ``Ada.Exceptions.Raise_Exception`` or to ``Ada.Exceptions.Reraise_Occurrence``
@@ -26,7 +26,7 @@ fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) =
     |" The rule has the following parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Subprograms: list[string]*
+    |" .. param:: subprograms
     |"    List of names of subprograms. An exception handler is not flagged if it
     |"    contains a call to a subprogram that has a fully expanded Ada names that
     |"    matches an element of this list.
@@ -46,6 +46,8 @@ fun silent_exception_handlers(node, subprograms=[], subprogram_regexps=[]) =
     |"       val rules = @{
     |"          Silent_Exception_Handlers: {Subprograms: ["My.Expanded.Name", "|My\.Regex\..*"]}
     |"       }
+    |"
+    |" .. skip_param:: subprogram_regexps
     |"
     |" Note that if you specify the rule with parameters in a command shell, you may
     |" need to escape its parameters. The best and the safest way of using this rule

@@ -1,13 +1,13 @@
 import stdlib
 
 @check(message="quantified expression", category="Feature")
-fun quantified_expressions(node, except_assertions=false) =
+fun quantified_expressions(node, except_assertions: bool = false) =
     |" Flag use of quantified expression.
     |"
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Except_Assertions: bool*
+    |" .. param:: except_assertions
     |"    If ``true``, do not flag a conditional expression if it is a subcomponent
     |"    of the following constructs:
     |"

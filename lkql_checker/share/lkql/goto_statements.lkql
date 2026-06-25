@@ -1,12 +1,12 @@
 @check(message="goto statement", rule_name="GOTO_Statements",
        category="Style", subcategory="Programming Practice")
-fun goto_statements(node, only_unconditional=false) =
+fun goto_statements(node, only_unconditional: bool = false) =
     |" Flag each occurrence of a ``goto`` statement.
     |"
     |" This rule has the following optional parameter for the ``+R`` option and for
     |" LKQL rule options files:
     |"
-    |" *Only_Unconditional: bool*
+    |" .. param:: only_unconditional
     |"    If ``true``, Only flag unconditional goto statements, that is, goto statements
     |"    that are not directly enclosed in an if or a case statement.
     |"

@@ -1,7 +1,7 @@
 @check(help="call to unavailable body (global analysis required)",
        message="call to unavailable body",
        category="Style", subcategory="Programming Practice")
-fun unavailable_body_calls(node, indirect_calls = false) =
+fun unavailable_body_calls(node, indirect_calls: bool = false) =
     |" Flag any subprogram call if the set of argument sources does not
     |" contain a body of the called subprogram because of any reason.
     |" Calls to formal subprograms in generic bodies are not flagged.
@@ -12,7 +12,7 @@ fun unavailable_body_calls(node, indirect_calls = false) =
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Indirect_Calls: bool*
+    |" .. param:: indirect_calls
     |"    Whether to flag all the indirect calls (that is, calls through
     |"    access-to-subprogram values).
     |"

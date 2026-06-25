@@ -12,7 +12,7 @@ fun operator_image(node) =
 @unit_check(help="use of predefined AND and OR for boolean types",
             remediation="EASY",
             category="Style", subcategory="Programming Practice")
-fun non_short_circuit_operators(unit, except_assertions=false) =
+fun non_short_circuit_operators(unit, except_assertions: bool = false) =
     |" Flag all calls to predefined ``and`` and ``or`` operators for
     |" any boolean type. Calls to
     |" user-defined ``and`` and ``or`` and to operators defined by renaming
@@ -22,7 +22,7 @@ fun non_short_circuit_operators(unit, except_assertions=false) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Except_Assertions: bool*
+    |" .. param:: except_assertions
     |"    If ``true``, do not flag the use of non-short-circuit_operators inside
     |"    assertion-related pragmas or aspect specifications.
     |"

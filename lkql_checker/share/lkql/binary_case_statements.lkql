@@ -26,7 +26,7 @@ fun to_if_stmt(case_stmt, ctx) =
 @check(message="CASE statement can be replaced with IF statement",
        category="Style", subcategory="Programming Practice",
        auto_fix=(n, ctx) => ctx.replace(n, to_if_stmt(n, ctx)))
-fun binary_case_statements(node, except_enums = false) =
+fun binary_case_statements(node, except_enums: bool = false) =
     |" Flag a case statement if this statement has only two alternatives, one
     |" containing exactly one choice, the other containing exactly one choice
     |" or the ``others`` choice.
@@ -34,7 +34,7 @@ fun binary_case_statements(node, except_enums = false) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Except_Enums: bool*
+    |" .. param:: except_enums
     |"    If ``true``, do not flag case statements whose selecting expression is of an
     |"    enumeration type.
     |"

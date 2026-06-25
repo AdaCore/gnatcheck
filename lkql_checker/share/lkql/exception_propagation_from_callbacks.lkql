@@ -12,7 +12,7 @@ fun get_uninstantiated_subp(subp) =
 @check(help="callback may propagate exceptions (global analysis required)",
        message="callback may propagate exceptions",
        category="Style", subcategory="Programming Practice")
-fun exception_propagation_from_callbacks(node, callbacks=[]) =
+fun exception_propagation_from_callbacks(node, callbacks: list = []) =
     |" Flag an ``'Address`` or ``'Access`` attribute if:
     |"
     |" * this attribute is a reference to a subprogram;
@@ -30,7 +30,7 @@ fun exception_propagation_from_callbacks(node, callbacks=[]) =
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Callbacks: list[string]*
+    |" .. param:: callbacks
     |"    A list of strings which should have the following structure
     |"    ``subprogram_name.parameter``. ``subprogram_name`` should be a full expanded
     |"    Ada name of a subprogram. ``parameter`` should be a simple name of a

@@ -11,7 +11,7 @@ fun check_parents(n, statements_only) =
     | *               => check_parents(n?.parent, statements_only)
 
 @check(message="numeric literal", category="Feature")
-fun numeric_literals(node, n : int = 1, all = false, statements_only = false) =
+fun numeric_literals(node, n : int = 1, all: bool = false, statements_only: bool = false) =
     |" Flag each use of a numeric literal except for the following:
     |"
     |" * a literal occurring in the initialization expression for a constant
@@ -29,16 +29,16 @@ fun numeric_literals(node, n : int = 1, all = false, statements_only = false) =
     |" This rule may have the following parameters for the ``+R`` option and for
     |" LKQL rule options files:
     |"
-    |" *N: int*
+    |" .. param:: n
     |"   An integer literal used as the maximal value that is not flagged
     |"   (i.e., integer literals not exceeding this value are allowed).
     |"
     |"
-    |" *All: bool*
+    |" .. param:: all
     |"   If ``true``, all integer literals are flagged.
     |"
     |"
-    |" *Statements_Only: bool*
+    |" .. param:: statements_only
     |"   If ``true``, numeric literals are flagged only when used in statements.
     |"
     |" If no parameters are set, the maximum unflagged value is 1, and the check for

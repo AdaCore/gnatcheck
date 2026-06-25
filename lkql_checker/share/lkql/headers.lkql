@@ -1,13 +1,13 @@
 @unit_check(help="compilation unit does not start with header",
             category="Style", subcategory="Readability")
-fun headers(unit, header = "") =
+fun headers(unit, header: string = "") =
     |" Check that the source text of a compilation unit starts from
     |" the text fragment specified as a rule parameter.
     |"
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:
     |"
-    |" *Header: string*
+    |" .. param:: header
     |"    The name of a header file.
     |"
     |" A header file is a plain text file. The rule checks that
