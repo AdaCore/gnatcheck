@@ -12,7 +12,8 @@ fun identifier_suffixes(unit,
                         constant_suffix: string = "",
                         renaming_suffix: string = "",
                         access_obj_suffix: string = "",
-                        interrupt_suffix: string = "") =
+                        interrupt_suffix: string = "",
+                        default: bool = false) =
     |" Flag the declaration of each identifier that does not have a suffix
     |" corresponding to the kind of entity being declared.
     |" The following declarations are checked:
@@ -63,7 +64,7 @@ fun identifier_suffixes(unit,
     |" The rule may have the following parameters for ``+R`` option and for LKQL rule
     |" options files:
     |"
-    |" *Default: bool = false*
+    |" .. param:: default
     |"    If ``true``, sets the default listed above for all the names to be checked.
     |"
     |" .. param:: type_suffix
