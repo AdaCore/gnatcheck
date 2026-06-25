@@ -34,6 +34,9 @@ package Lkql_Checker.Output is
    procedure Warning (Message : String; Location : String := "");
    --  Sends ``Message`` into stderr, prefixed by "tool_name: warning: ".
 
+   procedure Hint (Message : String; Location : String := "");
+   --  Sends ``Message`` into stderr as a hint for a previous diagnostic.
+
    procedure Info (Message : String; Location : String := "");
    --  Sends ``Message`` into stderr, prefixed by "tool_name: info: ".
 
@@ -57,7 +60,7 @@ package Lkql_Checker.Output is
    -- Tool message emission --
    ---------------------------
 
-   type Message_Tags is (Info, Warning, Error, None);
+   type Message_Tags is (Info, Hint, Warning, Error, None);
    --  Possible tags when displaying a message to the user
 
    procedure Emit_Message

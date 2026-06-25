@@ -27,6 +27,14 @@ with GNATCOLL.VFS;  use GNATCOLL.VFS;
 
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
+with SARIF.Types.Inputs;
+
+with VSS.JSON.Pull_Readers.Simple;
+with VSS.Stream_Element_Vectors.Conversions;
+with VSS.Strings;
+with VSS.Strings.Conversions;
+with VSS.Text_Streams.Memory_UTF8_Input;
+
 package body Lkql_Checker.Compiler is
 
    use Rident;
@@ -89,6 +97,9 @@ package body Lkql_Checker.Compiler is
    --  ``Pattern`` inside the ``Source`` string.
    --  This function treats the provided path as case-insensitive on Windows
    --  systems.
+
+   function URI_To_Path (URI : VSS.Strings.Virtual_String) return String;
+   --  Create a file path from the provided URI.
 
    ---------------------------------
    -- Target information fetching --
@@ -334,6 +345,286 @@ package body Lkql_Checker.Compiler is
          return Result (Result'First .. Last_Idx);
       end if;
    end Adjust_Message;
+
+   -----------------
+   -- URI_To_Path --
+   -----------------
+
+   function URI_To_Path (URI : VSS.Strings.Virtual_String) return String is
+      use VSS.Strings.Conversions;
+
+      Prefix          : constant String := "file://";
+      URI_Str         : constant String := To_UTF_8_String (URI);
+      Unix_Style_Path : constant String :=
+        (if Has_Prefix (URI_Str, Prefix)
+         then URI_Str (URI_Str'First + Prefix'Length .. URI_Str'Last)
+         else URI_Str);
+      Is_Absolute     : constant Boolean := Has_Prefix (Unix_Style_Path, "/");
+   begin
+      if GNAT.OS_Lib.Directory_Separator = '\' then
+         --  Handle the case where we're on a Windows system
+         return
+           Replace_Char
+             ((if Is_Absolute
+               then
+                 --  Remove the first "/" because absolute paths on Windows
+                 --  start with the drive letter.
+                 Unix_Style_Path
+                   (Unix_Style_Path'First + 1 .. Unix_Style_Path'Last)
+               else Unix_Style_Path),
+              '/',
+              "\");
+      else
+         return Unix_Style_Path;
+      end if;
+   end URI_To_Path;
+
+   ---------------------
+   -- Load_SARIF_Root --
+   ---------------------
+
+   function Load_SARIF_Root
+     (File_Name : String; Root : out SARIF.Types.Root) return Boolean
+   is
+      File   : constant Virtual_File := Create (+File_Name);
+      Input  :
+        aliased VSS.Text_Streams.Memory_UTF8_Input.Memory_UTF8_Input_Stream;
+      Reader : VSS.JSON.Pull_Readers.Simple.JSON_Simple_Pull_Reader;
+      Ok     : Boolean := True;
+   begin
+      --  Check that the provided file path is a regular file
+      if not Is_Regular_File (File) then
+         Error ('"' & File_Name & """ is not a file");
+         Detected_Internal_Error := @ + 1;
+         return False;
+      end if;
+
+      --  Now load the file content in the JSON reader
+      Input.Set_Data
+        (VSS.Stream_Element_Vectors.Conversions.Unchecked_From_Unbounded_String
+           (Ada.Strings.Unbounded.To_Unbounded_String
+              (Read_File (File).To_String)));
+      Reader.Set_Stream (Input'Unchecked_Access);
+      Reader.Read_Next;
+
+      --  Check that the file content is a valid JSON document
+      if not Reader.Is_Start_Document then
+         Error ("invalid SARIF output from worker: " & File_Name);
+         Detected_Internal_Error := @ + 1;
+         return False;
+      end if;
+
+      --  Then load the file as a SARIF report
+      Reader.Read_Next;
+      SARIF.Types.Inputs.Input_Root (Reader, Root, Ok);
+
+      --  If there was an error during the loading, report it
+      if not Ok then
+         Error
+           ("invalid or empty SARIF output from worker, see "
+            & File_Name
+            & " for raw output");
+         Detected_Internal_Error := @ + 1;
+         return False;
+      end if;
+
+      --  Return the success
+      return True;
+   end Load_SARIF_Root;
+
+   ---------------------------------
+   -- Process_SARIF_Notifications --
+   ---------------------------------
+
+   procedure Process_SARIF_Notifications
+     (Collector     : in out Diagnostic_Collector;
+      Notifs        : SARIF.Types.notification_Vector;
+      Error_Counter : in out Integer)
+   is
+      use SARIF.Types;
+      use SARIF.Types.Enum;
+      use VSS.Strings.Conversions;
+
+      function Lower_First_Char (Source : String) return String
+      is (To_Lower (Source (Source'First))
+          & Source (Source'First + 1 .. Source'Last));
+      --  Get the ``Source`` string with the first character lowered.
+
+      function Filter_Hints
+        (Source : location_Vector; Opt_Out : Boolean) return location_Vector;
+      --  Return a new locations vector with all elements in ``Source`` that
+      --  are / aren't hints location, following ``Opt_Out``.
+
+      function Filter_Hints
+        (Source : location_Vector; Opt_Out : Boolean) return location_Vector
+      is
+         Res : location_Vector;
+      begin
+         if not Source.Is_Null then
+            for I in 1 .. Source.Length loop
+               if Opt_Out xor Source (I).message.Is_Set then
+                  Res.Append (Source (I));
+               end if;
+            end loop;
+         end if;
+         return Res;
+      end Filter_Hints;
+   begin
+      for I in 1 .. Notifs.Length loop
+         declare
+            Notif : notification renames Notifs (I);
+
+            --  Get the message of the notification. Lower the first character
+            --  because LKQL messages start with an upper-case character while
+            --  GNATcheck ones don't.
+            Msg : constant String :=
+              Lower_First_Char (To_UTF_8_String (Notif.message.text));
+
+            --  From all notification locations discriminate those with a
+            --  message (hints) from those without (main location).
+            Locations      : constant location_Vector :=
+              Filter_Hints (Notif.locations, Opt_Out => True);
+            Hint_Locations : constant location_Vector :=
+              Filter_Hints (Notif.locations, Opt_Out => False);
+
+            --  Get the SARIF source location of the notification
+            Sarif_Physical_Location : constant Optional_physicalLocation :=
+              (if Locations.Length >= 1
+               then Locations (1).physicalLocation
+               else (Is_Set => False));
+
+            --  Get the full path of the file this notification is about
+            Path : constant String :=
+              (if Sarif_Physical_Location.Is_Set
+               then
+                 URI_To_Path
+                   (Sarif_Physical_Location.Value.artifactLocation.Value.uri)
+               else "");
+
+            --  Try to get the Ada source file this notification is about
+            Ada_Source_Id : constant SF_Id :=
+              (if Path /= "" then File_Find (Path) else No_SF_Id);
+
+            --  Extract the source location from the SARIF physical location
+            Sloc : constant Source_Location :=
+              (if Sarif_Physical_Location.Is_Set
+               then
+                 (declare
+                    Region : SARIF.Types.region renames
+                      Sarif_Physical_Location.Value.region.Value;
+                  begin
+                    (Line_Number (Region.startLine.Value),
+                     Column_Number (Region.startColumn.Value)))
+               else (1, 2));
+
+            --  Create the location string of the main diagnostic to report
+            Location_String : constant String :=
+              (if Path /= ""
+               then
+                 (if Tool_Args.Full_Source_Locations.Get
+                  then Path
+                  else Simple_Name (Path))
+                 & ":"
+                 & Image (Sloc)
+               else "");
+
+            --  Flag to prevent useless hint processing when the notification
+            --  is recorded as a diagnostic.
+         begin
+            --  Report the main notification to the user
+            if Notif.level.Is_Set and then Notif.level.Value = error then
+               --  If the notification is about an Ada source file, record a
+               --  diagnostic for it.
+               if Present (Ada_Source_Id) then
+                  Store_Diagnostic
+                    (Collector,
+                     Full_File_Name => Path,
+                     Message        => "error: " & Msg,
+                     Sloc           => Sloc,
+                     Kind           => Compiler_Error,
+                     SF             => Ada_Source_Id);
+
+                  --  Do not process hints for such notifications
+                  goto Next;
+               else
+                  Error_Counter := @ + 1;
+                  Error (Msg, Location_String);
+               end if;
+            elsif Notif.level.Is_Set and then Notif.level.Value /= warning then
+               Info (Msg, Location_String);
+            else
+               --  Covers level=warning and absent level (SARIF default).
+
+               --  If the message is about a missing file, handle is specially
+               if Match (Match_Missing_File, Msg) then
+                  --  If the warning is about a missing file but the request
+                  --  origin is not a file that GNATcheck analyzed, skip this
+                  --  notification.
+                  if not Present (Ada_Source_Id) then
+                     goto Next;
+                  end if;
+
+                  --  Otherwise set the corresponding flag to true
+                  Missing_File_Detected := True;
+               end if;
+
+               --  Finally, emit the warning message
+               Warning (Msg, Location_String);
+            end if;
+
+            --  Now handle hints related to this notification
+            for J in 1 .. Hint_Locations.Length loop
+               declare
+                  H : location renames Hint_Locations (J);
+
+                  --  Get the hint message
+                  Hint_Msg : constant String :=
+                    Lower_First_Char (To_UTF_8_String (H.message.Value.text));
+
+                  --  Since a hint always has a location in SARIF reports
+                  --  generated by LKQL workers, get the path
+                  --  unconditionally.
+                  Hint_Path : constant String :=
+                    URI_To_Path
+                      (H.physicalLocation.Value.artifactLocation.Value.uri);
+
+                  --  Get the Ada source this hint is about
+                  Hint_Ada_Source_Id : constant SF_Id := File_Find (Hint_Path);
+
+                  --  The same way, always get the hint source location
+                  Hint_Region : region renames
+                    H.physicalLocation.Value.region.Value;
+                  Hint_Sloc   : constant Source_Location :=
+                    (Line_Number (Hint_Region.startLine.Value),
+                     Column_Number (Hint_Region.startColumn.Value));
+
+                  --  Finally, create the location string for the hint
+                  Hint_Location_String : constant String :=
+                    (if Tool_Args.Full_Source_Locations.Get
+                     then Hint_Path
+                     else Simple_Name (Hint_Path))
+                    & ":"
+                    & Image (Hint_Sloc);
+               begin
+                  --  If the hint is about an Ada source file and its
+                  --  related notification is an error, set the Ada source
+                  --  status accordingly.
+                  if Present (Hint_Ada_Source_Id)
+                    and then Notif.level.Is_Set
+                    and then Notif.level.Value = error
+                  then
+                     Set_Source_Status (Hint_Ada_Source_Id, Error_Detected);
+                  end if;
+
+                  --  Show the hint
+                  Hint (Hint_Msg, Hint_Location_String);
+               end;
+            end loop;
+         end;
+
+         <<Next>>
+      end loop;
+   end Process_SARIF_Notifications;
 
    ----------------------------
    -- Analyze_Builder_Output --

@@ -43,9 +43,16 @@ package Lkql_Checker.Rules is
    type Source_Modes is (General, Ada_Only, Spark_Only);
    --  Each rule may have a source mode, this information sets on which types
    --  of source code the rule should be executed:
-   --  Ada     - Only on pure Ada code (not run on SPARK snippets)
-   --  Spark   - Only on SPARK code
-   --  General - On both
+   --  Ada_Only   - Only on pure Ada code (not run on SPARK snippets)
+   --  Spark_Only - Only on SPARK code
+   --  General    - On both
+
+   function Image (Mode : Source_Modes) return String
+   is (case Mode is
+         when Ada_Only   => "Ada",
+         when Spark_Only => "Spark",
+         when General    => "General");
+   --  Get the displayable image of the given ``Mode``.
 
    type Rule_Instance (Is_Alias : Boolean) is tagged record
       Rule : Rule_Id;
@@ -241,7 +248,7 @@ package Lkql_Checker.Rules is
    --  Return whether the Instance has some parameters set.
 
    procedure Process_Instance_Params_Object
-     (Instance : in out Rule_Instance; Params_Object : in out JSON_Value)
+     (Instance : in out Rule_Instance; Params_Object : JSON_Value)
    is null;
    --  Process the given JSON value as an arguments object for `Rule`. This
    --  object contains argument names as keys, associated with their value
@@ -312,7 +319,7 @@ package Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_Integer_Parameter_Instance;
-      Params_Object : in out JSON_Value);
+      Params_Object : JSON_Value);
 
    overriding
    procedure Map_Parameters
@@ -347,7 +354,7 @@ package Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_Boolean_Parameter_Instance;
-      Params_Object : in out JSON_Value);
+      Params_Object : JSON_Value);
 
    overriding
    procedure Map_Parameters
@@ -381,7 +388,7 @@ package Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_String_Parameter_Instance;
-      Params_Object : in out JSON_Value);
+      Params_Object : JSON_Value);
 
    overriding
    procedure Map_Parameters
@@ -422,7 +429,7 @@ package Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_Array_Parameter_Instance;
-      Params_Object : in out JSON_Value);
+      Params_Object : JSON_Value);
 
    overriding
    procedure Map_Parameters
@@ -449,7 +456,7 @@ package Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_Integer_Or_Booleans_Parameter_Instance;
-      Params_Object : in out JSON_Value);
+      Params_Object : JSON_Value);
 
    overriding
    procedure Map_Parameters
@@ -493,7 +500,7 @@ package Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Suffixes_Instance;
-      Params_Object : in out JSON_Value);
+      Params_Object : JSON_Value);
 
    overriding
    procedure Map_Parameters
@@ -535,7 +542,7 @@ package Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Prefixes_Instance;
-      Params_Object : in out JSON_Value);
+      Params_Object : JSON_Value);
 
    overriding
    procedure Map_Parameters
@@ -574,7 +581,7 @@ package Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Casing_Instance;
-      Params_Object : in out JSON_Value);
+      Params_Object : JSON_Value);
 
    overriding
    procedure Map_Parameters
@@ -607,7 +614,7 @@ package Lkql_Checker.Rules is
 
    overriding
    procedure Process_Instance_Params_Object
-     (Instance : in out Forbidden_Instance; Params_Object : in out JSON_Value);
+     (Instance : in out Forbidden_Instance; Params_Object : JSON_Value);
 
    overriding
    procedure Map_Parameters
@@ -641,7 +648,7 @@ package Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out Silent_Exception_Handlers_Instance;
-      Params_Object : in out JSON_Value);
+      Params_Object : JSON_Value);
 
    overriding
    procedure Map_Parameters
@@ -673,7 +680,7 @@ package Lkql_Checker.Rules is
 
    overriding
    procedure Process_Instance_Params_Object
-     (Instance : in out Custom_Instance; Params_Object : in out JSON_Value);
+     (Instance : in out Custom_Instance; Params_Object : JSON_Value);
 
    overriding
    procedure Map_Parameters

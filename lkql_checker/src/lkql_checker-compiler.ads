@@ -12,6 +12,8 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with GNATCOLL.OS.Process; use GNATCOLL.OS.Process;
 
+with SARIF.Types;
+
 with Lkql_Checker.Diagnostics; use Lkql_Checker.Diagnostics;
 with Lkql_Checker.Rules;       use Lkql_Checker.Rules;
 
@@ -91,6 +93,20 @@ package Lkql_Checker.Compiler is
    --  Following the ``Unparsable_Handling`` parameter, this function may
    --  report internal error when an unparsable message is encountered in the
    --  output.
+
+   function Load_SARIF_Root
+     (File_Name : String; Root : out SARIF.Types.Root) return Boolean;
+   --  Read and parse the SARIF file at ``File_Name`` into ``Root``. Return
+   --  whether the loading has been a success.
+
+   procedure Process_SARIF_Notifications
+     (Collector     : in out Diagnostic_Collector;
+      Notifs        : SARIF.Types.notification_Vector;
+      Error_Counter : in out Integer);
+   --  Emit info/warning output for each SARIF tool notification. On error
+   --  notifications, test if it is about an Ada source:
+   --    * if so, store a ``Compilation_Error`` diagnostic in ``Collector``
+   --    * if not, increase ``Error_Counter`` by 1 and display the error
 
    procedure Process_Restriction_Param
      (Parameter : String; Instance : Rule_Instance_Access);

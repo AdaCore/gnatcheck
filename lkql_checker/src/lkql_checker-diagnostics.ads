@@ -31,6 +31,10 @@ package Lkql_Checker.Diagnostics is
      Compile ("^(([A-Z]:)?[^:]*):(\d+):(\d+): (.*)$");
    --  Matcher for a diagnostic
 
+   Match_Missing_File : constant Pattern_Matcher :=
+     Compile ("file .+ not found");
+   --  Matcher for missing file warnings.
+
    -------------------------
    -- Diagnostics storage --
    -------------------------

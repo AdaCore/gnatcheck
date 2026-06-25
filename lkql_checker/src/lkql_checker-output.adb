@@ -130,6 +130,7 @@ package body Lkql_Checker.Output is
         & (if Location /= "" then Location & ": " else "")
         & (case Tag is
              when Info    => "info: ",
+             when Hint    => "hint: ",
              when Warning => "warning: ",
              when Error   => "error: ",
              when None    => "")
@@ -424,6 +425,21 @@ package body Lkql_Checker.Output is
             Log_Message => True);
       end if;
    end Warning;
+
+   ----------
+   -- Hint --
+   ----------
+
+   procedure Hint (Message : String; Location : String := "") is
+   begin
+      Emit_Message
+        (Message,
+         Tag         => Hint,
+         Tool_Name   => Location = "",
+         Location    => Location,
+         New_Line    => True,
+         Log_Message => True);
+   end Hint;
 
    ----------------
 
