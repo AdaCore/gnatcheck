@@ -2790,22 +2790,13 @@ package body Lkql_Checker.Rules is
             end;
 
          elsif Lower_Rule_Name = "identifier_casing" then
-            --  For the "identifier_casing" rule, if there is a "exclude"
-            --  file, add it into the argument list.
-            declare
-               Id_Cas_Instance : constant Identifier_Casing_Instance :=
-                 Identifier_Casing_Instance (Instance.all);
-            begin
-               for I in Args.First_Index .. Args.Last_Index loop
-                  if Args (I).Name = "exclude" then
-                     Set_Unbounded_Wide_Wide_String
-                       (Args (I).Value,
-                        '"'
-                        & To_Text (Id_Cas_Instance.Exclude_File.Value)
-                        & '"');
-                  end if;
-               end loop;
-            end;
+            --  For the "identifier_casing" rule, remove the "exclude_list"
+            --  argument from exported ones.
+            for I in Args.First_Index .. Args.Last_Index loop
+               if Args (I).Name = "exclude_list" then
+                  To_Delete := I;
+               end if;
+            end loop;
 
          elsif Lower_Rule_Name = "silent_exception_handlers" then
             --  For the "silent_exception_handlers", process all subprogram
@@ -3614,7 +3605,8 @@ package body Lkql_Checker.Rules is
       Append_String_Param (Args, "constant", Instance.Constant_Casing);
       Append_String_Param (Args, "exception", Instance.Exception_Casing);
       Append_String_Param (Args, "others", Instance.Others_Casing);
-      Append_Array_Param (Args, "exclude", Instance.Exclude);
+      Append_String_Param (Args, "exclude", Instance.Exclude_File);
+      Append_Array_Param (Args, "exclude_list", Instance.Exclude);
    end Map_Parameters;
 
    overriding

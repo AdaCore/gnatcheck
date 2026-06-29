@@ -7,4 +7,4 @@ rule_arguments:
     identifier_casing.constant: '"lower"'
     identifier_casing.exception: '"mixed"'
     identifier_casing.others: '"mixed"'
-    identifier_casing.exclude: '["CHACLO", "KARPA", "OLOLO", "AAAA", "BBB", "AaAa", "A111"]'
+    identifier_casing.exclude_list: '["CHACLO", "KARPA", "OLOLO", "AAAA", "BBB", "AaAa", "A111"]'
