@@ -2373,8 +2373,9 @@ package body Lkql_Checker.Rules is
      (Args     : in out Rule_Argument_Vectors.Vector;
       Instance : in out One_Array_Parameter_Instance)
    is
-      Rule : constant Rule_Info := All_Rules (Instance.Rule);
-      Last : constant Natural := Length (Instance.Param.Value);
+      Rule        : constant Rule_Info := All_Rules (Instance.Rule);
+      Last        : constant Natural := Length (Instance.Param.Value);
+      Array_Param : Natural := 2;
 
       procedure Error;
       --  Emit an error message when an invalid parameter is detected.
@@ -2443,6 +2444,19 @@ package body Lkql_Checker.Rules is
          Bad_Rule_Detected := True;
          Turn_Instance_Off (Instance_Name (Instance));
          return;
+      end if;
+
+      --  If the rule is "name_clashes", the worker also need the
+      --  "dictionary_file" parameter not to crash.
+      if Lower_Name (Rule) = "name_clashes" then
+         Array_Param := 3;
+         Append_String_Param
+           (Args,
+            "dictionary_file",
+            (Is_Set => True,
+             Value  =>
+               To_Unbounded_Wide_Wide_String
+                 (To_Wide_Wide_String (To_String (Instance.File)))));
       end if;
 
       --  If the rule is "actual_parameters" then add the instance parameter
@@ -2551,7 +2565,9 @@ package body Lkql_Checker.Rules is
          --  In other cases, just add the instance parameter as a comma
          --  separated string array.
          Append_Array_Param
-           (Args, Unbounded_Text_Type'(Param_Name (Rule, 2)), Instance.Param);
+           (Args,
+            Unbounded_Text_Type'(Param_Name (Rule, Array_Param)),
+            Instance.Param);
       end if;
    end Handle_Array_Param;
 
@@ -2603,7 +2619,11 @@ package body Lkql_Checker.Rules is
             Res.Process_Rule_Parameter := Int_Or_Bools_Param_Process'Access;
 
          when Custom                  =>
-            if Rule_Name = "identifier_suffixes" then
+            if Rule_Name = "name_clashes" then
+               Res.XML_Rule_Help := String_Param_XML_Help'Access;
+               Res.Create_Instance := Create_Array_Instance'Access;
+               Res.Process_Rule_Parameter := Array_Param_Process'Access;
+            elsif Rule_Name = "identifier_suffixes" then
                Res.XML_Rule_Help := Id_Suffix_Param_XML_Help'Access;
                Res.Allowed_As_Exemption_Parameter :=
                  Id_Suffix_Allowed_Exemption_Param'Access;
@@ -2721,21 +2741,26 @@ package body Lkql_Checker.Rules is
 
       procedure Postprocess_Args is
          Lower_Rule_Name : constant String := Lower_Name (Rule);
+         To_Delete       : Natural := 0;
       begin
-         if Lower_Rule_Name = "headers"
-           or else Lower_Rule_Name = "name_clashes"
-         then
-            --  For "headers" and "name_clashes" rules, set the argument value
-            --  to the name of the file.
+         if Lower_Rule_Name = "headers" then
+            --  For "headers" set the argument value to the name of the file.
             declare
                Str_Instance : constant One_String_Parameter_Instance :=
                  One_String_Parameter_Instance (Instance.all);
-               Filename     : constant Text_Type :=
-                 To_Text (To_String (Str_Instance.File));
             begin
                Set_Unbounded_Wide_Wide_String
-                 (Args (1).Value, '"' & Filename & '"');
+                 (Args (1).Value,
+                  '"' & To_Text (To_String (Str_Instance.File)) & '"');
             end;
+
+         elsif Lower_Rule_Name = "name_clashes" then
+            --  Remove the parsed list of names for the "name_clashes" rule
+            for I in Args.First_Index .. Args.Last_Index loop
+               if Args (I).Name = "forbidden" then
+                  To_Delete := I;
+               end if;
+            end loop;
 
          elsif Lower_Rule_Name = "identifier_suffixes" then
             --  For the "identifier_suffixes" rule, process the
@@ -2744,7 +2769,6 @@ package body Lkql_Checker.Rules is
             declare
                Id_Suf_Instance : constant Identifier_Suffixes_Instance :=
                  Identifier_Suffixes_Instance (Instance.all);
-               To_Delete       : Natural := 0;
                Access_Suffix   : constant Text_Type :=
                  To_Text
                    ((if not Id_Suf_Instance.Access_Access_Suffix.Is_Set
@@ -2763,9 +2787,6 @@ package body Lkql_Checker.Rules is
                      To_Delete := I;
                   end if;
                end loop;
-               if To_Delete /= 0 then
-                  Args.Delete (To_Delete);
-               end if;
             end;
 
          elsif Lower_Rule_Name = "identifier_casing" then
@@ -2815,6 +2836,11 @@ package body Lkql_Checker.Rules is
                      Value =>
                        To_Unbounded_Text ('[' & To_Text (Subp_Value) & ']')));
             end;
+         end if;
+
+         --  Delete the required field if there is some
+         if To_Delete /= 0 then
+            Args.Delete (To_Delete);
          end if;
       end Postprocess_Args;
    begin
