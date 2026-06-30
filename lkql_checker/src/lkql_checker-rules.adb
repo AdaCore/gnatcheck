@@ -1373,7 +1373,9 @@ package body Lkql_Checker.Rules is
       --  If the param is empty and the command line is enabling the instance,
       --  emit an error
       if Param = "" then
-         if Enable then
+         if Enable
+           and then not All_Rules (Instance.Rule).Parameters (2).Has_Default
+         then
             Emit_Required_Parameter (Instance);
          end if;
          Turn_Instance_Off (Instance);
@@ -1463,7 +1465,9 @@ package body Lkql_Checker.Rules is
       --  If the param is empty and the command line enable the instance, emit
       --  an error message.
       if Param = "" then
-         if Enable then
+         if Enable
+           and then not All_Rules (Instance.Rule).Parameters (2).Has_Default
+         then
             Emit_Required_Parameter (Instance);
          else
             Turn_Instance_Off (Instance);
@@ -3031,8 +3035,12 @@ package body Lkql_Checker.Rules is
    is
       P_Name : constant String := Param_Name (Instance, 2);
    begin
-      Instance.Param := Expect_Literal (Params_Object, P_Name);
-      Params_Object.Unset_Field (P_Name);
+      if Params_Object.Has_Field (P_Name)
+        or else not All_Rules (Instance.Rule).Parameters (2).Has_Default
+      then
+         Instance.Param := Expect_Literal (Params_Object, P_Name);
+         Params_Object.Unset_Field (P_Name);
+      end if;
    end Process_Instance_Params_Object;
 
    overriding
@@ -3073,13 +3081,17 @@ package body Lkql_Checker.Rules is
 
       else
          --  Else, handle the parameter as a simple string
-         Instance.Param :=
-           (Is_Set => True,
-            Value  =>
-              To_Unbounded_Wide_Wide_String
-                (To_Wide_Wide_String
-                   (Expect_Literal (Params_Object, P_Name))));
-         Params_Object.Unset_Field (P_Name);
+         if Params_Object.Has_Field (P_Name)
+           or else not All_Rules (Instance.Rule).Parameters (2).Has_Default
+         then
+            Instance.Param :=
+              (Is_Set => True,
+               Value  =>
+                 To_Unbounded_Wide_Wide_String
+                   (To_Wide_Wide_String
+                      (Expect_Literal (Params_Object, P_Name))));
+            Params_Object.Unset_Field (P_Name);
+         end if;
       end if;
    end Process_Instance_Params_Object;
 
