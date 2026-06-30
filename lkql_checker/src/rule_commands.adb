@@ -17,10 +17,22 @@ package body Rule_Commands is
 
    package LCO renames Liblkqllang.Common;
 
+   type Param_Type is
+     (Bool_Param, Int_Param, String_Param, List_Param, Any_Param);
+   --  The type of a rule parameter.
+
    function Augment_With_Majors (Impact_Str : String) return String;
    --  Return Impact_Str augmented with the major-version prefix of each entry,
    --  so that a bare major version (e.g. "20") also matches in the compiled
    --  regexp (e.g. "20.1" or "20.*").
+
+   function Get_Param_Type (Param : L.Parameter_Decl) return Param_Type;
+   --  Get the type of a rule parameter according to its type annotation and
+   --  default value.
+
+   function Find_Param_Kind
+     (Params : L.Parameter_Decl_List) return Rule_Param_Kind;
+   --  Return the parameter kind for the given function body Node.
 
    -------------------------
    -- Augment_With_Majors --
@@ -42,9 +54,46 @@ package body Rule_Commands is
       return Join (Result, ",");
    end Augment_With_Majors;
 
-   function Find_Param_Kind
-     (Params : L.Parameter_Decl_List) return Rule_Param_Kind;
-   --  Return the parameter kind for the given function body Node.
+   --------------------
+   -- Get_Param_Type --
+   --------------------
+
+   function Get_Param_Type (Param : L.Parameter_Decl) return Param_Type is
+      Type_Ann  : constant L.Identifier := Param.F_Type_Annotation;
+      Type_Name : constant Text_Type :=
+        (if Type_Ann.Is_Null then "any" else Type_Ann.Text);
+   begin
+      if Type_Name = "bool" then
+         return Bool_Param;
+      elsif Type_Name = "int" then
+         return Int_Param;
+      elsif Type_Name = "string" then
+         return String_Param;
+      elsif Type_Name = "list" then
+         return List_Param;
+      elsif not Param.F_Default_Expr.Is_Null then
+         --  In the case where there is not type annotation, try to guess the
+         --  parameter type from the default value.
+         case Param.F_Default_Expr.Kind is
+            when LCO.Lkql_Bool_Literal    =>
+               return Bool_Param;
+
+            when LCO.Lkql_Integer_Literal =>
+               return Int_Param;
+
+            when LCO.Lkql_String_Literal  =>
+               return String_Param;
+
+            when LCO.Lkql_List_Literal    =>
+               return List_Param;
+
+            when others                   =>
+               return Any_Param;
+         end case;
+      else
+         return Any_Param;
+      end if;
+   end Get_Param_Type;
 
    ---------------------
    -- Find_Param_Kind --
@@ -56,30 +105,30 @@ package body Rule_Commands is
       if Params.Last_Child_Index = 1 then
          return No_Param;
       elsif Params.Last_Child_Index = 2 then
-         case Params.Child (2).As_Parameter_Decl.F_Default_Expr.Kind is
-            when LCO.Lkql_Integer_Literal =>
+         case Get_Param_Type (Params.Child (2).As_Parameter_Decl) is
+            when Int_Param    =>
                return One_Integer;
 
-            when LCO.Lkql_Bool_Literal    =>
+            when Bool_Param   =>
                return One_Boolean;
 
-            when LCO.Lkql_String_Literal  =>
+            when String_Param =>
                return One_String;
 
-            when LCO.Lkql_List_Literal    =>
+            when List_Param   =>
                return One_Array;
 
-            when others                   =>
+            when others       =>
                null;
          end case;
       else
          if Params.Last_Child_Index <= 10
-           and then Params.Child (2).As_Parameter_Decl.F_Default_Expr.Kind
-                    in LCO.Lkql_Integer_Literal | LCO.Lkql_Bool_Literal
+           and then Get_Param_Type (Params.Child (2).As_Parameter_Decl)
+                    in Int_Param | Bool_Param
          then
             for J in 3 .. Params.Last_Child_Index loop
-               if Params.Child (J).As_Parameter_Decl.F_Default_Expr.Kind
-                  not in LCO.Lkql_Bool_Literal
+               if Get_Param_Type (Params.Child (J).As_Parameter_Decl)
+                 /= Bool_Param
                then
                   return Custom;
                end if;
