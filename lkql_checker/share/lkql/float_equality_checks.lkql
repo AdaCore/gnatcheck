@@ -26,7 +26,7 @@ fun float_equality_checks(node, follow_renamings: bool = false) =
     |"    :emphasize-lines: 11
     |"
     |"    package Pack is
-    |"         type Speed is digits 0.01 range 0.0 .. 10_000.0;
+    |"         type Speed is digits 6 range 0.0 .. 10_000.0;
     |"         function Get_Speed return Speed;
     |"    end Pack;
     |"

@@ -25,7 +25,7 @@ fun exception_propagation_from_callbacks(node, callbacks: list = []) =
     |"
     |" * its body has an exception handler with ``others`` exception choice;
     |" * no exception handler in the body contains a raise statement nor a call to
-    |"   ``Ada.Exception.Raise_Exception`` or ``Ada.Exception.Reraise_Occurrence``.
+    |"   ``Ada.Exceptions.Raise_Exception`` or ``Ada.Exceptions.Reraise_Occurrence``.
     |"
     |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
     |" options files:

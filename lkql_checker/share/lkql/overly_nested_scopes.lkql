@@ -48,7 +48,7 @@ fun overly_nested_scopes(node, n: int = 10) =
     |"                end Inner_Pack;
     |"             end Pack_G;
     |"          end Pack2;
-    |"       end Pack1
+    |"       end Pack1;
     |"    end Pack;
     node is (BasePackageDecl | PackageBody | BasicSubpDecl | BaseSubpBody |
              TaskTypeDecl | SingleTaskDecl | TaskBody |

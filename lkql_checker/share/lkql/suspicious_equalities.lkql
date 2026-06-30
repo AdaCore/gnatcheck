@@ -67,7 +67,7 @@ fun suspicious_equalities(node) =
     |"       if X /= 1 or x /= 2 then -- FLAG
     |"          null;
     |"       end;
-    |"       if x = 1 and then X = 2 then -- Flag
+    |"       if x = 1 and then X = 2 then --  FLAG
     |"          null;
     |"       end;
     |"    end;

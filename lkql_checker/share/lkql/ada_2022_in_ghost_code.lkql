@@ -67,17 +67,17 @@ fun ada_2022_in_ghost_code(node) =
     |"       procedure Foo
     |"          with Pre => A'Image = "hello";  --  NOFLAG
     |"
-    |"       B : String := A'Image with Ghost;  --  NOFLAG
+    |"       C : String := A'Image with Ghost;  --  NOFLAG
     |"
     |"       function Bar return String is (A'Image) with Ghost;  --  NOFLAG
     |"
     |"       package P with Ghost is
-    |"          B : String := A'Image; --  NOFLAG
+    |"          S : String := A'Image; --  NOFLAG
     |"       end P;
     |"
     |"       generic
     |"       package Gen_Pkg is
-    |"          B : String := A'Image;  --  FLAG (via instantiation line 23)
+    |"          S : String := A'Image;  --  FLAG (via instantiation line 23)
     |"       end Gen_Pkg;
     |"
     |"       package Inst is new Gen_Pkg;

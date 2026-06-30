@@ -49,30 +49,30 @@ fun deeply_nested_inlining(node, n: int = 3) =
     |" .. code-block:: ada
     |"    :emphasize-lines: 1
     |"
-    |"    procedure P1 (I : in out integer) with Inline => True;   --  FLAG
-    |"    procedure P2 (I : in out integer) with Inline => True;
-    |"    procedure P3 (I : in out integer) with Inline => True;
-    |"    procedure P4 (I : in out integer) with Inline => True;
+    |"    procedure P1 (I : in out Integer) with Inline => True;   --  FLAG
+    |"    procedure P2 (I : in out Integer) with Inline => True;
+    |"    procedure P3 (I : in out Integer) with Inline => True;
+    |"    procedure P4 (I : in out Integer) with Inline => True;
     |"
-    |"    procedure P1 (I : in out integer) is
+    |"    procedure P1 (I : in out Integer) is
     |"    begin
     |"       I := I + 1;
     |"       P2 (I);
     |"    end;
     |"
-    |"    procedure P2 (I : in out integer) is
+    |"    procedure P2 (I : in out Integer) is
     |"    begin
     |"       I := I + 1;
     |"       P3 (I);
     |"    end;
     |"
-    |"    procedure P3 (I : in out integer) is
+    |"    procedure P3 (I : in out Integer) is
     |"    begin
     |"       I := I + 1;
     |"       P4 (I);
     |"    end;
     |"
-    |"    procedure P4 (I : in out integer) is
+    |"    procedure P4 (I : in out Integer) is
     |"    begin
     |"       I := I + 1;
     |"    end;
