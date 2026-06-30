@@ -20,8 +20,6 @@ with Lkql_Checker.Options;          use Lkql_Checker.Options;
 with Lkql_Checker.Output;           use Lkql_Checker.Output;
 with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
 
-with Langkit_Support.Text; use Langkit_Support.Text;
-
 package body Lkql_Checker.Rules is
 
    --  ===== Local subprograms specs =====
@@ -71,12 +69,13 @@ package body Lkql_Checker.Rules is
    --  to it. If the provided ``Sep`` isn't an empty string and the value of
    --  ``Target`` isn't empty, ``Sep & S`` is appended to ``Target``.
 
-   function Param_Name (Rule : Rule_Info; Index : Positive) return Text_Type
-   is (Rule.Parameters (Index));
+   function Param_Name
+     (Rule : Rule_Info; Index : Positive) return Unbounded_Text_Type
+   is (Rule.Parameters (Index).Name);
    --  Get the name of the rule parameter at the given index
 
    function Param_Name (Rule : Rule_Info; Index : Positive) return String
-   is (To_String (Rule.Parameters (Index)));
+   is (To_String (To_Text (Rule.Parameters (Index).Name)));
    --  Same as the previous `Param_Name` but returns the result as a string
 
    function Param_Name
@@ -379,29 +378,43 @@ package body Lkql_Checker.Rules is
 
    procedure Append_Int_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
-      Name  : Text_Type;
+      Name  : Unbounded_Text_Type;
       Value : Integer);
    --  Add the integer actual parameter to the given argument vector
 
    procedure Append_Bool_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
-      Name  : Text_Type;
+      Name  : Unbounded_Text_Type;
       Value : Tri_State);
    --  Add the boolean actual parameter to the given argument vector
 
    procedure Append_String_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
-      Name  : Wide_Wide_String;
+      Name  : Unbounded_Text_Type;
+      Value : Optional_Unbounded_Wide_Wide_String);
+   --  Append to Args a parameter named Name with value Value if not empty,
+   --  otherwise do nothing.
+
+   procedure Append_String_Param
+     (Args  : in out Rule_Argument_Vectors.Vector;
+      Name  : String;
       Value : Optional_Unbounded_Wide_Wide_String);
    --  Append to Args a parameter named Name with value Value if not empty,
    --  otherwise do nothing.
 
    procedure Append_Array_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
-      Name  : Wide_Wide_String;
+      Name  : Unbounded_Text_Type;
       Value : Optional_Unbounded_Wide_Wide_String);
-   --  Like Append_String_Param, for an array of strings represented by a comma
-   --  separated list in Value.
+   --  Like ``Append_String_Param``, for an array of strings represented by a
+   --  comma separated list in Value.
+
+   procedure Append_Array_Param
+     (Args  : in out Rule_Argument_Vectors.Vector;
+      Name  : String;
+      Value : Optional_Unbounded_Wide_Wide_String);
+   --  Like ``Append_String_Param``, for an array of strings represented by a
+   --  comma separated list in Value.
 
    procedure Handle_Array_Param
      (Args     : in out Rule_Argument_Vectors.Vector;
@@ -2256,13 +2269,13 @@ package body Lkql_Checker.Rules is
 
    procedure Append_Int_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
-      Name  : Text_Type;
+      Name  : Unbounded_Text_Type;
       Value : Integer) is
    begin
       if Value /= Integer'First then
          Args.Append
            (Rule_Argument'
-              (Name  => To_Unbounded_Text (Name),
+              (Name  => Name,
                Value => To_Unbounded_Text (To_Text (Image (Value)))));
       end if;
    end Append_Int_Param;
@@ -2273,13 +2286,13 @@ package body Lkql_Checker.Rules is
 
    procedure Append_Bool_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
-      Name  : Text_Type;
+      Name  : Unbounded_Text_Type;
       Value : Tri_State) is
    begin
       if Value /= Unset then
          Args.Append
            (Rule_Argument'
-              (Name  => To_Unbounded_Text (Name),
+              (Name  => Name,
                Value =>
                  To_Unbounded_Text (if Value = On then "true" else "false")));
       end if;
@@ -2291,7 +2304,7 @@ package body Lkql_Checker.Rules is
 
    procedure Append_String_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
-      Name  : Wide_Wide_String;
+      Name  : Unbounded_Text_Type;
       Value : Optional_Unbounded_Wide_Wide_String) is
    begin
       if Value.Is_Set then
@@ -2301,12 +2314,20 @@ package body Lkql_Checker.Rules is
          begin
             Args.Append
               (Rule_Argument'
-                 (Name  => To_Unbounded_Text (Name),
+                 (Name  => Name,
                   Value =>
                     To_Unbounded_Text
                       ('"' & To_Wide_Wide_String (Escaped_Value) & '"')));
          end;
       end if;
+   end Append_String_Param;
+
+   procedure Append_String_Param
+     (Args  : in out Rule_Argument_Vectors.Vector;
+      Name  : String;
+      Value : Optional_Unbounded_Wide_Wide_String) is
+   begin
+      Append_String_Param (Args, To_Unbounded_Text (To_Text (Name)), Value);
    end Append_String_Param;
 
    ------------------------
@@ -2315,7 +2336,7 @@ package body Lkql_Checker.Rules is
 
    procedure Append_Array_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
-      Name  : Wide_Wide_String;
+      Name  : Unbounded_Text_Type;
       Value : Optional_Unbounded_Wide_Wide_String) is
    begin
       if Value.Is_Set then
@@ -2327,11 +2348,17 @@ package body Lkql_Checker.Rules is
             List_Literal : constant Unbounded_Text_Type :=
               To_Unbounded_Text (To_Text ('[' & List_Elems & ']'));
          begin
-            Args.Append
-              (Rule_Argument'
-                 (Name => To_Unbounded_Text (Name), Value => List_Literal));
+            Args.Append (Rule_Argument'(Name => Name, Value => List_Literal));
          end;
       end if;
+   end Append_Array_Param;
+
+   procedure Append_Array_Param
+     (Args  : in out Rule_Argument_Vectors.Vector;
+      Name  : String;
+      Value : Optional_Unbounded_Wide_Wide_String) is
+   begin
+      Append_Array_Param (Args, To_Unbounded_Text (To_Text (Name)), Value);
    end Append_Array_Param;
 
    ------------------------
@@ -2463,7 +2490,7 @@ package body Lkql_Checker.Rules is
             Append (Param, """)]");
             Args.Append
               (Rule_Argument'
-                 (Name  => To_Unbounded_Text (Param_Name (Rule, 2)),
+                 (Name  => Param_Name (Rule, 2),
                   Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
          end;
 
@@ -2512,14 +2539,15 @@ package body Lkql_Checker.Rules is
             Append (Param, """)]");
             Args.Append
               (Rule_Argument'
-                 (Name  => To_Unbounded_Text (Param_Name (Rule, 2)),
+                 (Name  => Param_Name (Rule, 2),
                   Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
          end;
 
       else
          --  In other cases, just add the instance parameter as a comma
          --  separated string array.
-         Append_Array_Param (Args, Param_Name (Rule, 2), Instance.Param);
+         Append_Array_Param
+           (Args, Unbounded_Text_Type'(Param_Name (Rule, 2)), Instance.Param);
       end if;
    end Handle_Array_Param;
 
@@ -3461,7 +3489,9 @@ package body Lkql_Checker.Rules is
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
       Append_String_Param
-        (Args, Param_Name (All_Rules (Instance.Rule), 2), Instance.Param);
+        (Args,
+         Unbounded_Text_Type'(Param_Name (All_Rules (Instance.Rule), 2)),
+         Instance.Param);
    end Map_Parameters;
 
    overriding

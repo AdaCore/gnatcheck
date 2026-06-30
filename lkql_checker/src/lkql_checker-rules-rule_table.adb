@@ -1987,7 +1987,11 @@ package body Lkql_Checker.Rules.Rule_Table is
                 (To_String (To_Wide_Wide_String (R.Subcategory)));
 
             for Param of R.Parameters loop
-               Rule.Parameters.Append (Param.F_Param_Identifier.Text);
+               Rule.Parameters.Append
+                 (Rule_Parameter'
+                    (Name        =>
+                       To_Unbounded_Text (Param.F_Param_Identifier.Text),
+                     Has_Default => not Param.F_Default_Expr.Is_Null));
             end loop;
 
             Rule.Remediation_Level := R.Remediation_Level;

@@ -8,16 +8,19 @@
 --  declarations.
 
 with Ada.Characters.Handling;         use Ada.Characters.Handling;
+with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Vectors;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Unbounded;           use Ada.Strings.Unbounded;
 with Ada.Text_IO;                     use Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
+with GNATCOLL.JSON; use GNATCOLL.JSON;
+
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
 with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
-
-with GNATCOLL.JSON; use GNATCOLL.JSON;
 
 with Rule_Commands; use Rule_Commands;
 
@@ -74,6 +77,15 @@ package Lkql_Checker.Rules is
        (Index_Type   => Natural,
         Element_Type => Rule_Instance_Access);
 
+   type Rule_Parameter is record
+      Name        : Unbounded_Text_Type;
+      Has_Default : Boolean;
+   end record;
+
+   package Rule_Parameter_Vectors is new
+     Ada.Containers.Indefinite_Vectors (Positive, Rule_Parameter);
+   subtype Rule_Parameters is Rule_Parameter_Vectors.Vector;
+
    type Rule_Info is record
       Name : Unbounded_String;
       --  Name of the rule as specified in the associated LKQL annotation.
@@ -116,7 +128,7 @@ package Lkql_Checker.Rules is
       --  Raw target pattern string from the KP annotation (e.g. "x86_64-*").
       --  Set when Target is non-null, used for diagnostic messages.
 
-      Parameters : Text_Vector;
+      Parameters : Rule_Parameters;
       --  Vector containing parameter names of the rule.
 
       Instances : Rule_Instance_Vector.Vector;
