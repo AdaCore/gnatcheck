@@ -4,8 +4,7 @@ fun calls_in_exception_handlers(node, subprograms: list = []) =
     |" Flag an exception handler if its sequence of statements contains a call to one of
     |" the subprograms specified as a rule parameter.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: subprograms
     |"    A list of fully expanded Ada names of subprograms.

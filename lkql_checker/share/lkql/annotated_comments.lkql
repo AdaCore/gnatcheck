@@ -28,8 +28,7 @@ fun annotated_comments(unit, s: list = []) =
     |" flags each comment that starts with ``--<special_character>`` and
     |" that does not contain any other character except white space
     |"
-    |" The rule has the following mandatory parameter for the ``+R`` option and for
-    |" LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: s
     |"    List of strings with the following interpretation: the first character

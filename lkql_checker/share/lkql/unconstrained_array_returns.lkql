@@ -13,8 +13,7 @@ fun unconstrained_array_returns(node, except_string: bool = false) =
     |" generic instantiations (that is, expanded specification and expanded
     |" body corresponding to an instantiation).
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: except_string
     |"    If ``true``, do not flag functions that return the predefined ``String`` type

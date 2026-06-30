@@ -4,8 +4,7 @@ import stdlib
 fun quantified_expressions(node, except_assertions: bool = false) =
     |" Flag use of quantified expression.
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: except_assertions
     |"    If ``true``, do not flag a quantified expression if it is a subcomponent

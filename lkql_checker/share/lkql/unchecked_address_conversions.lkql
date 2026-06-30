@@ -26,8 +26,7 @@ fun unchecked_address_conversions(node, all: bool = false, no_instantiations: bo
     |" checked inside expanded generics unless the ``No_Instantiations`` parameter
     |" is set.
     |"
-    |" The rule has the following optional parameters for the ``+R`` option and for
-    |" LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: all
     |"    If ``true``, all instantiations of Unchecked_Conversion to or from System.Address are

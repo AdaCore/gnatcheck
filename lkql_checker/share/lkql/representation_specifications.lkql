@@ -39,8 +39,7 @@ fun representation_specifications(unit, record_rep_clauses_only: bool = false) =
     |" classified by the Ada Standard as a representation pragma, and the
     |" definition of the corresponding aspects.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: record_rep_clauses_only
     |"    If ``true``, only record representation clauses are flagged.

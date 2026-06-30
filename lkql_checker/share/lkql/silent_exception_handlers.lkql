@@ -23,8 +23,7 @@ fun silent_exception_handlers(node, subprograms: list = [], subprogram_regexps: 
     |" nor contains a call to some subprogram specified by the rule parameter
     |" *Subprograms*.
     |"
-    |" The rule has the following parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: subprograms
     |"    List of names of subprograms. An exception handler is not flagged if it

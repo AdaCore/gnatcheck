@@ -27,8 +27,7 @@ fun use_clauses(unit, exempt_operator_packages: bool = false, allowed: list = []
     |" Flag names mentioned in use clauses. Use type clauses and names mentioned
     |" in them are not flagged.
     |"
-    |" This rule has the following optional parameter for the ``+R`` option and for
-    |" LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: exempt_operator_packages
     |"    If ``true``, do not flag a package name in a package use clause if it refers

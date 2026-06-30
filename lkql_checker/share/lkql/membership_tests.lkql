@@ -9,8 +9,7 @@ fun membership_tests(
 ) =
     |" Flag use of membership test expression.
     |"
-    |" This rule has the following (optional) parameters for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: multi_alternative_only
     |"    If ``true``, flag only those membership test expressions that have more than

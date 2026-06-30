@@ -38,8 +38,7 @@ fun complex_inlined_subprograms(unit, n : int = 5) =
     |"
     |" Subprogram renamings are also considered.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Positive integer specifying the maximum allowed total number of statements

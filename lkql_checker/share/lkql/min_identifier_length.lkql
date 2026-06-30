@@ -5,8 +5,7 @@ fun min_identifier_length(node, n: int = 2) =
     |" the rule parameter. Defining identifiers of objects and components of
     |" numeric types are not flagged.
     |"
-    |" The rule has a mandatory parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    The minimal allowed identifier length specification.

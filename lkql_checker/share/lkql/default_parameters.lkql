@@ -8,8 +8,7 @@ fun default_parameters(node, n: int = 0, ignore: bool = false) =
     |" rule parameter. If no parameter is provided for the rule then all the
     |" formal parts with defaulted parameters are flagged.
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Integer not less than 0 specifying the minimal allowed number of

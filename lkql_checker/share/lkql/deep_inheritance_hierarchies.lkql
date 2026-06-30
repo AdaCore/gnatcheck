@@ -28,8 +28,7 @@ fun deep_inheritance_hierarchies(node, n: int = 2) =
     |" may or may not be flagged in instantiation, this depends on the inheritance
     |" depth of the actual parameters.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Integer not less than -1 specifying the maximal allowed depth of any

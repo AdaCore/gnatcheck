@@ -29,8 +29,7 @@ fun overly_nested_control_structures(node, n: int = 3, loops_only: bool = false)
     |" * conditional entry call statement
     |" * asynchronous select statement
     |"
-    |" The rule has the following (optional) parameters for the ``+R`` option and for
-    |" LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Positive integer specifying the maximal control structure nesting

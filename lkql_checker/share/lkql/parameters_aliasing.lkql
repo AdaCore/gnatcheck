@@ -133,8 +133,7 @@ fun parameters_aliasing(unit, in_parameters: bool = false) =
     |" an actual to more than one ``out`` or ``in out`` parameter. The rule resolves
     |" object renamings.
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: in_parameters
     |"    Whether to consider aliasing between ``out``, ``in out`` and ``in``

@@ -90,8 +90,7 @@ fun use_memberships(node, short_circuit: bool = false) =
     |"   the variable in question and ``>=``, ``and`` and ``<=`` are predefined
     |"   operators;
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: short_circuit
     |"   Whether to consider the short circuit ``and then`` and ``or else`` operations

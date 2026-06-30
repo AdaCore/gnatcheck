@@ -4,8 +4,7 @@ fun forbidden_aspects(unit, all: bool = false, forbidden: list = [], allowed: li
     |" Flag each use of the specified aspects. The aspects to be detected are
     |" named in the rule's parameters.
     |"
-    |" This rule has the following parameters for the ``+R`` option and for LKQL
-    |" rule options file:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: forbidden
     |"    Adds the specified aspects to the set of aspects to be detected and sets

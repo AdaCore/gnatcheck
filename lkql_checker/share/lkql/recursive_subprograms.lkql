@@ -96,8 +96,7 @@ fun recursive_subprograms(node,
     |" The rule also does not take into account subprogram calls inside
     |" aspect definitions.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. skip_param:: skip_dispatching_calls
     |"

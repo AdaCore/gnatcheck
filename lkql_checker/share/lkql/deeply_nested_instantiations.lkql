@@ -26,8 +26,7 @@ fun deeply_nested_instantiations(node, n : int = 3) =
     |" instantiation in its specification and so on, and the length of these
     |" nested instantiations is more than N where N is a rule parameter.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Non-negative integer specifying the maximum nesting level for instantiations.

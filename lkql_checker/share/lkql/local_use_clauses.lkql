@@ -4,8 +4,7 @@ fun local_use_clauses(node, except_use_type_clauses: bool = false) =
     |" Use clauses that are not parts of compilation unit context clause are
     |" flagged.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: except_use_type_clauses
     |"    If ``true``, do not flag local use type clauses.

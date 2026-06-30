@@ -61,8 +61,7 @@ fun identifier_suffixes(unit,
     |" enabled, and if different suffixes are defined for them, then for constants
     |" of access type the check for access object suffixes is applied.
     |"
-    |" The rule may have the following parameters for ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: default
     |"    If ``true``, sets the default listed above for all the names to be checked.

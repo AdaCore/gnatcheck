@@ -4,8 +4,7 @@ fun null_paths(node, except_enums: bool = false) =
     |" Flag a statement sequence that is a component of an ``if``, ``case`` or
     |" ``loop`` statement if this sequence consists of ``null`` statements only.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: except_enums
     |"    If ``true``, do not flag null paths inside case statements whose selecting

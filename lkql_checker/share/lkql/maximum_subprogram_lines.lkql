@@ -8,8 +8,7 @@ fun maximum_subprogram_lines(unit, n: int = 1000) =
     |" lines (*N* is the rule parameter). Lines are counted from the beginning of the
     |" first to the end of the last statement, including blank and comment lines.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Positive integer specifying the maximum allowed number of lines in the

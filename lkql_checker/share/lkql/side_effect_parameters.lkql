@@ -18,8 +18,7 @@ fun side_effect_parameters(node, functions: list = []) =
     |" subcomponent. Only calls to the functions specified as a rule parameter are
     |" considered.
     |"
-    |" The rule has an optional parameter(s) for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: functions
     |"    A list of fully expanded Ada names of functions to flag parameters from.

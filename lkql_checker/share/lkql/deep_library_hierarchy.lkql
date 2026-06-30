@@ -7,8 +7,7 @@ fun deep_library_hierarchy(node, n: int = 3) =
     |" contains more than N dots). Child subprograms, generic subprograms,
     |" subprogram instantiations and package bodies are not flagged.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Positive integer specifying the maximal number of ancestors when

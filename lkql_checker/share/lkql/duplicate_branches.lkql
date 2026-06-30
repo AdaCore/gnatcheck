@@ -41,9 +41,7 @@ fun duplicate_branches(unit, min_size: int = 14, min_stmt: int = 4) =
     |" The check for syntactical equivalence of operands ignores line breaks,
     |" white spaces and comments.
     |"
-    |" Small sequences of statements are not flagged by this rule. The rule has
-    |" two optional parameters that allow to specify the maximal size of statement
-    |" sequences that are not flagged:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: min_stmt
     |"    An integer literal. All statement sequences that contain at least *min_stmt*

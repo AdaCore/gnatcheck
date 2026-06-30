@@ -36,8 +36,7 @@ fun too_many_dependencies(unit, n : int = 5) =
     |" child units, implicit or explicit dependencies on all their parents are
     |" not counted.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Positive integer specifying the maximal number of dependencies when

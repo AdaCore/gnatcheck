@@ -93,8 +93,7 @@ fun identifier_casing(
     |"   declarations if the renamed object is a constant);
     |" * exception declarations and exception renaming declarations.
     |"
-    |" The rule may have the following parameters for ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: type
     |"    Specifies casing for names from type and subtype declarations.
