@@ -8,7 +8,6 @@
 --  declarations.
 
 with Ada.Characters.Handling;         use Ada.Characters.Handling;
-with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Containers.Vectors;
 with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Strings.Unbounded;           use Ada.Strings.Unbounded;
@@ -29,13 +28,6 @@ package Lkql_Checker.Rules is
    pragma Warnings (Off);
    package Rident is new System.Rident;
    pragma Warnings (On);
-
-   package Exemption_Parameters is new
-     Ada.Containers.Indefinite_Ordered_Sets (Element_Type => String);
-   --  Needed to keep/process strings that can be used as rule parameters for
-   --  rule exemptions.
-
-   subtype Rule_Params is Exemption_Parameters.Set;
 
    Invalid_Value : exception;
    --  Exception to raise when an unexpected value is provided to a rule

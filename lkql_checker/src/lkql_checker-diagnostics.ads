@@ -9,6 +9,7 @@
 --  by the child package Lkql_Checker.Diagnostics.Exemptions.
 
 with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -156,11 +157,18 @@ private
    -- Parametric exemptions --
    ---------------------------
 
+   package Exemption_Parameters is new
+     Ada.Containers.Indefinite_Ordered_Sets (Element_Type => String);
+   --  Needed to keep/process strings that can be used as rule parameters for
+   --  rule exemptions.
+
+   subtype Exemption_Params is Exemption_Parameters.Set;
+
    type Parametrized_Exemption_Info is record
       Exempt_Info : Exemption_Info;
       Rule        : Rule_Id;
       SF          : SF_Id;
-      Params      : Rule_Params;
+      Params      : Exemption_Params;
    end record;
 
    type Param_Ex_Info_Key is record
@@ -182,7 +190,7 @@ private
                           or else (L.Line_Start = R.Line_Start
                                    and then L.Col_Start < R.Col_Start))));
 
-   use all type Rule_Params;
+   use all type Exemption_Params;
 
    function "=" (L, R : Parametrized_Exemption_Info) return Boolean
    is (L.SF = R.SF
