@@ -6,7 +6,7 @@ fun count_lines(node) =
 fun maximum_subprogram_lines(unit, n: int = 1000) =
     |" Flag handled sequences of statements of subprogram bodies exceeding *N* textual
     |" lines (*N* is the rule parameter). Lines are counted from the beginning of the
-    |" first to the end of the last statement, including blank and comment lines
+    |" first to the end of the last statement, including blank and comment lines.
     |"
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:

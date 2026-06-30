@@ -11,7 +11,7 @@ fun calls_outside_elaboration(node, forbidden: list = []) =
     |" options files:
     |"
     |" .. param:: forbidden
-    |"    A list of full expanded Ada name of subprograms.
+    |"    A list of fully expanded Ada names of subprograms.
     |"
     |" Note that if a rule parameter does not denote the name of an existing
     |" subprogram, the parameter itself is (silently) ignored and does not have any

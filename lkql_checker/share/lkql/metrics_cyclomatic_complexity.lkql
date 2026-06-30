@@ -14,7 +14,7 @@ fun metrics_cyclomatic_complexity(
     |"
     |" .. param:: n
     |"    Maximum cyclomatic complexity a body can have without being flagged, all
-    |"    bodies with a higher index will be flagged.
+    |"    bodies with a higher cyclomatic complexity value will be flagged.
     |"
     |" .. param:: exempt_case_statements
     |"    Whether to count the complexity introduced by ``case`` statement or ``case``

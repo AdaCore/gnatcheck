@@ -3,7 +3,7 @@ import stdlib
 @check(message="exceptions may propagate out of task body",
        category="Style", subcategory="Programming Practice")
 fun exception_propagation_from_tasks(node) =
-    |" Flag a task body if it does not contain and exception handler with ``others``
+    |" Flag a task body if it does not contain an exception handler with ``others``
     |" exception choice or if it contains an exception handler with a raise statement or
     |" a call to ``Ada.Exception.Raise_Exception`` or
     |" ``Ada.Exception.Reraise_Occurrence``.

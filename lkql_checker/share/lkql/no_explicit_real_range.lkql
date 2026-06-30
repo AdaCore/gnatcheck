@@ -15,8 +15,8 @@ fun is_real_without_range(decl) =
        category="Style", subcategory="Portability")
 fun no_explicit_real_range(node) =
     |" Flag a declaration of a floating point type or a decimal fixed point
-    |" type, including types derived from them if no explicit range
-    |" specification is provided for the type.
+    |" type and subtype declarations, including types derived from them if no
+    |" explicit range specification is provided for the type or subtype.
     |"
     |" .. rubric:: Example
     |"

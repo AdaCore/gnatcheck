@@ -4,7 +4,7 @@ import stdlib
        category="Style", subcategory="Programming Practice",
        rule_name="SPARK_Procedures_Without_Globals")
 fun spark_procedures_without_globals(node) =
-    |" Flags SPARK procedures that don't have a global aspect.
+    |" Flag SPARK procedures that do not have a global aspect.
     |"
     |" .. rubric:: Example
     |"

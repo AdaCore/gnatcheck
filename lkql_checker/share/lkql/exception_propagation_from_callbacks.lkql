@@ -36,7 +36,7 @@ fun exception_propagation_from_callbacks(node, callbacks: list = []) =
     |"    Ada name of a subprogram. ``parameter`` should be a simple name of a
     |"    parameter of a subprogram defined by the ``subprogram_name`` part of the
     |"    rule parameter. For such a rule parameter for calls to all the subprograms
-    |"    named as ``subprogram_name`` the rule checks  if a reference to a subprogram
+    |"    named as ``subprogram_name`` the rule checks if a reference to a subprogram
     |"    that may propagate an exception is passed as an actual for parameter named
     |"    ``parameter``.
     |"
@@ -48,7 +48,7 @@ fun exception_propagation_from_callbacks(node, callbacks: list = []) =
     |"    .. code-block:: lkql
     |"
     |"       val rules = @{
-    |"          Exception_Propagation_From_Callbacks: {Forbidden: [("P.SubP", "Param")]}
+    |"          Exception_Propagation_From_Callbacks: {Callbacks: [("P.SubP", "Param")]}
     |"       }
     |"
     |" Note that if a rule parameter does not denote the name of an existing
@@ -62,16 +62,16 @@ fun exception_propagation_from_callbacks(node, callbacks: list = []) =
     |" name of a formal parameter that is defined in the declaration that defines
     |" ``subprogram_name``. This is a user responsibility to provide as the rule
     |" parameters all needed combinations of subprogram name and parameter name for
-    |" the subprogram of interest in case if renamings are used for this subprogram.
+    |" the subprogram of interest if renamings are used for this subprogram.
     |"
-    |" Note also, that the rule does not make any overload resolution, so calls to
+    |" Note also that the rule does not make any overload resolution, so calls to
     |" all the subprograms corresponding to ``subprogram_name`` are checked.
     |"
-    |" .. note:: Note that you can use both fully qualified names to
-    |"    instantiated or non-instantiated generic subprograms, depending on the
-    |"    granularity you wish for. However **you cannot use a mix of the two**, so
-    |"    the names need to be either fully instantiated or fully uninstantiated.
-    |"
+    |" .. note::
+    |"    You can use both fully qualified names to instantiated or non-instantiated
+    |"    generic subprograms, depending on the granularity you wish for. However
+    |"    **you cannot use a mix of the two**, so the names need to be either fully
+    |"    instantiated or fully uninstantiated.
     |"
     |" .. rubric:: Example
     |"

@@ -34,7 +34,7 @@ fun lowercase_keywords(unit, language_version: string = "ada_2022") =
     |"
     |" .. param:: language_version
     |"    The version of the language on which to run the checker (supported
-    |"    versions are Ada_83, Ada_95, Ada_2005, Ada_2012, and, Ada_2022 which
+    |"    versions are Ada_83, Ada_95, Ada_2005, Ada_2012, and Ada_2022 which
     |"    is also the default).
     |"
     |" .. rubric:: Example

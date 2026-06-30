@@ -1,6 +1,6 @@
 @check(message="unconstrained array definition", category="Feature")
 fun unconstrained_arrays(node) =
-    |" Unconstrained array definitions are flagged.
+    |" Flag each unconstrained array type definition.
     |"
     |" .. rubric:: Example
     |"

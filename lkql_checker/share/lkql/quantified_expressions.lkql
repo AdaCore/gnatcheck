@@ -8,49 +8,31 @@ fun quantified_expressions(node, except_assertions: bool = false) =
     |" for LKQL rule options files:
     |"
     |" .. param:: except_assertions
-    |"    If ``true``, do not flag a conditional expression if it is a subcomponent
-    |"    of the following constructs:
+    |"    If ``true``, do not flag a quantified expression if it is a subcomponent
+    |"    of an assertion related pragma or aspect.
     |"
-    |" *argument of the following pragmas*
-    |"
-    |" *Language-defined*
+    |" A pragma or an aspect is considered as assertion-related if its name
+    |" is from the following list:
     |"
     |" * ``Assert``
-    |"
-    |" *GNAT-specific*
-    |"
     |" * ``Assert_And_Cut``
     |" * ``Assume``
     |" * ``Contract_Cases``
     |" * ``Debug``
+    |" * ``Default_Initial_Condition``
+    |" * ``Dynamic_Predicate``
     |" * ``Invariant``
     |" * ``Loop_Invariant``
     |" * ``Loop_Variant``
     |" * ``Postcondition``
-    |" * ``Precondition``
-    |" * ``Predicate``
-    |" * ``Refined_Post``
-    |"
-    |" *definition of the following aspects*
-    |"
-    |" *Language-defined*
-    |"
-    |" * ``Static_Predicate``
-    |" * ``Dynamic_Predicate``
     |" * ``Pre``
-    |" * ``Pre'Class``
+    |" * ``Precondition``
     |" * ``Post``
-    |" * ``Post'Class``
-    |" * ``Type_Invariant``
-    |" * ``Type_Invariant'Class``
-    |"
-    |" *GNAT-specific*
-    |"
-    |" * ``Contract_Cases``
-    |" * ``Invariant``
-    |" * ``Invariant'Class``
     |" * ``Predicate``
+    |" * ``Predicate_Failure``
     |" * ``Refined_Post``
+    |" * ``Static_Predicate``
+    |" * ``Type_Invariant``
     |"
     |" .. rubric:: Example
     |"

@@ -7,7 +7,7 @@ fun unavailable_body_calls(node, indirect_calls: bool = false) =
     |" Calls to formal subprograms in generic bodies are not flagged.
     |" This rule can be useful as a complementary rule for the
     |" *Recursive_Subprograms* rule - it flags potentially missing recursion
-    |" detection and identify potential missing checks.
+    |" detection and identifies potential missing checks.
     |"
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:

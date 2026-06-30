@@ -35,7 +35,7 @@ fun use_clauses(unit, exempt_operator_packages: bool = false, allowed: list = []
     |"    to a package that only declares operators in its visible part.
     |"
     |" .. param:: allowed
-    |"    A list of Ada names describing packages to exempt from begin flagged
+    |"    A list of Ada names describing packages to exempt from being flagged
     |"    when they are mentioned in "use" clauses. Strings in this list are
     |"    case insensitive.
     |"

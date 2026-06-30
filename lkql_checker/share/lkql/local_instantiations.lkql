@@ -10,12 +10,11 @@ fun local_instantiations(node, packages: list = []) =
     |"
     |" .. param:: packages
     |"    A list of fully expanded Ada names of generic units to flag local instantiations
-    |"    of.
+    |"    of. If the list is empty, the rule flags all local instantiations.
     |"
-    |" If the rule is activated without parameters, all local instantiations
-    |" are flagged, otherwise only instantiations of the generic units which names
-    |" are listed as rule parameters are flagged. Note that a rule parameter should
-    |" be a generic unit name but not the name defined by generic renaming declaration.
+    |" Note that a rule parameter should be a generic unit name but not the name defined
+    |" by generic renaming declaration.
+    |"
     |" Note also, that if a rule parameter does not denote an existing generic unit
     |" or if it denotes a name defined by generic renaming declaration, the parameter
     |" itself is (silently) ignored and does not have any effect, but the presence of at

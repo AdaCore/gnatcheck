@@ -45,7 +45,7 @@ fun no_closing_names(node, n : int = 0) =
     |" .. code-block:: ada
     |"    :emphasize-lines: 1
     |"
-    |"    procedure Proc (I : in out Integer) is -- FLAG is rule parameter is 3 or less
+    |"    procedure Proc (I : in out Integer) is -- FLAG if rule parameter is 3 or less
     |"    begin
     |"       I := I + 1;
     |"    end;

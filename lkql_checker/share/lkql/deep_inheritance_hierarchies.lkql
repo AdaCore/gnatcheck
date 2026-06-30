@@ -23,9 +23,9 @@ fun deep_inheritance_hierarchies(node, n: int = 2) =
     |"
     |" If the rule flags a type declaration inside the generic unit, this means that
     |" this type declaration will be flagged in any instantiation of the generic
-    |" unit. But if a type is derived from a format type or has a formal progenitor
+    |" unit. But if a type is derived from a formal type or has a formal progenitor
     |" and it is not flagged at the place where it is defined in a generic unit, it
-    |" may or may not be flagged in instantiation, this depends of the inheritance
+    |" may or may not be flagged in instantiation, this depends on the inheritance
     |" depth of the actual parameters.
     |"
     |" This rule has the following (mandatory) parameter for the ``+R`` option and

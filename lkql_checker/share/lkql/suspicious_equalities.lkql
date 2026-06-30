@@ -52,8 +52,8 @@ fun is_sus_eq(bin_op, logic_op_predicate, comp_op_predicate) =
 @check(message="suspicious equality",
        category="Style", subcategory="Programming Practice")
 fun suspicious_equalities(node) =
-    |" Flag 'or' expressions whose left and right operands are unequalities
-    |" referencing the same entity and a literal and 'and' expressions whose left and
+    |" Flag ``or`` expressions whose left and right operands are inequalities
+    |" referencing the same entity and a literal and ``and`` expressions whose left and
     |" right operands are equalities referencing the same entity and a literal.
     |"
     |" .. rubric:: Example

@@ -4,7 +4,7 @@ fun deep_library_hierarchy(node, n: int = 3) =
     |" Flag any library package declaration, library generic package
     |" declaration or library package instantiation that has more than N
     |" parents and grandparents (that is, the name of such a library unit
-    |" contains more than N dots). Child subprograms, generic subprograms
+    |" contains more than N dots). Child subprograms, generic subprograms,
     |" subprogram instantiations and package bodies are not flagged.
     |"
     |" This rule has the following (mandatory) parameter for the ``+R`` option and

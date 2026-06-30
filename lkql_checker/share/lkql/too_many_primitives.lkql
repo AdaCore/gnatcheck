@@ -6,7 +6,7 @@ fun num_primitives(t) = t.p_get_primitives().length
             category="Style", subcategory="Object Orientation")
 fun too_many_primitives(unit, n : int = 5) =
     |" Flag any tagged type declaration that has more than N user-defined
-    |" primitive operations (counting both inherited and not overridden and
+    |" primitive operations (counting both inherited-and-not-overridden and
     |" explicitly declared, not counting predefined operators). Only types
     |" declared in visible parts of packages, generic packages and package
     |" instantiations are flagged.

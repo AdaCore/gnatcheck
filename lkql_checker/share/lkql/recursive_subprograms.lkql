@@ -68,7 +68,7 @@ fun recursive_subprograms(node,
     |" a chain of direct calls starting from the body of, and ending at
     |" this subprogram within this context. A context is provided by the set
     |" of Ada sources specified as arguments of a given ``gnatcheck`` call.
-    |" Neither dispatching calls nor calls through access-to-subprograms
+    |" By default, neither dispatching calls nor calls through access-to-subprograms
     |" are considered as direct calls by this rule. If *Follow_Dispatching_Calls*
     |" rule parameter is set, ``gnatcheck`` considers a dispatching call as a set
     |" of calls to all the subprograms the dispatching call may dispatch to,

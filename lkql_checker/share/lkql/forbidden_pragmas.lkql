@@ -1,7 +1,7 @@
 @unit_check(help="usage of specified pragmas", parametric_exemption=true,
             category="Style", subcategory="Portability")
 fun forbidden_pragmas(unit, all: bool = false, forbidden: list = [], allowed: list = []) =
-    |" Flag each use of the specified pragmas.  The pragmas to be detected
+    |" Flag each use of the specified pragmas. The pragmas to be detected
     |" are named in the rule's  parameters.
     |"
     |" This rule has the following parameters for the ``+R`` option and for LKQL
@@ -14,7 +14,7 @@ fun forbidden_pragmas(unit, all: bool = false, forbidden: list = [], allowed: li
     |"    defined in the Ada standard or to the name of a GNAT-specific pragma defined
     |"    in the GNAT Reference Manual, it is treated as the name of unknown pragma.
     |"    If an element is equal to ``GNAT`` (case insensitive), then all GNAT-specific
-    |"    pragmas are added to the set of attributes to be detected.
+    |"    pragmas are added to the set of pragmas to be detected.
     |"
     |" .. param:: allowed
     |"    A list of pragmas to remove from the set of pragmas to be detected.

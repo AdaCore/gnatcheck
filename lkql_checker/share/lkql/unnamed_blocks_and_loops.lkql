@@ -1,7 +1,7 @@
 @unit_check(help="compound statements naming", remediation="EASY",
        category="Style", subcategory="Programming Practice")
 fun unnamed_blocks_and_loops(unit) =
-    |" Flag each unnamed block statement. Flag a unnamed loop statement if this
+    |" Flag each unnamed block statement. Flag an unnamed loop statement if this
     |" statement is enclosed by another loop statement or if it encloses another
     |" loop statement.
     |"

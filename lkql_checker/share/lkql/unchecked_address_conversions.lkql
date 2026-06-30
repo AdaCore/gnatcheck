@@ -19,7 +19,7 @@ fun unchecked_address_conversions(node, all: bool = false, no_instantiations: bo
     |" Flag instantiations of ``Ada.Unchecked_Conversion`` if the actual for the
     |" formal type Source is the ``System.Address`` type (or a type derived from
     |" it), and the actual for the formal type ``Target`` is an access type
-    |" (including types derived from access types). This include cases when the
+    |" (including types derived from access types). This includes cases when the
     |" actual for ``Source`` is a private type and its full declaration is a type
     |" derived from ``System.Address``, and cases when the actual for ``Target`` is
     |" a private type and its full declaration is an access type. The rule is
@@ -34,7 +34,7 @@ fun unchecked_address_conversions(node, all: bool = false, no_instantiations: bo
     |"    flagged.
     |"
     |" .. param:: no_instantiations
-    |"    If ``true``, Do not check inside expanded generics.
+    |"    If ``true``, do not check inside expanded generics.
     |"
     |" .. rubric:: Example
     |"

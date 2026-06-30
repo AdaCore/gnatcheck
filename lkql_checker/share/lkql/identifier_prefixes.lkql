@@ -58,7 +58,7 @@ fun identifier_prefixes(
     |" The defining name from a body stub that is a completion of a program
     |" unit declaration is never flagged.
     |"
-    |" Note that the rule checks only defining names. Usage name occurrence are
+    |" Note that the rule checks only defining names. Usage name occurrences are
     |" not checked and are never flagged.
     |"
     |" The rule may have the following parameters for the ``+R`` option and for LKQL
@@ -109,7 +109,7 @@ fun identifier_prefixes(
     |"
     |" .. param:: enum
     |"    Specifies the prefix for defining enumeration literals and for the
-    |"    defining names in a function renaming declarations if the renamed
+    |"    defining names in function renaming declarations if the renamed
     |"    entity is an enumeration literal.
     |"
     |" .. param:: exception

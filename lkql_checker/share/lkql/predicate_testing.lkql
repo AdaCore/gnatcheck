@@ -25,8 +25,8 @@ fun predicate_testing(node, except_assertions: bool = false) =
     |" for LKQL rule options files:
     |"
     |" .. param:: except_assertions
-    |"    If ``true``, do not flag the use of non-short-circuit_operators inside
-    |"    assertion-related pragmas or aspect specifications.
+    |"    If ``true``, do not flag an expression if it is a subcomponent of an
+    |"    assertion related pragma or aspect.
     |"
     |" A pragma or an aspect is considered as assertion-related if its name
     |" is from the following list:
@@ -41,10 +41,10 @@ fun predicate_testing(node, except_assertions: bool = false) =
     |" * ``Invariant``
     |" * ``Loop_Invariant``
     |" * ``Loop_Variant``
-    |" * ``Post``
     |" * ``Postcondition``
     |" * ``Pre``
     |" * ``Precondition``
+    |" * ``Post``
     |" * ``Predicate``
     |" * ``Predicate_Failure``
     |" * ``Refined_Post``
