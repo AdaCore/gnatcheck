@@ -11,7 +11,7 @@ fun float_equality_checks(node, follow_renamings: bool = false) =
     |" types. Both '=' and '/=' operations are checked. User-defined equality
     |" operations are not flagged. Also, the '=' and '/=' operations for fixed-point
     |" types are not flagged. Uses of operators that are renamings of the predefined
-    |" equality operations will be flagged if `Follow_Renamings` is true.
+    |" equality operations will be flagged if ``Follow_Renamings`` is true.
     |"
     |" This rule has the following (optional) parameter for the ``+R`` option and
     |" for LKQL rule options files:

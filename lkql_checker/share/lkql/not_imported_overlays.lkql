@@ -3,7 +3,7 @@ import stdlib
 @check(message="not imported overlay",
        category="Style", subcategory="Programming Practice")
 fun not_imported_overlays(node) =
-    |" Flag an attribute definition clause that defines 'Address attribute and
+    |" Flag an attribute definition clause that defines the ``'Address`` attribute and
     |" has the form ``for Overlaying'Address use Overlaid'Address;`` where
     |" ``Overlaying`` and ``Overlaid`` are identifiers
     |" both defined by object declarations if ``Overlaying`` is not marked as

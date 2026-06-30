@@ -38,7 +38,7 @@ fun annotated_comments(unit, s: list = []) =
     |"
     |" The rule is case-sensitive.
     |"
-    |" Example:
+    |" .. rubric:: Example
     |"
     |" The rule
     |"
