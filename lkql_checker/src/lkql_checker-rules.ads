@@ -175,6 +175,20 @@ package Lkql_Checker.Rules is
    end record;
    --  This record store all needed read-only information about a rule.
 
+   type Optional_Unbounded_Wide_Wide_String (Is_Set : Boolean := False) is
+   record
+      case Is_Set is
+         when True =>
+            Value : Unbounded_Wide_Wide_String;
+
+         when False =>
+            null;
+      end case;
+   end record;
+   --  Optional wrapper for Unbounded_Wide_Wide_String. ``Is_Set`` is False
+   --  when no value has been assigned yet; True when Value holds the actual
+   --  string.
+
    ------------------------------------
    -- Operations on rule information --
    ------------------------------------
@@ -351,7 +365,7 @@ package Lkql_Checker.Rules is
    --------------------------------------
 
    type One_String_Parameter_Instance is new Rule_Instance with record
-      Param : Unbounded_Wide_Wide_String := Null_Unbounded_Wide_Wide_String;
+      Param : Optional_Unbounded_Wide_Wide_String := (Is_Set => False);
       File  : Unbounded_String := Null_Unbounded_String;
    end record;
    --  Represents an instance of a rule with only one string parameter
@@ -462,8 +476,8 @@ package Lkql_Checker.Rules is
       Constant_Suffix,
       Renaming_Suffix,
       Access_Obj_Suffix,
-      Interrupt_Suffix : Unbounded_Wide_Wide_String :=
-        Null_Unbounded_Wide_Wide_String;
+      Interrupt_Suffix : Optional_Unbounded_Wide_Wide_String :=
+        (Is_Set => False);
    end record;
    --  Represents an instance of a rule about identifier suffixes
 
@@ -504,8 +518,7 @@ package Lkql_Checker.Rules is
       Derived_Prefix,
       Constant_Prefix,
       Exception_Prefix,
-      Enum_Prefix : Unbounded_Wide_Wide_String :=
-        Null_Unbounded_Wide_Wide_String;
+      Enum_Prefix : Optional_Unbounded_Wide_Wide_String := (Is_Set => False);
       Exclusive   : Tri_State := Unset;
    end record;
    --  Represents an instance of a rule about identifier prefixes
@@ -545,8 +558,7 @@ package Lkql_Checker.Rules is
       Exception_Casing,
       Others_Casing,
       Exclude,
-      Exclude_File : Unbounded_Wide_Wide_String :=
-        Null_Unbounded_Wide_Wide_String;
+      Exclude_File : Optional_Unbounded_Wide_Wide_String := (Is_Set => False);
    end record;
    --  Represents an instance of a rule about identifiers casing
 
@@ -580,8 +592,8 @@ package Lkql_Checker.Rules is
 
    type Forbidden_Instance is new Rule_Instance with record
       All_Flag           : Tri_State := Unset;
-      Forbidden, Allowed : Unbounded_Wide_Wide_String :=
-        Null_Unbounded_Wide_Wide_String;
+      Forbidden, Allowed : Optional_Unbounded_Wide_Wide_String :=
+        (Is_Set => False);
    end record;
    --  Represents an instance of a rule about forbiddening things
 
@@ -612,8 +624,8 @@ package Lkql_Checker.Rules is
    -----------------------------------------
 
    type Silent_Exception_Handlers_Instance is new Rule_Instance with record
-      Subprograms, Subprogram_Regexps : Unbounded_Wide_Wide_String :=
-        Null_Unbounded_Wide_Wide_String;
+      Subprograms, Subprogram_Regexps : Optional_Unbounded_Wide_Wide_String :=
+        (Is_Set => False);
    end record;
    --  Represents an instance of a rule about silent exception handlers
 
