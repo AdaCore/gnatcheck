@@ -1,3 +1,5 @@
+gnatcheck: info: rule "headers" has been skipped, some parameters require an explicit value ("header")
+gnatcheck: info: rule "name_clashes" has been skipped, some parameters require an explicit value ("dictionary_file")
 main.adb:1:19: rule violation: use clause for package
 main.adb:1:23: rule violation: use clause
 main.adb:1:37: rule violation: end of line comment
