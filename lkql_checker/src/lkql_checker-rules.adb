@@ -1879,8 +1879,8 @@ package body Lkql_Checker.Rules is
 
       procedure Check_And_Set
         (S : in out Unbounded_Wide_Wide_String; Val : String; Label : String);
-      --  Check the parameter redefinition for `S` and set the `S` to the
-      --  given `Val`. `Label` is the name of the parameter, it is used for
+      --  Check the parameter redefinition for ``S`` and set the ``S`` to the
+      --  given ``Val``. ``Label`` is the name of the parameter, it is used for
       --  error emission.
 
       procedure Check_And_Set
@@ -4361,8 +4361,8 @@ package body Lkql_Checker.Rules is
       begin
          Ada.Strings.Unbounded.Set_Unbounded_String (Instance.File, To_Load);
 
-         --  If `Last` is null or less, then the file is empty.
-         --  Thus don't append anything to the rule parameter.
+         --  If ``Last`` is null or less, then the file is empty. Thus we
+         --  cannot process its content.
          if Last > 0 then
             --  Strip trailing line feed
             if Content (Content'Last) = ASCII.LF then
