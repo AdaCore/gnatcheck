@@ -3151,6 +3151,7 @@ package body Lkql_Checker.Rules is
                          & "'in_out', 'access' or 'out' strings";
                   end if;
                end loop;
+               Res := Param_Value;
 
             elsif Rule_Name (Instance) = "actual_parameters" then
                --  Special case for the "actual_parameters" rule which should
