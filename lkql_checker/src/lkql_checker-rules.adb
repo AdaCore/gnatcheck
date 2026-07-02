@@ -1759,7 +1759,6 @@ package body Lkql_Checker.Rules is
    is
       Tagged_Instance : Identifier_Prefixes_Instance renames
         Identifier_Prefixes_Instance (Instance.all);
-      Col_Index       : Natural;
       Norm_Param      : constant String := Remove_Spaces (Param);
       Lower_Param     : constant String := To_Lower (Param);
    begin
@@ -1803,15 +1802,13 @@ package body Lkql_Checker.Rules is
                Norm_Param (Norm_Param'First + 18 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "derived=") then
-            Col_Index :=
-              Index
-                (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last), ":");
-
-            if Col_Index /= 0 then
+            if Index
+                 (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last), ":")
+              /= 0
+            then
                Append
                  (Tagged_Instance.Derived_Prefix,
-                  To_Lower (Norm_Param (Norm_Param'First + 8 .. Col_Index - 1))
-                  & Norm_Param (Col_Index .. Norm_Param'Last),
+                  Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last),
                   ",");
             else
                Emit_Wrong_Parameter (Instance, Param);
@@ -3254,7 +3251,6 @@ package body Lkql_Checker.Rules is
       Params_Object : in out JSON_Value)
    is
       Derived_Param : String_Vector;
-      Col_Index     : Natural;
    begin
       --  Process the exclusive boolean argument
       if Params_Object.Has_Field ("exclusive") then
@@ -3269,13 +3265,8 @@ package body Lkql_Checker.Rules is
 
          --  Check that all elements are correct
          for S of Derived_Param loop
-            Col_Index := Index (S, ":");
-            if Col_Index /= 0 then
-               Append
-                 (Instance.Derived_Prefix,
-                  To_Lower (S (S'First .. Col_Index - 1))
-                  & S (Col_Index .. S'Last),
-                  ",");
+            if Index (S, ":") /= 0 then
+               Append (Instance.Derived_Prefix, S, ",");
             else
                raise Invalid_Value
                  with "'derived' elements should contain a colon";

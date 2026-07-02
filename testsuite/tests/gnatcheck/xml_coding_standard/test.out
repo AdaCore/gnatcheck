@@ -58,7 +58,7 @@
          <parameter>Constant=Cst_</parameter>
          <parameter>Exception=Exc_</parameter>
          <parameter>Enum=Enum_</parameter>
-         <parameter>Derived=a_:B_,c_:D_</parameter>
+         <parameter>Derived=A_:B_,C_:D_</parameter>
          <parameter>Exclusive</parameter>
       </rule>
    </coding-standard>
