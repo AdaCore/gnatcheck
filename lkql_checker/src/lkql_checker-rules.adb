@@ -1218,7 +1218,7 @@ package body Lkql_Checker.Rules is
       Content : constant Unbounded_String := Load_Dictionary_File (File_Name);
    begin
       if Content /= Null_Unbounded_String then
-         if Length (Param) /= 0 and then Length (Content) /= 0 then
+         if Length (Param) /= 0 then
             Append (Param, ",");
          end if;
          Append (Param, To_Wide_Wide_String (To_String (Content)));
