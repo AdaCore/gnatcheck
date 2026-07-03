@@ -3714,22 +3714,16 @@ package body Lkql_Checker.Rules is
       Rule_Name_Padding : constant String :=
         [1 .. Instance_Name (Instance)'Length + 3 => ' '];
 
-      procedure Print
-        (Param  : String;
-         Prefix : Unbounded_Wide_Wide_String;
-         Force  : Boolean := False);
-      --  Print value Prefix of parameter Param if not null or if Force is set
+      procedure Print (Param : String; Prefix : Unbounded_Wide_Wide_String);
+      --  Print value Prefix of parameter Param if not null.
 
       -----------
       -- Print --
       -----------
 
-      procedure Print
-        (Param  : String;
-         Prefix : Unbounded_Wide_Wide_String;
-         Force  : Boolean := False) is
+      procedure Print (Param : String; Prefix : Unbounded_Wide_Wide_String) is
       begin
-         if Force or else Length (Prefix) /= 0 then
+         if Length (Prefix) /= 0 then
             if First_Param then
                Put (Rule_File, ":" & Param & "=" & To_String (Prefix));
                First_Param := False;
@@ -3761,22 +3755,12 @@ package body Lkql_Checker.Rules is
       Print ("Enum", Instance.Enum_Prefix);
 
       if Length (Instance.Derived_Prefix) /= 0 then
-         Print ("Derived", Null_Unbounded_Wide_Wide_String, Force => True);
-
-         for J in 1 .. Length (Instance.Derived_Prefix) loop
-            declare
-               C : constant Character :=
-                 To_Character (Element (Instance.Derived_Prefix, J));
-            begin
-               if C /= ',' then
-                  Put (Rule_File, C);
-               else
-                  Print
-                    ("Derived",
-                     Null_Unbounded_Wide_Wide_String,
-                     Force => True);
-               end if;
-            end;
+         for S of
+           String_Vector'(Split (To_String (Instance.Derived_Prefix), ','))
+         loop
+            Print
+              ("Derived",
+               To_Unbounded_Wide_Wide_String (To_Wide_Wide_String (S)));
          end loop;
       end if;
 
@@ -3856,22 +3840,16 @@ package body Lkql_Checker.Rules is
       Rule_Name_Padding : constant String :=
         [1 .. Instance_Name (Instance)'Length + 3 => ' '];
 
-      procedure Print
-        (Param  : String;
-         Casing : Unbounded_Wide_Wide_String;
-         Force  : Boolean := False);
-      --  Print value Casing of parameter Param if not null or if Force is set
+      procedure Print (Param : String; Casing : Unbounded_Wide_Wide_String);
+      --  Print value Casing of parameter Param if not null.
 
       -----------
       -- Print --
       -----------
 
-      procedure Print
-        (Param  : String;
-         Casing : Unbounded_Wide_Wide_String;
-         Force  : Boolean := False) is
+      procedure Print (Param : String; Casing : Unbounded_Wide_Wide_String) is
       begin
-         if Force or else Length (Casing) /= 0 then
+         if Length (Casing) /= 0 then
             if First_Param then
                Put (Rule_File, ":" & Param & "=" & To_String (Casing));
                First_Param := False;
@@ -3889,8 +3867,6 @@ package body Lkql_Checker.Rules is
          end if;
       end Print;
 
-      C : Character;
-
    begin
       Print_Rule_Instance_To_File
         (Rule_Instance (Instance), Rule_File, Indent_Level);
@@ -3902,17 +3878,11 @@ package body Lkql_Checker.Rules is
       Print ("Others", Instance.Others_Casing);
 
       if Length (Instance.Exclude) /= 0 then
-         Print ("Exclude", Null_Unbounded_Wide_Wide_String, Force => True);
-
-         for J in 1 .. Length (Instance.Exclude) loop
-            C := To_Character (Element (Instance.Exclude, J));
-
-            if C /= ',' then
-               Put (Rule_File, C);
-            else
-               Print
-                 ("Exclude", Null_Unbounded_Wide_Wide_String, Force => True);
-            end if;
+         for S of String_Vector'(Split (To_String (Instance.Exclude), ','))
+         loop
+            Print
+              ("Exclude",
+               To_Unbounded_Wide_Wide_String (To_Wide_Wide_String (S)));
          end loop;
       end if;
    end Print_Rule_Instance_To_File;
