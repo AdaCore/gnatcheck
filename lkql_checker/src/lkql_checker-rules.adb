@@ -3379,34 +3379,28 @@ package body Lkql_Checker.Rules is
       ------------------------
 
       procedure Process_List_Field
-        (Field_Name : String; Field : in out Unbounded_Wide_Wide_String)
-      is
-         Val : String_Vector;
+        (Field_Name : String; Field : in out Unbounded_Wide_Wide_String) is
       begin
          if Params_Object.Has_Field (Field_Name) then
-            Val := Expect_Literal (Params_Object, Field_Name);
-            for S of Val loop
-               declare
-                  Lower_S : constant String := To_Lower (S);
-               begin
-                  if Length (Field) > 0 then
-                     Append (Field, ",");
-                  end if;
-
-                  --  Special cases when the current value is "gnat"
-                  if Lower_S = "gnat" then
-                     if Rule_Name (Instance) = "forbidden_attributes" then
-                        Append (Field, GNAT_Attributes);
-                     elsif Rule_Name (Instance) = "forbidden_pragmas" then
-                        Append (Field, GNAT_Pragmas);
-                     else
-                        Append (Field, To_Wide_Wide_String (Lower_S));
-                     end if;
-                  else
-                     Append (Field, To_Wide_Wide_String (Lower_S));
-                  end if;
-               end;
-            end loop;
+            declare
+               Vec : constant String_Vector :=
+                 Expect_Literal (Params_Object, Field_Name);
+            begin
+               Set_Unbounded_Wide_Wide_String
+                 (Field,
+                  To_Wide_Wide_String
+                    (Join
+                       ([for S of Vec =>
+                           (if To_Lower (S) = "gnat"
+                            then
+                              (if Rule_Name (Instance) = "forbidden_attributes"
+                               then To_String (GNAT_Attributes)
+                               elsif Rule_Name (Instance) = "forbidden_pragmas"
+                               then To_String (GNAT_Pragmas)
+                               else To_Lower (S))
+                            else To_Lower (S))],
+                        ",")));
+            end;
             Params_Object.Unset_Field (Field_Name);
          end if;
       end Process_List_Field;
