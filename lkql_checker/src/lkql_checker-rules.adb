@@ -2341,29 +2341,21 @@ package body Lkql_Checker.Rules is
    procedure Append_Array_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
       Name  : Wide_Wide_String;
-      Value : Unbounded_Wide_Wide_String)
-   is
-      Param : Unbounded_Wide_Wide_String;
-      C     : Wide_Wide_Character;
+      Value : Unbounded_Wide_Wide_String) is
    begin
       if Length (Value) /= 0 then
-         Append (Param, "[""");
-
-         for J in 1 .. Length (Value) loop
-            C := Element (Value, J);
-
-            if C = ',' then
-               Append (Param, """, """);
-            else
-               Append (Param, C);
-            end if;
-         end loop;
-
-         Append (Param, """]");
-         Args.Append
-           (Rule_Argument'
-              (Name  => To_Unbounded_Text (Name),
-               Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
+         declare
+            Values       : constant String_Vector :=
+              Split (To_String (Value), ',');
+            List_Elems   : constant String :=
+              Join ([for S of Values => '"' & S & '"'], ", ");
+            List_Literal : constant Unbounded_Text_Type :=
+              To_Unbounded_Text (To_Text ('[' & List_Elems & ']'));
+         begin
+            Args.Append
+              (Rule_Argument'
+                 (Name => To_Unbounded_Text (Name), Value => List_Literal));
+         end;
       end if;
    end Append_Array_Param;
 
