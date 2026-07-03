@@ -565,29 +565,13 @@ package body Lkql_Checker.Rules is
      (Params       : String;
       Indent_Level : Natural;
       Prefix       : String := "";
-      Suffix       : String := "")
-   is
-      C      : Character;
-      Buffer : Unbounded_String;
+      Suffix       : String := "") is
    begin
       if Params'Length = 0 then
-         return;
+         for S of String_Vector'(Split (Params, ',')) loop
+            XML_Report (XML_Param (Prefix & S & Suffix), Indent_Level);
+         end loop;
       end if;
-
-      for J in Params'First .. Params'Last loop
-         C := Params (J);
-
-         if C /= ',' then
-            Append (Buffer, C);
-         elsif Buffer /= "" then
-            XML_Report
-              (XML_Param (Prefix & To_String (Buffer) & Suffix), Indent_Level);
-            Set_Unbounded_String (Buffer, "");
-         end if;
-      end loop;
-
-      XML_Report
-        (XML_Param (Prefix & To_String (Buffer) & Suffix), Indent_Level);
    end Print_XML_Params;
 
    ------------------------
