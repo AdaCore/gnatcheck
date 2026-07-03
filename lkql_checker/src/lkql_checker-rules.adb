@@ -2762,7 +2762,7 @@ package body Lkql_Checker.Rules is
                Id_Suf_Instance : constant Identifier_Suffixes_Instance :=
                  Identifier_Suffixes_Instance (Instance.all);
                To_Delete       : Natural := 0;
-               Acc_Suf_Value   : constant Text_Type :=
+               Access_Suffix   : constant Text_Type :=
                  To_Text
                    ((if Length (Id_Suf_Instance.Access_Access_Suffix) = 0
                      then Id_Suf_Instance.Access_Suffix
@@ -2775,7 +2775,7 @@ package body Lkql_Checker.Rules is
                for I in Args.First_Index .. Args.Last_Index loop
                   if Args (I).Name = "access_suffix" then
                      Set_Unbounded_Wide_Wide_String
-                       (Args (I).Value, '"' & Acc_Suf_Value & '"');
+                       (Args (I).Value, '"' & Access_Suffix & '"');
                   elsif Args (I).Name = "access_access_suffix" then
                      To_Delete := I;
                   end if;
