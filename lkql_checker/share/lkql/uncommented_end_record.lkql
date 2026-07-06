@@ -11,10 +11,10 @@ fun find_comment(token, name, line) =
 @unit_check(help="END RECORD not marked with type name comment",
             remediation="EASY", category="Style", subcategory="Readability")
 fun uncommented_end_record(unit, n: int = 10) =
-    |" Flags ``END`` keywords that are trailing keywords in record definitions
+    |" Flags ``end`` keywords that are trailing keywords in record definitions
     |" if a record definition is longer than N lines where N is a rule parameter,
-    |" and the line that contains the ``END`` keyword does not contain a trailing
-    |" comment immediately after this ``END``. This trailing comment should start
+    |" and the line that contains the ``end`` keyword does not contain a trailing
+    |" comment immediately after this ``end``. This trailing comment should start
     |" with the name of the type that contains this record definition as (a part of)
     |" its type definition, and it may contain any other information separated from
     |" the type name by a space or a comma.

@@ -4,11 +4,11 @@ import stdlib
        category="Style", subcategory="Programming Practice",
        auto_fix=(n, ctx) => ctx.replace(n, stdlib.negate_op(stdlib.strip_conversions(n.f_expr))))
 fun boolean_negations(node) =
-    |" Flag any infix call to the predefined ``NOT`` operator for the predefined
+    |" Flag any infix call to the predefined ``not`` operator for the predefined
     |" Boolean type if its argument is an infix call to a predefined relation
-    |" operator or another call to the predefined ``NOT`` operator. Such expressions
-    |" can be simplified by excluding the outer call to the predefined ``NOT``
-    |" operator. Calls to ``NOT`` operators for the types derived from
+    |" operator or another call to the predefined ``not`` operator. Such expressions
+    |" can be simplified by excluding the outer call to the predefined ``not``
+    |" operator. Calls to ``not`` operators for the types derived from
     |" Standard.Boolean are not flagged.
     |"
     |" .. rubric:: Example

@@ -4,7 +4,7 @@ import stdlib
             rule_name="Uncommented_BEGIN_In_Package_Bodies",
             remediation="EASY", category="Style", subcategory="Readability")
 fun uncommented_begin_in_package_bodies(unit) =
-    |" Flags ``BEGIN`` keywords in package bodies if the body contains
+    |" Flags ``begin`` keywords in package bodies if the body contains
     |" both declarations and a statement part and if there is no trailing
     |" comment just after the keyword (on the same line) with the package
     |" name as the only content of the comment, the casing of the package

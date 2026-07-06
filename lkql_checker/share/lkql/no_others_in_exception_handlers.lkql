@@ -32,7 +32,7 @@ fun no_others_in_exception_handlers(unit,
     |"    one exception handler, but it does not contain an exception handler with
     |"    ``others`` choice. If a handled sequence of statements does not have any
     |"    exception handler, nothing is flagged for it. The diagnostic message points
-    |"    to the ``EXCEPTION`` keyword in the handled sequence of statements.
+    |"    to the ``exception`` keyword in the handled sequence of statements.
     |"
     |" At least one parameter should be specified for the rule. If
     |" more than one parameter is specified, each of the specified

@@ -1,7 +1,7 @@
 import stdlib
 
 fun operator_image(node) =
-    |" Return the string of a given AND/OR operator
+    |" Return the string of a given and/or operator
     match node
     | OpAnd      => "AND"
     | OpOr       => "OR"

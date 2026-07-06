@@ -25,7 +25,7 @@ fun constant_overlays(node) =
     |" Flag an overlay definition that has a form of an attribute definition
     |" clause ``for Overlaying'Address use Overlaid'Address;`` or a form of aspect definition
     |" ``Address => Overlaid'Address``, where ``Overlaid`` is a data object defined by a constant
-    |" declaration or a formal or generic formal parameter of mode ``IN``, and additionally
+    |" declaration or a formal or generic formal parameter of mode ``in``, and additionally
     |" at least one of the following is true:
     |"
     |" * the overlaying object is not a constant object;
