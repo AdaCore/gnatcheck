@@ -1,0 +1,72 @@
+main.adb:24:17: rule violation: possible occurrence of KP 20602
+24 |          S_1 := new String'("hello");      -- FLAG (Over approximation of the detector)
+   |                 ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:30:17: rule violation: possible occurrence of KP 20602
+30 |          S_2 := new String'("hello");      -- FLAG (S_2 is assigned to S_1)
+   |                 ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:40:17: rule violation: possible occurrence of KP 20602
+40 |          S_1 := new String'("hello");      -- FLAG (S_1 is immediately returned)
+   |                 ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:45:18: rule violation: possible occurrence of KP 20602
+45 |             S := new String'("hello");     -- FLAG
+   |                  ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:50:40: rule violation: possible occurrence of KP 20602
+50 |             Inner_S : access String := new String'("hello");  -- FLAG
+   |                                        ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:57:40: rule violation: possible occurrence of KP 20602
+57 |             Inner_S : access String := new String'("hello");  -- FLAG
+   |                                        ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:64:17: rule violation: possible occurrence of KP 20602
+64 |          return new String'("hello");      -- FLAG
+   |                 ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:83:25: rule violation: possible occurrence of KP 20602
+83 |       return (if B then new String'("hello") else null);  -- FLAG
+   |                         ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:92:20: rule violation: possible occurrence of KP 20602
+92 |             S_1 := new String'("hello");    -- FLAG (Over approximation of the detector)
+   |                    ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:98:20: rule violation: possible occurrence of KP 20602
+98 |             S_1 := new String'("hello");    -- FLAG (S_1 is immediately returned)
+   |                    ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:109:27: rule violation: possible occurrence of KP 20602
+109 |            when True   => new String'("hello"),  -- FLAG
+    |                           ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:117:14: rule violation: possible occurrence of KP 20602
+117 |       return new String'("hello");  -- FLAG (always flag when function body has a "goto" statement)
+    |              ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:142:12: rule violation: possible occurrence of KP 20602
+142 |       S := new String'("hello");  -- FLAG (always flag when function body has a "exit when" statement)
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:152:18: rule violation: possible occurrence of KP 20602
+152 |    is (if B then new String'("hello") else null);  -- FLAG
+    |                  ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:164:23: rule violation: possible occurrence of KP 20602
+164 |          return (S => new String'("hello"));  -- FLAG
+    |                       ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:167:17: rule violation: possible occurrence of KP 20602
+167 |          R.S := new String'("hello");         -- FLAG
+    |                 ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:183:29: rule violation: possible occurrence of KP 20602
+183 |          return (R => (S => new String'("hello")));  -- FLAG
+    |                             ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:186:17: rule violation: possible occurrence of KP 20602
+186 |          R.S := new String'("hello");                -- FLAG
+    |                 ^^^^^^^^^^^^^^^^^^^^
+
