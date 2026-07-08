@@ -109,8 +109,10 @@ fun use_for_of_loops(node, n : int = 1, ignore: bool = false) =
       }
 
      # and <array> is not a mutable discriminant-dependent component
-     and attr.f_prefix.p_referenced_decl() is comp@ComponentDecl
-     when (match attr.f_prefix
-           | d@DottedName => d.f_prefix.p_referenced_decl().p_is_constant_object()
-           | o@* => o.p_referenced_decl().p_is_constant_object())
-       or not stdlib.depends_on_mutable_discriminant(comp)
+     and match attr.f_prefix.p_referenced_decl()
+        | comp@ComponentDecl => (
+            match attr.f_prefix
+            | d@DottedName => d.f_prefix.p_referenced_decl().p_is_constant_object()
+            | o@* => o.p_referenced_decl().p_is_constant_object()
+        ) or not stdlib.depends_on_mutable_discriminant(comp)
+        | * => true

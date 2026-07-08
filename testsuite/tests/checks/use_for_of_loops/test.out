@@ -1,3 +1,21 @@
+loop1.adb:3:4: rule violation: FOR loop may be replaced by a FOR OF loop
+3 |     for J in Str'Range loop  -- FLAG
+  | ____^
+  ||
+  || ~~~ 5 other lines ~~~
+  ||
+9 ||    end loop;
+  ||____________^
+
+loop1.adb:11:4: rule violation: FOR loop may be replaced by a FOR OF loop
+11 |     for J in Str'Range loop  -- FLAG
+   | ____^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+13 ||    end loop;
+   ||____________^
+
 loop2.adb:13:4: rule violation: FOR loop may be replaced by a FOR OF loop
 13 |     for I in X.Bounds'Range loop                -- FLAG
    | ____^
@@ -42,6 +60,38 @@ loop3.adb:72:9: rule violation: FOR loop may be replaced by a FOR OF loop
    ||
 74 ||         end loop;
    ||_________________^
+
+Patched "loop1.adb":
+====================
+
+procedure Loop1 (Str : in out String) is
+begin
+   for J of Str loop
+      -- FLAG
+      if J = ' ' then
+         return;
+      elsif J = 'a' then
+         exit;
+      end if;
+   end loop;
+
+   for J of Str loop
+      -- FLAG
+      J := ' ';
+   end loop;
+
+   for J in Str'Range loop  -- NOFLAG
+      exit when J > 1;
+   end loop;
+
+   declare
+      Str2 : constant String := Str;
+   begin
+      for J in Str'Range loop  -- NOFLAG
+         Str (J) := Str2 (J);
+      end loop;
+   end;
+end Loop1;
 
 Patched "loop2.adb":
 ====================
