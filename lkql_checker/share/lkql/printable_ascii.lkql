@@ -1,3 +1,27 @@
+val non_printable = pattern("[^\r\n -~]")
+
+# Build the violation message, pointing at the first non-printable
+# character. Whitespace trivia can span several lines, so the character's
+# line and column are computed from the token text that precedes it.
+fun printable_ascii_message(tok) = {
+    val idx = tok.text.find(non_printable);
+
+    # Text before the character, with a "." sentinel appended so that
+    # `split` keeps a trailing empty line instead of dropping it (needed
+    # when the character sits just after a line break). The sentinel adds
+    # one to the last line's length, which the "- 1" below cancels out.
+    val before = tok.text.substring(1, idx - 1) & ".";
+    val lines = before.split("\n");
+    val breaks = lines.length - 1;
+    val multiline = breaks > 0;
+    val col = (if multiline then 1 else tok.start_column)
+              + lines[lines.length].length - 1;
+
+    "non printable ASCII character at " &
+    (if multiline then "line " & img(tok.start_line + breaks) & " " else "")
+    & "column " & img(col)
+}
+
 @unit_check(help="non-printable characters", remediation="EASY",
             category="Style", subcategory="Portability",
             rule_name="Printable_ASCII")
@@ -6,9 +30,7 @@ fun printable_ascii(unit) =
     |" ASCII character set, a line feed, or a carriage return character (i.e.
     |" values 10, 13 and 32 .. 126 of the ASCII Character set).
     [
-        {message: "non printable ASCII character", loc: tok}
+        {message: printable_ascii_message(tok), loc: tok}
         for tok in unit.tokens
-        if match tok.text
-           | "[^\r\n -~]" => true
-           | *            => false
+        if tok.text.contains(non_printable)
     ]

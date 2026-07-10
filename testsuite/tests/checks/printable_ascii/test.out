@@ -1,12 +1,18 @@
-ascii.ads:1:1: rule violation: non printable ASCII character
+ascii.ads:1:1: rule violation: non printable ASCII character at column 12
 1 | --  invalid	comment          --  FLAG
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-ascii.ads:3:4: rule violation: non printable ASCII character
+ascii.ads:3:4: rule violation: non printable ASCII character at column 14
 3 |    Non_ASCII_é : Integer;        --  FLAG
   |    ^^^^^^^^^^^
 
-ascii.ads:4:4: rule violation: non printable ASCII character
+ascii.ads:4:4: rule violation: non printable ASCII character at column 23
 4 |    --  another invalidcomment  --  FLAG
   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ascii.ads:5:42: rule violation: non printable ASCII character at line 6 column 1
+5 |     V : Integer;                  --  FLAG
+  | __________________________________________^
+6 || 	Tab_Indent : Integer;
+  ||________^
 
