@@ -1,4 +1,5 @@
 procedure Main is
 begin
-    Put_Line ("Main");
+   goto lbl;  -- FLAG
+   <<lbl>>
 end Main;

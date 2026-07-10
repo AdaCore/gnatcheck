@@ -3,3 +3,5 @@ format: brief
 project: prj.gpr
 rules:
   - +RGOTO_Statements
+extra_args:
+  - -vP=1
