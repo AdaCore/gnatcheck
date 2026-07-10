@@ -14,6 +14,9 @@ package P is
    function Create return T_Array with Post => True;  --  FLAG
    function No_Flag return T_Array;                   --  NOFLAG
 
+   type Mutable (N : Natural := 0) is private;
+   function Create return Mutable;                    --  NOFLAG
+
    type F_Access is access function (B : Boolean) return String;
 
 private
@@ -22,6 +25,10 @@ private
      with Type_Invariant => True;
 
    type Q (N : Natural) is record
+      P : T_Array (1 .. N);
+   end record with Type_Invariant => True;
+
+   type Mutable (N : Natural := 0) is record
       P : T_Array (1 .. N);
    end record with Type_Invariant => True;
 

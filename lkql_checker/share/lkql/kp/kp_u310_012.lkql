@@ -2,9 +2,12 @@
 # or an invariant associated with the return type.
 
 fun is_unconstrained(t) =
-    t.f_type_def is
-        ArrayTypeDef(f_indices: UnconstrainedArrayIndices) or
-    t is ConcreteTypeDecl(f_discriminants: KnownDiscriminantPart)
+    t.f_type_def is ArrayTypeDef(f_indices: UnconstrainedArrayIndices)
+    # A discriminated record is unconstrained only when its discriminants
+    # have no default (otherwise the subtype is definite, RM 3.7 9.1/3).
+    or t is ConcreteTypeDecl(
+        f_discriminants: dp@KnownDiscriminantPart
+        when dp.f_discr_specs.children.all((c) => c.f_default_expr is null))
 
 @check(message="possible occurrence of KP U310-012")
 fun kp_u310_012(node) =
