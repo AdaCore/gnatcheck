@@ -1,3 +1,2 @@
-prj.gpr:2:36: error: unknown file "invalid.adb"
-try "gnatcheck --help" for more information.
->>>program returned status code 2
+prj.gpr:2:35: warning: unknown excluded file "invalid.adb"
+main.adb:3:04: rule violation: goto statement
