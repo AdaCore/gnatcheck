@@ -58,6 +58,19 @@ package body Lkql_Checker.Rules is
    is (if B then On else Off);
    --  Get the `Tri_State` value corresponding to the given boolean
 
+   procedure Set
+     (Target : out Optional_Unbounded_Wide_Wide_String; S : String);
+   --  Set the ``Target`` with the provided string ``S``, overwriting any
+   --  existing value.
+
+   procedure Append
+     (Target : in out Optional_Unbounded_Wide_Wide_String;
+      S      : String;
+      Sep    : String := "");
+   --  Initialize the ``Target`` optional string if it is not, and append ``S``
+   --  to it. If the provided ``Sep`` isn't an empty string and the value of
+   --  ``Target`` isn't empty, ``Sep & S`` is appended to ``Target``.
+
    function Param_Name (Rule : Rule_Info; Index : Positive) return Text_Type
    is (Rule.Parameters (Index));
    --  Get the name of the rule parameter at the given index
@@ -97,7 +110,7 @@ package body Lkql_Checker.Rules is
    --  Function to get a parameter XML tag with `Parm` in it
 
    procedure Print_XML_Params
-     (Params       : String;
+     (Params       : Optional_Unbounded_Wide_Wide_String;
       Indent_Level : Natural;
       Prefix       : String := "";
       Suffix       : String := "");
@@ -112,7 +125,7 @@ package body Lkql_Checker.Rules is
    procedure Process_String_Arg
      (Params_Object  : JSON_Value;
       Param_Name     : String;
-      Instance_Field : in out Unbounded_Wide_Wide_String;
+      Instance_Field : in out Optional_Unbounded_Wide_Wide_String;
       Normalize      : Boolean := False);
    --  If the given `Param_Name` is present as a field in the `Params_Object`,
    --  then parse it as a string literal and set `Instance_Field` to the result
@@ -263,7 +276,7 @@ package body Lkql_Checker.Rules is
    function Load_Dictionary
      (Instance  : Rule_Instance_Access;
       File_Name : String;
-      Param     : in out Unbounded_Wide_Wide_String) return Boolean;
+      Param     : in out Optional_Unbounded_Wide_Wide_String) return Boolean;
    --  Load dictionary file `File_Name` for instance `Instance` and append the
    --  result in `Param` as a comma separated list. This function returns
    --  whether the dictionnary load was successful.
@@ -379,14 +392,14 @@ package body Lkql_Checker.Rules is
    procedure Append_String_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
       Name  : Wide_Wide_String;
-      Value : Unbounded_Wide_Wide_String);
+      Value : Optional_Unbounded_Wide_Wide_String);
    --  Append to Args a parameter named Name with value Value if not empty,
    --  otherwise do nothing.
 
    procedure Append_Array_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
       Name  : Wide_Wide_String;
-      Value : Unbounded_Wide_Wide_String);
+      Value : Optional_Unbounded_Wide_Wide_String);
    --  Like Append_String_Param, for an array of strings represented by a comma
    --  separated list in Value.
 
@@ -395,6 +408,7 @@ package body Lkql_Checker.Rules is
       Instance : in out One_Array_Parameter_Instance);
    --  Common procedure to handle array parameter rules instances by adding
    --  their parameter actual value in the provided rule arguments vector.
+   --  This procedure assumes that ``Instance.Param.Is_Set`` is True.
 
    --  ===== Local subprograms bodies =====
 
@@ -548,6 +562,41 @@ package body Lkql_Checker.Rules is
          return Null_Unbounded_String;
    end Load_Dictionary_File;
 
+   ---------
+   -- Set --
+   ---------
+
+   procedure Set (Target : out Optional_Unbounded_Wide_Wide_String; S : String)
+   is
+   begin
+      Target :=
+        (Is_Set => True,
+         Value  => To_Unbounded_Wide_Wide_String (To_Wide_Wide_String (S)));
+   end Set;
+
+   ------------
+   -- Append --
+   ------------
+
+   procedure Append
+     (Target : in out Optional_Unbounded_Wide_Wide_String;
+      S      : String;
+      Sep    : String := "") is
+   begin
+      --  Initialize the optional string
+      if not Target.Is_Set then
+         Target := (Is_Set => True, Value => <>);
+      end if;
+
+      --  If required, append the separator
+      if Length (Target.Value) > 0 then
+         Append (Target.Value, To_Wide_Wide_String (Sep));
+      end if;
+
+      --  Then, append the value
+      Append (Target.Value, To_Wide_Wide_String (S));
+   end Append;
+
    -----------------------
    -- Turn_Instance_Off --
    -----------------------
@@ -562,32 +611,16 @@ package body Lkql_Checker.Rules is
    ----------------------
 
    procedure Print_XML_Params
-     (Params       : String;
+     (Params       : Optional_Unbounded_Wide_Wide_String;
       Indent_Level : Natural;
       Prefix       : String := "";
-      Suffix       : String := "")
-   is
-      C      : Character;
-      Buffer : Unbounded_String;
+      Suffix       : String := "") is
    begin
-      if Params'Length = 0 then
-         return;
+      if Params.Is_Set then
+         for S of String_Vector'(Split (To_String (Params.Value), ',')) loop
+            XML_Report (XML_Param (Prefix & S & Suffix), Indent_Level);
+         end loop;
       end if;
-
-      for J in Params'First .. Params'Last loop
-         C := Params (J);
-
-         if C /= ',' then
-            Append (Buffer, C);
-         elsif Buffer /= "" then
-            XML_Report
-              (XML_Param (Prefix & To_String (Buffer) & Suffix), Indent_Level);
-            Set_Unbounded_String (Buffer, "");
-         end if;
-      end loop;
-
-      XML_Report
-        (XML_Param (Prefix & To_String (Buffer) & Suffix), Indent_Level);
    end Print_XML_Params;
 
    ------------------------
@@ -597,7 +630,7 @@ package body Lkql_Checker.Rules is
    procedure Process_String_Arg
      (Params_Object  : JSON_Value;
       Param_Name     : String;
-      Instance_Field : in out Unbounded_Wide_Wide_String;
+      Instance_Field : in out Optional_Unbounded_Wide_Wide_String;
       Normalize      : Boolean := False) is
    begin
       if Params_Object.Has_Field (Param_Name) then
@@ -609,8 +642,7 @@ package body Lkql_Checker.Rules is
                    (To_Lower (Expect_Literal (Params_Object, Param_Name)))
                else Expect_Literal (Params_Object, Param_Name));
          begin
-            Set_Unbounded_Wide_Wide_String
-              (Instance_Field, To_Wide_Wide_String (Field_Val));
+            Set (Instance_Field, Field_Val);
             Params_Object.Unset_Field (Param_Name);
          end;
       end if;
@@ -1213,15 +1245,12 @@ package body Lkql_Checker.Rules is
    function Load_Dictionary
      (Instance  : Rule_Instance_Access;
       File_Name : String;
-      Param     : in out Unbounded_Wide_Wide_String) return Boolean
+      Param     : in out Optional_Unbounded_Wide_Wide_String) return Boolean
    is
       Content : constant Unbounded_String := Load_Dictionary_File (File_Name);
    begin
       if Content /= Null_Unbounded_String then
-         if Length (Param) /= 0 and then Length (Content) /= 0 then
-            Append (Param, ",");
-         end if;
-         Append (Param, To_Wide_Wide_String (To_String (Content)));
+         Append (Param, To_String (Content), ",");
          return True;
       else
          Emit_File_Load_Error (Instance, File_Name);
@@ -1431,9 +1460,7 @@ package body Lkql_Checker.Rules is
          --  Else, the parameter is not empty, if the instance is enabled
          --  check the parameter value and enable the instance.
          if Tool_Args.Check_Redefinition.Get
-           and then not Ada.Strings.Wide_Wide_Unbounded."="
-                          (Tagged_Instance.Param,
-                           Null_Unbounded_Wide_Wide_String)
+           and then Tagged_Instance.Param.Is_Set
          then
             Emit_Redefining (Instance, Param);
          end if;
@@ -1452,7 +1479,7 @@ package body Lkql_Checker.Rules is
          else
             --  Other cases: Just add the parameter to the instance actual
             --  parameters
-            Append (Tagged_Instance.Param, To_Wide_Wide_String (Param));
+            Append (Tagged_Instance.Param, Param);
          end if;
       else
          --  Else, emit a message about no parameter allowed for instance
@@ -1483,9 +1510,7 @@ package body Lkql_Checker.Rules is
          --  Else, the param is not empty, if the command line is enabling the
          --  instance process the parameter.
          if Tool_Args.Check_Redefinition.Get
-           and then not Ada.Strings.Wide_Wide_Unbounded."="
-                          (Tagged_Instance.Param,
-                           Null_Unbounded_Wide_Wide_String)
+           and then Tagged_Instance.Param.Is_Set
          then
             Emit_Redefining (Instance, Param);
          end if;
@@ -1522,11 +1547,7 @@ package body Lkql_Checker.Rules is
                return;
             end if;
 
-            if Length (Tagged_Instance.Param) /= 0 then
-               Append (Tagged_Instance.Param, ",");
-            end if;
-
-            Append (Tagged_Instance.Param, To_Wide_Wide_String (Param));
+            Append (Tagged_Instance.Param, Param, ",");
          end if;
 
       else
@@ -1636,21 +1657,6 @@ package body Lkql_Checker.Rules is
       Paren_Index     : Natural;
       Norm_Param      : constant String := Remove_Spaces (Param);
       Lower_Param     : constant String := To_Lower (Param);
-
-      procedure Set_Field
-        (Field : out Unbounded_Wide_Wide_String; Value : String);
-      --  Set `Field` to `Value`
-
-      ---------------
-      -- Set_Field --
-      ---------------
-
-      procedure Set_Field
-        (Field : out Unbounded_Wide_Wide_String; Value : String) is
-      begin
-         Set_Unbounded_Wide_Wide_String (Field, To_Wide_Wide_String (Value));
-      end Set_Field;
-
    begin
       --  If the normalized parameter is empty, just disable the instance
       --  following the command line.
@@ -1664,18 +1670,18 @@ package body Lkql_Checker.Rules is
          --  and process the parameter.
 
          if Lower_Param = "default" then
-            Set_Field (Tagged_Instance.Type_Suffix, "_T");
-            Set_Field (Tagged_Instance.Access_Suffix, "_A");
-            Set_Field (Tagged_Instance.Access_Access_Suffix, "");
-            Set_Field (Tagged_Instance.Class_Access_Suffix, "");
-            Set_Field (Tagged_Instance.Class_Subtype_Suffix, "");
-            Set_Field (Tagged_Instance.Constant_Suffix, "_C");
-            Set_Field (Tagged_Instance.Renaming_Suffix, "_R");
-            Set_Field (Tagged_Instance.Access_Obj_Suffix, "");
-            Set_Field (Tagged_Instance.Interrupt_Suffix, "");
+            Set (Tagged_Instance.Type_Suffix, "_T");
+            Set (Tagged_Instance.Access_Suffix, "_A");
+            Set (Tagged_Instance.Access_Access_Suffix, "");
+            Set (Tagged_Instance.Class_Access_Suffix, "");
+            Set (Tagged_Instance.Class_Subtype_Suffix, "");
+            Set (Tagged_Instance.Constant_Suffix, "_C");
+            Set (Tagged_Instance.Renaming_Suffix, "_R");
+            Set (Tagged_Instance.Access_Obj_Suffix, "");
+            Set (Tagged_Instance.Interrupt_Suffix, "");
 
          elsif Has_Prefix (Norm_Param, "type_suffix=") then
-            Set_Field
+            Set
               (Tagged_Instance.Type_Suffix,
                Norm_Param (Norm_Param'First + 12 .. Norm_Param'Last));
 
@@ -1685,47 +1691,47 @@ package body Lkql_Checker.Rules is
                  Index
                    (Norm_Param (Norm_Param'First + 14 .. Norm_Param'Last),
                     "(");
-               Set_Field
+               Set
                  (Tagged_Instance.Access_Suffix,
                   Norm_Param (Norm_Param'First + 14 .. Paren_Index - 1));
-               Set_Field
+               Set
                  (Tagged_Instance.Access_Access_Suffix,
                   Norm_Param (Paren_Index + 1 .. Norm_Param'Last - 1));
 
             else
-               Set_Field
+               Set
                  (Tagged_Instance.Access_Suffix,
                   Norm_Param (Norm_Param'First + 14 .. Norm_Param'Last));
-               Set_Field (Tagged_Instance.Access_Access_Suffix, "");
+               Set (Tagged_Instance.Access_Access_Suffix, "");
             end if;
 
          elsif Has_Prefix (Norm_Param, "class_access_suffix=") then
-            Set_Field
+            Set
               (Tagged_Instance.Class_Access_Suffix,
                Norm_Param (Norm_Param'First + 20 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "class_subtype_suffix=") then
-            Set_Field
+            Set
               (Tagged_Instance.Class_Subtype_Suffix,
                Norm_Param (Norm_Param'First + 21 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "constant_suffix=") then
-            Set_Field
+            Set
               (Tagged_Instance.Constant_Suffix,
                Norm_Param (Norm_Param'First + 16 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "renaming_suffix=") then
-            Set_Field
+            Set
               (Tagged_Instance.Renaming_Suffix,
                Norm_Param (Norm_Param'First + 16 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "access_obj_suffix=") then
-            Set_Field
+            Set
               (Tagged_Instance.Access_Obj_Suffix,
                Norm_Param (Norm_Param'First + 18 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "interrupt_suffix=") then
-            Set_Field
+            Set
               (Tagged_Instance.Interrupt_Suffix,
                Norm_Param (Norm_Param'First + 17 .. Norm_Param'Last));
 
@@ -1756,21 +1762,6 @@ package body Lkql_Checker.Rules is
       Col_Index       : Natural;
       Norm_Param      : constant String := Remove_Spaces (Param);
       Lower_Param     : constant String := To_Lower (Param);
-
-      procedure Set_Field
-        (Field : out Unbounded_Wide_Wide_String; Value : String);
-      --  Set `Field` to `Value`
-
-      ---------------
-      -- Set_Field --
-      ---------------
-
-      procedure Set_Field
-        (Field : out Unbounded_Wide_Wide_String; Value : String) is
-      begin
-         Set_Unbounded_Wide_Wide_String (Field, To_Wide_Wide_String (Value));
-      end Set_Field;
-
    begin
       --  If the normalized param is empty, just disable the instance following
       --  the command line.
@@ -1787,27 +1778,27 @@ package body Lkql_Checker.Rules is
             Tagged_Instance.Exclusive := On;
 
          elsif Has_Prefix (Norm_Param, "type=") then
-            Set_Field
+            Set
               (Tagged_Instance.Type_Prefix,
                Norm_Param (Norm_Param'First + 5 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "concurrent=") then
-            Set_Field
+            Set
               (Tagged_Instance.Concurrent_Prefix,
                Norm_Param (Norm_Param'First + 11 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "access=") then
-            Set_Field
+            Set
               (Tagged_Instance.Access_Prefix,
                Norm_Param (Norm_Param'First + 7 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "class_access=") then
-            Set_Field
+            Set
               (Tagged_Instance.Class_Access_Prefix,
                Norm_Param (Norm_Param'First + 13 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "subprogram_access=") then
-            Set_Field
+            Set
               (Tagged_Instance.Subprogram_Access_Prefix,
                Norm_Param (Norm_Param'First + 18 .. Norm_Param'Last));
 
@@ -1817,37 +1808,28 @@ package body Lkql_Checker.Rules is
                 (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last), ":");
 
             if Col_Index /= 0 then
-               if Length (Tagged_Instance.Derived_Prefix) /= 0 then
-                  Append (Tagged_Instance.Derived_Prefix, ",");
-               end if;
-
                Append
                  (Tagged_Instance.Derived_Prefix,
-                  To_Wide_Wide_String
-                    (To_Lower
-                       (Norm_Param (Norm_Param'First + 8 .. Col_Index - 1))));
-               Append
-                 (Tagged_Instance.Derived_Prefix,
-                  To_Wide_Wide_String
-                    (Norm_Param (Col_Index .. Norm_Param'Last)));
-
+                  To_Lower (Norm_Param (Norm_Param'First + 8 .. Col_Index - 1))
+                  & Norm_Param (Col_Index .. Norm_Param'Last),
+                  ",");
             else
                Emit_Wrong_Parameter (Instance, Param);
                Turn_Instance_Off (Instance);
             end if;
 
          elsif Has_Prefix (Norm_Param, "constant=") then
-            Set_Field
+            Set
               (Tagged_Instance.Constant_Prefix,
                Norm_Param (Norm_Param'First + 9 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "exception=") then
-            Set_Field
+            Set
               (Tagged_Instance.Exception_Prefix,
                Norm_Param (Norm_Param'First + 10 .. Norm_Param'Last));
 
          elsif Has_Prefix (Norm_Param, "enum=") then
-            Set_Field
+            Set
               (Tagged_Instance.Enum_Prefix,
                Norm_Param (Norm_Param'First + 5 .. Norm_Param'Last));
 
@@ -1878,20 +1860,22 @@ package body Lkql_Checker.Rules is
       Norm_Param      : constant String := To_Lower (Remove_Spaces (Param));
 
       procedure Check_And_Set
-        (S : in out Unbounded_Wide_Wide_String; Val : String; Label : String);
-      --  Check the parameter redefinition for `S` and set the `S` to the
-      --  given `Val`. `Label` is the name of the parameter, it is used for
+        (S     : in out Optional_Unbounded_Wide_Wide_String;
+         Val   : String;
+         Label : String);
+      --  Check the parameter redefinition for ``S`` and set the ``S`` to the
+      --  given ``Val``. ``Label`` is the name of the parameter, it is used for
       --  error emission.
 
       procedure Check_And_Set
-        (S : in out Unbounded_Wide_Wide_String; Val : String; Label : String)
-      is
+        (S     : in out Optional_Unbounded_Wide_Wide_String;
+         Val   : String;
+         Label : String) is
       begin
-         if Tool_Args.Check_Redefinition.Get and then Length (S) /= 0 then
+         if Tool_Args.Check_Redefinition.Get and then S.Is_Set then
             Emit_Redefining (Instance, Label);
          end if;
-
-         Set_Unbounded_Wide_Wide_String (S, To_Wide_Wide_String (Val));
+         Set (S, Val);
       end Check_And_Set;
 
    begin
@@ -1944,10 +1928,9 @@ package body Lkql_Checker.Rules is
                      Instance.all),
                   Tagged_Instance.Exclude)
             then
-               Set_Unbounded_Wide_Wide_String
+               Set
                  (Tagged_Instance.Exclude_File,
-                  To_Wide_Wide_String
-                    (Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last)));
+                  Norm_Param (Norm_Param'First + 8 .. Norm_Param'Last));
             else
                Turn_Instance_Off (Instance);
             end if;
@@ -1971,7 +1954,7 @@ package body Lkql_Checker.Rules is
    -- Forbidden_Param_Process --
    -----------------------------
 
-   GNAT_Attributes : constant Wide_Wide_String :=
+   GNAT_Attributes : constant String :=
      "abort_signal,address_size,asm_input,asm_output,"
      & "atomic_always_lock_free,bit,bit_position,code_address,"
      & "compiler_version,constant_indexing,default_bit_order,"
@@ -1992,7 +1975,7 @@ package body Lkql_Checker.Rules is
      & "simple_storage_pool,stub_type,secondary_stack_size";
    --  List of GNAT implementation defined attributes
 
-   GNAT_Pragmas : constant Wide_Wide_String :=
+   GNAT_Pragmas : constant String :=
      "ada_83,ada_95,ada_05,ada_2005,ada_12,ada_2012,ada_2022,"
      & "aggregate_individually_assign,allow_integer_address,annotate,"
      & "assume_no_invalid_values,c_pass_by_copy,check_float_overflow,"
@@ -2051,7 +2034,7 @@ package body Lkql_Checker.Rules is
       Lower_Param     : constant String := To_Lower (Param);
 
       procedure Process_Param
-        (Param : String; Field : in out Unbounded_Wide_Wide_String);
+        (Param : String; Field : in out Optional_Unbounded_Wide_Wide_String);
       --  Process `Lower_Param` to update the `Field` according to it
 
       procedure Process_Allowed_List (List : String);
@@ -2063,31 +2046,24 @@ package body Lkql_Checker.Rules is
       -------------------
 
       procedure Process_Param
-        (Param : String; Field : in out Unbounded_Wide_Wide_String)
+        (Param : String; Field : in out Optional_Unbounded_Wide_Wide_String)
       is
          Rule_Name : constant String :=
            Lkql_Checker.Rules.Rule_Name (Instance);
-      begin
-         --  Add a comma to the field if needed
-         if Length (Field) /= 0 then
-            Append (Field, ",");
-         end if;
 
-         --  Special case: If the param is "gnat" and the rule is
-         --  "forbidden_attributes" or "forbidden_pragmas" then add to `Field`
-         --  the GNAT defined attributes or pragmas.
-         if Param = "gnat" then
-            if Rule_Name = "forbidden_attributes" then
-               Append (Field, GNAT_Attributes);
-            elsif Rule_Name = "forbidden_pragmas" then
-               Append (Field, GNAT_Pragmas);
-            else
-               Append (Field, To_Wide_Wide_String (Param));
-            end if;
-         else
-            --  Other cases: Just add the param to `Field`
-            Append (Field, To_Wide_Wide_String (Param));
-         end if;
+         --  Expand the parameter by considering the special "gnat" value for
+         --  "forbidden_attributes" and "forbidden_pragmas" rules.
+         Expanded_Param : constant String :=
+           (if Param = "gnat"
+            then
+              (if Rule_Name = "forbidden_attributes"
+               then GNAT_Attributes
+               elsif Rule_Name = "forbidden_pragmas"
+               then GNAT_Pragmas
+               else Param)
+            else Param);
+      begin
+         Append (Field, Expanded_Param, ",");
       end Process_Param;
 
       --------------------------
@@ -2146,23 +2122,6 @@ package body Lkql_Checker.Rules is
    is
       Tagged_Instance : Silent_Exception_Handlers_Instance renames
         Silent_Exception_Handlers_Instance (Instance.all);
-
-      procedure Add_To (Str : in out Unbounded_Wide_Wide_String; Val : String);
-      --  Add `Val` to `Str`, separated with ","
-
-      ------------
-      -- Add_To --
-      ------------
-
-      procedure Add_To (Str : in out Unbounded_Wide_Wide_String; Val : String)
-      is
-      begin
-         if Length (Str) /= 0 then
-            Append (Str, ",");
-         end if;
-         Append (Str, To_Wide_Wide_String (Val));
-      end Add_To;
-
    begin
       --  If the parameter is empty then just disable the instance following
       --  the command line.
@@ -2175,11 +2134,12 @@ package body Lkql_Checker.Rules is
          --  Else, the parameter is not empty. If the command line is enabling
          --  the instance then process the parameter to update the instance.
          if Param (Param'First) = '"' then
-            Add_To
+            Append
               (Tagged_Instance.Subprogram_Regexps,
-               Param (Param'First + 1 .. Param'Last - 1));
+               Param (Param'First + 1 .. Param'Last - 1),
+               ",");
          else
-            Add_To (Tagged_Instance.Subprograms, To_Lower (Param));
+            Append (Tagged_Instance.Subprograms, To_Lower (Param), ",");
          end if;
 
       else
@@ -2335,18 +2295,20 @@ package body Lkql_Checker.Rules is
    procedure Append_String_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
       Name  : Wide_Wide_String;
-      Value : Unbounded_Wide_Wide_String)
-   is
-      Escaped_Value : constant String :=
-        Escape_String (To_String (To_Wide_Wide_String (Value)));
+      Value : Optional_Unbounded_Wide_Wide_String) is
    begin
-      if Length (Value) /= 0 then
-         Args.Append
-           (Rule_Argument'
-              (Name  => To_Unbounded_Text (Name),
-               Value =>
-                 To_Unbounded_Text
-                   ('"' & To_Wide_Wide_String (Escaped_Value) & '"')));
+      if Value.Is_Set then
+         declare
+            Escaped_Value : constant String :=
+              Escape_String (To_String (To_Wide_Wide_String (Value.Value)));
+         begin
+            Args.Append
+              (Rule_Argument'
+                 (Name  => To_Unbounded_Text (Name),
+                  Value =>
+                    To_Unbounded_Text
+                      ('"' & To_Wide_Wide_String (Escaped_Value) & '"')));
+         end;
       end if;
    end Append_String_Param;
 
@@ -2357,29 +2319,21 @@ package body Lkql_Checker.Rules is
    procedure Append_Array_Param
      (Args  : in out Rule_Argument_Vectors.Vector;
       Name  : Wide_Wide_String;
-      Value : Unbounded_Wide_Wide_String)
-   is
-      Param : Unbounded_Wide_Wide_String;
-      C     : Wide_Wide_Character;
+      Value : Optional_Unbounded_Wide_Wide_String) is
    begin
-      if Length (Value) /= 0 then
-         Append (Param, "[""");
-
-         for J in 1 .. Length (Value) loop
-            C := Element (Value, J);
-
-            if C = ',' then
-               Append (Param, """, """);
-            else
-               Append (Param, C);
-            end if;
-         end loop;
-
-         Append (Param, """]");
-         Args.Append
-           (Rule_Argument'
-              (Name  => To_Unbounded_Text (Name),
-               Value => To_Unbounded_Text (To_Wide_Wide_String (Param))));
+      if Value.Is_Set then
+         declare
+            Values       : constant String_Vector :=
+              Split (To_String (Value.Value), ',');
+            List_Elems   : constant String :=
+              Join ([for S of Values => '"' & S & '"'], ", ");
+            List_Literal : constant Unbounded_Text_Type :=
+              To_Unbounded_Text (To_Text ('[' & List_Elems & ']'));
+         begin
+            Args.Append
+              (Rule_Argument'
+                 (Name => To_Unbounded_Text (Name), Value => List_Literal));
+         end;
       end if;
    end Append_Array_Param;
 
@@ -2392,7 +2346,7 @@ package body Lkql_Checker.Rules is
       Instance : in out One_Array_Parameter_Instance)
    is
       Rule : constant Rule_Info := All_Rules (Instance.Rule);
-      Last : constant Natural := Length (Instance.Param);
+      Last : constant Natural := Length (Instance.Param.Value);
 
       procedure Error;
       --  Emit an error message when an invalid parameter is detected.
@@ -2414,7 +2368,7 @@ package body Lkql_Checker.Rules is
            ("("
             & Instance_Name (Instance)
             & ") wrong parameter: "
-            & To_String (Instance.Param));
+            & To_String (Instance.Param.Value));
          Turn_Instance_Off (Instance_Name (Instance));
          Bad_Rule_Detected := True;
       end Error;
@@ -2446,18 +2400,18 @@ package body Lkql_Checker.Rules is
       end Find_Char;
 
    begin
-
       --  If the rule is "parameters_out_of_order" then check that we have 5
       --  parameters.
       if Lower_Name (Rule) = "parameters_out_of_order"
         and then Last /= 0
-        and then Natural (Split (To_String (Instance.Param), ',').Length) /= 5
+        and then Natural (Split (To_String (Instance.Param.Value), ',').Length)
+                 /= 5
       then
          Instance.Error
            ("("
             & Instance_Name (Instance)
             & ") requires 5 parameters, got: "
-            & To_String (Instance.Param));
+            & To_String (Instance.Param.Value));
          Bad_Rule_Detected := True;
          Turn_Instance_Off (Instance_Name (Instance));
          return;
@@ -2475,17 +2429,17 @@ package body Lkql_Checker.Rules is
             Append (Param, "[(""");
 
             for J in 1 .. Last loop
-               C := Element (Instance.Param, J);
+               C := Element (Instance.Param.Value, J);
 
                case C is
                   when '"'    =>
                      if Num_Elements = 3 then
-                        if Element (Instance.Param, J - 1) = ':' then
+                        if Element (Instance.Param.Value, J - 1) = ':' then
                            Append (Param, '|');
                            Lower := False;
 
                         elsif J /= Last
-                          and then Element (Instance.Param, J + 1) /= ','
+                          and then Element (Instance.Param.Value, J + 1) /= ','
                         then
                            Error;
                            return;
@@ -2524,7 +2478,7 @@ package body Lkql_Checker.Rules is
          declare
             Param      : Unbounded_Wide_Wide_String;
             Str        : constant Wide_Wide_String :=
-              To_Wide_Wide_String (Instance.Param);
+              To_Wide_Wide_String (Instance.Param.Value);
             Current    : Natural := Str'First;
             Next_Comma : Natural;
             Dot        : Natural;
@@ -2762,20 +2716,20 @@ package body Lkql_Checker.Rules is
                Id_Suf_Instance : constant Identifier_Suffixes_Instance :=
                  Identifier_Suffixes_Instance (Instance.all);
                To_Delete       : Natural := 0;
-               Acc_Suf_Value   : constant Text_Type :=
+               Access_Suffix   : constant Text_Type :=
                  To_Text
-                   ((if Length (Id_Suf_Instance.Access_Access_Suffix) = 0
-                     then Id_Suf_Instance.Access_Suffix
+                   ((if not Id_Suf_Instance.Access_Access_Suffix.Is_Set
+                     then Id_Suf_Instance.Access_Suffix.Value
                      else
-                       Id_Suf_Instance.Access_Suffix
+                       Id_Suf_Instance.Access_Suffix.Value
                        & '('
-                       & Id_Suf_Instance.Access_Access_Suffix
+                       & Id_Suf_Instance.Access_Access_Suffix.Value
                        & ')'));
             begin
                for I in Args.First_Index .. Args.Last_Index loop
                   if Args (I).Name = "access_suffix" then
                      Set_Unbounded_Wide_Wide_String
-                       (Args (I).Value, '"' & Acc_Suf_Value & '"');
+                       (Args (I).Value, '"' & Access_Suffix & '"');
                   elsif Args (I).Name = "access_access_suffix" then
                      To_Delete := I;
                   end if;
@@ -2791,13 +2745,14 @@ package body Lkql_Checker.Rules is
             declare
                Id_Cas_Instance : constant Identifier_Casing_Instance :=
                  Identifier_Casing_Instance (Instance.all);
-               Filename        : constant Text_Type :=
-                 To_Text (Id_Cas_Instance.Exclude_File);
             begin
                for I in Args.First_Index .. Args.Last_Index loop
                   if Args (I).Name = "exclude" then
                      Set_Unbounded_Wide_Wide_String
-                       (Args (I).Value, '"' & Filename & '"');
+                       (Args (I).Value,
+                        '"'
+                        & To_Text (Id_Cas_Instance.Exclude_File.Value)
+                        & '"');
                   end if;
                end loop;
             end;
@@ -3093,9 +3048,12 @@ package body Lkql_Checker.Rules is
 
       else
          --  Else, handle the parameter as a simple string
-         Set_Unbounded_Wide_Wide_String
-           (Instance.Param,
-            To_Wide_Wide_String (Expect_Literal (Params_Object, P_Name)));
+         Instance.Param :=
+           (Is_Set => True,
+            Value  =>
+              To_Unbounded_Wide_Wide_String
+                (To_Wide_Wide_String
+                   (Expect_Literal (Params_Object, P_Name))));
          Params_Object.Unset_Field (P_Name);
       end if;
    end Process_Instance_Params_Object;
@@ -3120,9 +3078,11 @@ package body Lkql_Checker.Rules is
             Params_Object.Unset_Field ("dictionary_file");
             if File_Content /= Null_Unbounded_String then
                Set_Unbounded_String (Instance.File, Param_Value);
-               Set_Unbounded_Wide_Wide_String
-                 (Instance.Param,
-                  To_Wide_Wide_String (To_String (File_Content)));
+               Instance.Param :=
+                 (Is_Set => True,
+                  Value  =>
+                    To_Unbounded_Wide_Wide_String
+                      (To_Wide_Wide_String (To_String (File_Content))));
             else
                raise Invalid_Value with "cannot load file " & Param_Value;
             end if;
@@ -3193,8 +3153,11 @@ package body Lkql_Checker.Rules is
                --  Else the rule parameter is just a list of strings
                Res := Param_Value;
             end if;
-            Set_Unbounded_Wide_Wide_String
-              (Instance.Param, To_Wide_Wide_String (Join (Res, ",")));
+            Instance.Param :=
+              (Is_Set => True,
+               Value  =>
+                 To_Unbounded_Wide_Wide_String
+                   (To_Wide_Wide_String (Join (Res, ","))));
          end;
          Params_Object.Unset_Field (P_Name);
       end if;
@@ -3235,15 +3198,15 @@ package body Lkql_Checker.Rules is
       --  Process the "default" boolean parameter
       if Params_Object.Has_Field ("default") then
          if Expect_Literal (Params_Object, "default") then
-            Set_Unbounded_Wide_Wide_String (Instance.Type_Suffix, "_T");
-            Set_Unbounded_Wide_Wide_String (Instance.Access_Suffix, "_A");
-            Set_Unbounded_Wide_Wide_String (Instance.Access_Access_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Instance.Class_Access_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Instance.Class_Subtype_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Instance.Constant_Suffix, "_C");
-            Set_Unbounded_Wide_Wide_String (Instance.Renaming_Suffix, "_R");
-            Set_Unbounded_Wide_Wide_String (Instance.Access_Obj_Suffix, "");
-            Set_Unbounded_Wide_Wide_String (Instance.Interrupt_Suffix, "");
+            Set (Instance.Type_Suffix, "_T");
+            Set (Instance.Access_Suffix, "_A");
+            Set (Instance.Access_Access_Suffix, "");
+            Set (Instance.Class_Access_Suffix, "");
+            Set (Instance.Class_Subtype_Suffix, "");
+            Set (Instance.Constant_Suffix, "_C");
+            Set (Instance.Renaming_Suffix, "_R");
+            Set (Instance.Access_Obj_Suffix, "");
+            Set (Instance.Interrupt_Suffix, "");
          end if;
          Params_Object.Unset_Field ("default");
       end if;
@@ -3257,15 +3220,13 @@ package body Lkql_Checker.Rules is
          begin
             if Has_Suffix (Arg, ")") then
                Paren_Index := Index (Arg, "(");
-               Set_Unbounded_Wide_Wide_String
-                 (Instance.Access_Suffix,
-                  To_Wide_Wide_String (Arg (Arg'First .. Paren_Index - 1)));
-               Set_Unbounded_Wide_Wide_String
+               Set
+                 (Instance.Access_Suffix, Arg (Arg'First .. Paren_Index - 1));
+               Set
                  (Instance.Access_Access_Suffix,
-                  To_Wide_Wide_String (Arg (Paren_Index + 1 .. Arg'Last - 1)));
+                  Arg (Paren_Index + 1 .. Arg'Last - 1));
             else
-               Set_Unbounded_Wide_Wide_String
-                 (Instance.Access_Suffix, To_Wide_Wide_String (Arg));
+               Set (Instance.Access_Suffix, Arg);
             end if;
          end;
          Params_Object.Unset_Field ("access_suffix");
@@ -3305,24 +3266,22 @@ package body Lkql_Checker.Rules is
       --  Process the "derived" argument
       if Params_Object.Has_Field ("derived") then
          Derived_Param := Expect_Literal (Params_Object, "derived");
+
+         --  Check that all elements are correct
          for S of Derived_Param loop
-            if Length (Instance.Derived_Prefix) /= 0 then
-               Append (Instance.Derived_Prefix, ",");
-            end if;
             Col_Index := Index (S, ":");
             if Col_Index /= 0 then
                Append
                  (Instance.Derived_Prefix,
-                  To_Wide_Wide_String
-                    (To_Lower (S (S'First .. Col_Index - 1))));
-               Append
-                 (Instance.Derived_Prefix,
-                  To_Wide_Wide_String (S (Col_Index .. S'Last)));
+                  To_Lower (S (S'First .. Col_Index - 1))
+                  & S (Col_Index .. S'Last),
+                  ",");
             else
                raise Invalid_Value
                  with "'derived' elements should contain a colon";
             end if;
          end loop;
+
          Params_Object.Unset_Field ("derived");
       end if;
 
@@ -3353,17 +3312,15 @@ package body Lkql_Checker.Rules is
          declare
             Exclude_File : constant String :=
               Expect_Literal (Params_Object, "exclude");
-            File_Content : constant Unbounded_String :=
-              Load_Dictionary_File
-                (Expand_Env_Variables (Exclude_File, Instance));
+            File_Content : constant String :=
+              To_String
+                (Load_Dictionary_File
+                   (Expand_Env_Variables (Exclude_File, Instance)));
          begin
             Params_Object.Unset_Field ("exclude");
             if File_Content /= Null_Unbounded_String then
-               Set_Unbounded_Wide_Wide_String
-                 (Instance.Exclude_File, To_Wide_Wide_String (Exclude_File));
-               Set_Unbounded_Wide_Wide_String
-                 (Instance.Exclude,
-                  To_Wide_Wide_String (To_String (File_Content)));
+               Set (Instance.Exclude_File, Exclude_File);
+               Set (Instance.Exclude, File_Content);
             else
                raise Invalid_Value with "cannot load file " & Exclude_File;
             end if;
@@ -3394,7 +3351,8 @@ package body Lkql_Checker.Rules is
      (Instance : in out Forbidden_Instance; Params_Object : in out JSON_Value)
    is
       procedure Process_List_Field
-        (Field_Name : String; Field : in out Unbounded_Wide_Wide_String);
+        (Field_Name : String;
+         Field      : in out Optional_Unbounded_Wide_Wide_String);
       --  Get the given `Field_Name` in the arguments object, if presents, get
       --  a string vector from it and add its comma separated items in `Field`.
 
@@ -3403,34 +3361,28 @@ package body Lkql_Checker.Rules is
       ------------------------
 
       procedure Process_List_Field
-        (Field_Name : String; Field : in out Unbounded_Wide_Wide_String)
-      is
-         Val : String_Vector;
+        (Field_Name : String;
+         Field      : in out Optional_Unbounded_Wide_Wide_String) is
       begin
          if Params_Object.Has_Field (Field_Name) then
-            Val := Expect_Literal (Params_Object, Field_Name);
-            for S of Val loop
-               declare
-                  Lower_S : constant String := To_Lower (S);
-               begin
-                  if Length (Field) > 0 then
-                     Append (Field, ",");
-                  end if;
-
-                  --  Special cases when the current value is "gnat"
-                  if Lower_S = "gnat" then
-                     if Rule_Name (Instance) = "forbidden_attributes" then
-                        Append (Field, GNAT_Attributes);
-                     elsif Rule_Name (Instance) = "forbidden_pragmas" then
-                        Append (Field, GNAT_Pragmas);
-                     else
-                        Append (Field, To_Wide_Wide_String (Lower_S));
-                     end if;
-                  else
-                     Append (Field, To_Wide_Wide_String (Lower_S));
-                  end if;
-               end;
-            end loop;
+            declare
+               Vec : constant String_Vector :=
+                 Expect_Literal (Params_Object, Field_Name);
+            begin
+               Set
+                 (Field,
+                  (Join
+                     ([for S of Vec =>
+                         (if To_Lower (S) = "gnat"
+                          then
+                            (if Rule_Name (Instance) = "forbidden_attributes"
+                             then GNAT_Attributes
+                             elsif Rule_Name (Instance) = "forbidden_pragmas"
+                             then GNAT_Pragmas
+                             else To_Lower (S))
+                          else To_Lower (S))],
+                      ",")));
+            end;
             Params_Object.Unset_Field (Field_Name);
          end if;
       end Process_List_Field;
@@ -3459,18 +3411,10 @@ package body Lkql_Checker.Rules is
          Subp_Value := Expect_Literal (Params_Object, "subprograms");
          for S of Subp_Value loop
             if S (S'First) = '|' then
-               if Length (Instance.Subprogram_Regexps) /= 0 then
-                  Append (Instance.Subprogram_Regexps, ",");
-               end if;
                Append
-                 (Instance.Subprogram_Regexps,
-                  To_Wide_Wide_String (S (S'First + 1 .. S'Last)));
+                 (Instance.Subprogram_Regexps, S (S'First + 1 .. S'Last), ",");
             else
-               if Length (Instance.Subprograms) /= 0 then
-                  Append (Instance.Subprograms, ",");
-               end if;
-               Append
-                 (Instance.Subprograms, To_Wide_Wide_String (To_Lower (S)));
+               Append (Instance.Subprograms, To_Lower (S), ",");
             end if;
          end loop;
          Params_Object.Unset_Field ("subprograms");
@@ -3534,7 +3478,9 @@ package body Lkql_Checker.Rules is
      (Instance : in out One_Array_Parameter_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
-      Handle_Array_Param (Args, Instance);
+      if Instance.Param.Is_Set then
+         Handle_Array_Param (Args, Instance);
+      end if;
    end Map_Parameters;
 
    overriding
@@ -3704,8 +3650,8 @@ package body Lkql_Checker.Rules is
       if Length (Instance.File) /= 0 then
          Put (Rule_File, ":" & To_String (Instance.File));
 
-      elsif Length (Instance.Param) /= 0 then
-         Put (Rule_File, ":" & To_String (Instance.Param));
+      elsif Instance.Param.Is_Set then
+         Put (Rule_File, ":" & To_String (Instance.Param.Value));
       end if;
    end Print_Rule_Instance_To_File;
 
@@ -3745,23 +3691,19 @@ package body Lkql_Checker.Rules is
         [1 .. Instance_Name (Instance)'Length + 3 => ' '];
 
       procedure Print
-        (Param  : String;
-         Prefix : Unbounded_Wide_Wide_String;
-         Force  : Boolean := False);
-      --  Print value Prefix of parameter Param if not null or if Force is set
+        (Param : String; Prefix : Optional_Unbounded_Wide_Wide_String);
+      --  Print value Prefix of parameter Param if it has a value.
 
       -----------
       -- Print --
       -----------
 
       procedure Print
-        (Param  : String;
-         Prefix : Unbounded_Wide_Wide_String;
-         Force  : Boolean := False) is
+        (Param : String; Prefix : Optional_Unbounded_Wide_Wide_String) is
       begin
-         if Force or else Length (Prefix) /= 0 then
+         if Prefix.Is_Set then
             if First_Param then
-               Put (Rule_File, ":" & Param & "=" & To_String (Prefix));
+               Put (Rule_File, ":" & Param & "=" & To_String (Prefix.Value));
                First_Param := False;
             else
                Put_Line (Rule_File, ",");
@@ -3772,7 +3714,7 @@ package body Lkql_Checker.Rules is
 
                Put
                  (Rule_File,
-                  Rule_Name_Padding & Param & "=" & To_String (Prefix));
+                  Rule_Name_Padding & Param & "=" & To_String (Prefix.Value));
             end if;
          end if;
       end Print;
@@ -3790,23 +3732,15 @@ package body Lkql_Checker.Rules is
       Print ("Exception", Instance.Exception_Prefix);
       Print ("Enum", Instance.Enum_Prefix);
 
-      if Length (Instance.Derived_Prefix) /= 0 then
-         Print ("Derived", Null_Unbounded_Wide_Wide_String, Force => True);
-
-         for J in 1 .. Length (Instance.Derived_Prefix) loop
-            declare
-               C : constant Character :=
-                 To_Character (Element (Instance.Derived_Prefix, J));
-            begin
-               if C /= ',' then
-                  Put (Rule_File, C);
-               else
-                  Print
-                    ("Derived",
-                     Null_Unbounded_Wide_Wide_String,
-                     Force => True);
-               end if;
-            end;
+      if Instance.Derived_Prefix.Is_Set then
+         for S of
+           String_Vector'
+             (Split (To_String (Instance.Derived_Prefix.Value), ','))
+         loop
+            Print
+              ("Derived",
+               (True,
+                To_Unbounded_Wide_Wide_String (To_Wide_Wide_String (S))));
          end loop;
       end if;
 
@@ -3829,18 +3763,20 @@ package body Lkql_Checker.Rules is
       Rule_Name_Padding : constant String :=
         [1 .. Instance_Name (Instance)'Length + 3 => ' '];
 
-      procedure Print (Param : String; Suffix : Unbounded_Wide_Wide_String);
+      procedure Print
+        (Param : String; Suffix : Optional_Unbounded_Wide_Wide_String);
       --  Print value Suffix of parameter Param if not null
 
       -----------
       -- Print --
       -----------
 
-      procedure Print (Param : String; Suffix : Unbounded_Wide_Wide_String) is
+      procedure Print
+        (Param : String; Suffix : Optional_Unbounded_Wide_Wide_String) is
       begin
-         if Length (Suffix) /= 0 then
+         if Suffix.Is_Set then
             if First_Param then
-               Put (Rule_File, ":" & Param & "=" & To_String (Suffix));
+               Put (Rule_File, ":" & Param & "=" & To_String (Suffix.Value));
                First_Param := False;
             else
                Put_Line (Rule_File, ",");
@@ -3851,7 +3787,7 @@ package body Lkql_Checker.Rules is
 
                Put
                  (Rule_File,
-                  Rule_Name_Padding & Param & "=" & To_String (Suffix));
+                  Rule_Name_Padding & Param & "=" & To_String (Suffix.Value));
             end if;
          end if;
       end Print;
@@ -3863,9 +3799,10 @@ package body Lkql_Checker.Rules is
       Print ("Type_Suffix", Instance.Type_Suffix);
       Print ("Access_Suffix", Instance.Access_Suffix);
 
-      if Length (Instance.Access_Access_Suffix) /= 0 then
+      if Instance.Access_Access_Suffix.Is_Set then
          Put
-           (Rule_File, "(" & To_String (Instance.Access_Access_Suffix) & ")");
+           (Rule_File,
+            "(" & To_String (Instance.Access_Access_Suffix.Value) & ")");
       end if;
 
       Print ("Class_Subtype_Suffix", Instance.Class_Subtype_Suffix);
@@ -3887,23 +3824,19 @@ package body Lkql_Checker.Rules is
         [1 .. Instance_Name (Instance)'Length + 3 => ' '];
 
       procedure Print
-        (Param  : String;
-         Casing : Unbounded_Wide_Wide_String;
-         Force  : Boolean := False);
-      --  Print value Casing of parameter Param if not null or if Force is set
+        (Param : String; Casing : Optional_Unbounded_Wide_Wide_String);
+      --  Print value Casing of parameter Param if it has a value.
 
       -----------
       -- Print --
       -----------
 
       procedure Print
-        (Param  : String;
-         Casing : Unbounded_Wide_Wide_String;
-         Force  : Boolean := False) is
+        (Param : String; Casing : Optional_Unbounded_Wide_Wide_String) is
       begin
-         if Force or else Length (Casing) /= 0 then
+         if Casing.Is_Set then
             if First_Param then
-               Put (Rule_File, ":" & Param & "=" & To_String (Casing));
+               Put (Rule_File, ":" & Param & "=" & To_String (Casing.Value));
                First_Param := False;
             else
                Put_Line (Rule_File, ",");
@@ -3914,12 +3847,10 @@ package body Lkql_Checker.Rules is
 
                Put
                  (Rule_File,
-                  Rule_Name_Padding & Param & "=" & To_String (Casing));
+                  Rule_Name_Padding & Param & "=" & To_String (Casing.Value));
             end if;
          end if;
       end Print;
-
-      C : Character;
 
    begin
       Print_Rule_Instance_To_File
@@ -3931,18 +3862,14 @@ package body Lkql_Checker.Rules is
       Print ("Exception", Instance.Exception_Casing);
       Print ("Others", Instance.Others_Casing);
 
-      if Length (Instance.Exclude) /= 0 then
-         Print ("Exclude", Null_Unbounded_Wide_Wide_String, Force => True);
-
-         for J in 1 .. Length (Instance.Exclude) loop
-            C := To_Character (Element (Instance.Exclude, J));
-
-            if C /= ',' then
-               Put (Rule_File, C);
-            else
-               Print
-                 ("Exclude", Null_Unbounded_Wide_Wide_String, Force => True);
-            end if;
+      if Instance.Exclude.Is_Set then
+         for S of
+           String_Vector'(Split (To_String (Instance.Exclude.Value), ','))
+         loop
+            Print
+              ("Exclude",
+               (True,
+                To_Unbounded_Wide_Wide_String (To_Wide_Wide_String (S))));
          end loop;
       end if;
    end Print_Rule_Instance_To_File;
@@ -3955,27 +3882,24 @@ package body Lkql_Checker.Rules is
    is
       First_Param : Boolean := True;
 
-      procedure Print (Items : Unbounded_Wide_Wide_String);
+      procedure Print (Items : Optional_Unbounded_Wide_Wide_String);
       --  Print Items as parameters if not empty
 
       -----------
       -- Print --
       -----------
 
-      procedure Print (Items : Unbounded_Wide_Wide_String) is
+      procedure Print (Items : Optional_Unbounded_Wide_Wide_String) is
       begin
-         if Length (Items) = 0 then
-            return;
+         if Items.Is_Set then
+            if First_Param then
+               Put (Rule_File, ":");
+               First_Param := False;
+            else
+               Put (Rule_File, ",");
+            end if;
+            Put (Rule_File, To_String (Items.Value));
          end if;
-
-         if First_Param then
-            Put (Rule_File, ":");
-            First_Param := False;
-         else
-            Put (Rule_File, ",");
-         end if;
-
-         Put (Rule_File, To_String (To_Wide_Wide_String (Items)));
       end Print;
 
    begin
@@ -3989,7 +3913,7 @@ package body Lkql_Checker.Rules is
          Print (Instance.Forbidden);
       end if;
 
-      if Length (Instance.Allowed) /= 0 then
+      if Instance.Allowed.Is_Set then
          New_Line (Rule_File);
          First_Param := True;
 
@@ -4012,7 +3936,8 @@ package body Lkql_Checker.Rules is
       First_Param : Boolean := True;
 
       procedure Print
-        (Items : Unbounded_Wide_Wide_String; Quote : Boolean := False);
+        (Items : Optional_Unbounded_Wide_Wide_String;
+         Quote : Boolean := False);
       --  Print Items as parameters if not empty.
       --  If Quote is True, put each parameter within quotes ("").
 
@@ -4021,33 +3946,32 @@ package body Lkql_Checker.Rules is
       -----------
 
       procedure Print
-        (Items : Unbounded_Wide_Wide_String; Quote : Boolean := False) is
+        (Items : Optional_Unbounded_Wide_Wide_String; Quote : Boolean := False)
+      is
       begin
-         if Length (Items) = 0 then
-            return;
-         end if;
+         if Items.Is_Set then
+            if First_Param then
+               Put (Rule_File, ":");
+               First_Param := False;
+            else
+               Put_Line (Rule_File, ",");
+               Put (Rule_File, Indent_Level * Indent_String);
+            end if;
 
-         if First_Param then
-            Put (Rule_File, ":");
-            First_Param := False;
-         else
-            Put_Line (Rule_File, ",");
-            Put (Rule_File, Indent_Level * Indent_String);
-         end if;
+            if Quote then
+               Put (Rule_File, '"');
+               for C of To_String (Items.Value) loop
+                  if C = ',' then
+                     Put (Rule_File, """,""");
+                  else
+                     Put (Rule_File, C);
+                  end if;
+               end loop;
+               Put (Rule_File, '"');
 
-         if Quote then
-            Put (Rule_File, '"');
-            for C of To_String (To_Wide_Wide_String (Items)) loop
-               if C = ',' then
-                  Put (Rule_File, """,""");
-               else
-                  Put (Rule_File, C);
-               end if;
-            end loop;
-            Put (Rule_File, '"');
-
-         else
-            Put (Rule_File, To_String (To_Wide_Wide_String (Items)));
+            else
+               Put (Rule_File, To_String (Items.Value));
+            end if;
          end if;
       end Print;
 
@@ -4133,8 +4057,9 @@ package body Lkql_Checker.Rules is
    begin
       XML_Report (XML_Head (Instance), Indent_Level);
 
-      if Length (Instance.Param) /= 0 then
-         XML_Report (XML_Param (To_String (Instance.Param)), Indent_Level + 1);
+      if Instance.Param.Is_Set then
+         XML_Report
+           (XML_Param (To_String (Instance.Param.Value)), Indent_Level + 1);
       end if;
 
       XML_Report (XML_Foot, Indent_Level);
@@ -4169,7 +4094,8 @@ package body Lkql_Checker.Rules is
    is
       Prefix_Specified : Boolean := False;
 
-      procedure Print (Param : String; Prefix : Unbounded_Wide_Wide_String);
+      procedure Print
+        (Param : String; Prefix : Optional_Unbounded_Wide_Wide_String);
       --  Print in XML format the value `Prefix` for parameter `Param` if
       --  not empty.
 
@@ -4177,11 +4103,13 @@ package body Lkql_Checker.Rules is
       -- Print --
       -----------
 
-      procedure Print (Param : String; Prefix : Unbounded_Wide_Wide_String) is
+      procedure Print
+        (Param : String; Prefix : Optional_Unbounded_Wide_Wide_String) is
       begin
-         if Length (Prefix) /= 0 then
+         if Prefix.Is_Set then
             XML_Report
-              (XML_Param (Param & "=" & To_String (Prefix)), Indent_Level + 1);
+              (XML_Param (Param & "=" & To_String (Prefix.Value)),
+               Indent_Level + 1);
             Prefix_Specified := True;
          end if;
       end Print;
@@ -4212,7 +4140,8 @@ package body Lkql_Checker.Rules is
    procedure XML_Print_Rule_Instance
      (Instance : Identifier_Suffixes_Instance; Indent_Level : Natural := 0)
    is
-      procedure Print (Param : String; Suffix : Unbounded_Wide_Wide_String);
+      procedure Print
+        (Param : String; Suffix : Optional_Unbounded_Wide_Wide_String);
       --  Print in XML format the value `Suffix` for parameter `Param` if
       --  not empty
 
@@ -4220,11 +4149,13 @@ package body Lkql_Checker.Rules is
       -- Print --
       -----------
 
-      procedure Print (Param : String; Suffix : Unbounded_Wide_Wide_String) is
+      procedure Print
+        (Param : String; Suffix : Optional_Unbounded_Wide_Wide_String) is
       begin
-         if Length (Suffix) /= 0 then
+         if Suffix.Is_Set then
             XML_Report
-              (XML_Param (Param & "=" & To_String (Suffix)), Indent_Level + 1);
+              (XML_Param (Param & "=" & To_String (Suffix.Value)),
+               Indent_Level + 1);
          end if;
       end Print;
 
@@ -4233,13 +4164,14 @@ package body Lkql_Checker.Rules is
 
       Print ("Type_Suffix", Instance.Type_Suffix);
 
-      if Length (Instance.Access_Suffix) /= 0 then
+      if Instance.Access_Suffix.Is_Set then
          XML_Report
            (XML_Param
               ("Access_Suffix="
-               & To_String (Instance.Access_Suffix)
-               & (if Length (Instance.Access_Access_Suffix) /= 0
-                  then "(" & To_String (Instance.Access_Access_Suffix) & ")"
+               & To_String (Instance.Access_Suffix.Value)
+               & (if Instance.Access_Access_Suffix.Is_Set
+                  then
+                    "(" & To_String (Instance.Access_Access_Suffix.Value) & ")"
                   else "")),
             Indent_Level + 1);
       end if;
@@ -4258,7 +4190,8 @@ package body Lkql_Checker.Rules is
    procedure XML_Print_Rule_Instance
      (Instance : Identifier_Casing_Instance; Indent_Level : Natural := 0)
    is
-      procedure Print (Param : String; Casing : Unbounded_Wide_Wide_String);
+      procedure Print
+        (Param : String; Casing : Optional_Unbounded_Wide_Wide_String);
       --  Print in XML format the value `Casing` for parameter `Param` if
       --  not empty
 
@@ -4266,11 +4199,13 @@ package body Lkql_Checker.Rules is
       -- Print --
       -----------
 
-      procedure Print (Param : String; Casing : Unbounded_Wide_Wide_String) is
+      procedure Print
+        (Param : String; Casing : Optional_Unbounded_Wide_Wide_String) is
       begin
-         if Length (Casing) /= 0 then
+         if Casing.Is_Set then
             XML_Report
-              (XML_Param (Param & "=" & To_String (Casing)), Indent_Level + 1);
+              (XML_Param (Param & "=" & To_String (Casing.Value)),
+               Indent_Level + 1);
          end if;
       end Print;
 
@@ -4284,7 +4219,7 @@ package body Lkql_Checker.Rules is
       Print ("Others", Instance.Others_Casing);
 
       Print_XML_Params
-        (To_String (Instance.Exclude), Indent_Level + 1, Prefix => "Exclude=");
+        (Instance.Exclude, Indent_Level + 1, Prefix => "Exclude=");
 
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
@@ -4298,9 +4233,9 @@ package body Lkql_Checker.Rules is
       if Instance.All_Flag = On then
          XML_Report (XML_Param ("ALL"), Indent_Level + 1);
       else
-         Print_XML_Params (To_String (Instance.Forbidden), Indent_Level + 1);
+         Print_XML_Params (Instance.Forbidden, Indent_Level + 1);
       end if;
-      Print_XML_Params (To_String (Instance.Allowed), Indent_Level + 1, "-");
+      Print_XML_Params (Instance.Allowed, Indent_Level + 1, "-");
 
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
@@ -4312,12 +4247,9 @@ package body Lkql_Checker.Rules is
    begin
       XML_Report (XML_Head (Instance), Indent_Level);
 
-      Print_XML_Params (To_String (Instance.Subprograms), Indent_Level + 1);
+      Print_XML_Params (Instance.Subprograms, Indent_Level + 1);
       Print_XML_Params
-        (To_String (Instance.Subprogram_Regexps),
-         Indent_Level + 1,
-         """",
-         """");
+        (Instance.Subprogram_Regexps, Indent_Level + 1, """", """");
 
       XML_Report (XML_Foot, Indent_Level);
    end XML_Print_Rule_Instance;
@@ -4357,12 +4289,14 @@ package body Lkql_Checker.Rules is
 
       declare
          Content : constant String := Read_File (Create (+Abs_Name)).To_String;
+         Res     : Unbounded_Wide_Wide_String :=
+           Null_Unbounded_Wide_Wide_String;
          Last    : Natural := Content'Last;
       begin
          Ada.Strings.Unbounded.Set_Unbounded_String (Instance.File, To_Load);
 
-         --  If `Last` is null or less, then the file is empty.
-         --  Thus don't append anything to the rule parameter.
+         --  If ``Last`` is null or less, then the file is empty. Thus we
+         --  cannot process its content.
          if Last > 0 then
             --  Strip trailing line feed
             if Content (Content'Last) = ASCII.LF then
@@ -4375,20 +4309,20 @@ package body Lkql_Checker.Rules is
             end if;
 
             --  If required, canonicalize all line endings sequences
-            declare
-               Result : constant String :=
+            Set_Unbounded_Wide_Wide_String
+              (Res,
+               To_Wide_Wide_String
                  (if Canonicalize_Line_Endings
                   then
                     Replace
                       (Content (1 .. Last),
                        ASCII.CR & ASCII.LF,
                        (1 => ASCII.LF))
-                  else Content (1 .. Last));
-            begin
-               Ada.Strings.Wide_Wide_Unbounded.Set_Unbounded_Wide_Wide_String
-                 (Instance.Param, To_Wide_Wide_String (Result));
-            end;
+                  else Content (1 .. Last)));
          end if;
+
+         --  Finally, place the result in the instance
+         Instance.Param := (Is_Set => True, Value => Res);
       end;
 
       return True;
