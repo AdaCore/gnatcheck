@@ -24,7 +24,7 @@ fun name_clashes(node, forbidden: list = []) =
     |" are ignored.
     |"
     |" If the name of the dictionary file does not contain any path information and
-    |" the rule option is specifies in a rule file, first the tool tries to locate
+    |" the rule option is specified in a rule file, first the tool tries to locate
     |" the dictionary file in the same directory where the rule file is located, and
     |" if the attempt fails - in the current directory.
     |"
@@ -39,7 +39,7 @@ fun name_clashes(node, forbidden: list = []) =
     |" .. code-block:: ada
     |"    :emphasize-lines: 2, 3
     |"
-    |"    --  If the dictionary file contains names 'One' and 'Two":
+    |"    --  If the dictionary file contains names 'One' and 'Two':
     |"    One          : constant Integer := 1;     --  FLAG
     |"    Two          : constant Float   := 2.0;   --  FLAG
     |"    Constant_One : constant Float   := 1.0;

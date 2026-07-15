@@ -47,7 +47,7 @@ fun access_to_local_objects(node) =
     |" .. code-block:: ada
     |"    :emphasize-lines: 5
     |"
-    |"    package body Pack
+    |"    package body Pack is
     |"       procedure Proc is
     |"          type Int_A is access all Integer;
     |"          Var1 : aliased Integer;

@@ -18,10 +18,10 @@ fun direct_equalities(node, actuals: list = []) =
     |" options files:
     |"
     |" .. param:: actuals
-    |"    A list of full expanded Ada name of a data objects declared by object
-    |"    declaration, number declaration, parameter specification, generic object
-    |"    declaration or object renaming declaration. Any other parameter does not
-    |"    have any effect except of turning the rule ON.
+    |"    A list of fully expanded Ada names of data objects declared by object
+    |"    declaration, number declaration, parameter specification or generic object
+    |"    declaration. Any other parameter does not have any effect except for
+    |"    turning the rule ON.
     |"
     |" Be aware that the rule does not follow renamings. It checks if an operand of
     |" an (un)equality operator is exactly the name provided as rule parameter

@@ -4,11 +4,10 @@ fun decl_name(n) =
 @check(message="Constraint_Error is handled separately from Numeric_Error",
        category="Style", subcategory="Portability")
 fun separate_numeric_error_handlers(node) =
-    |" Flags each exception handler that contains a choice for
-    |" the predefined ``Constraint_Error`` exception, but does not contain
-    |" the choice for the predefined ``Numeric_Error`` exception, or
-    |" that contains the choice for ``Numeric_Error``, but does not contain the
-    |" choice for ``Constraint_Error``.
+    |" Flag each ``Constraint_Error`` or ``Numeric_Error`` exception choice
+    |" identifier in an exception handler that handles one of these two
+    |" exceptions but not the other (that is, a handler with a choice for
+    |" ``Constraint_Error`` but not ``Numeric_Error``, or vice versa).
     |"
     |" .. rubric:: Example
     |"

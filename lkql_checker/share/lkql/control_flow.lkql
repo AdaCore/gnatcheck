@@ -11,7 +11,7 @@ import stdlib
 selector executed_children
     |" Return all children that are on the execution path. Children that are
     |" inside conditionals or loops are therefore not returned, as there may
-    |" exist execution scenarios in which where they are not taken.
+    |" exist execution scenarios in which they are not taken.
     | null     => ()
     | BodyNode => ()
     | IfStmt   => rec(this.f_cond_expr)

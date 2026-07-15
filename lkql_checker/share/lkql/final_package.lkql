@@ -24,9 +24,9 @@ fun final_package(node) =
     |"    be flagged. We consider this is not necessary, because the child
     |"    package will be flagged anyway.
     |"
-    |" Here is an example:
+    |" .. rubric:: Example
     |"
-    |"    .. code-block:: ada
+    |" .. code-block:: ada
     |"
     |"       package Pkg with Annotate => (GNATcheck, Final) is
     |"       end Pkg;

@@ -2,7 +2,7 @@
        category="Feature")
 fun abstract_type_declarations(node) =
     |" Flag all declarations of abstract types, including generic formal types.
-    |" For an abstract private type, the full type declarations is flagged
+    |" For an abstract private type, the full type declaration is flagged
     |" only if it is itself declared as abstract. Interface types are not
     |" flagged.
     |"

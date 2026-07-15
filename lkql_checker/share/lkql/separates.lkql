@@ -1,6 +1,6 @@
 @check(message="separate unit", category="Feature")
 fun separates(node) =
-    |" Flags subunits.
+    |" Flag each subunit.
     |"
     |" .. rubric:: Example
     |"

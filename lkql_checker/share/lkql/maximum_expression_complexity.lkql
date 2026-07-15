@@ -8,7 +8,7 @@ fun num_expr(node) =
             category="Style", subcategory="Program Structure")
 fun maximum_expression_complexity(unit, n: int = 10) =
     |" Flag any expression that is not directly a part of another expression
-    |" which contains more than *N* expressions of the following kinds (each count for 1)
+    |" which contains more than *N* expressions of the following kinds (each counting for 1)
     |" as its subcomponents, *N* is a rule parameter:
     |"
     |" * Identifiers;

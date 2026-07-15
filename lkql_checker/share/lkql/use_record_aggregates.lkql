@@ -39,6 +39,9 @@ fun use_record_aggregates(node) =
     |" of all these assignment statements are components of the same record objects,
     |" all the components of this objects get assigned as the result of such a
     |" sequence, and the type of the record object does not have discriminants.
+    |"
+    |" Tagged record types are not flagged.
+    |"
     |" This rule helps to detect cases when a sequence of assignment statements
     |" can be replaced with a single assignment statement with a record aggregate
     |" as an expression being assigned, there is no guarantee that it detects all

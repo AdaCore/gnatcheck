@@ -16,7 +16,7 @@ fun min_identifier_length(node, n: int = 2) =
     |" .. code-block:: ada
     |"    :emphasize-lines: 2
     |"
-    |"    I : Integer;              --  NO FLAG
+    |"    I : Integer;              --  NO FLAG (numeric type, exempted)
     |"    J : String (1 .. 10);     --  FLAG
     node is DefiningName
     when node.text.length < n

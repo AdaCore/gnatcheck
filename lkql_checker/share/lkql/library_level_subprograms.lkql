@@ -3,6 +3,8 @@ fun library_level_subprograms(node) =
     |" Flag all library-level subprograms (including generic
     |" subprogram instantiations).
     |"
+    |" .. rubric:: Example
+    |"
     |" .. code-block:: ada
     |"    :emphasize-lines: 2
     |"

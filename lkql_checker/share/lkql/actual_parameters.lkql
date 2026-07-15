@@ -23,7 +23,7 @@ fun check_actual(name, expected) =
 @check(message="actual parameter mismatch",
        category="Style", subcategory="Programming Practice")
 fun actual_parameters(node, forbidden: list = []) =
-    |" Flag situations when a specific actual parameter is passed for a specific formal
+    |" Flag situations where a specific actual parameter is passed for a specific formal
     |" parameter in the call to a specific subprogram. Subprograms, formal parameters and
     |" actual parameters to check are specified by the rule parameters.
     |"
@@ -31,7 +31,7 @@ fun actual_parameters(node, forbidden: list = []) =
     |" options files:
     |"
     |" .. param:: forbidden
-    |"    A list of strings formatted as following: ``subprogram:formal:actual`` where
+    |"    A list of strings formatted as follows: ``subprogram:formal:actual`` where
     |"    ``subprogram`` should be a full expanded Ada name of a subprogram, ``formal``
     |"    should be an identifier, it is treated as the name of a formal parameter of
     |"    the ``subprogram`` and ``actual`` should be a full expanded Ada name of a
@@ -74,7 +74,7 @@ fun actual_parameters(node, forbidden: list = []) =
     |"
     |" Note also, that the rule does not make any overload resolution, so it will consider
     |" all possible subprograms denoted by the ``subprogram`` part of the rule parameter,
-    |" and all possible function denoted by the ``actual`` part.
+    |" and all possible functions denoted by the ``actual`` part.
     |"
     |" .. rubric:: Example
     |"

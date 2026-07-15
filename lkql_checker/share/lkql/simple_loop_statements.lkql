@@ -1,6 +1,6 @@
 @check(message="simple loop statement", category="Feature")
 fun simple_loop_statements(node) =
-    |" Flags simple loop statements (loop statements that do not
+    |" Flag each simple loop statement (loop statements that do not
     |" have iteration schemes).
     |"
     |" .. rubric:: Example

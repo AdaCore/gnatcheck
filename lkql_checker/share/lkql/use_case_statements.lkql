@@ -23,9 +23,9 @@ fun use_case_statements(node) =
     |"
     |" * it contains at least one ``elsif`` alternative;
     |" * all the conditions are infix calls to some predefined relation operator,
-    |"   for all of them one operand is the reference to the same variable of some
+    |"   for all of them one operand is a reference to the same variable of some
     |"   discrete type;
-    |" * for calls to relation operator another operand is some static expression;
+    |" * for calls to a relation operator, another operand is some static expression;
     |"
     |" .. rubric:: Example
     |"

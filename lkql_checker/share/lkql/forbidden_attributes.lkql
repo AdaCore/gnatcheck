@@ -64,7 +64,7 @@ fun forbidden_attributes(unit, all: bool = false, forbidden: list = [], allowed:
     |"       type Arr is array (1 .. 10) of Integer;
     |"       Arr_Var : Arr;
     |"
-    |"       subtype Ind is Integer range Arr'First .. Arr'Last; --  NOFLAG (because of 'Allowed' rule arg)
+    |"       subtype Ind is Integer range Arr'First .. Arr'Last; --  NO FLAG (because of 'Allowed' rule arg)
     |"    begin
     |"
     |"       for J in Arr'Range loop                             --  FLAG

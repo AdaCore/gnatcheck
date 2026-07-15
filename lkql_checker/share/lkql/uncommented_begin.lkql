@@ -4,7 +4,7 @@ import stdlib
             rule_name="Uncommented_BEGIN", remediation="EASY",
             category="Style", subcategory="Readability")
 fun uncommented_begin(unit) =
-    |" Flags ``BEGIN`` keywords in program unit bodies if the body contains
+    |" Flags ``begin`` keywords in program unit bodies if the body contains
     |" both declarations and a statement part and if there is no trailing
     |" comment just after the keyword (on the same line) with the unit
     |" name as the only content of the comment, the casing of the unit

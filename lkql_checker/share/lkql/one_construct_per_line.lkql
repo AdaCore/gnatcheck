@@ -15,7 +15,7 @@ fun one_construct_per_line(node) =
     |" * entry index specification;
     |" * choice parameter specification;
     |"
-    |" In case if we have two or more declarations/statements/clauses on a
+    |" If we have two or more declarations/statements/clauses on a
     |" line and if there is no Ada code preceding the first construct, the
     |" first construct is flagged
     |"

@@ -7,7 +7,7 @@ fun goto_statements(node, only_unconditional: bool = false) =
     |" LKQL rule options files:
     |"
     |" .. param:: only_unconditional
-    |"    If ``true``, Only flag unconditional goto statements, that is, goto statements
+    |"    If ``true``, only flag unconditional goto statements, that is, goto statements
     |"    that are not directly enclosed in an if or a case statement.
     |"
     |" .. rubric:: Example

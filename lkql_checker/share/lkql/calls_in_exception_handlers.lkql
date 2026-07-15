@@ -8,21 +8,18 @@ fun calls_in_exception_handlers(node, subprograms: list = []) =
     |" options files:
     |"
     |" .. param:: subprograms
-    |"    A list of full expanded Ada name of subprograms.
+    |"    A list of fully expanded Ada names of subprograms.
     |"
     |" Note that if a rule parameter does not denote the name of an existing
     |" subprogram, the parameter itself is (silently) ignored and does not have any
     |" effect except for turning the rule ON.
     |"
-    |" Be aware that the rule does not follow renamings. So if a subprogram name specified
-    |" as a rule parameter denotes the name declared by subprogram renaming, the
-    |" rule will flag only exception handlers that calls this subprogram using this
-    |" name and does not respect and will pay no attention to the calls that use
-    |" original subprogram name, and the other way around. This is a user responsibility
-    |" to provide as the rule parameters all needed subprogram names the subprogram
-    |" of interest in case if renamings are used for this subprogram.
+    |" Be aware that the rule does not follow renamings. So if a subprogram name
+    |" specified in param denotes the name declared by a subprogram renaming,
+    |" the rule will flag only exception handlers that call this renaming and
+    |" ignores the calls to the renamed subprogram, and the other way around.
     |"
-    |" Note also, that the rule does not make any overload resolution, so if a rule
+    |" Note also that the rule does not perform any overload resolution, so if a rule
     |" parameter refers to more than one overloaded subprograms, the rule will treat
     |" calls to all these subprograms as the calls to the same subprogram.
     |"

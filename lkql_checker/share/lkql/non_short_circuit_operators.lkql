@@ -1,7 +1,7 @@
 import stdlib
 
 fun operator_image(node) =
-    |" Return the string of a given AND/OR operator
+    |" Return the string of a given and/or operator
     match node
     | OpAnd      => "AND"
     | OpOr       => "OR"
@@ -23,7 +23,7 @@ fun non_short_circuit_operators(unit, except_assertions: bool = false) =
     |" options files:
     |"
     |" .. param:: except_assertions
-    |"    If ``true``, do not flag the use of non-short-circuit_operators inside
+    |"    If ``true``, do not flag the use of non-short-circuit operators inside
     |"    assertion-related pragmas or aspect specifications.
     |"
     |" A pragma or an aspect is considered as assertion-related if its name

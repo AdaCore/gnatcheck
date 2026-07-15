@@ -4,7 +4,7 @@
 fun trivial_exception_handlers(node) =
     |" Flag exception handlers that contain a raise statement with no exception name
     |" as their first statement unless the enclosing handled sequence of
-    |" statements also contains a handler with ``OTHERS`` exception choice that
+    |" statements also contains a handler with ``others`` exception choice that
     |" starts with any statement but not a raise statement with no exception name.
     |"
     |" .. rubric:: Example

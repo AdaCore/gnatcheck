@@ -142,7 +142,7 @@ fun identifier_casing(
     |" identifier is not checked.
     |"
     |" *Exclude* is the name of the text file that contains casing exceptions. The way
-    |" how this rule is using the casing exception dictionary file is consistent with
+    |" this rule uses the casing exception dictionary file is consistent with
     |" using the casing exception dictionary in the GNAT pretty-printer *gnatpp*, see
     |" GNAT User's Guide.
     |"
@@ -151,7 +151,7 @@ fun identifier_casing(
     |" *identifier*
     |"   If a dictionary file contains an identifier, then each occurrence of that
     |"   (defining) identifier in the checked source should use the casing specified
-    |"   included in *dictionary_file*
+    |"   in *dictionary_file*
     |"
     |" *wildcard*
     |"   A wildcard has the following syntax

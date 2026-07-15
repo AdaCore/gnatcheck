@@ -32,13 +32,13 @@ fun annotated_comments(unit, s: list = []) =
     |" LKQL rule options files:
     |"
     |" .. param:: s
-    |"    List of string with the following interpretation: the first character
+    |"    List of strings with the following interpretation: the first character
     |"    is the special comment character, and the rest is the comment marker.
     |"    Items must not contain any white space.
     |"
     |" The rule is case-sensitive.
     |"
-    |" Example:
+    |" .. rubric:: Example
     |"
     |" The rule
     |"

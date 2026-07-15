@@ -46,11 +46,11 @@ fun duplicate_branches(unit, min_size: int = 14, min_stmt: int = 4) =
     |" sequences that are not flagged:
     |"
     |" .. param:: min_stmt
-    |"    An integer literal. All statement sequences that contain more than *min_stmt*
+    |"    An integer literal. All statement sequences that contain at least *min_stmt*
     |"    statements (`Stmt` as defined in Libadalang) as subcomponents are flagged;
     |"
     |" .. param:: min_size
-    |"    An integer literal. All statement sequences that contain more than *min_size*
+    |"    An integer literal. All statement sequences that contain at least *min_size*
     |"    lexical elements (`SingleTokNode` in Libadalang terms) are flagged.
     |"
     |" You have to use the ``param_name=value`` formatting to pass arguments through

@@ -31,7 +31,7 @@ fun add_closing_name(prog_unit, ctx) =
        auto_fix=add_closing_name)
 fun no_closing_names(node, n : int = 0) =
     |" Flag any program unit that is longer than N lines where N is a rule parameter
-    |" and does not repeat its name after the trailing ``END`` keyword.
+    |" and does not repeat its name after the trailing ``end`` keyword.
     |"
     |" This rule has the following (mandatory) parameter for the ``+R`` option and
     |" for LKQL rule options files:
@@ -45,7 +45,7 @@ fun no_closing_names(node, n : int = 0) =
     |" .. code-block:: ada
     |"    :emphasize-lines: 1
     |"
-    |"    procedure Proc (I : in out Integer) is -- FLAG is rule parameter is 3 or less
+    |"    procedure Proc (I : in out Integer) is -- FLAG if rule parameter is 3 or less
     |"    begin
     |"       I := I + 1;
     |"    end;

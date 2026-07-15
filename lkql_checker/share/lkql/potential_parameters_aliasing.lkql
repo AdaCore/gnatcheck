@@ -6,7 +6,7 @@ import parameters_aliasing
 fun potential_parameters_aliasing(unit, in_parameters: bool = false) =
     |" This rule is a complementary rule for the *Parameters_Aliasing* rule -
     |" it flags subprogram calls where the same variable (or a variable and its
-    |" subcomponent) is given as an actual to more than one ``OUT`` or ``IN OUT``
+    |" subcomponent) is given as an actual to more than one ``out`` or ``in out``
     |" parameter, but the fact of aliasing cannot be determined statically because
     |" this variable is an array component, and the index value(s) is(are) not
     |" known statically. The rule resolves object renamings.
@@ -18,8 +18,8 @@ fun potential_parameters_aliasing(unit, in_parameters: bool = false) =
     |" for LKQL rule options files:
     |"
     |" .. param:: in_parameters
-    |"    Whether to consider aliasing between ``OUT``, ``IN OUT`` and ``IN``
-    |"    parameters, except for those ``IN`` parameters that are of a by-copy
+    |"    Whether to consider aliasing between ``out``, ``in out`` and ``in``
+    |"    parameters, except for those ``in`` parameters that are of a by-copy
     |"    type, see the definition of by-copy parameters in the Ada Standard.
     |"
     |" .. rubric:: Example

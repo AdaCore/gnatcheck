@@ -4,7 +4,7 @@ fun numeric_format(node) =
     |" Flag each numeric literal which does not satisfy at least one of the
     |" following requirements:
     |"
-    |" * the literal is given in the conventional decimal notation given,
+    |" * the literal is given in the conventional decimal notation,
     |"   or, if its base is specified explicitly, this base should be
     |"   2, 8, 10 or 16 only;
     |" * if the literal base is 8 or 10, an underscore should separate groups

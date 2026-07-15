@@ -23,21 +23,21 @@ fun parameters_out_of_order(
     |" order may be specified by the following rule parameter:
     |"
     |" .. param:: order
-    |"   A list of string that must have 5 element and that is specifying the
+    |"   A list of strings that must have 5 elements and that is specifying the
     |"   required parameter order. Elements of this list must be ``in``,
     |"   ``access``, ``in_out``, ``out`` and ``defaulted_in``, each one
     |"   designating a parameter kind. Each one should be present only once at
     |"   the index you want this kind of parameters to be in signatures.
     |"
-    |" Here is a small description about what elements in the ``Order`` list
-    |" are designating.
+    |" Here is a small description about what elements in the ``order`` list
+    |" designate.
     |"
     |" - *in* : ``in`` non-access parameters without initialization expressions
     |" - *access* : ``access`` parameters without initialization expressions
     |" - *in_out* : ``in out`` parameters
     |" - *out* : ``out`` parameters
     |" - *defaulted_in* : parameters with initialization expressions (the order
-    |"   of ``access`` and non-access parameters is not checked
+    |"   of ``access`` and non-access parameters is not checked)
     |"
     |" .. rubric:: Example
     |"

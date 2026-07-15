@@ -3,7 +3,7 @@ import stdlib
 @check(message="type has too many parents", remediation="MAJOR",
        category="Style", subcategory="Object Orientation")
 fun too_many_parents(node, n : int = 5) =
-    |" Flag any tagged type declaration, interface type declaration, single task
+    |" Flag any tagged type declaration, interface type declaration, task type
     |" declaration or single protected declaration that has more than *N*
     |" *parents*, where *N* is a parameter of the rule.
     |" A *parent* here is either a (sub)type denoted by the subtype mark from the

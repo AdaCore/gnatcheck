@@ -31,7 +31,7 @@ fun variable_scoping(unit) =
     |" * The declaration does not contain an initialization expression;
     |" * The declared object is used only in a nested block statement,
     |"   and this block statement has a declare part;
-    |" * the block statement is not enclosed into a loop statement.
+    |" * the block statement is not enclosed in a loop statement.
     |"
     |" .. rubric:: Example
     |"

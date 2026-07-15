@@ -25,7 +25,7 @@ fun replace_by_while_loop(simple_loop, ctx) =
 fun use_while_loops(node) =
     |" Flag simple loop statements that have the exit statement completing
     |" execution of such a loop as the first statement in their sequence of
-    |" statements. Such loop statements can be replaced by ``WHILE`` loops.
+    |" statements. Such loop statements can be replaced by ``while`` loops.
     |"
     |" .. rubric:: Example
     |"

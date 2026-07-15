@@ -102,9 +102,9 @@ fun identifier_suffixes(unit,
     |"    Specifies the suffix for protected subprograms used as interrupt handlers.
     |"
     |" You have to use the ``param_name=value`` formatting to pass arguments through
-    |" the ``+R`` options. Example: ``+RIdentifier_Prefixes:Type=_T,Constant=_C``.
+    |" the ``+R`` options. Example: ``+RIdentifier_Suffixes:Type_Suffix=_T,Constant_Suffix=_C``.
     |"
-    |" The ``+RIdentifier_Prefixes`` option (with no parameter) does not create a new
+    |" The ``+RIdentifier_Suffixes`` option (with no parameter) does not create a new
     |" instance for the rule; thus, it has no effect on the current GNATcheck run.
     |"
     |" The *string* value must be a valid suffix for an Ada identifier (after

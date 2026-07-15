@@ -13,7 +13,7 @@ fun metrics_essential_complexity(unit, n : int = 3) =
     |"
     |" .. param:: n
     |"    Maximum essential complexity a body can have without being flagged, all
-    |"    bodies with a higher index will be flagged.
+    |"    bodies with a higher complexity value will be flagged.
     |"
     |" .. rubric:: Example
     |"

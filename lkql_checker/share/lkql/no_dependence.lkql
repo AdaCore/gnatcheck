@@ -13,7 +13,7 @@ fun no_dependence(node, unit_names: list = []) =
     |"    should not be explicitly depended upon.
     |"
     |" The list of unit names is case insensitive. Any case can be used both in
-    |" the parameter or in the code's with clauses.
+    |" the parameter and in the code's with clauses.
     |"
     |" .. rubric:: Example
     |"

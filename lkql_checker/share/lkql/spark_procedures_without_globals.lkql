@@ -4,7 +4,7 @@ import stdlib
        category="Style", subcategory="Programming Practice",
        rule_name="SPARK_Procedures_Without_Globals")
 fun spark_procedures_without_globals(node) =
-    |" Flags SPARK procedures that don't have a global aspect.
+    |" Flag SPARK procedures that do not have a global aspect.
     |"
     |" .. rubric:: Example
     |"
@@ -13,17 +13,17 @@ fun spark_procedures_without_globals(node) =
     |"    package Test is
     |"        procedure P with SPARK_Mode => On; -- FLAG
     |"
-    |"        procedure Q is null; -- NOFLAG
+    |"        procedure Q is null; --  NO FLAG
     |"
-    |"        function Foo return Integer  -- NOFLAG
+    |"        function Foo return Integer  --  NO FLAG
     |"        is (12)
     |"        with SPARK_Mode => On;
     |"
     |"        V : Integer;
     |"
-    |"        procedure T with Global => V;  -- NOFLAG
+    |"        procedure T with Global => V;  --  NO FLAG
     |"
-    |"        function Bar return Integer with SPARK_Mode => On;  -- NOFLAG
+    |"        function Bar return Integer with SPARK_Mode => On;  --  NO FLAG
     |"    end Test;
     (node is BasicSubpDecl(p_has_spark_mode_on(): true,
                            p_subp_decl_spec(): BaseSubpSpec(p_return_type(): null)))
