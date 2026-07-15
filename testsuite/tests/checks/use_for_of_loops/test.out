@@ -25,40 +25,58 @@ loop2.adb:13:4: rule violation: FOR loop may be replaced by a FOR OF loop
 15 ||    end loop;
    ||____________^
 
-loop3.adb:31:9: rule violation: FOR loop may be replaced by a FOR OF loop
-31 |          for I in L.Undep_Content'Range loop      --  FLAG
+loop3.adb:35:9: rule violation: FOR loop may be replaced by a FOR OF loop
+35 |          for I in L.Undep_Content'Range loop      --  FLAG
    | _________^
    ||
    || ~~~ 1 other lines ~~~
    ||
-33 ||         end loop;
+37 ||         end loop;
    ||_________________^
 
-loop3.adb:40:9: rule violation: FOR loop may be replaced by a FOR OF loop
-40 |          for I in Const.Dep_Content'Range loop    --  FLAG
+loop3.adb:44:9: rule violation: FOR loop may be replaced by a FOR OF loop
+44 |          for I in Const.Dep_Content'Range loop    --  FLAG
    | _________^
    ||
    || ~~~ 1 other lines ~~~
    ||
-42 ||         end loop;
+46 ||         end loop;
    ||_________________^
 
-loop3.adb:59:9: rule violation: FOR loop may be replaced by a FOR OF loop
-59 |          for I in L.Dep_Content'Range loop        --  FLAG
+loop3.adb:63:9: rule violation: FOR loop may be replaced by a FOR OF loop
+63 |          for I in L.Dep_Content'Range loop        --  FLAG
    | _________^
    ||
    || ~~~ 1 other lines ~~~
    ||
-61 ||         end loop;
+65 ||         end loop;
    ||_________________^
 
-loop3.adb:72:9: rule violation: FOR loop may be replaced by a FOR OF loop
-72 |          for I in L.Undep_Content'Range loop      --  FLAG
+loop3.adb:76:9: rule violation: FOR loop may be replaced by a FOR OF loop
+76 |          for I in L.Undep_Content'Range loop      --  FLAG
    | _________^
    ||
    || ~~~ 1 other lines ~~~
    ||
-74 ||         end loop;
+78 ||         end loop;
+   ||_________________^
+
+loop3.adb:90:9: rule violation: FOR loop may be replaced by a FOR OF loop
+90 |          for I in O.Inner.Undep_Content'Range loop      --  FLAG
+   | _________^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+92 ||         end loop;
+   ||_________________^
+
+loop3.adb:93:9: rule violation: FOR loop may be replaced by a FOR OF loop
+93 |          for I in Const.Inner.Dep_Content'Range loop    --  FLAG
+   | _________^
+   ||
+   || ~~~ 1 other lines ~~~
+   ||
+95 ||         end loop;
    ||_________________^
 
 Patched "loop1.adb":
@@ -136,6 +154,10 @@ procedure Loop3 is
        end case;
    end record;
 
+   type Outer_Rec (Length, Other : Natural := 10) is record
+      Inner : Int_List (Length, Other);
+   end record;
+
     procedure With_In_Out_Param (L : in out Int_List) is
         Copy : Int_List := L;
         Renamed : Int_List renames L;
@@ -196,6 +218,25 @@ procedure Loop3 is
          Put_Line (I'Image);
       end loop;
    end Cond_Component;
+
+    procedure With_Outer_Record (O : in out Outer_Rec) is
+        Const : constant Outer_Rec := O;
+    begin
+        for I in O.Inner.Dep_Content'Range loop        --  NOFLAG
+            Put_Line (O.Inner.Dep_Content (I)'Image);
+        end loop;
+        for I in O.Inner.Other_Content'Range loop      --  NOFLAG
+            Put_Line (O.Inner.Other_Content (I)'Image);
+        end loop;
+        for I of O.Inner.Undep_Content loop
+         --  FLAG
+         Put_Line (I'Image);
+      end loop;
+      for I of Const.Inner.Dep_Content loop
+         --  FLAG
+         Put_Line (I'Image);
+      end loop;
+   end With_Outer_Record;
 begin
     null;
 end Loop3;
