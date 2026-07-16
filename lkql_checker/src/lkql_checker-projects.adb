@@ -74,7 +74,9 @@ package body Lkql_Checker.Projects is
 
    overriding
    procedure Internal_Report
-     (Self : in out Lkql_Checker_Reporter; Message : GPR2.Message.Object);
+     (Self    : in out Lkql_Checker_Reporter;
+      Message : GPR2.Message.Object;
+      Binary  : Boolean := False);
 
    overriding
    function Verbosity
@@ -106,7 +108,15 @@ package body Lkql_Checker.Projects is
 
    overriding
    procedure Internal_Report
-     (Self : in out Lkql_Checker_Reporter; Message : GPR2.Message.Object) is
+     (Self    : in out Lkql_Checker_Reporter;
+      Message : GPR2.Message.Object;
+      Binary  : Boolean := False)
+   is
+      pragma Unreferenced (Binary);
+      --  Binary mode is not used here. It only matters for content relayed
+      --  verbatim from spawned processes by the GPR2 Actions_Scheduler.
+      --  gnatcheck uses this reporter only for project loading diagnostics
+      --  and never drives the Actions_Scheduler, so Binary is always False.
    begin
       --  Check if the message is reporting about a missing file
       if not Missing_File_Detected
