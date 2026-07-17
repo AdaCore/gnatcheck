@@ -17,6 +17,10 @@ procedure Loop3 is
        end case;
    end record;
 
+   type Outer_Rec (Length, Other : Natural := 10) is record
+      Inner : Int_List (Length, Other);
+   end record;
+
     procedure With_In_Out_Param (L : in out Int_List) is
         Copy : Int_List := L;
         Renamed : Int_List renames L;
@@ -73,6 +77,23 @@ procedure Loop3 is
             Put_Line (L.Undep_Content (I)'Image);
         end loop;
     end Cond_Component;
+
+    procedure With_Outer_Record (O : in out Outer_Rec) is
+        Const : constant Outer_Rec := O;
+    begin
+        for I in O.Inner.Dep_Content'Range loop        --  NOFLAG
+            Put_Line (O.Inner.Dep_Content (I)'Image);
+        end loop;
+        for I in O.Inner.Other_Content'Range loop      --  NOFLAG
+            Put_Line (O.Inner.Other_Content (I)'Image);
+        end loop;
+        for I in O.Inner.Undep_Content'Range loop      --  FLAG
+            Put_Line (O.Inner.Undep_Content (I)'Image);
+        end loop;
+        for I in Const.Inner.Dep_Content'Range loop    --  FLAG
+            Put_Line (Const.Inner.Dep_Content (I)'Image);
+        end loop;
+    end With_Outer_Record;
 begin
     null;
 end Loop3;
