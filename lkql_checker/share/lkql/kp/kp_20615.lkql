@@ -1,0 +1,65 @@
+import stdlib
+
+fun aspect_denotes(value, subp_name) =
+    |" Whether the aspect ``value`` denotes a subprogram whose name matches
+    |" ``subp_name``: for an ``Aggregate`` aspect the denoted name is the
+    |" right-hand side of an association, otherwise it is the value itself.
+    match value
+    | agg@BaseAggregate =>
+        agg.f_assocs.children.any(
+            (a) => a.f_r_expr is Name(p_name_matches(subp_name): true))
+    | n@Name            => n.p_name_matches(subp_name)
+    | *                 => false
+
+fun inherits_denoting_aspect(type, subp_name) =
+    |" Whether ``type`` inherits one of the subprogram denoting nonoverridable
+    |" aspects (RM 13.1.1), and that aspect denotes ``subp_name``. The aspect
+    |" must be inherited: a type that respecifies the aspect denotes its own
+    |" operations and is not subject to the wrong-code.
+    stdlib.subprogram_denoting_nonoverridable_aspects.any((name) =>
+        type.p_get_aspect(name) is
+        {exists: true, inherited: true, value: v, ...}
+        when aspect_denotes(v, subp_name))
+
+fun is_ineffective_override_type(type, subp_name) =
+    |" Whether ``type`` is a type declared in a declarative part (rather
+    |" than a package specification) that inherits a nonoverridable aspect
+    |" denoting ``subp_name``.
+    type is BaseTypeDecl
+    when type.parent?.parent is not (PublicPart | PrivatePart)
+     and inherits_denoting_aspect(type, subp_name)
+
+@check(help="flag a body-only override of an operation denoted by an inherited nonoverridable aspect",
+       message="possible occurrence of KP 20615")
+fun kp_20615(node) =
+    |" Flag a subprogram body that has no separate declaration and that
+    |" overrides an operation denoted by a nonoverridable aspect inherited by
+    |" a derived type declared in a declarative part rather than a package
+    |" specification. Such an override may be ineffective: calls that rely on
+    |" the aspect, such as container aggregates, may invoke the inherited
+    |" operation instead of the overriding one.
+    |"
+    |" .. rubric:: Example
+    |"
+    |" .. code-block:: ada
+    |"
+    |"    procedure Main is
+    |"       type Bad_Set is new Set;  --  Set has an Aggregate aspect
+    |"       procedure Include (S : in out Bad_Set; E : Integer) is  -- FLAG
+    |"       begin
+    |"          null;
+    |"       end Include;
+    |"       B : Bad_Set := [1, 2, 3];  --  may call the inherited Include
+    |"    begin
+    |"       null;
+    |"    end Main;
+    node is SubpBody(p_previous_part(): null,
+                     p_subp_spec_or_null(): spec@AdaNode)
+    when {
+        val subp_name = node.p_defining_name()?.f_name;
+
+        is_ineffective_override_type(spec.p_return_type(), subp_name)
+        or spec.p_params().any(
+            (p) => is_ineffective_override_type(
+                p.f_type_expr?.p_designated_type_decl?(), subp_name))
+    }
