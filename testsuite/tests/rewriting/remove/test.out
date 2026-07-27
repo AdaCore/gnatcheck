@@ -1,0 +1,11 @@
+main.adb:4:4: rule violation: Custom rule violation
+4 |    goto other; --  FLAG
+  |    ^^^^^^^^^^^
+fix proposal:
+  in main.adb:
+  2  begin
+  3     null;
+  4 -   goto other; --  FLAG
+  5     null;
+  6  end Main;
+
