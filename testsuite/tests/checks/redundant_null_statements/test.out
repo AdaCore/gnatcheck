@@ -1,37 +1,36 @@
 null_stmts.adb:4:4: rule violation: redundant null statement
 4 |    null;      --  FLAG
   |    ^^^^^
+fix proposal:
+  in null_stmts.adb:
+  2  begin
+  3     null;      --  NOFLAG
+  4 -   null;      --  FLAG
+  5 -
+  6     begin
+  7        null;   --  NOFLAG
 
 null_stmts.adb:16:7: rule violation: redundant null statement
 16 |       null;   --  FLAG
    |       ^^^^^
+fix proposal:
+  in null_stmts.adb:
+  14     loop
+  15        pragma Assert (True);
+  16 -      null;   --  FLAG
+  17 -   end loop;
+     +      end loop;
+  18  
+  19     <<label>> null;  --  NOFLAG (label)
 
 null_stmts.adb:22:7: rule violation: redundant null statement
 22 |       null;   --  FLAG
    |       ^^^^^
-
-Patched "null_stmts.adb":
-=========================
-
-procedure Null_Stmts is
-begin
-   null;      --  NOFLAG
-   begin
-      null;   --  NOFLAG
-   end;
-
-   loop
-      null;   --  NOFLAG
-   end loop;
-
-   loop
-      pragma Assert (True);
-      end loop;
-
-   <<label>> null;  --  NOFLAG (label)
-
-   begin
-      pragma Assert (True);
-   end;
-end;
+fix proposal:
+  in null_stmts.adb:
+  20  
+  21     begin
+  22 -      null;   --  FLAG
+  23        pragma Assert (True);
+  24     end;
 

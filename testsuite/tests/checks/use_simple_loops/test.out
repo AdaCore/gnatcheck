@@ -6,6 +6,20 @@ loop1.adb:5:4: rule violation: WHILE loop may be replaced by a simple LOOP
    ||
 12 ||    end loop;
    ||____________^
+fix proposal:
+  in loop1.adb:
+  3   begin
+  4      J := 0;
+  5  -   while True loop   --  FLAG
+     +   loop
+  6         if Str (J) = ' ' then
+  7            Str (J) := 'a';
+      ...
+  11        J := J + 1;
+  12     end loop;
+  13 -
+  14     declare
+  15        function True return Boolean is (False);
 
 loop1.adb:22:4: rule violation: WHILE loop may be replaced by a simple LOOP
 22 |     while Standard.True loop   --  FLAG
@@ -15,6 +29,17 @@ loop1.adb:22:4: rule violation: WHILE loop may be replaced by a simple LOOP
    ||
 24 ||    end loop;
    ||____________^
+fix proposal:
+  in loop1.adb:
+  20     end;
+  21  
+  22 -   while Standard.True loop   --  FLAG
+     +   loop
+  23        null;
+  24     end loop;
+  25 -
+  26     while 1 = 1 loop   --  FLAG
+  27        null;
 
 loop1.adb:26:4: rule violation: WHILE loop may be replaced by a simple LOOP
 26 |     while 1 = 1 loop   --  FLAG
@@ -24,35 +49,12 @@ loop1.adb:26:4: rule violation: WHILE loop may be replaced by a simple LOOP
    ||
 28 ||    end loop;
    ||____________^
-
-Patched "loop1.adb":
-====================
-
-procedure Loop1 (Str : in out String) is
-   J : Integer;
-begin
-   J := 0;
-   loop
-      if Str (J) = ' ' then
-         Str (J) := 'a';
-         return;
-      end if;
-
-      J := J + 1;
-   end loop;
-   declare
-      function True return Boolean is (False);
-   begin
-      while True loop         --  NOFLAG
-         null;
-      end loop;
-   end;
-
-   loop
-      null;
-   end loop;
-   loop
-      null;
-   end loop;
-end Loop1;
+fix proposal:
+  in loop1.adb:
+  24     end loop;
+  25  
+  26 -   while 1 = 1 loop   --  FLAG
+     +   loop
+  27        null;
+  28     end loop;
 

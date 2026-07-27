@@ -1,123 +1,188 @@
 pos.adb:10:7: rule violation: positional generic association
 10 |      (My_Int, Integer);                                --  FLAG (2)
    |       ^^^^^^
+fix proposal:
+  in pos.adb:
+  7        (Source => Integer, Target => My_Int);
+  8   
+  9  -   function To_Integer is new Ada.Unchecked_Conversion
+  10 -     (My_Int, Integer);                                --  FLAG (2)
+     +   function To_Integer is new
+     +     Ada.Unchecked_Conversion
+     +       (Source => My_Int,
+     +        Integer);                                --  FLAG (2)
+  11  
+  12     package My_Int_IO is new Ada.Text_IO.Integer_IO (My_Int);  --  NOFLAG
 
 pos.adb:10:15: rule violation: positional generic association
 10 |      (My_Int, Integer);                                --  FLAG (2)
    |               ^^^^^^^
+fix proposal:
+  in pos.adb:
+  7        (Source => Integer, Target => My_Int);
+  8   
+  9  -   function To_Integer is new Ada.Unchecked_Conversion
+  10 -     (My_Int, Integer);                                --  FLAG (2)
+     +   function To_Integer is new
+     +     Ada.Unchecked_Conversion
+     +       (My_Int,
+     +        Target => Integer);                                --  FLAG (2)
+  11  
+  12     package My_Int_IO is new Ada.Text_IO.Integer_IO (My_Int);  --  NOFLAG
 
 pos.adb:19:28: rule violation: positional generic association
 19 |    package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
    |                            ^
+fix proposal:
+  in pos.adb:
+  17     end G;
+  18  
+  19 -   package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
+     +   package I_G_1 is new G (A => 1, 2, 3);  -- FLAG (3)
+  20     package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
+  21     package I_G_3 is new G (1, C =>  2, B => 3);  -- FLAG (1)
 
 pos.adb:19:31: rule violation: positional generic association
 19 |    package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
    |                               ^
+fix proposal:
+  in pos.adb:
+  17     end G;
+  18  
+  19 -   package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
+     +   package I_G_1 is new G (1, B => 2, 3);  -- FLAG (3)
+  20     package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
+  21     package I_G_3 is new G (1, C =>  2, B => 3);  -- FLAG (1)
 
 pos.adb:19:34: rule violation: positional generic association
 19 |    package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
    |                                  ^
+fix proposal:
+  in pos.adb:
+  17     end G;
+  18  
+  19 -   package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
+     +   package I_G_1 is new G (1, 2, C => 3);  -- FLAG (3)
+  20     package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
+  21     package I_G_3 is new G (1, C =>  2, B => 3);  -- FLAG (1)
 
 pos.adb:20:28: rule violation: positional generic association
 20 |    package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
    |                            ^
+fix proposal:
+  in pos.adb:
+  18  
+  19     package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
+  20 -   package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
+     +   package I_G_2 is new G (A => 1, 2, C => 3);  -- FLAG (2)
+  21     package I_G_3 is new G (1, C =>  2, B => 3);  -- FLAG (1)
+  22  
 
 pos.adb:20:31: rule violation: positional generic association
 20 |    package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
    |                               ^
+fix proposal:
+  in pos.adb:
+  18  
+  19     package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
+  20 -   package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
+     +   package I_G_2 is new G (1, B => 2, C => 3);  -- FLAG (2)
+  21     package I_G_3 is new G (1, C =>  2, B => 3);  -- FLAG (1)
+  22  
 
 pos.adb:21:28: rule violation: positional generic association
 21 |    package I_G_3 is new G (1, C =>  2, B => 3);  -- FLAG (1)
    |                            ^
+fix proposal:
+  in pos.adb:
+  19     package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
+  20     package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
+  21 -   package I_G_3 is new G (1, C =>  2, B => 3);  -- FLAG (1)
+     +   package I_G_3 is new G (A => 1, C => 2, B => 3);  -- FLAG (1)
+  22  
+  23     generic package R_G renames G;
 
 pos.adb:25:29: rule violation: positional generic association
 25 |    package I_RG is new R_G (1, 2, 3); -- FLAG (3)
    |                             ^
+fix proposal:
+  in pos.adb:
+  23     generic package R_G renames G;
+  24  
+  25 -   package I_RG is new R_G (1, 2, 3); -- FLAG (3)
+     +   package I_RG is new R_G (A => 1, 2, 3); -- FLAG (3)
+  26  
+  27     generic
 
 pos.adb:25:32: rule violation: positional generic association
 25 |    package I_RG is new R_G (1, 2, 3); -- FLAG (3)
    |                                ^
+fix proposal:
+  in pos.adb:
+  23     generic package R_G renames G;
+  24  
+  25 -   package I_RG is new R_G (1, 2, 3); -- FLAG (3)
+     +   package I_RG is new R_G (1, B => 2, 3); -- FLAG (3)
+  26  
+  27     generic
 
 pos.adb:25:35: rule violation: positional generic association
 25 |    package I_RG is new R_G (1, 2, 3); -- FLAG (3)
    |                                   ^
+fix proposal:
+  in pos.adb:
+  23     generic package R_G renames G;
+  24  
+  25 -   package I_RG is new R_G (1, 2, 3); -- FLAG (3)
+     +   package I_RG is new R_G (1, 2, C => 3); -- FLAG (3)
+  26  
+  27     generic
 
 pos.adb:43:26: rule violation: positional generic association
 43 |    package I_D is new D (1);  -- FLAG
    |                          ^
+fix proposal:
+  in pos.adb:
+  41     end D;
+  42  
+  43 -   package I_D is new D (1);  -- FLAG
+     +   package I_D is new D (A => 1);  -- FLAG
+  44  
+  45     generic
 
 pos.adb:51:36: rule violation: positional generic association
 51 |       with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
    |                                    ^
+fix proposal:
+  in pos.adb:
+  49  
+  50     generic
+  51 -      with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
+     +      with package F_Pos is new G (A => 1, 2, 3);  -- FLAG (3)
+  52     package Pos_Client is
+  53     end Pos_Client;
 
 pos.adb:51:39: rule violation: positional generic association
 51 |       with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
    |                                       ^
+fix proposal:
+  in pos.adb:
+  49  
+  50     generic
+  51 -      with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
+     +      with package F_Pos is new G (1, B => 2, 3);  -- FLAG (3)
+  52     package Pos_Client is
+  53     end Pos_Client;
 
 pos.adb:51:42: rule violation: positional generic association
 51 |       with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
    |                                          ^
-
-Patched "pos.adb":
-==================
-
-with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Unchecked_Conversion;
-procedure Pos (I : in out Integer) is
-   type My_Int is range -12345 .. 12345;
-
-   function To_My_Int is new Ada.Unchecked_Conversion
-     (Source => Integer, Target => My_Int);
-
-   function To_Integer is new
-     Ada.Unchecked_Conversion
-       (Source => My_Int,
-        Target => Integer);                                --  FLAG (2)
-
-   package My_Int_IO is new Ada.Text_IO.Integer_IO (My_Int);  --  NOFLAG
-
-   generic
-      A, B, C : Integer;
-   package G is
-   end G;
-
-   package I_G_1 is new G (A => 1, B => 2, C => 3);  -- FLAG (3)
-   package I_G_2 is new G (A => 1, B => 2, C => 3);  -- FLAG (2)
-   package I_G_3 is new G (A => 1, C => 2, B => 3);  -- FLAG (1)
-
-   generic package R_G renames G;
-
-   package I_RG is new R_G (A => 1, B => 2, C => 3); -- FLAG (3)
-
-   generic
-      A : Integer;
-   package H is
-   end H;
-
-   package I_H is new H (1);  -- NOFLAG
-
-   generic package R_H renames H;
-
-   package I_RH is new R_H (1); -- NOFLAG
-
-   generic
-      A, B, C : Integer := 0;
-   package D is
-   end D;
-
-   package I_D is new D (A => 1);  -- FLAG
-
-   generic
-      with package F_Box is new G (<>);  -- NOFLAG
-   package Box_Client is
-   end Box_Client;
-
-   generic
-      with package F_Pos is new G (A => 1, B => 2, C => 3);  -- FLAG (3)
-   package Pos_Client is
-   end Pos_Client;
-
-begin
-   null;
-end Pos;
+fix proposal:
+  in pos.adb:
+  49  
+  50     generic
+  51 -      with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
+     +      with package F_Pos is new G (1, 2, C => 3);  -- FLAG (3)
+  52     package Pos_Client is
+  53     end Pos_Client;
 

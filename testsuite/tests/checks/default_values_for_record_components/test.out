@@ -1,26 +1,25 @@
 default_values_for_record_components.ads:3:7: rule violation: default value for record component
 3 |       I : Integer := 0;                    --  FLAG
   |       ^
+fix proposal:
+  in default_values_for_record_components.ads:
+  1  package Default_Values_For_Record_Components is
+  2     type Rec (D : Natural := 0) is record   --  NOFLAG
+  3 -      I : Integer := 0;                    --  FLAG
+    +      I : Integer;                    --  FLAG
+  4        B : Boolean;
+  5  
 
 default_values_for_record_components.ads:8:13: rule violation: default value for record component
 8 |             C : Character := 'A';          --  FLAG
   |             ^
-
-Patched "default_values_for_record_components.ads":
-===================================================
-
-package Default_Values_For_Record_Components is
-   type Rec (D : Natural := 0) is record   --  NOFLAG
-      I : Integer;                    --  FLAG
-      B : Boolean;
-
-      case D is
-         when 0 =>
-            C : Character;          --  FLAG
-
-         when others =>
-            F : Float;                     --  NOFLAG
-      end case;
-   end record;
-end Default_Values_For_Record_Components;
+fix proposal:
+  in default_values_for_record_components.ads:
+  6         case D is
+  7            when 0 =>
+  8  -            C : Character := 'A';          --  FLAG
+     +            C : Character;          --  FLAG
+     +
+  9            when others =>
+  10              F : Float;                     --  NOFLAG
 

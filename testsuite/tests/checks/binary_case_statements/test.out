@@ -6,6 +6,23 @@ binary_case_statements.adb:4:4: rule violation: CASE statement can be replaced w
   ||
 7 ||    end case;
   ||____________^
+fix proposal:
+  in binary_case_statements.adb:
+  2      procedure Test (I : Integer);
+  3   begin
+     +   if 1 = 1 then
+     +      null;
+     +   else
+     +      null;
+     +   end if;
+  4      case 1 is  --  FLAG
+  5  -      when 1 => null;
+  6  -      when others => null;
+  7  -   end case;
+  8  -
+  9  -   case 1 is  --  FLAG
+  10        when 1 => Test (2);
+  11        when 2 => Test (1);
 
 binary_case_statements.adb:9:4: rule violation: CASE statement can be replaced with IF statement
 9  |     case 1 is  --  FLAG
@@ -15,6 +32,22 @@ binary_case_statements.adb:9:4: rule violation: CASE statement can be replaced w
    ||
 12 ||    end case;
    ||____________^
+fix proposal:
+  in binary_case_statements.adb:
+  7      end case;
+  8   
+  9  -   case 1 is  --  FLAG
+  10 -      when 1 => Test (2);
+  11 -      when 2 => Test (1);
+  12 -   end case;
+  13 -
+     +   if 1 = 1 then
+     +      Test (2);
+     +   elsif 1 = 2 then
+     +      Test (1);
+     +   end if;
+  14     case True is  --  FLAG
+  15        when True => null;
 
 binary_case_statements.adb:14:4: rule violation: CASE statement can be replaced with IF statement
 14 |     case True is  --  FLAG
@@ -24,37 +57,20 @@ binary_case_statements.adb:14:4: rule violation: CASE statement can be replaced 
    ||
 17 ||    end case;
    ||____________^
-
-Patched "binary_case_statements.adb":
-=====================================
-
-procedure Main is
-   procedure Test (I : Integer);
-begin
-   if 1 = 1 then
-      null;
-   else
-      null;
-   end if;
-   if 1 = 1 then
-      Test (2);
-   elsif 1 = 2 then
-      Test (1);
-   end if;
-   if True = True then
-      null;
-   elsif True = False then
-      null;
-   end if;
-   case 1 is  --  NOFLAG
-      when 1 | 2 => null;
-      when others => null;
-   end case;
-
-   case 1 is  --  NOFLAG
-      when 1 => null;
-      when 2 => null;
-      when others => null;
-   end case;
-end Main;
+fix proposal:
+  in binary_case_statements.adb:
+  12     end case;
+  13  
+  14 -   case True is  --  FLAG
+  15 -      when True => null;
+  16 -      when False => null;
+  17 -   end case;
+  18 -
+     +   if True = True then
+     +      null;
+     +   elsif True = False then
+     +      null;
+     +   end if;
+  19     case 1 is  --  NOFLAG
+  20        when 1 | 2 => null;
 

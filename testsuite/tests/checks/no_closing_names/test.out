@@ -1,114 +1,231 @@
 names.adb:1:14: rule violation: no closing name
 1 | package body Names is  --  FLAG
   |              ^^^^^
+fix proposal:
+  in names.adb:
+  1  -package body Names is  --  FLAG
+  2  -   procedure Proc is   --  FLAG
+     +package body Names is
+     +   --  FLAG
+     +   procedure Proc is
+     +      --  FLAG
+  3      begin
+  4         null;
+  5      end;
+  6   
+  7  -   procedure Proc2 is   --  NOFLAG
+     +   procedure Proc2 is
+     +      --  NOFLAG
+  8      begin
+  9         null;
+  10     end Proc2;
+  11  
+  12 -   task body Task1 is   --  FLAG
+     +   task body Task1 is
+     +      --  FLAG
+  13     begin
+  14        null;
+  15     end;
+  16  
+  17 -   task body Task2 is   --  NOFLAG
+  18 -   begin null; end;
+     +   task body Task2 is
+     +      --  NOFLAG
+     +   begin
+     +      null;
+     +   end;
+  19  
+  20 -   protected body Prot1 is   --  FLAG
+  21 -      procedure P is         --  FLAG
+     +   protected body Prot1 is
+     +      --  FLAG
+     +      procedure P is
+     +         --  FLAG
+  22        begin
+  23           null;
+      ...
+  25     end;
+  26  
+  27 -   protected body Prot2 is  --  NOFLAG
+     +   protected body Prot2 is
+     +      --  NOFLAG
+  28        --
+  29        --
+  30     end Prot2;
+  31  
+  32 -end;
+     +end Names;
+  33  
 
 names.adb:2:14: rule violation: no closing name
 2 |    procedure Proc is   --  FLAG
   |              ^^^^
+fix proposal:
+  in names.adb:
+  1  package body Names is  --  FLAG
+  2 -   procedure Proc is   --  FLAG
+    +   procedure Proc is
+    +      --  FLAG
+  3     begin
+  4        null;
+  5 -   end;
+    +   end Proc;
+  6  
+  7     procedure Proc2 is   --  NOFLAG
 
 names.adb:12:14: rule violation: no closing name
 12 |    task body Task1 is   --  FLAG
    |              ^^^^^
+fix proposal:
+  in names.adb:
+  10     end Proc2;
+  11  
+  12 -   task body Task1 is   --  FLAG
+     +   task body Task1 is
+     +      --  FLAG
+  13     begin
+  14        null;
+  15 -   end;
+     +   end Task1;
+  16  
+  17     task body Task2 is   --  NOFLAG
 
 names.adb:20:19: rule violation: no closing name
 20 |    protected body Prot1 is   --  FLAG
    |                   ^^^^^
+fix proposal:
+  in names.adb:
+  18     begin null; end;
+  19  
+  20 -   protected body Prot1 is   --  FLAG
+  21 -      procedure P is         --  FLAG
+     +   protected body Prot1 is
+     +      --  FLAG
+     +      procedure P is
+     +         --  FLAG
+  22        begin
+  23           null;
+  24        end;
+  25 -   end;
+     +   end Prot1;
+  26  
+  27     protected body Prot2 is  --  NOFLAG
 
 names.adb:21:17: rule violation: no closing name
 21 |       procedure P is         --  FLAG
    |                 ^
+fix proposal:
+  in names.adb:
+  19  
+  20     protected body Prot1 is   --  FLAG
+  21 -      procedure P is         --  FLAG
+     +      procedure P is
+     +         --  FLAG
+  22        begin
+  23           null;
+  24 -      end;
+     +      end P;
+  25     end;
+  26  
 
 names.ads:1:9: rule violation: no closing name
 1 | package Names is       --  FLAG
   |         ^^^^^
+fix proposal:
+  in names.ads:
+  1  -package Names is       --  FLAG
+     +package Names is
+     +   --  FLAG
+  2      procedure Proc;
+  3   
+  4  -   package Nested is   --  FLAG
+     +   package Nested is
+     +      --  FLAG
+  5         --
+  6         --
+  7      end;
+  8   
+  9  -   package Nested2 is   --  NOFLAG
+     +   package Nested2 is
+     +      --  NOFLAG
+  10        --
+  11        --
+  12 -   end Nested2 ;
+     +   end Nested2;
+  13  
+  14     task type Task1;     --  NOFLAG
+  15  
+  16 -   task Task2 is        --  FLAG
+     +   task Task2 is
+     +      --  FLAG
+  17        --
+  18        --
+  19     end;
+  20  
+  21 -   protected Prot1 is       --  FLAG
+     +   protected Prot1 is
+     +      --  FLAG
+  22        --
+  23        procedure P;
+  24     end;
+  25  
+  26 -   protected type Prot2 is  --  NOFLAG
+     +   protected type Prot2 is
+     +      --  NOFLAG
+  27     end Prot2;
+  28  
+  29 -end;
+     +end Names;
+  30  
 
 names.ads:4:12: rule violation: no closing name
 4 |    package Nested is   --  FLAG
   |            ^^^^^^
+fix proposal:
+  in names.ads:
+  2     procedure Proc;
+  3  
+  4 -   package Nested is   --  FLAG
+    +   package Nested is
+    +      --  FLAG
+  5        --
+  6        --
+  7 -   end;
+    +   end Nested;
+  8  
+  9     package Nested2 is   --  NOFLAG
 
 names.ads:16:9: rule violation: no closing name
 16 |    task Task2 is        --  FLAG
    |         ^^^^^
+fix proposal:
+  in names.ads:
+  14     task type Task1;     --  NOFLAG
+  15  
+  16 -   task Task2 is        --  FLAG
+     +   task Task2 is
+     +      --  FLAG
+  17        --
+  18        --
+  19 -   end;
+     +   end Task2;
+  20  
+  21     protected Prot1 is       --  FLAG
 
 names.ads:21:14: rule violation: no closing name
 21 |    protected Prot1 is       --  FLAG
    |              ^^^^^
-
-Patched "names.adb":
-====================
-
-package body Names is
-   --  FLAG
-   procedure Proc is
-      --  FLAG
-   begin
-      null;
-   end Proc;
-
-   procedure Proc2 is   --  NOFLAG
-   begin
-      null;
-   end Proc2;
-
-   task body Task1 is
-      --  FLAG
-   begin
-      null;
-   end Task1;
-
-   task body Task2 is   --  NOFLAG
-   begin null; end;
-
-   protected body Prot1 is
-      --  FLAG
-      procedure P is
-         --  FLAG
-      begin
-         null;
-      end P;
-   end Prot1;
-
-   protected body Prot2 is  --  NOFLAG
-      --
-      --
-   end Prot2;
-
-end Names;
-
-Patched "names.ads":
-====================
-
-package Names is
-   --  FLAG
-   procedure Proc;
-
-   package Nested is
-      --  FLAG
-      --
-      --
-   end Nested;
-
-   package Nested2 is   --  NOFLAG
-      --
-      --
-   end Nested2 ;
-
-   task type Task1;     --  NOFLAG
-
-   task Task2 is
-      --  FLAG
-      --
-      --
-   end Task2;
-
-   protected Prot1 is
-      --  FLAG
-      --
-      procedure P;
-   end Prot1;
-
-   protected type Prot2 is  --  NOFLAG
-   end Prot2;
-
-end Names;
+fix proposal:
+  in names.ads:
+  19     end;
+  20  
+  21 -   protected Prot1 is       --  FLAG
+     +   protected Prot1 is
+     +      --  FLAG
+  22        --
+  23        procedure P;
+  24 -   end;
+     +   end Prot1;
+  25  
+  26     protected type Prot2 is  --  NOFLAG
 

@@ -3,41 +3,57 @@ handlers.adb:15:7: rule violation: trivial exception handler
    | _______^
 16 ||          raise;
    ||_______________^
+fix proposal:
+  in handlers.adb:
+  13        null;
+  14     exception
+  15 -      when Constraint_Error =>  --  FLAG
+  16 -         raise;
+  17        when others =>   --  FLAG
+  18           raise;
 
 handlers.adb:17:7: rule violation: trivial exception handler
 17 |        when others =>   --  FLAG
    | _______^
 18 ||          raise;
    ||_______________^
+fix proposal:
+  in handlers.adb:
+  15        when Constraint_Error =>  --  FLAG
+  16           raise;
+  17 -      when others =>   --  FLAG
+  18 -         raise;
+  19 -   end;
+     +      end;
+  20  exception
+  21     when Constraint_Error =>  --  FLAG
 
 handlers.adb:21:4: rule violation: trivial exception handler
 21 |     when Constraint_Error =>  --  FLAG
    | ____^
 22 ||       raise;
    ||____________^
+fix proposal:
+  in handlers.adb:
+  19     end;
+  20  exception
+  21 -   when Constraint_Error =>  --  FLAG
+  22 -      raise;
+  23     when Program_Error =>  --  FLAG
+  24        raise;
 
 handlers.adb:23:4: rule violation: trivial exception handler
 23 |     when Program_Error =>  --  FLAG
    | ____^
 24 ||       raise;
    ||____________^
-
-Patched "handlers.adb":
-=======================
-
-procedure Handlers is
-begin
-   begin
-      null;
-   exception
-      when Constraint_Error =>  --  NOFLAG
-         raise;
-      when others =>
-         null;
-   end;
-
-   begin
-      null;
-   end;
-end Handlers;
+fix proposal:
+  in handlers.adb:
+  21     when Constraint_Error =>  --  FLAG
+  22        raise;
+  23 -   when Program_Error =>  --  FLAG
+  24 -      raise;
+  25 -end Handlers;
+     +   end Handlers;
+  26  
 
