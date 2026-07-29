@@ -94,6 +94,45 @@ iterative way.
 ``-U, --recursive``
   Process all units in the project tree, excluding externally built project.
 
+
+``-aP=<directory>``
+  Add the provided directory to the project search path
+
+``--config=<file>``
+  Specify the configuration project file name
+
+``--db=<directory>``
+  Parse the provided directory as an additional knowledge base
+
+``--db-``
+  Do not load the standard knowledge base
+
+``-eL``
+  Follows symlinks for project files
+
+``--implicit-with=<project>``
+  Add the given projects as a dependency on all loaded projects
+
+``--no-project``
+  Do not use a project file
+
+``--relocate-build-tree=<directory>``
+  Relocate the build tree (object, library and executable directories) to the
+  given directory. The default is the current directory.
+
+``--root-dir=<directory>``
+  Root directory of the build tree to relocate. Use this with the
+  ``--relocate-build-tree`` switch.
+
+``--src-subdirs=<directory>``
+  Prepend <obj>/directory to the list of source dirs for each project
+
+``--subdirs=<directory>``
+  Use directory as suffix to obj/lib/exec directories
+
+``-X=<name=value>``
+  Specify an external reference for Project Files
+
 ``-v, --verbose``
   Enable the verbose mode.
 
@@ -135,6 +174,44 @@ This is an internal entry point mainly used to test GNATcheck rules.
 
 ``-U, --recursive``
   Process all units in the project tree, excluding externally built project.
+
+``-aP=<directory>``
+  Add the provided directory to the project search path
+
+``--config=<file>``
+  Specify the configuration project file name
+
+``--db=<directory>``
+  Parse the provided directory as an additional knowledge base
+
+``--db-``
+  Do not load the standard knowledge base
+
+``-eL``
+  Follows symlinks for project files
+
+``--implicit-with=<project>``
+  Add the given projects as a dependency on all loaded projects
+
+``--no-project``
+  Do not use a project file
+
+``--relocate-build-tree=<directory>``
+  Relocate the build tree (object, library and executable directories) to the
+  given directory. The default is the current directory.
+
+``--root-dir=<directory>``
+  Root directory of the build tree to relocate. Use this with the
+  ``--relocate-build-tree`` switch.
+
+``--src-subdirs=<directory>``
+  Prepend <obj>/directory to the list of source dirs for each project
+
+``--subdirs=<directory>``
+  Use directory as suffix to obj/lib/exec directories
+
+``-X=<name=value>``
+  Specify an external reference for Project Files
 
 ``-v, --verbose``
   Enable the verbose mode.
