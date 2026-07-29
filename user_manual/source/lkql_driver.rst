@@ -143,6 +143,19 @@ This is an internal entry point mainly used to test GNATcheck rules.
   If an Ada source file is missing, emit an error message instead of a warning
   one.
 
+``--format=<format>``
+  Select the final report format. Available formats are:
+
+  * ``TEXT``: Human readable textual format, with colors when the output is
+    compatible
+  * ``SARIF``: A JSON output following the SARIF 2.1.0 scheme
+
+``-I, --ignores=<ignores>``
+  Files to ignore during analysis
+
+``--rule-file=<ruleFile>``
+  Provide an LKQL rule file to configure rule instances
+
 ``-r, --rule=<rule>``
   Enable the given rule for the current run. This option is cumulative.
 
