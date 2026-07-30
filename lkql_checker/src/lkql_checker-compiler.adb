@@ -1925,6 +1925,11 @@ package body Lkql_Checker.Compiler is
       Args.Append ("--complete-output");
       Args.Append ("--restricted-to-languages=ada");
 
+      --  Force the recompilation of the whole project to avoid cache
+      --  pollution.
+      --  This is a workaround for eng/gpr/gpr-issues/#879.
+      Args.Append ("-f");
+
       if Tool_Args.Jobs.Get > 1 then
          Args.Append ("-j" & Image (Tool_Args.Jobs.Get));
       end if;
