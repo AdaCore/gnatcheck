@@ -77,17 +77,20 @@ package Lkql_Checker.Compiler is
    --  warning ON/OFF. If Restrictions rules are specified, this file contains
    --  the corresponding Restriction_Warnings pragmas.
 
+   type Unparsable_Handling_Mode is (Hide, Forward, Report_As_Error);
+   --  The way an unparsable line should be treated by the ``Analyze_Output``
+   --  procedure.
+
    procedure Analyze_Output
-     (Collector         : in out Diagnostic_Collector;
-      File_Name         : String;
-      Errors            : out Boolean;
-      Report_Unparsable : Boolean := True);
+     (Collector           : in out Diagnostic_Collector;
+      File_Name           : String;
+      Errors              : out Boolean;
+      Unparsable_Handling : Unparsable_Handling_Mode := Report_As_Error);
    --  Parses the given file (typically error output of gprbuild or the worker)
    --  and store all the relevant messages.
-   --  If some compiler errors are detected, set Errors to True.
-   --  ``Report_Unparsable`` tells whether to emit an error when an unparsable
-   --  line is encountered in the output. If it is false, the line is simply
-   --  forwarded in the tool output.
+   --  Following the ``Unparsable_Handling`` parameter, this function may
+   --  report internal error when an unparsable message is encountered in the
+   --  output.
 
    procedure Process_Restriction_Param
      (Parameter : String; Instance : Rule_Instance_Access);

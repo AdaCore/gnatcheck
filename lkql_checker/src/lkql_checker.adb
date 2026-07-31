@@ -269,8 +269,6 @@ package body Lkql_Checker is
             Process_Found : Boolean := False;
             Handle        : Process_Handle;
             Exit_Code     : Integer;
-
-            pragma Unreferenced (Exit_Code);
          begin
             loop
                declare
@@ -339,16 +337,25 @@ package body Lkql_Checker is
                end if;
 
                if Handle = GPRbuild_Handle then
+                  GPRbuild_Handle := Invalid_Handle;
+
+                  --  Analyze the GPRbuild output, forwarding non-diagnostic
+                  --  message if the debug mode is enabled of if the there
+                  --  was a real error (invalid config or internal error).
                   Analyze_Output
                     (Collector,
                      Global_Report_Dir.all & "gprbuild.err",
                      Status,
-                     Report_Unparsable => Tool_Args.Debug_Mode.Get);
+                     Unparsable_Handling =>
+                       (if Tool_Args.Debug_Mode.Get or else Exit_Code in 1 | 7
+                        then Forward
+                        else Hide));
                   exit when Current = Total_Jobs;
 
                else
                   for Job in Handles'Range loop
                      if Handles (Job) = Handle then
+                        Handles (Job) := Invalid_Handle;
                         Analyze_Output
                           (Collector, File_Name ("out", Job), Status);
                         Process_Found := True;

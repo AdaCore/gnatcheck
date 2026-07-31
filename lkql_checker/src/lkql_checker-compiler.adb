@@ -340,12 +340,11 @@ package body Lkql_Checker.Compiler is
    ----------------------------
 
    procedure Analyze_Output
-     (Collector         : in out Diagnostic_Collector;
-      File_Name         : String;
-      Errors            : out Boolean;
-      Report_Unparsable : Boolean := True)
+     (Collector           : in out Diagnostic_Collector;
+      File_Name           : String;
+      Errors              : out Boolean;
+      Unparsable_Handling : Unparsable_Handling_Mode := Report_As_Error)
    is
-      Out_File : constant String := File_Name & ".out";
       Line     : String (1 .. 1024);
       Line_Len : Natural;
       File     : File_Type;
@@ -381,13 +380,18 @@ package body Lkql_Checker.Compiler is
 
          procedure Unparsable_Line is
          begin
-            if Report_Unparsable then
-               Error ("unparsable worker output: """ & Msg & """");
-               Errors := True;
-               Detected_Internal_Error := @ + 1;
-            else
-               Print (Msg);
-            end if;
+            case Unparsable_Handling is
+               when Forward         =>
+                  Print (Msg);
+
+               when Report_As_Error =>
+                  Error ("unparsable worker output: """ & Msg & '"');
+                  Errors := True;
+                  Detected_Internal_Error := @ + 1;
+
+               when Hide            =>
+                  null;
+            end case;
          end Unparsable_Line;
 
       begin
@@ -576,25 +580,6 @@ package body Lkql_Checker.Compiler is
 
    begin
       Errors := False;
-
-      --  If the .out file is not empty it means we got some errors, so display
-      --  them.
-
-      if Is_Regular_File (Out_File) and then Size (Out_File) /= 0 then
-         Error ("error when calling gprbuild, raw output:");
-
-         declare
-            Content : constant String :=
-              Read_File (Create (+Out_File)).To_String;
-         begin
-            if Content'Length = 0 then
-               raise Program_Error with "file not found: " & Out_File;
-            end if;
-            Print (Content (Content'First .. Content'Last - 1));
-         end;
-
-         Errors := True;
-      end if;
 
       Open (File => File, Mode => In_File, Name => File_Name);
 
