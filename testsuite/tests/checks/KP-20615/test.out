@@ -1,0 +1,8 @@
+main.adb:10:14: rule violation: possible occurrence of KP 20615
+10 |    procedure Include (S : in out Bad_Set; E : Integer) is  -- FLAG
+   |              ^^^^^^^
+
+worker.adb:10:14: rule violation: possible occurrence of KP 20615
+10 |    procedure Include (S : in out Body_Set; E : Integer) is  -- FLAG
+   |              ^^^^^^^
+
