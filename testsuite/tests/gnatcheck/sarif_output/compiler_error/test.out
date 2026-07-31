@@ -1,8 +1,3 @@
-gnatcheck: error: error when calling gprbuild, raw output:
-
-   compilation of main.adb failed
-
-gprbuild: *** compilation phase failed
 {
   "runs": [
     {

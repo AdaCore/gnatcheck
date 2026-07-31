@@ -1,8 +1,3 @@
-gnatcheck: error: error when calling gprbuild, raw output:
-
-   compilation of main.adb failed
-
-gprbuild: *** compilation phase failed
 <?xml version="1.0"?>
 <gnatcheck-report>
    <violation file="main.adb" line="3" column="4" rule-id="goto_statements">
