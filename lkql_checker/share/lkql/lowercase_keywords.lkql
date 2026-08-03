@@ -29,8 +29,7 @@ fun lowercase_keywords(unit, language_version: string = "ada_2022") =
     |" Flag Ada keywords that are not purely lowercase, such as ``BEGIN`` or
     |" ``beGin``. The rule is language version sensitive.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: language_version
     |"    The version of the language on which to run the checker (supported

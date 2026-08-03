@@ -8,8 +8,7 @@ fun metrics_essential_complexity(unit, n : int = 3) =
     |" The Ada essential complexity metric is a McCabe cyclomatic complexity metric counted
     |" for the code that is reduced by excluding all the pure structural Ada control statements.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Maximum essential complexity a body can have without being flagged, all

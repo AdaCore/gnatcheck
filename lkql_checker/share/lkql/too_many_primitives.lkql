@@ -11,8 +11,7 @@ fun too_many_primitives(unit, n : int = 5) =
     |" declared in visible parts of packages, generic packages and package
     |" instantiations are flagged.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Positive integer specifying the maximal number of primitives when

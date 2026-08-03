@@ -64,8 +64,7 @@ fun use_for_of_loops(node, n : int = 1, ignore: bool = false) =
     |"       [all references to Index are of the form <array> (Index)]
     |"    end loop;
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Non-negative integer, indicates the minimum number of references of the form

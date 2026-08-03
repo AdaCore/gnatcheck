@@ -12,8 +12,7 @@ fun no_others_in_exception_handlers(unit,
     |" handler with ``others``, depending on the rule parameter(s)
     |" specified.
     |"
-    |" This rule has three parameters for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: subprogram
     |"    If ``true``, flag a subprogram body if the handled sequence of statements

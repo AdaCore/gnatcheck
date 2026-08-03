@@ -20,6 +20,5 @@ fun incomplete_representation_specifications(node) =
     |"          B at 4 range 0 .. 7;
     |"       end record;
     |"    end Pack;
-    node is TypeDecl
-    when node.p_get_record_representation_clause()
-     and (if node.p_has_aspect("Size") then not node.p_get_aspect("Pack").exists)
+    node is TypeDecl(p_get_record_representation_clause(): not null)
+       when not (node.p_has_aspect("Size") and node.p_get_aspect("Pack").exists)

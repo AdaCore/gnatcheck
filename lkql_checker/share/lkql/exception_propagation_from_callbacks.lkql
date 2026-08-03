@@ -27,8 +27,7 @@ fun exception_propagation_from_callbacks(node, callbacks: list = []) =
     |" * no exception handler in the body contains a raise statement nor a call to
     |"   ``Ada.Exceptions.Raise_Exception`` or ``Ada.Exceptions.Reraise_Occurrence``.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: callbacks
     |"    A list of strings which should have the following structure

@@ -26,8 +26,7 @@ fun numeric_literals(node, n : int = 1, all: bool = false, statements_only: bool
     |" * a literal occurring in a declaration in case the *Statements_Only*
     |"   rule parameter is given.
     |"
-    |" This rule may have the following parameters for the ``+R`` option and for
-    |" LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"   An integer literal used as the maximal value that is not flagged

@@ -4,8 +4,7 @@ fun forbidden_attributes(unit, all: bool = false, forbidden: list = [], allowed:
     |" Flag each use of the specified attributes. The attributes to be detected are
     |" named in the rule's parameters.
     |"
-    |" This rule has the following parameters for the ``+R`` option and for LKQL
-    |" rule options file:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: forbidden
     |"    Adds the specified attributes to the set of attributes to be detected and sets

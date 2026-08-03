@@ -7,8 +7,7 @@ fun calls_outside_elaboration(node, forbidden: list = []) =
     |" the subprograms specified as a rule parameter are considered, renamings are
     |" not followed.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: forbidden
     |"    A list of fully expanded Ada names of subprograms.

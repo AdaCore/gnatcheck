@@ -6,7 +6,7 @@ Running "cat rules.lkql"...
     headers: [{header: "header.txt"}],
     identifier_casing: [{exclude: "exclude.txt"}],
     identifier_suffixes: [{access_suffix: "_Acc(_Acc_Acc)"}],
-    name_clashes: [{forbidden: "names.txt"}],
+    name_clashes: [{dictionary_file: "names.txt"}],
     restrictions: [{arg: ["No_Abort_Statements", "No_Use_Of_Attribute => Image", "No_Use_Of_Entity => Ada.Text_IO.Put_Line"]}]
     silent_exception_handlers: [{subprograms: ["fully.qualified.name", "other.name", "|This\.Regex\..*", "|Another\.Regex\..*"]}],
     style_checks: [{arg: "xz"}],

@@ -59,8 +59,7 @@ fun use_for_loops(node, no_exit: bool = false, no_function: bool = false) =
     |" really possible, additional human analysis is required for all the
     |" loops marked by the rule.
     |"
-    |" This rule has the following (optional) parameters for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: no_exit
     |"    If ``true``, flag only loops that do not include an exit statement that

@@ -63,8 +63,7 @@ fun same_instantiations(unit, library_level_only: bool = false) =
     |" these instantiations declare any global variable or perform some
     |" non-trivial actions as a part of their elaboration.
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: library_level_only
     |"    If ``true``, only check library level instantiations.

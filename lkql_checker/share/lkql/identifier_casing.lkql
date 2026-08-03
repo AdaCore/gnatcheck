@@ -77,7 +77,8 @@ fun identifier_casing(
     constant: string = "",
     exception: string = "",
     others: string = "",
-    exclude: list = []
+    exclude: string = "",
+    exclude_list: list = []
 ) =
     |" Flag each defining identifier that does not have a casing corresponding to the
     |" kind of entity being declared. All defining names are checked. For the
@@ -92,8 +93,7 @@ fun identifier_casing(
     |"   declarations if the renamed object is a constant);
     |" * exception declarations and exception renaming declarations.
     |"
-    |" The rule may have the following parameters for ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: type
     |"    Specifies casing for names from type and subtype declarations.
@@ -122,6 +122,8 @@ fun identifier_casing(
     |"    file may contain references to environment variables (e.g.
     |"    $REPOSITORY_ROOT/my_dict.txt), they are replaced by the values of these
     |"    variables.
+    |"
+    |" .. skip_param:: exclude_list
     |"
     |" Values provided to ``Type``, ``Enum``, ``Constant``, ``Exception`` and
     |" ``Others`` parameters must be one of the following:
@@ -261,15 +263,15 @@ fun identifier_casing(
         when match node.parent
             # Task objects
             | (SingleTaskDecl | SingleTaskTypeDecl)
-            => check_casing(id, others, exclude)
+            => check_casing(id, others, exclude_list)
 
             # Types and subtypes, including TaskBody when the spec is a task type
             | (BaseTypeDecl |
                p@TaskBody when p.p_previous_part() is not SingleTaskDecl)
-              when type != "" => check_casing(id, type, exclude)
+              when type != "" => check_casing(id, type, exclude_list)
 
             # Enums
-            | EnumLiteralDecl when enum != "" => check_casing(id, enum, exclude)
+            | EnumLiteralDecl when enum != "" => check_casing(id, enum, exclude_list)
 
             # Look one level up for remaining cases
             | p => match p.parent
@@ -278,17 +280,17 @@ fun identifier_casing(
             | (ObjectDecl(p_is_constant_object(): true) |
                NumberDecl) when constant != ""
             =>
-                check_casing(id, constant, exclude)
+                check_casing(id, constant, exclude_list)
 
             # Function renaming an enum literal
             | r@SubpRenamingDecl
               when r.f_renames.f_renamed_object.p_referenced_decl() is
-                   EnumLiteralDecl and enum != "" => check_casing(id, enum, exclude)
+                   EnumLiteralDecl and enum != "" => check_casing(id, enum, exclude_list)
 
             # Exceptions
             | ExceptionDecl when exception != ""
-            => check_casing(id, exception, exclude)
+            => check_casing(id, exception, exclude_list)
 
             # Other cases
-            | * => check_casing(id, others, exclude)
+            | * => check_casing(id, others, exclude_list)
     ]

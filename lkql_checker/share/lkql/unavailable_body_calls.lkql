@@ -9,8 +9,7 @@ fun unavailable_body_calls(node, indirect_calls: bool = false) =
     |" *Recursive_Subprograms* rule - it flags potentially missing recursion
     |" detection and identifies potential missing checks.
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: indirect_calls
     |"    Whether to flag all the indirect calls (that is, calls through

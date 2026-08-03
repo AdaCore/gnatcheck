@@ -24,8 +24,7 @@ fun direct_calls_to_primitives(node, except_constructors: bool = false) =
     |"   untagged.
     |"
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: except_constructors
     |"    If ``true``, do not flag non-dispatching calls to functions if the function

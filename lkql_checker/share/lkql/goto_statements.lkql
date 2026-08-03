@@ -3,8 +3,7 @@
 fun goto_statements(node, only_unconditional: bool = false) =
     |" Flag each occurrence of a ``goto`` statement.
     |"
-    |" This rule has the following optional parameter for the ``+R`` option and for
-    |" LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: only_unconditional
     |"    If ``true``, only flag unconditional goto statements, that is, goto statements

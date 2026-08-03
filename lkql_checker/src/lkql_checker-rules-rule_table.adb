@@ -1911,11 +1911,36 @@ package body Lkql_Checker.Rules.Rule_Table is
 
       for Rule_Cursor in All_Rules.Iterate loop
          declare
-            Rule          : constant Rule_Info := All_Rules (Rule_Cursor);
-            Instance_Name : constant String := Lower_Name (Rule);
-            Instance      : Rule_Instance_Access;
+            Rule                 : constant Rule_Info :=
+              All_Rules (Rule_Cursor);
+            Instance_Name        : constant String := Lower_Name (Rule);
+            Instance             : Rule_Instance_Access;
+            Non_Defaulted_Params : String_Vector;
          begin
-            if not All_Rule_Instances.Contains (Instance_Name) then
+            --  Collect all non-defaulted rule parameters
+            for I in 2 .. Rule.Parameters.Last_Index loop
+               if not Rule.Parameters.Element (I).Has_Default then
+                  Non_Defaulted_Params.Append
+                    ('"'
+                     & To_String
+                         (To_Wide_Wide_String
+                            (Rule.Parameters.Element (I).Name))
+                     & '"');
+               end if;
+            end loop;
+
+            --  Then create a default instance of this rule if no other
+            --  instance with the same name already exists and all parameters
+            --  have a default value.
+            if not Non_Defaulted_Params.Is_Empty then
+               Info
+                 ("rule """
+                  & To_String (Rule.Name)
+                  & """ has been skipped, some parameters require an explicit"
+                  & " value ("
+                  & Join (Non_Defaulted_Params, ", ")
+                  & ')');
+            elsif not All_Rule_Instances.Contains (Instance_Name) then
                Instance := Rule.Create_Instance (Is_Alias => False);
                Instance.Rule := Rule_Map.Key (Rule_Cursor);
                Instance.Source_Mode := General;
@@ -1987,7 +2012,11 @@ package body Lkql_Checker.Rules.Rule_Table is
                 (To_String (To_Wide_Wide_String (R.Subcategory)));
 
             for Param of R.Parameters loop
-               Rule.Parameters.Append (Param.F_Param_Identifier.Text);
+               Rule.Parameters.Append
+                 (Rule_Parameter'
+                    (Name        =>
+                       To_Unbounded_Text (Param.F_Param_Identifier.Text),
+                     Has_Default => not Param.F_Default_Expr.Is_Null));
             end loop;
 
             Rule.Remediation_Level := R.Remediation_Level;

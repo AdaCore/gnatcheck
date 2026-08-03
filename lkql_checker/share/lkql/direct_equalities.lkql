@@ -14,8 +14,7 @@ fun direct_equalities(node, actuals: list = []) =
     |" Flag infix calls to the predefined ``=`` and ``/=`` operators when one of the
     |" operands is a name of a data object provided as a rule parameter.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: actuals
     |"    A list of fully expanded Ada names of data objects declared by object

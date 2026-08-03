@@ -9,8 +9,7 @@ fun metrics_lsloc(unit, n : int = 5, subprograms: bool = false) =
     |" The metric counts the total number of declarations and the total number of
     |" statements.
     |"
-    |" This rule has the following parameters for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Maximum number of logical source lines a program declaration / body can have

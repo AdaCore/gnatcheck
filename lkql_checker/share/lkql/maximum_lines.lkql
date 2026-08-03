@@ -4,8 +4,7 @@ fun maximum_lines(unit, n: int = 10000) =
     |" Flags the file containing the source text of a compilation unit if this
     |" file contains more than N lines where N is a rule parameter
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"   Positive integer specifying the maximum allowed number of lines in

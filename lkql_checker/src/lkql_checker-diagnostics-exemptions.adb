@@ -44,7 +44,7 @@ package body Lkql_Checker.Diagnostics.Exemptions is
    type Exempt_Action is record
       Exemption_Control   : Exemption_Kinds;
       Exempted_Name       : Unbounded_String := Null_Unbounded_String;
-      Params              : Rule_Params;
+      Params              : Exemption_Params;
       Justification       : Unbounded_String := Null_Unbounded_String;
       Check_Justification : Boolean := True;
       Sloc_Range          : Langkit_Support.Slocs.Source_Location_Range;
@@ -189,7 +189,8 @@ package body Lkql_Checker.Diagnostics.Exemptions is
    --  Returns whether an exemption with the given ``Id`` already
    --  exists with any actual parameters.
 
-   function Params_Img (Params : Rule_Params; Rule : Rule_Id) return String;
+   function Params_Img
+     (Params : Exemption_Params; Rule : Rule_Id) return String;
    --  Returns an image of Params for display in diagnostics about the
    --  exemption mechanism.
 
@@ -575,7 +576,9 @@ package body Lkql_Checker.Diagnostics.Exemptions is
    -- Params_Img --
    ----------------
 
-   function Params_Img (Params : Rule_Params; Rule : Rule_Id) return String is
+   function Params_Img
+     (Params : Exemption_Params; Rule : Rule_Id) return String
+   is
       Res   : Unbounded_String;
       Count : Natural := 0;
    begin
@@ -607,7 +610,7 @@ package body Lkql_Checker.Diagnostics.Exemptions is
       SF        : SF_Id;
       SLOC      : String) return Exemption_Parameters.Set
    is
-      use Lkql_Checker.Rules.Exemption_Parameters;
+      use Exemption_Parameters;
 
       Is_Warning : constant Boolean := Rule in Warnings_Id | Style_Checks_Id;
       --  In case of Warnings rule, we consider parameters one by one.
@@ -1114,7 +1117,7 @@ package body Lkql_Checker.Diagnostics.Exemptions is
       SF          : constant SF_Id := File_Find (El.Unit.Get_Filename);
       Action      : Exempt_Action;
 
-      use Lkql_Checker.Rules.Exemption_Parameters;
+      use Exemption_Parameters;
       use LCO;
    begin
       Action.Unit := El.Unit;

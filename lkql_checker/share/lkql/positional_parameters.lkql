@@ -46,8 +46,7 @@ fun positional_parameters(node, all: bool = false) =
     |"   * if the called subprogram has only two parameters, the second parameter
     |"     of the call is not flagged;
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: all
     |"    If ``true``, all the positional parameter associations that can be replaced

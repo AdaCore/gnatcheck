@@ -1,6 +1,6 @@
 @check(message="use of forbidden identifier",
        category="Style", subcategory="Readability")
-fun name_clashes(node, forbidden: list = []) =
+fun name_clashes(node, dictionary_file: string, forbidden: list = []) =
     |" Check that certain names are not used as defining identifiers. The names that
     |" should not be used as identifiers must be listed in a dictionary file that is
     |" a rule parameter. A defining identifier is flagged if it is included in a
@@ -10,14 +10,14 @@ fun name_clashes(node, forbidden: list = []) =
     |" case the rule checks defining identifiers against the union of all the
     |" identifiers from all the dictionary files provided as the rule parameters.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
-    |" .. skip_param:: forbidden
-    |" *Dictionary_File: string = ""*
+    |" .. param:: dictionary_file
     |"    The name of a dictionary file. The name may contain references to environment
     |"    variables (e.g. $REPOSITORY_ROOT/my_dict.txt), they are replaced by the
     |"    values of these variables.
+    |"
+    |" .. skip_param:: forbidden
     |"
     |" A dictionary file is a plain text file. The maximum line length for this file
     |" is 1024 characters. If the line is longer than this limit, extra characters

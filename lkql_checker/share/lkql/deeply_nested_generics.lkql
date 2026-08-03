@@ -12,8 +12,7 @@ fun deeply_nested_generics(unit, n: int = 5) =
     |" The nesting level is the number of generic declarations that enclose the given
     |" (generic) declaration. Formal packages are not flagged by this rule.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Non-negative integer specifying the maximum nesting level for a generic

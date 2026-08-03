@@ -6,8 +6,7 @@ fun global_variables(node, only_public: bool = false) =
     |" declarations in nested packages and inside package instantiations are
     |" not flagged.
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: only_public
     |"    If ``true``, do not flag variable declarations in private library (generic)

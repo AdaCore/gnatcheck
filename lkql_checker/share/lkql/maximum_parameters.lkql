@@ -17,8 +17,7 @@ fun maximum_parameters(unit, n: int = 3) =
     |" declarations and subprogram instantiations, as well as declarations
     |" inside expanded generic instantiations are never flagged.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"   Positive integer specifying the maximum allowed total number of

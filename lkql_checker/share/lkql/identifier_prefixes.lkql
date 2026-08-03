@@ -61,8 +61,7 @@ fun identifier_prefixes(
     |" Note that the rule checks only defining names. Usage name occurrences are
     |" not checked and are never flagged.
     |"
-    |" The rule may have the following parameters for the ``+R`` option and for LKQL
-    |" rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: type
     |"    Specifies the prefix for a type or subtype name.
@@ -274,7 +273,7 @@ fun identifier_prefixes(
             |" Return the element from derived corresponding to t, if any, or ""
             val name = t.p_canonical_type()
                         .p_canonical_fully_qualified_name();
-            val res = [n for n in derived if name == n.split(":")[1]].to_list;
+            val res = [n for n in derived if name == n.split(":")[1].to_lower_case].to_list;
             if not res then "" else res[res.length]
         };
 

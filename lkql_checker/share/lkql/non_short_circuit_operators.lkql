@@ -19,8 +19,7 @@ fun non_short_circuit_operators(unit, except_assertions: bool = false) =
     |" declarations are not flagged. Calls to predefined ``and`` and ``or``
     |" operators for modular types or boolean array types are not flagged.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: except_assertions
     |"    If ``true``, do not flag the use of non-short-circuit operators inside

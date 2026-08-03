@@ -21,8 +21,7 @@ fun predicate_testing(node, except_assertions: bool = false) =
     |" Flags 'Valid attribute reference if the nominal subtype of the attribute
     |" prefix has (static or dynamic) subtype predicate.
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: except_assertions
     |"    If ``true``, do not flag an expression if it is a subcomponent of an

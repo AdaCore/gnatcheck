@@ -33,8 +33,7 @@ fun no_closing_names(node, n : int = 0) =
     |" Flag any program unit that is longer than N lines where N is a rule parameter
     |" and does not repeat its name after the trailing ``end`` keyword.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"   Positive integer specifying the maximal allowed number of lines in the

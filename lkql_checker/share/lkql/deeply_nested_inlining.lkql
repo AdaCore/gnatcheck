@@ -37,8 +37,7 @@ fun deeply_nested_inlining(node, n: int = 3) =
     |" analyzed for ...*", this means that such an analysis is incomplete, this
     |" may result in rule false negatives.
     |"
-    |" This rule has the following (mandatory) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: n
     |"    Positive integer specifying the maximum level of nested calls to

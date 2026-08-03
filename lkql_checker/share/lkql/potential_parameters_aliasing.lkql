@@ -14,8 +14,7 @@ fun potential_parameters_aliasing(unit, in_parameters: bool = false) =
     |" Note that this rule does not flag calls that are flagged by the
     |" *Parameters_Aliasing* rule and vice versa.
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: in_parameters
     |"    Whether to consider aliasing between ``out``, ``in out`` and ``in``

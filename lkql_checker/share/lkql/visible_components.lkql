@@ -18,8 +18,7 @@ fun visible_components(node, tagged_only: bool = false) =
     |" private packages, in package bodies, and in the main subprogram body are not
     |" flagged.
     |"
-    |" This rule has the following (optional) parameter for the ``+R`` option and
-    |" for LKQL rule options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: tagged_only
     |"    If ``true``, only declarations of tagged types are flagged.

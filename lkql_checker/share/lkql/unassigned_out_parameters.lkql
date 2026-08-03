@@ -53,8 +53,7 @@ fun unassigned_out_parameters(unit, ignore_component_assignments: bool = false) 
     |" * passing the parameter (or one of its components) as an ``out`` or
     |"   ``in out`` parameter.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: ignore_component_assignments
     |"    Whether to ignore assignments to subcomponents of an ``out`` parameter when

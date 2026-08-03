@@ -20,7 +20,9 @@ fun parameters_out_of_order(
 ) =
     |" Flag each parameter specification if it does not follow the required
     |" ordering of parameter specifications in a formal part. The required
-    |" order may be specified by the following rule parameter:
+    |" order may be specified through the rule parameter.
+    |"
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: order
     |"   A list of strings that must have 5 elements and that is specifying the

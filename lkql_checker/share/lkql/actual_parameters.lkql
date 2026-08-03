@@ -27,8 +27,7 @@ fun actual_parameters(node, forbidden: list = []) =
     |" parameter in the call to a specific subprogram. Subprograms, formal parameters and
     |" actual parameters to check are specified by the rule parameters.
     |"
-    |" The rule has an optional parameter for the ``+R`` option and for LKQL rule
-    |" options files:
+    |" .. rubric:: Rule parameters
     |"
     |" .. param:: forbidden
     |"    A list of strings formatted as follows: ``subprogram:formal:actual`` where
