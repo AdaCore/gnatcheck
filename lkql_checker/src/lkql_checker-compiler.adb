@@ -22,6 +22,7 @@ with Lkql_Checker.Source_Table;     use Lkql_Checker.Source_Table;
 with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
+with GNATCOLL.OS.FS;
 with GNATCOLL.VFS;  use GNATCOLL.VFS;
 
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
@@ -45,7 +46,7 @@ package body Lkql_Checker.Compiler is
      (Executable_Name : String;
       Args            : String_Vector;
       Stdout_File     : String;
-      Stderr_File     : String := "") return Process_Id;
+      Stderr_File     : String := "") return Process_Handle;
    --  Spawn a non blocking process from an executable name and an argument
    --  vector.
    --  You can specify output files for the process' stdout and stderr. If
@@ -102,7 +103,7 @@ package body Lkql_Checker.Compiler is
       Res                    : String_Sets.Set;
       GPRConfig_Exec         : String_Access :=
         Locate_Exec_On_Path ("gprconfig");
-      Args                   : Argument_List (1 .. 2);
+      Args                   : GNAT.OS_Lib.Argument_List (1 .. 2);
       Return_Code            : Integer := -1;
       Output_File_Descriptor : File_Descriptor;
       Output_File_Name       : String_Access;
@@ -339,12 +340,11 @@ package body Lkql_Checker.Compiler is
    ----------------------------
 
    procedure Analyze_Output
-     (Collector         : in out Diagnostic_Collector;
-      File_Name         : String;
-      Errors            : out Boolean;
-      Report_Unparsable : Boolean := True)
+     (Collector           : in out Diagnostic_Collector;
+      File_Name           : String;
+      Errors              : out Boolean;
+      Unparsable_Handling : Unparsable_Handling_Mode := Report_As_Error)
    is
-      Out_File : constant String := File_Name & ".out";
       Line     : String (1 .. 1024);
       Line_Len : Natural;
       File     : File_Type;
@@ -380,13 +380,18 @@ package body Lkql_Checker.Compiler is
 
          procedure Unparsable_Line is
          begin
-            if Report_Unparsable then
-               Error ("unparsable worker output: """ & Msg & """");
-               Errors := True;
-               Detected_Internal_Error := @ + 1;
-            else
-               Print (Msg);
-            end if;
+            case Unparsable_Handling is
+               when Forward         =>
+                  Print (Msg);
+
+               when Report_As_Error =>
+                  Error ("unparsable worker output: """ & Msg & '"');
+                  Errors := True;
+                  Detected_Internal_Error := @ + 1;
+
+               when Hide            =>
+                  null;
+            end case;
          end Unparsable_Line;
 
       begin
@@ -575,25 +580,6 @@ package body Lkql_Checker.Compiler is
 
    begin
       Errors := False;
-
-      --  If the .out file is not empty it means we got some errors, so display
-      --  them.
-
-      if Is_Regular_File (Out_File) and then Size (Out_File) /= 0 then
-         Error ("error when calling gprbuild, raw output:");
-
-         declare
-            Content : constant String :=
-              Read_File (Create (+Out_File)).To_String;
-         begin
-            if Content'Length = 0 then
-               raise Program_Error with "file not found: " & Out_File;
-            end if;
-            Print (Content (Content'First .. Content'Last - 1));
-         end;
-
-         Errors := True;
-      end if;
 
       Open (File => File, Mode => In_File, Name => File_Name);
 
@@ -1520,32 +1506,39 @@ package body Lkql_Checker.Compiler is
      (Executable_Name : String;
       Args            : String_Vector;
       Stdout_File     : String;
-      Stderr_File     : String := "") return Process_Id
+      Stderr_File     : String := "") return Process_Handle
    is
-      Alloc_Args : Argument_List (1 .. Integer (Args.Length));
-      Pid        : Process_Id;
+      package FS renames GNATCOLL.OS.FS;
+      use type FS.File_Descriptor;
+
+      Process_Args : GNATCOLL.OS.Process.Argument_List;
+      Stdout_FD    : constant FS.File_Descriptor :=
+        FS.Open (Stdout_File, FS.Write_Mode);
+      Stderr_FD    : constant FS.File_Descriptor :=
+        (if Stderr_File = ""
+         then FS.To_Stdout
+         else FS.Open (Stderr_File, FS.Write_Mode));
+      Handle       : Process_Handle;
    begin
-      --  Fill the argument list
-      for I in Alloc_Args'Range loop
-         Alloc_Args (I) := new String'(Args (I));
+      --  Fill the argument list, the executable name being its first element
+      Process_Args.Append (Executable_Name);
+      for Arg of Args loop
+         Process_Args.Append (Arg);
       end loop;
 
-      --  Call the process
-      if Stderr_File = "" then
-         Pid := Non_Blocking_Spawn (Executable_Name, Alloc_Args, Stdout_File);
-      else
-         Pid :=
-           Non_Blocking_Spawn
-             (Executable_Name, Alloc_Args, Stdout_File, Stderr_File);
+      --  Call the process, redirecting its stdout/stderr to the given files
+      Handle :=
+        Start (Args => Process_Args, Stdout => Stdout_FD, Stderr => Stderr_FD);
+
+      --  Close our copy of the output file descriptors: the child process
+      --  keeps its own through the duplication done while spawning it.
+      FS.Close (Stdout_FD);
+      if Stderr_FD /= FS.To_Stdout then
+         FS.Close (Stderr_FD);
       end if;
 
-      --  Free allocated arguments
-      for I in Alloc_Args'Range loop
-         Free (Alloc_Args (I));
-      end loop;
-
-      --  Finally return the process id
-      return Pid;
+      --  Finally return the process handle
+      return Handle;
    end Spawn_Process;
 
    ---------------------------
@@ -1779,11 +1772,11 @@ package body Lkql_Checker.Compiler is
      (Rule_File   : String;
       Msg_File    : String;
       Source_File : String;
-      Log_File    : String) return Process_Id
+      Log_File    : String) return Process_Handle
    is
       use Ada.Strings.Unbounded;
 
-      Pid           : Process_Id;
+      Handle        : Process_Handle;
       Split_Command : constant String_Vector := Split (Worker_Name, ' ');
       Worker        : GNAT.OS_Lib.String_Access := null;
       Args          : String_Vector;
@@ -1842,10 +1835,10 @@ package body Lkql_Checker.Compiler is
          New_Line;
       end if;
 
-      --  Call the GNATcheck worker and return the process id
-      Pid := Spawn_Process (Worker.all, Args, Msg_File);
+      --  Call the GNATcheck worker and return the process handle
+      Handle := Spawn_Process (Worker.all, Args, Msg_File);
       Free (Worker);
-      return Pid;
+      return Handle;
    end Spawn_Checker_Worker;
 
    -----------------------------------
@@ -1853,9 +1846,9 @@ package body Lkql_Checker.Compiler is
    -----------------------------------
 
    function Spawn_LKQL_Rule_File_Parser
-     (LKQL_RF_Name : String; Result_File : String) return Process_Id
+     (LKQL_RF_Name : String; Result_File : String) return Process_Handle
    is
-      Pid           : Process_Id;
+      Handle        : Process_Handle;
       Split_Command : constant String_Vector := Split (Worker_Name, ' ');
       Worker        : String_Access := null;
       Args          : String_Vector;
@@ -1892,20 +1885,20 @@ package body Lkql_Checker.Compiler is
          New_Line;
       end if;
 
-      --  Spawn the process and return the associated process ID
-      Pid := Spawn_Process (Worker.all, Args, Result_File);
+      --  Spawn the process and return the associated process handle
+      Handle := Spawn_Process (Worker.all, Args, Result_File);
       Free (Worker);
-      return Pid;
+      return Handle;
    end Spawn_LKQL_Rule_File_Parser;
 
    --------------------
    -- Spawn_GPRbuild --
    --------------------
 
-   function Spawn_GPRbuild (Output_File : String) return Process_Id is
+   function Spawn_GPRbuild (Output_File : String) return Process_Handle is
       use Ada.Strings.Unbounded;
 
-      Pid         : Process_Id;
+      Handle      : Process_Handle;
       GPRbuild    : GNAT.OS_Lib.String_Access :=
         Locate_Exec_On_Path (GPRbuild_Exec);
       Last_Source : constant SF_Id := Last_Argument_Source;
@@ -1991,11 +1984,11 @@ package body Lkql_Checker.Compiler is
          New_Line;
       end if;
 
-      --  Spawn gprbuild and return the process id
-      Pid :=
+      --  Spawn gprbuild and return the process handle
+      Handle :=
         Spawn_Process (GPRbuild.all, Args, Output_File & ".out", Output_File);
       Free (GPRbuild);
-      return Pid;
+      return Handle;
    end Spawn_GPRbuild;
 
    --------------------------

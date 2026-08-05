@@ -1,0 +1,81 @@
+Without debug mode
+==================
+
+1. Summary
+
+   fully compliant sources               : 0
+   sources with exempted violations only : 0
+   sources with non-exempted violations  : 0
+   unverified sources                    : 1
+   total sources                         : 1
+   ignored sources                       : 0
+
+   non-exempted violations               : 0
+   rule exemption warnings               : 0
+   compilation errors                    : 1
+   exempted violations                   : 0
+   internal errors                       : 0
+
+2. Exempted Coding Standard Violations
+
+   no exempted violations detected
+
+3. Non-exempted Coding Standard Violations
+
+   no non-exempted violations detected
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+main.adb:3:08: error: missing ";"
+
+6. Gnatcheck internal errors
+
+   no internal error detected
+
+
+With debug mode
+===============
+
+<gnatcheck_worker_exe> --parse-lkql-config <working-dir>/rules.lkql
+<gnatcheck_worker_exe> -d --files-from=<working-dir>/gnatcheck/gnatcheck-files1.TMP --rules-from=<working-dir>/gnatcheck/gnatcheck-rules0.TMP --log-file=<working-dir>/gnatcheck/gnatcheck-log1.TMP -P prj.gpr --subdirs=gnatcheck --target=<target> -XGPR_TOOL=gnatcheck
+gprbuild -c -s -k -q --no-object-check --complete-output --restricted-to-languages=ada -f -P prj.gpr --subdirs=gnatcheck --target=<target> -XGPR_TOOL=gnatcheck -gnatec=<working-dir>/gnatcheck/restriction_pragmas.adc -gnatcU -gnatwnA.d -gnatyN
+[Ada Compile] main.adb (prj.gpr) failed.
+1. Summary
+
+   fully compliant sources               : 0
+   sources with exempted violations only : 0
+   sources with non-exempted violations  : 0
+   unverified sources                    : 1
+   total sources                         : 1
+   ignored sources                       : 0
+
+   non-exempted violations               : 0
+   rule exemption warnings               : 0
+   compilation errors                    : 1
+   exempted violations                   : 0
+   internal errors                       : 0
+
+2. Exempted Coding Standard Violations
+
+   no exempted violations detected
+
+3. Non-exempted Coding Standard Violations
+
+   no non-exempted violations detected
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+main.adb:3:08: error: missing ";"
+
+6. Gnatcheck internal errors
+
+   no internal error detected
+

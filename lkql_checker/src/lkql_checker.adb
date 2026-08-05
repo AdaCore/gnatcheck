@@ -13,8 +13,9 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
-with GNATCOLL.Opt_Parse; use GNATCOLL.Opt_Parse;
-with GNATCOLL.Strings;   use GNATCOLL.Strings;
+with GNATCOLL.Opt_Parse;  use GNATCOLL.Opt_Parse;
+with GNATCOLL.OS.Process; use GNATCOLL.OS.Process;
+with GNATCOLL.Strings;    use GNATCOLL.Strings;
 
 with GPR2.Options;
 
@@ -196,16 +197,16 @@ package body Lkql_Checker is
    --------------------
 
    procedure Schedule_Files (Collector : in out Diagnostic_Collector) is
-      Minimum_Files : constant := 10;
-      Num_Files     : Natural := 0;
-      Num_Jobs      : Natural := 0;
-      Current       : Natural := 0;
-      Files_Per_Job : Natural;
-      File          : Ada.Text_IO.File_Type;
-      Status        : Boolean;
-      Total_Jobs    : Natural;
-      Process_Num   : Natural := Tool_Args.Jobs.Get;
-      GPRbuild_Pid  : Process_Id := Invalid_Pid;
+      Minimum_Files   : constant := 10;
+      Num_Files       : Natural := 0;
+      Num_Jobs        : Natural := 0;
+      Current         : Natural := 0;
+      Files_Per_Job   : Natural;
+      File            : Ada.Text_IO.File_Type;
+      Status          : Boolean;
+      Total_Jobs      : Natural;
+      Process_Num     : Natural := Tool_Args.Jobs.Get;
+      GPRbuild_Handle : Process_Handle := Invalid_Handle;
    begin
       --  Compute number of files
 
@@ -252,8 +253,7 @@ package body Lkql_Checker is
       --  Process each job with all rules and a different subset of files
 
       declare
-         Pids    : array (1 .. Num_Jobs) of Process_Id;
-         Pid     : Process_Id;
+         Handles : Process_Array (1 .. Num_Jobs) := [others => Invalid_Handle];
          Next_SF : SF_Id := First_SF_Id;
          Files   : Natural;
 
@@ -267,11 +267,33 @@ package body Lkql_Checker is
 
          procedure Wait_Lkql_Checker is
             Process_Found : Boolean := False;
+            Handle        : Process_Handle;
+            Exit_Code     : Integer;
          begin
             loop
-               Wait_Process (Pid, Status);
+               declare
+                  Active       : Process_Array (1 .. Num_Jobs + 1);
+                  Active_Count : Natural := 0;
+               begin
+                  for Job of Handles loop
+                     if Job /= Invalid_Handle then
+                        Active_Count := @ + 1;
+                        Active (Active_Count) := Job;
+                     end if;
+                  end loop;
 
-               if Pid = Invalid_Pid then
+                  if GPRbuild_Handle /= Invalid_Handle then
+                     Active_Count := @ + 1;
+                     Active (Active_Count) := GPRbuild_Handle;
+                  end if;
+
+                  Handle :=
+                    (if Active_Count = 0
+                     then Invalid_Handle
+                     else Wait_For_Processes (Active (1 .. Active_Count)));
+               end;
+
+               if Handle = Invalid_Handle then
                   --  We still want to set Current to avoid going into an
                   --  infinite loop in Schedule_Files: if we are there, it
                   --  means there are no more processes to wait for.
@@ -283,6 +305,9 @@ package body Lkql_Checker is
                      & "incomplete.");
                   return;
                end if;
+
+               --  Reap the process and retrieve its exit code
+               Exit_Code := Wait (Handle);
 
                Current := @ + 1;
 
@@ -311,17 +336,26 @@ package body Lkql_Checker is
                      New_Line => False);
                end if;
 
-               if Pid = GPRbuild_Pid then
+               if Handle = GPRbuild_Handle then
+                  GPRbuild_Handle := Invalid_Handle;
+
+                  --  Analyze the GPRbuild output, forwarding non-diagnostic
+                  --  message if the debug mode is enabled of if the there
+                  --  was a real error (invalid config or internal error).
                   Analyze_Output
                     (Collector,
                      Global_Report_Dir.all & "gprbuild.err",
                      Status,
-                     Report_Unparsable => Tool_Args.Debug_Mode.Get);
+                     Unparsable_Handling =>
+                       (if Tool_Args.Debug_Mode.Get or else Exit_Code in 1 | 7
+                        then Forward
+                        else Hide));
                   exit when Current = Total_Jobs;
 
                else
-                  for Job in Pids'Range loop
-                     if Pids (Job) = Pid then
+                  for Job in Handles'Range loop
+                     if Handles (Job) = Handle then
+                        Handles (Job) := Invalid_Handle;
                         Analyze_Output
                           (Collector, File_Name ("out", Job), Status);
                         Process_Found := True;
@@ -370,7 +404,7 @@ package body Lkql_Checker is
             Close (File);
 
             --  Spawn a checker worker
-            Pids (Job) :=
+            Handles (Job) :=
               Spawn_Checker_Worker
                 (File_Name ("rules", 0),
                  File_Name ("out", Job),
@@ -390,7 +424,7 @@ package body Lkql_Checker is
          --  Now that some processes are free, spawn gprbuild in background
 
          if Analyze_Compiler_Output then
-            GPRbuild_Pid :=
+            GPRbuild_Handle :=
               Spawn_GPRbuild (Global_Report_Dir.all & "gprbuild.err");
          end if;
 

@@ -1,0 +1,10 @@
+driver: gnatcheck
+project: prj.gpr
+check_semantic: true
+canonicalize_target: true
+
+tests:
+  - label: Without debug mode
+  - label: With debug mode
+    extra_args:
+      - -d

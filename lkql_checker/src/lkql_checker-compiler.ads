@@ -10,6 +10,8 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
+with GNATCOLL.OS.Process; use GNATCOLL.OS.Process;
+
 with Lkql_Checker.Diagnostics; use Lkql_Checker.Diagnostics;
 with Lkql_Checker.Rules;       use Lkql_Checker.Rules;
 
@@ -75,17 +77,20 @@ package Lkql_Checker.Compiler is
    --  warning ON/OFF. If Restrictions rules are specified, this file contains
    --  the corresponding Restriction_Warnings pragmas.
 
+   type Unparsable_Handling_Mode is (Hide, Forward, Report_As_Error);
+   --  The way an unparsable line should be treated by the ``Analyze_Output``
+   --  procedure.
+
    procedure Analyze_Output
-     (Collector         : in out Diagnostic_Collector;
-      File_Name         : String;
-      Errors            : out Boolean;
-      Report_Unparsable : Boolean := True);
+     (Collector           : in out Diagnostic_Collector;
+      File_Name           : String;
+      Errors              : out Boolean;
+      Unparsable_Handling : Unparsable_Handling_Mode := Report_As_Error);
    --  Parses the given file (typically error output of gprbuild or the worker)
    --  and store all the relevant messages.
-   --  If some compiler errors are detected, set Errors to True.
-   --  ``Report_Unparsable`` tells whether to emit an error when an unparsable
-   --  line is encountered in the output. If it is false, the line is simply
-   --  forwarded in the tool output.
+   --  Following the ``Unparsable_Handling`` parameter, this function may
+   --  report internal error when an unparsable message is encountered in the
+   --  output.
 
    procedure Process_Restriction_Param
      (Parameter : String; Instance : Rule_Instance_Access);
@@ -167,20 +172,20 @@ package Lkql_Checker.Compiler is
      (Rule_File   : String;
       Msg_File    : String;
       Source_File : String;
-      Log_File    : String) return Process_Id;
+      Log_File    : String) return Process_Handle;
    --  Spawn a worker (LKQL) on the main project file with the relevant options
    --  on the rules given by Rule_File, redirecting the output to Msg_File.
    --  Source_File is the name of a file listing all the source files to
    --  analyze. Log_File is the name of a file used to store worker's logs.
 
    function Spawn_LKQL_Rule_File_Parser
-     (LKQL_RF_Name : String; Result_File : String) return Process_Id;
+     (LKQL_RF_Name : String; Result_File : String) return Process_Handle;
    --  Spawn the executable which handles the LKQL rule config file parsing
-   --  with the provided `LKQL_RF_Name` then return the process identifier
+   --  with the provided `LKQL_RF_Name` then return the process handle
    --  associated to it. Redirects all output made by the process in the
    --  `Result_File` file.
 
-   function Spawn_GPRbuild (Output_File : String) return Process_Id;
+   function Spawn_GPRbuild (Output_File : String) return Process_Handle;
    --  Spawn gprbuild on the main project file with the relevant options,
    --  redirecting the standard error to the given Output_File, to be used by
    --  Analyze_Output.

@@ -18,6 +18,8 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNAT.Regexp; use GNAT.Regexp;
 with GNAT.Table;
 
+with GNATCOLL.OS.Process; use GNATCOLL.OS.Process;
+
 with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
 with Lkql_Checker.JSON_Utilities;   use Lkql_Checker.JSON_Utilities;
 with Lkql_Checker.Options;          use Lkql_Checker.Options;
@@ -958,8 +960,8 @@ package body Lkql_Checker.Rules.Rule_Table is
    is
       JSON_Config_File_Name : constant String :=
         Global_Report_Dir.all & Lkql_Checker_Mode_Image & "-rules.json.out";
-      Parser_Pid            : Process_Id;
-      Waited_Pid            : Process_Id;
+      Parser_Handle         : Process_Handle;
+      Exit_Code             : Integer;
       Success               : Boolean;
       Analyze_Error         : Boolean;
       Config_JSON           : Read_Result;
@@ -984,11 +986,11 @@ package body Lkql_Checker.Rules.Rule_Table is
       end if;
 
       --  Call the LKQL rule config file parser and parse its result
-      Parser_Pid :=
+      Parser_Handle :=
         Spawn_LKQL_Rule_File_Parser (LKQL_RF_Name, JSON_Config_File_Name);
-      Wait_Process (Waited_Pid, Success);
+      Exit_Code := Wait (Parser_Handle);
 
-      if Parser_Pid /= Waited_Pid or else not Success then
+      if Exit_Code /= 0 then
          Error ("can not call the LKQL rule file parser");
          Rule_Option_Problem_Detected := True;
       else
