@@ -409,8 +409,7 @@ package body Lkql_Checker is
               Spawn_Checker_Worker
                 (File_Name ("rules", 0),
                  File_Name ("out", Job),
-                 File_Name ("files", Job),
-                 File_Name ("log", Job));
+                 File_Name ("files", Job));
 
             if Next_SF > Last_Argument_Source then
                Total_Jobs := @ - Num_Jobs + Job;

@@ -2083,10 +2083,7 @@ package body Lkql_Checker.Compiler is
    --------------------------
 
    function Spawn_Checker_Worker
-     (Rule_File   : String;
-      Msg_File    : String;
-      Source_File : String;
-      Log_File    : String) return Process_Handle
+     (Rule_File, Msg_File, Source_File : String) return Process_Handle
    is
       use Ada.Strings.Unbounded;
 
@@ -2129,7 +2126,6 @@ package body Lkql_Checker.Compiler is
 
       Args.Append ("--files-from=" & Source_File);
       Args.Append ("--rules-from=" & Rule_File);
-      Args.Append ("--log-file=" & Log_File);
 
       --  Pass GPR options
       Checker_Prj.Get_Cli_Options (Args);
