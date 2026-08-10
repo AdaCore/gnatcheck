@@ -61,6 +61,15 @@ package body Lkql_Checker.Compiler is
    --  ``Stderr_File`` is an empty string, then stderr is redirected to stdout
    --  and captured in ``Stdout_File``.
 
+   function Spawn_LKQL
+     (Rule_File, Source_File, Output_File : String; Parse_Rule_File : Boolean)
+      return Process_Handle;
+   --  Spawn a non blocking LKQL process with the provided ``Rule_File`` and
+   --  ``Source_File``. Place all output of LKQL in the ``Output_File``.
+   --
+   --  If ``Parse_Rule_File`` is true, only process the provided rule file to
+   --  extract the config from it without running the checking process.
+
    procedure Process_Style_Options (Param : String);
    --  Stores Param as parameter of the compiler -gnaty... option as is,
    --  (if some -gnaty... parameter has already been stored, appends Param to
@@ -1855,6 +1864,91 @@ package body Lkql_Checker.Compiler is
       return Handle;
    end Spawn_Process;
 
+   ----------------
+   -- Spawn_LKQL --
+   ----------------
+
+   function Spawn_LKQL
+     (Rule_File, Source_File, Output_File : String; Parse_Rule_File : Boolean)
+      return Process_Handle
+   is
+      use Ada.Strings.Unbounded;
+
+      Handle        : Process_Handle;
+      Split_Command : constant String_Vector := Split (Worker_Name, ' ');
+      Worker        : GNAT.OS_Lib.String_Access := null;
+      Args          : String_Vector;
+   begin
+      --  Split the worker command into the name of the executable plus its
+      --  arguments. We do that because the call to Spawn_Process expects the
+      --  full path to the executable and the list of arguments as separate
+      --  arguments.
+      for Arg of Split_Command loop
+         if Worker = null then
+            Worker := Locate_Exec_On_Path (Arg);
+         else
+            Args.Append (Arg);
+         end if;
+      end loop;
+
+      --  Test if the worker executable exists
+      if Worker = null then
+         Error
+           ("cannot locate the worker executable: " & Base_Name (Worker_Name));
+         raise Fatal_Error;
+      end if;
+
+      --  Pass LKQL specific options
+      if Tool_Args.Verbose.Get then
+         Args.Append ("--verbose");
+      end if;
+
+      if Tool_Args.Debug_Mode.Get then
+         Args.Append ("-d");
+      end if;
+
+      for Dir of Tool_Args.Rules_Dirs.Get loop
+         Args.Append ("--rules-dir=" & To_String (Dir));
+      end loop;
+
+      if Source_File /= "" then
+         Args.Append ("--files-from=" & Source_File);
+      end if;
+
+      if Parse_Rule_File then
+         Args.Append ("--parse-lkql-config=" & Rule_File);
+      else
+         Args.Append ("--rules-from=" & Rule_File);
+      end if;
+
+      if Tool_Args.Show_Instantiation_Chain.Get then
+         Args.Append ("--report-instantiation-chain");
+      end if;
+
+      --  Pass GPR options
+      Checker_Prj.Get_Cli_Options (Args);
+
+      if GPR_Args.Aggregated_Project then
+         Args.Append ("-A" & To_String (GPR_Args.Aggregate_Subproject.Get));
+      end if;
+
+      --  Log the spawned command for debug purposes
+      if Tool_Args.Debug_Mode.Get then
+         --  For testing purposes, we don't want to put the full path to the
+         --  worker command, if it is a full path. We just want the base name.
+         Put (Base_Name (Worker.all));
+         for Arg of Args loop
+            Put (" " & Arg);
+         end loop;
+         New_Line;
+      end if;
+
+      --  Call the LKQL executable and return the process handle
+      Handle := Spawn_Process (Worker.all, Args, Output_File);
+      Free (Worker);
+      return Handle;
+   end Spawn_LKQL;
+
    ---------------------------
    -- Process_Style_Options --
    ---------------------------
@@ -2083,72 +2177,11 @@ package body Lkql_Checker.Compiler is
    --------------------------
 
    function Spawn_Checker_Worker
-     (Rule_File, Msg_File, Source_File : String) return Process_Handle
-   is
-      use Ada.Strings.Unbounded;
-
-      Handle        : Process_Handle;
-      Split_Command : constant String_Vector := Split (Worker_Name, ' ');
-      Worker        : GNAT.OS_Lib.String_Access := null;
-      Args          : String_Vector;
+     (Rule_File, Msg_File, Source_File : String) return Process_Handle is
    begin
-      --  Split the worker command into the name of the executable plus its
-      --  arguments. We do that because the call to Spawn_Process expects the
-      --  full path to the executable and the list of arguments as separate
-      --  arguments.
-      for Arg of Split_Command loop
-         if Worker = null then
-            Worker := Locate_Exec_On_Path (Arg);
-         else
-            Args.Append (Arg);
-         end if;
-      end loop;
-
-      --  Test if the worker executable exists
-      if Worker = null then
-         Error
-           ("cannot locate the worker executable: " & Base_Name (Worker_Name));
-         raise Fatal_Error;
-      end if;
-
-      --  Pass LKQL specific options
-      if Tool_Args.Debug_Mode.Get then
-         Args.Append ("-d");
-      end if;
-
-      if Tool_Args.Show_Instantiation_Chain.Get then
-         Args.Append ("--report-instantiation-chain");
-      end if;
-
-      for Dir of Tool_Args.Rules_Dirs.Get loop
-         Args.Append ("--rules-dir=" & To_String (Dir));
-      end loop;
-
-      Args.Append ("--files-from=" & Source_File);
-      Args.Append ("--rules-from=" & Rule_File);
-
-      --  Pass GPR options
-      Checker_Prj.Get_Cli_Options (Args);
-
-      if GPR_Args.Aggregated_Project then
-         Args.Append ("-A" & To_String (GPR_Args.Aggregate_Subproject.Get));
-      end if;
-
-      --  Log the spawned command for debug purposes
-      if Tool_Args.Debug_Mode.Get then
-         --  For testing purposes, we don't want to put the full path to the
-         --  worker command, if it is a full path. We just want the base name.
-         Put (Base_Name (Worker.all));
-         for Arg of Args loop
-            Put (" " & Arg);
-         end loop;
-         New_Line;
-      end if;
-
-      --  Call the GNATcheck worker and return the process handle
-      Handle := Spawn_Process (Worker.all, Args, Msg_File);
-      Free (Worker);
-      return Handle;
+      return
+        Spawn_LKQL
+          (Rule_File, Source_File, Msg_File, Parse_Rule_File => False);
    end Spawn_Checker_Worker;
 
    -----------------------------------
@@ -2156,49 +2189,10 @@ package body Lkql_Checker.Compiler is
    -----------------------------------
 
    function Spawn_LKQL_Rule_File_Parser
-     (LKQL_RF_Name : String; Result_File : String) return Process_Handle
-   is
-      Handle        : Process_Handle;
-      Split_Command : constant String_Vector := Split (Worker_Name, ' ');
-      Worker        : String_Access := null;
-      Args          : String_Vector;
+     (LKQL_RF_Name, Result_File : String) return Process_Handle is
    begin
-      --  Call the checker worker with the '--parse-lkql-config' option to get
-      --  the rule configuration from the provided rule file.
-      for Arg of Split_Command loop
-         if Worker = null then
-            Worker := Locate_Exec_On_Path (Arg);
-         else
-            Args.Append (Arg);
-         end if;
-      end loop;
-
-      if Worker = null then
-         Error
-           ("cannot locate the worker executable: " & Base_Name (Worker_Name));
-         raise Fatal_Error;
-      end if;
-
-      Args.Append ("--parse-lkql-config");
-      Args.Append (LKQL_RF_Name);
-
-      if Tool_Args.Verbose.Get then
-         Args.Append ("--verbose");
-      end if;
-
-      --  Output the called command if in debug mode
-      if Tool_Args.Debug_Mode.Get then
-         Put (Base_Name (Worker.all));
-         for Arg of Args loop
-            Put (" " & Arg);
-         end loop;
-         New_Line;
-      end if;
-
-      --  Spawn the process and return the associated process handle
-      Handle := Spawn_Process (Worker.all, Args, Result_File);
-      Free (Worker);
-      return Handle;
+      return
+        Spawn_LKQL (LKQL_RF_Name, "", Result_File, Parse_Rule_File => True);
    end Spawn_LKQL_Rule_File_Parser;
 
    --------------------
