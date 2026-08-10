@@ -141,14 +141,15 @@ package body Lkql_Checker.Rules.Rule_Table is
    --  that the instance cannot be instantiated at ``Instantiation_Location``
    --  because it has already be registered.
 
-   procedure Process_Rule_Object
+   procedure Process_Instance_Object
      (LKQL_Rule_File_Name, Rule_Name, Instance_Name : String;
       Source_Mode                                   : Source_Modes;
       Params_Object                                 : JSON_Value);
-   --  Process a JSON object representing a rule option coming from the JSON
-   --  configuration file.
-   --  This function populates the `All_Rules` table according to the given
-   --  rule object.
+   --  Process a rule instance configuration extracted from a SARIF file with
+   --  all its parameters in a JSON object.
+   --
+   --  This function populates the ``All_Rules`` and ``All_Rule_Instances``
+   --  tables according to the given configuration.
 
    ----------------------------
    -- Get_Or_Create_Instance --
@@ -1150,7 +1151,7 @@ package body Lkql_Checker.Rules.Rule_Table is
                            then Config.Get ("args")
                            else Create_Object);
                      begin
-                        Process_Rule_Object
+                        Process_Instance_Object
                           (LKQL_Rule_File,
                            Rule_Id,
                            Instance_Name,
@@ -1482,7 +1483,7 @@ package body Lkql_Checker.Rules.Rule_Table is
    -- Process_Rule_Object --
    -------------------------
 
-   procedure Process_Rule_Object
+   procedure Process_Instance_Object
      (LKQL_Rule_File_Name, Rule_Name, Instance_Name : String;
       Source_Mode                                   : Source_Modes;
       Params_Object                                 : JSON_Value)
@@ -1597,7 +1598,7 @@ package body Lkql_Checker.Rules.Rule_Table is
             & Precise_Rule_Name
             & ": "
             & Exception_Message (E));
-   end Process_Rule_Object;
+   end Process_Instance_Object;
 
    --------------------------------
    -- Process_Compiler_Instances --
