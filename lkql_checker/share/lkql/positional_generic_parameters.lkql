@@ -32,6 +32,9 @@ fun positional_generic_parameters(node) =
     |" the generic unit being instantiated has exactly one generic formal
     |" parameter.
     |"
+    |" The box ``<>`` used as a formal package actual part is not flagged: it
+    |" stands for ``others => <>``, so it is not a positional association.
+    |"
     |" .. rubric:: Example
     |"
     |" .. code-block:: ada
@@ -51,6 +54,7 @@ fun positional_generic_parameters(node) =
     |"       package My_Int_IO is new  Ada.Text_IO.Integer_IO (My_Int);
     node is ParamAssoc(
         f_designator: null,
+        f_r_expr: not BoxExpr,
         parent: l@AssocList(parent: g@GenericInstantiation)
     )
     when l.children_count > 1
