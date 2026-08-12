@@ -24,4 +24,20 @@ package Pos is
                                    Fun_2,        --  FLAG
                                    Fun_1);       --  FLAG
 
+   generic
+      D_Par1 : Integer := 1;
+      D_Par2 : Integer := 2;
+   package Pack_D is
+   end Pack_D;
+
+   generic
+      with package F_Box is new Pack_D (<>);   --  NOFLAG
+   package Box_Client is
+   end Box_Client;
+
+   generic
+      with package F_Pos is new Pack_D (1, 2); --  FLAG (2)
+   package Pos_Client is
+   end Pos_Client;
+
 end Pos;

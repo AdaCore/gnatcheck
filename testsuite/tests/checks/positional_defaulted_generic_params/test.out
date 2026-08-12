@@ -10,6 +10,14 @@ pos.ads:25:36: rule violation: use named notation when passing actual to default
 25 |                                    Fun_1);       --  FLAG
    |                                    ^^^^^
 
+pos.ads:39:41: rule violation: use named notation when passing actual to defaulted generic parameter
+39 |       with package F_Pos is new Pack_D (1, 2); --  FLAG (2)
+   |                                         ^
+
+pos.ads:39:44: rule violation: use named notation when passing actual to defaulted generic parameter
+39 |       with package F_Pos is new Pack_D (1, 2); --  FLAG (2)
+   |                                            ^
+
 Patched "pos.ads":
 ==================
 
@@ -40,6 +48,22 @@ package Pos is
         I_Par2 => 2,            --  FLAG
         Fun_1  => Fun_2,        --  FLAG
         Fun_3  => Fun_1);       --  FLAG
+
+   generic
+      D_Par1 : Integer := 1;
+      D_Par2 : Integer := 2;
+   package Pack_D is
+   end Pack_D;
+
+   generic
+      with package F_Box is new Pack_D (<>);   --  NOFLAG
+   package Box_Client is
+   end Box_Client;
+
+   generic
+      with package F_Pos is new Pack_D (D_Par1 => 1, D_Par2 => 2); --  FLAG (2)
+   package Pos_Client is
+   end Pos_Client;
 
 end Pos;
 

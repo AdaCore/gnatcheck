@@ -46,6 +46,18 @@ pos.adb:43:26: rule violation: positional generic association
 43 |    package I_D is new D (1);  -- FLAG
    |                          ^
 
+pos.adb:51:36: rule violation: positional generic association
+51 |       with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
+   |                                    ^
+
+pos.adb:51:39: rule violation: positional generic association
+51 |       with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
+   |                                       ^
+
+pos.adb:51:42: rule violation: positional generic association
+51 |       with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
+   |                                          ^
+
 Patched "pos.adb":
 ==================
 
@@ -94,6 +106,16 @@ procedure Pos (I : in out Integer) is
    end D;
 
    package I_D is new D (A => 1);  -- FLAG
+
+   generic
+      with package F_Box is new G (<>);  -- NOFLAG
+   package Box_Client is
+   end Box_Client;
+
+   generic
+      with package F_Pos is new G (A => 1, B => 2, C => 3);  -- FLAG (3)
+   package Pos_Client is
+   end Pos_Client;
 
 begin
    null;

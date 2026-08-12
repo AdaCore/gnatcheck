@@ -42,6 +42,16 @@ procedure Pos (I : in out Integer) is
 
    package I_D is new D (1);  -- FLAG
 
+   generic
+      with package F_Box is new G (<>);  -- NOFLAG
+   package Box_Client is
+   end Box_Client;
+
+   generic
+      with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
+   package Pos_Client is
+   end Pos_Client;
+
 begin
    null;
 end Pos;
