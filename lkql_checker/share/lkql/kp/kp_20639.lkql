@@ -1,0 +1,19 @@
+import stdlib
+
+@check(help="flag unchecked conversion of an array with a reversed 'Scalar_Storage_Order' w.r.t. the target native storage order to a floating type",
+       message="possible occurrence of KP 20639")
+fun kp_20639(node) =
+    |" Flag unchecked conversion of an array object to a floating point type
+    |" where the array is subject to a ``Scalar_Storage_Order`` aspect or
+    |" clause that gives it the reversed storage order regarding the target
+    |" native storage order
+    stdlib.is_unchecked_conversion(node)
+    and {
+        val inst_params = node.p_inst_params();
+        val source_type = stdlib.get_parameter_with_name(inst_params, "source")?.p_referenced_decl?();
+        val target_type = stdlib.get_parameter_with_name(inst_params, "target")?.p_referenced_decl?();
+        source_type is BasicDecl and target_type is BasicDecl
+        and source_type.p_is_array_type()
+        and stdlib.has_non_default_sso(source_type)
+        and target_type.p_is_float_type()
+    }

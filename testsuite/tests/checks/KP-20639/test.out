@@ -1,0 +1,16 @@
+main.adb:26:13: rule violation: possible occurrence of KP 20639
+26 |    function Int_Arr_To_Float is new  -- FLAG
+   |             ^^^^^^^^^^^^^^^^
+
+main.adb:31:13: rule violation: possible occurrence of KP 20639
+31 |    function Int_Arr_To_Float_Positional is new  -- FLAG
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:36:13: rule violation: possible occurrence of KP 20639
+36 |    function Int_Arr_To_My_Float is new  -- FLAG
+   |             ^^^^^^^^^^^^^^^^^^^
+
+main.adb:46:13: rule violation: possible occurrence of KP 20639
+46 |    function Int_Arr_Aspect_To_Float is new  -- FLAG
+   |             ^^^^^^^^^^^^^^^^^^^^^^^
+
