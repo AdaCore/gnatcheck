@@ -6,6 +6,20 @@ test.adb:4:4: rule violation: redundant boolean expression
   ||
 8 ||    end if;
   ||__________^
+fix proposal:
+  in test.adb:
+  2      X : Boolean;
+  3   begin
+     +   X := Cond;
+  4      if Cond then                --  FLAG
+  5  -      X := False;
+  6  -   else
+  7  -      X := True;
+  8  -   end if;
+  9  -
+  10 -   if Cond then                --  FLAG
+  11        return False;
+  12     else
 
 test.adb:10:4: rule violation: redundant boolean expression
 10 |     if Cond then                --  FLAG
@@ -15,6 +29,19 @@ test.adb:10:4: rule violation: redundant boolean expression
    ||
 14 ||    end if;
    ||__________^
+fix proposal:
+  in test.adb:
+  8      end if;
+  9   
+  10 -   if Cond then                --  FLAG
+  11 -      return False;
+  12 -   else
+  13 -      return True;
+  14 -   end if;
+  15 -
+     +   return Cond;
+  16     X := (if Cond               -- FLAG
+  17           then True
 
 test.adb:16:10: rule violation: redundant boolean expression
 16 |     X := (if Cond               -- FLAG
@@ -24,53 +51,66 @@ test.adb:16:10: rule violation: redundant boolean expression
    ||
 18 ||          else False);
    ||___________________^
+fix proposal:
+  in test.adb:
+  14     end if;
+  15  
+  16 -   X := (if Cond               -- FLAG
+  17 -         then True
+  18 -         else False);
+     +   X :=
+     +     (Cond               -- FLAG
+     +      );
+  19  
+  20     X := X = Standard.true;     --  FLAG
 
 test.adb:20:9: rule violation: redundant boolean expression
 20 |    X := X = Standard.true;     --  FLAG
    |         ^^^^^^^^^^^^^^^^^
+fix proposal:
+  in test.adb:
+  18           else False);
+  19  
+  20 -   X := X = Standard.true;     --  FLAG
+     +   X := X;     --  FLAG
+  21  
+  22     if not (J > 1) then         --  FLAG
 
 test.adb:22:7: rule violation: redundant boolean expression
 22 |    if not (J > 1) then         --  FLAG
    |       ^^^^^^^^^^^
+fix proposal:
+  in test.adb:
+  20     X := X = Standard.true;     --  FLAG
+  21  
+  22 -   if not (J > 1) then         --  FLAG
+     +   if J <= 1 then
+     +      --  FLAG
+  23        null;
+  24     end if;
 
 test.adb:30:10: rule violation: redundant boolean expression
 30 |       if Y = True then    --  FLAG
    |          ^^^^^^^^
+fix proposal:
+  in test.adb:
+  28        Y : Bool_N;
+  29     begin
+  30 -      if Y = True then    --  FLAG
+     +      if Y then
+     +         --  FLAG
+  31           J := 1;
+  32        end if;
 
 test.adb:35:11: rule violation: redundant boolean expression
 35 |    return X = Standard.False;  --  FLAG
    |           ^^^^^^^^^^^^^^^^^^
-
-Patched "test.adb":
-===================
-
-function Test (Cond : Boolean; J : Integer) return Boolean is
-   X : Boolean;
-begin
-   X := Cond;
-   return Cond;
-   X :=
-     (Cond               -- FLAG
-      );
-
-   X := X;     --  FLAG
-
-   if J <= 1 then
-      --  FLAG
-      null;
-   end if;
-
-   declare
-      type Bool_N is new Boolean;
-      Y : Bool_N;
-   begin
-      if Y then
-         --  FLAG
-         J := 1;
-      end if;
-   end;
-
-   return not X;  --  FLAG
-   return False;               --  NOFLAG
-end Test;
+fix proposal:
+  in test.adb:
+  33     end;
+  34  
+  35 -   return X = Standard.False;  --  FLAG
+     +   return not X;  --  FLAG
+  36     return False;               --  NOFLAG
+  37  end Test;
 

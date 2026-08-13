@@ -22,10 +22,7 @@ class CheckerDriver(BaseDriver):
           is passed)
         - rule_name: The name of the rule to check
         - rule_arguments: A dict mapping rule argument names to their values
-        - auto_fix: If 'True', run the "fix" command for the provided rule
-          after the "check" run.
-        - auto_fix_mode: This can be "DISPLAY", "NEW_FILE" or "PATCH_FILE" and
-          is forwarded to the fix driver if the fix mode is enabled.
+        - auto_fix: If 'True', enable auto-fix for enabled rules
     """
 
     perf_supported = True
@@ -57,6 +54,10 @@ class CheckerDriver(BaseDriver):
         if self.test_env.get("missing_file_is_error", True):
             args += ["--missing-file-is-error"]
 
+        # Enable auto-fixes in the LKQL output if required
+        if self.test_env.get("auto_fix"):
+            args += ["--auto-fix-mode", "IN_REPORT"]
+
         # Run the checker
         if self.perf_mode:
             self.perf_run(args)
@@ -68,38 +69,6 @@ class CheckerDriver(BaseDriver):
                 catch_error=False,
                 lkql_path=os.environ["LKQL_PATH"],
             )
-
-            # If required, run the LKQL fix command
-            if self.test_env.get("auto_fix"):
-                patched_file_pattern = re.compile(
-                    r"^File \"(.*)\" has been patched( \(result in \"(.*)\"\))?$"
-                )
-
-                auto_fix_mode = self.test_env.get("auto_fix_mode", "DISPLAY")
-                assert auto_fix_mode in ["DISPLAY", "NEW_FILE", "PATCH_FILE"]
-                self.check_run(
-                    self.lkql_fix_exe + args + ["--auto-fix-mode", auto_fix_mode],
-                    check_flags=False,
-                    catch_error=False,
-                    lkql_path=os.environ["LKQL_PATH"],
-                )
-
-                # If the auto-fix mode is "NEW_FILE" or "PATCH_FILE", then
-                # display resulting files.
-                if auto_fix_mode in ["NEW_FILE", "PATCH_FILE"]:
-                    # Get the list of patched files by parsing the output
-                    patched_files = []
-                    for line in str(self.output).splitlines():
-                        search_result = patched_file_pattern.search(line)
-                        if search_result is not None:
-                            groups = search_result.groups()
-                            patched_files.append(groups[2] or groups[0])
-
-                    # Then, for each patched file, display its content
-                    for pf in patched_files:
-                        with open(self.working_dir(pf), "r") as f:
-                            self.output += f"=== {pf} content:\n"
-                            self.output += f.read()
 
     def parse_flagged_lines(self, output: str) -> dict[str, TaggedLines]:
         # Prepare the result

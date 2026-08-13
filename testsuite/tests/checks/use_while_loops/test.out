@@ -6,6 +6,22 @@ loop1.adb:5:4: rule violation: simple LOOP may be replaced by a WHILE loop
    ||
 14 ||    end loop;
    ||____________^
+fix proposal:
+  in loop1.adb:
+  3   begin
+  4      J := 0;
+  5  -   loop           --  FLAG
+  6  -      exit when J > 10;
+  7  -
+     +   while J <= 10 loop
+  8         if Str (J) = ' ' then
+  9            Str (J) := 'a';
+      ...
+  13        J := J + 1;
+  14     end loop;
+  15 -
+  16     loop           --  NOFLAG
+  17        null;
 
 loop1.adb:28:4: rule violation: simple LOOP may be replaced by a WHILE loop
 28 |     loop           --  FLAG
@@ -15,35 +31,17 @@ loop1.adb:28:4: rule violation: simple LOOP may be replaced by a WHILE loop
    ||
 30 ||    end loop Local_Loop;
    ||_______________________^
-
-Patched "loop1.adb":
-====================
-
-procedure Loop1 (Str : in out String) is
-   J : Integer;
-begin
-   J := 0;
-   while J <= 10 loop
-      if Str (J) = ' ' then
-         Str (J) := 'a';
-         return;
-      end if;
-
-      J := J + 1;
-   end loop;
-   loop           --  NOFLAG
-      null;
-   end loop;
-
-   Outer_Loop:
-   loop           --  NOFLAG
-      loop        --  NOFLAG
-         exit Outer_Loop when True;
-      end loop;
-   end loop Outer_Loop;
-
-   Local_Loop : while False loop
-
-   end loop Local_Loop;
-end Loop1;
+fix proposal:
+  in loop1.adb:
+  25     end loop Outer_Loop;
+  26  
+  27 -   Local_Loop:
+  28 -   loop           --  FLAG
+  29 -      exit Local_Loop;
+  30 -   end loop Local_Loop;
+     +   Local_Loop : while False loop
+  31  
+     +   end loop Local_Loop;
+  32  end Loop1;
+  33  
 

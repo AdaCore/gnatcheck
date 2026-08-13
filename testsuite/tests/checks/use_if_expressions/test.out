@@ -6,6 +6,19 @@ stmt.adb:4:4: rule violation: IF statement may be replaced by an IF expression
   ||
 8 ||    end if;
   ||__________^
+fix proposal:
+  in stmt.adb:
+  2      Y : Integer;
+  3   begin
+  4  -   if X = 1 then   --  FLAG
+  5  -      return 1;
+  6  -   else
+  7  -      return 2;
+  8  -   end if;
+  9  -
+     +   return (if X = 1 then 1 else 2);
+  10     if X = 1 then   --  NOFLAG
+  11        null;
 
 stmt.adb:16:4: rule violation: IF statement may be replaced by an IF expression
 16 |     if X = 1 then   --  FLAG
@@ -15,6 +28,21 @@ stmt.adb:16:4: rule violation: IF statement may be replaced by an IF expression
    ||
 22 ||    end if;
    ||__________^
+fix proposal:
+  in stmt.adb:
+  14     end if;
+  15  
+  16 -   if X = 1 then   --  FLAG
+  17 -      return 1;
+  18 -   elsif X = 2 then
+  19 -      return 2;
+  20 -   else
+  21 -      return 3;
+  22 -   end if;
+  23 -
+     +   return (if X = 1 then 1 elsif X = 2 then 2 else 3);
+  24     if X = 1 then   --  NOFLAG
+  25        return 1;
 
 stmt.adb:40:4: rule violation: IF statement may be replaced by an IF expression
 40 |     if X >= 2 then   --  FLAG
@@ -24,42 +52,19 @@ stmt.adb:40:4: rule violation: IF statement may be replaced by an IF expression
    ||
 46 ||    end if;
    ||__________^
-
-Patched "stmt.adb":
-===================
-
-function Stmt (X : in out Integer) return Integer is
-   Y : Integer;
-begin
-   return (if X = 1 then 1 else 2);
-   if X = 1 then   --  NOFLAG
-      null;
-   else
-      null;
-   end if;
-
-   return (if X = 1 then 1 elsif X = 2 then 2 else 3);
-   if X = 1 then   --  NOFLAG
-      return 1;
-   elsif X = 2 then
-      X := 2;
-   else
-      return 3;
-   end if;
-
-   if X >= 2 then   --  NOFLAG
-      X := X + 1;
-   elsif X <= 0 then
-      Y := X - 1;
-   else
-      X := 0;
-   end if;
-
-   X := (if X >= 2 then X + 1 elsif X <= 0 then X - 1 else 0);
-   if X > 0 then    --  NOFLAG
-      return 2;
-   end if;
-
-   return X;
-end Stmt;
+fix proposal:
+  in stmt.adb:
+  38     end if;
+  39  
+  40 -   if X >= 2 then   --  FLAG
+  41 -      X := X + 1;
+  42 -   elsif X <= 0 then
+  43 -      X := X - 1;
+  44 -   else
+  45 -      X := 0;
+  46 -   end if;
+  47 -
+     +   X := (if X >= 2 then X + 1 elsif X <= 0 then X - 1 else 0);
+  48     if X > 0 then    --  NOFLAG
+  49        return 2;
 

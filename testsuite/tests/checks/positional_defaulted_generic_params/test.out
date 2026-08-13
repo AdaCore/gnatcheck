@@ -1,69 +1,84 @@
 pos.ads:23:36: rule violation: use named notation when passing actual to defaulted generic parameter
 23 |                                    2,            --  FLAG
    |                                    ^
+fix proposal:
+  in pos.ads:
+  20       (2, I_Par2 => 3, Fun_1 => Fun_2, Fun_3 => Fun_1);
+  21  
+  22 -   package Pack_I_3 is new Pack_G (1,
+  23 -                                   2,            --  FLAG
+  24 -                                   Fun_2,        --  FLAG
+  25 -                                   Fun_1);       --  FLAG
+     +   package Pack_I_3 is new
+     +     Pack_G
+     +       (1,
+     +        I_Par2 => 2,            --  FLAG
+     +        Fun_2,        --  FLAG
+     +        Fun_1);       --  FLAG
+  26  
+  27     generic
 
 pos.ads:24:36: rule violation: use named notation when passing actual to defaulted generic parameter
 24 |                                    Fun_2,        --  FLAG
    |                                    ^^^^^
+fix proposal:
+  in pos.ads:
+  20       (2, I_Par2 => 3, Fun_1 => Fun_2, Fun_3 => Fun_1);
+  21  
+  22 -   package Pack_I_3 is new Pack_G (1,
+  23 -                                   2,            --  FLAG
+  24 -                                   Fun_2,        --  FLAG
+  25 -                                   Fun_1);       --  FLAG
+     +   package Pack_I_3 is new
+     +     Pack_G
+     +       (1,
+     +        2,            --  FLAG
+     +        Fun_1 => Fun_2,        --  FLAG
+     +        Fun_1);       --  FLAG
+  26  
+  27     generic
 
 pos.ads:25:36: rule violation: use named notation when passing actual to defaulted generic parameter
 25 |                                    Fun_1);       --  FLAG
    |                                    ^^^^^
+fix proposal:
+  in pos.ads:
+  20       (2, I_Par2 => 3, Fun_1 => Fun_2, Fun_3 => Fun_1);
+  21  
+  22 -   package Pack_I_3 is new Pack_G (1,
+  23 -                                   2,            --  FLAG
+  24 -                                   Fun_2,        --  FLAG
+  25 -                                   Fun_1);       --  FLAG
+     +   package Pack_I_3 is new
+     +     Pack_G
+     +       (1,
+     +        2,            --  FLAG
+     +        Fun_2,        --  FLAG
+     +        Fun_3 => Fun_1);       --  FLAG
+  26  
+  27     generic
 
 pos.ads:39:41: rule violation: use named notation when passing actual to defaulted generic parameter
 39 |       with package F_Pos is new Pack_D (1, 2); --  FLAG (2)
    |                                         ^
+fix proposal:
+  in pos.ads:
+  37  
+  38     generic
+  39 -      with package F_Pos is new Pack_D (1, 2); --  FLAG (2)
+     +      with package F_Pos is new Pack_D (D_Par1 => 1, 2); --  FLAG (2)
+  40     package Pos_Client is
+  41     end Pos_Client;
 
 pos.ads:39:44: rule violation: use named notation when passing actual to defaulted generic parameter
 39 |       with package F_Pos is new Pack_D (1, 2); --  FLAG (2)
    |                                            ^
-
-Patched "pos.ads":
-==================
-
-package Pos is
-   function Fun_1 (I : Integer) return Integer;
-   function Fun_2 (I : Integer) return Integer;
-
-   generic
-      I_Par1 : Integer;
-      I_Par2 : Integer := 1;
-      with function Fun_1 (I : Integer) return Integer is <>;
-      with function Fun_3 (I : Integer) return Integer is Fun_2;
-   package Pack_G is
-      Var_1 : Integer := I_Par1;
-      Var_2 : Integer := I_Par2;
-      Var_3 : Integer := Fun_1 (Var_1);
-      Var_4 : Integer := Fun_3 (Var_2);
-   end Pack_G;
-
-   package Pack_I_1 is new Pack_G (1);
-
-   package Pact_I_2 is new Pack_G
-     (2, I_Par2 => 3, Fun_1 => Fun_2, Fun_3 => Fun_1);
-
-   package Pack_I_3 is new
-     Pack_G
-       (1,
-        I_Par2 => 2,            --  FLAG
-        Fun_1  => Fun_2,        --  FLAG
-        Fun_3  => Fun_1);       --  FLAG
-
-   generic
-      D_Par1 : Integer := 1;
-      D_Par2 : Integer := 2;
-   package Pack_D is
-   end Pack_D;
-
-   generic
-      with package F_Box is new Pack_D (<>);   --  NOFLAG
-   package Box_Client is
-   end Box_Client;
-
-   generic
-      with package F_Pos is new Pack_D (D_Par1 => 1, D_Par2 => 2); --  FLAG (2)
-   package Pos_Client is
-   end Pos_Client;
-
-end Pos;
+fix proposal:
+  in pos.ads:
+  37  
+  38     generic
+  39 -      with package F_Pos is new Pack_D (1, 2); --  FLAG (2)
+     +      with package F_Pos is new Pack_D (1, D_Par2 => 2); --  FLAG (2)
+  40     package Pos_Client is
+  41     end Pos_Client;
 

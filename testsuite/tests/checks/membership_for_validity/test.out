@@ -1,47 +1,96 @@
 valid.adb:8:7: rule violation: membership test instead of 'Valid
 8 |    if X in My_Int then                           --  FLAG
   |       ^^^^^^^^^^^
+fix proposal:
+  in valid.adb:
+  6   
+  7   begin
+  8  -   if X in My_Int then                           --  FLAG
+     +   if X'Valid then
+     +      --  FLAG
+  9         null;
+  10 -   elsif X in My_Int'First .. My_Int'Last then   --  FLAG
+     +   elsif X in My_Int'First .. My_Int'Last then
+     +      --  FLAG
+  11        null;
+  12 -   elsif X in Integer'First .. Integer'Last then --  NOFLAG
+     +   elsif X in Integer'First .. Integer'Last then
+     +      --  NOFLAG
+  13        null;
+  14 -   elsif Y in Integer then                       --  FLAG
+     +   elsif Y in Integer then
+     +      --  FLAG
+  15        null;
+  16 -   elsif X in Integer then                       --  NOFLAG
+     +   elsif X in Integer then
+     +      --  NOFLAG
+  17        null;
+  18 -   elsif Y in Integer'Range then                 --  FLAG
+     +   elsif Y in Integer'Range then
+     +      --  FLAG
+  19        null;
+  20     end if;
 
 valid.adb:10:10: rule violation: membership test instead of 'Valid
 10 |    elsif X in My_Int'First .. My_Int'Last then   --  FLAG
    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fix proposal:
+  in valid.adb:
+  8      if X in My_Int then                           --  FLAG
+  9         null;
+  10 -   elsif X in My_Int'First .. My_Int'Last then   --  FLAG
+     +   elsif X'Valid then
+     +      --  FLAG
+  11        null;
+  12     elsif X in Integer'First .. Integer'Last then --  NOFLAG
 
 valid.adb:14:10: rule violation: membership test instead of 'Valid
 14 |    elsif Y in Integer then                       --  FLAG
    |          ^^^^^^^^^^^^
+fix proposal:
+  in valid.adb:
+  8      if X in My_Int then                           --  FLAG
+  9         null;
+  10 -   elsif X in My_Int'First .. My_Int'Last then   --  FLAG
+     +   elsif X in My_Int'First .. My_Int'Last then
+     +      --  FLAG
+  11        null;
+  12 -   elsif X in Integer'First .. Integer'Last then --  NOFLAG
+     +   elsif X in Integer'First .. Integer'Last then
+     +      --  NOFLAG
+  13        null;
+  14 -   elsif Y in Integer then                       --  FLAG
+     +   elsif Y'Valid then
+     +      --  FLAG
+  15        null;
+  16     elsif X in Integer then                       --  NOFLAG
 
 valid.adb:18:10: rule violation: membership test instead of 'Valid
 18 |    elsif Y in Integer'Range then                 --  FLAG
    |          ^^^^^^^^^^^^^^^^^^
-
-Patched "valid.adb":
-====================
-
-procedure Valid is
-   subtype My_Int is Integer range 1 .. 10;
-
-   X : My_Int;
-   Y : Integer;
-
-begin
-   if X'Valid then
-      --  FLAG
-      null;
-   elsif X'Valid then
-      --  FLAG
-      null;
-   elsif X in Integer'First .. Integer'Last then
-      --  NOFLAG
-      null;
-   elsif Y'Valid then
-      --  FLAG
-      null;
-   elsif X in Integer then
-      --  NOFLAG
-      null;
-   elsif Y'Valid then
-      --  FLAG
-      null;
-   end if;
-end Valid;
+fix proposal:
+  in valid.adb:
+  8      if X in My_Int then                           --  FLAG
+  9         null;
+  10 -   elsif X in My_Int'First .. My_Int'Last then   --  FLAG
+     +   elsif X in My_Int'First .. My_Int'Last then
+     +      --  FLAG
+  11        null;
+  12 -   elsif X in Integer'First .. Integer'Last then --  NOFLAG
+     +   elsif X in Integer'First .. Integer'Last then
+     +      --  NOFLAG
+  13        null;
+  14 -   elsif Y in Integer then                       --  FLAG
+     +   elsif Y in Integer then
+     +      --  FLAG
+  15        null;
+  16 -   elsif X in Integer then                       --  NOFLAG
+     +   elsif X in Integer then
+     +      --  NOFLAG
+  17        null;
+  18 -   elsif Y in Integer'Range then                 --  FLAG
+     +   elsif Y'Valid then
+     +      --  FLAG
+  19        null;
+  20     end if;
 
