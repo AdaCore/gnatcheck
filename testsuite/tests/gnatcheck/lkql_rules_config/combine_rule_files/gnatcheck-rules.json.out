@@ -1,0 +1,61 @@
+{
+  "version" : "2.1.0",
+  "runs" : [ {
+    "tool" : {
+      "driver" : {
+        "name" : "LKQL",
+        "version" : "lkql 27.0w (unknown date)"
+      }
+    },
+    "invocations" : [ {
+      "toolExecutionNotifications" : [ {
+        "locations" : [ {
+          "physicalLocation" : {
+            "artifactLocation" : {
+              "uri" : "file:///home/guerrier/Documents/ancr/src/gnatcheck/testsuite/tests/gnatcheck/lkql_rules_config/combine_rule_files/circular_rule_configs/part_one.lkql"
+            },
+            "region" : {
+              "startLine" : 1,
+              "startColumn" : 1,
+              "endLine" : 1,
+              "endColumn" : 16
+            }
+          }
+        } ],
+        "message" : {
+          "text" : "Circular dependency in LKQL modules (part_one.lkql -> part_two.lkql -> part_one.lkql -> part_two.lkql)"
+        },
+        "level" : "error",
+        "exception" : {
+          "kind" : "LKQL execution error",
+          "message" : "Circular dependency in LKQL modules (part_one.lkql -> part_two.lkql -> part_one.lkql -> part_two.lkql)",
+          "stack" : { }
+        }
+      }, {
+        "locations" : [ {
+          "physicalLocation" : {
+            "artifactLocation" : {
+              "uri" : "file:///home/guerrier/Documents/ancr/src/gnatcheck/testsuite/tests/gnatcheck/lkql_rules_config/combine_rule_files/circular_rule_configs/part_two.lkql"
+            },
+            "region" : {
+              "startLine" : 1,
+              "startColumn" : 1,
+              "endLine" : 1,
+              "endColumn" : 16
+            }
+          }
+        } ],
+        "message" : {
+          "text" : "Circular dependency in LKQL modules (part_one.lkql -> part_two.lkql -> part_one.lkql -> part_two.lkql -> part_one.lkql)"
+        },
+        "level" : "error",
+        "exception" : {
+          "kind" : "LKQL execution error",
+          "message" : "Circular dependency in LKQL modules (part_one.lkql -> part_two.lkql -> part_one.lkql -> part_two.lkql -> part_one.lkql)",
+          "stack" : { }
+        }
+      } ],
+      "executionSuccessful" : false
+    } ]
+  } ]
+}

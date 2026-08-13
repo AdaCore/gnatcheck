@@ -5,3 +5,4 @@ input_sources:
   - main.adb
 rules:
   - +RGOTO_Statements
+post_python: cat('gnatcheck-out1.TMP')

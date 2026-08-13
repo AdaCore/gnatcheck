@@ -95,7 +95,9 @@
             {
               "defaultConfiguration": {
                 "enabled": true,
-                "parameters": {}
+                "parameters": {
+                  "only_unconditional": "false"
+                }
               },
               "id": "goto_statements",
               "name": "GOTO_Statements",

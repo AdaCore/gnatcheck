@@ -1,4 +1,4 @@
-test.lkql:3:5: error: Unknown symbol: blah
+test.lkql:3:5: error: unknown symbol: blah
 1. Summary
 
    fully compliant sources               : 1
