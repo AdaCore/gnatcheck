@@ -1,0 +1,77 @@
+import stdlib
+
+@memoized
+selector subp_statements
+    |" Return all statements fromm the provided list of nodes, stopping
+    |" recursion at inner bodies.
+    | [...] => rec(*this)
+    | (BodyNode | null) => ()
+    | * => rec(*this.children)
+
+@memoized
+selector returned_in
+|" Get all returning nodes where the input expression is returned.
+| Expr => (
+    match from this through parent select first (ReturnStmt | AssignStmt | ObjectDecl)
+    | null => ()
+    | r@ReturnStmt => rec((), r)
+    | a@AssignStmt => (
+        match stdlib.ultimate_prefix(a.f_dest).p_referenced_decl()
+        | null => ()
+        | e@ExtendedReturnStmtObjectDecl => rec((), e.parent)
+        | d => rec(
+            *[r.ref for r in d.p_defining_name().p_find_all_references([this.unit])],
+            ()
+        )
+    )
+    | o@ObjectDecl => rec(
+        *[
+            r.ref
+            for r in [
+                id.p_find_all_references([this.unit])
+                for id in o.f_ids.children
+            ].flatten
+        ],
+        ()
+    )
+)
+
+@memoized
+fun parent_until(node, limit) =
+    |" Return a stream containing all parents of the node until the provided
+    |" ``limit`` is encountered.
+    {
+        selector inner_parent_until
+        | AdaNode when this != limit => rec(this.parent);
+        inner_parent_until(node)
+    }
+
+@memoized
+fun enclosing_subp(node) =
+    |" Get the first SubpBody enclosing the provided ``node`` if any, otherwise
+    |" return null.
+    from node through stdlib.semantic_parent select first BaseSubpBody
+
+@check(help="flag explicit allocators whose value is conditionally returned from a function",
+       message="possible occurrence of KP 20602")
+fun kp_20602(node) =
+    |" Flag an explicit allocator in a branching construct if its result is:
+    |"   * directly returned from the enclosing function
+    |"   * used to construct the result of the enclosing function
+    node is Allocator
+    and enclosing_subp(node) is subp@BaseSubpBody(
+        f_subp_spec: SubpSpec(f_subp_kind: SubpKindFunction)
+    ) when (
+        parent_until(node, subp).any((p) => p is (CondExpr | CaseExpr))
+        or subp_statements(subp.children).any(
+            (p) => p is (GotoStmt | ExitStmt(f_cond_expr: Expr))
+        )
+        or returned_in(node).any(
+            (r) => (
+                enclosing_subp(r) == subp
+                and parent_until(r, subp).any(
+                    (p) => p is (IfStmt | CondExpr | CaseStmt | CaseExpr)
+                )
+            )
+        )
+    )
