@@ -73,7 +73,7 @@ package body Lkql_Checker.JSON_Utilities is
 
       Field_Value : constant String := Expect (Object, Field);
       Res         : String_Vector;
-      Acc         : Unbounded_String;
+      Acc         : Unbounded_String := Null_Unbounded_String;
       Tuple_Level : Integer := 0;
       In_Item     : Boolean := False;
    begin
@@ -109,7 +109,9 @@ package body Lkql_Checker.JSON_Utilities is
                   end if;
             end case;
          end loop;
-         Res.Append (Remove_Quotes (To_String (Acc)));
+         if Acc /= Null_Unbounded_String then
+            Res.Append (Remove_Quotes (To_String (Acc)));
+         end if;
          return Res;
       end if;
       raise Invalid_Type with "'" & Field & "' value should be a list";
