@@ -1,0 +1,21 @@
+import stdlib
+
+@check(help="array component nonaligned on a storage-unit boundary",
+       message="possible occurrence of KP 20662 if compiled with optimization")
+fun kp_20662(node) =
+    |" Flag representation clause components that make the corresponding
+    |" array components nonaligned on storage-unit (byte) boundaries.
+    node is ComponentClause
+    # Match ComponentClause that specify storage representation of an array.
+    when node.f_id.p_referenced_decl()?.p_type_expression()
+         ?.p_designated_type_decl()?.p_full_view()?.p_is_array_type()
+    and {
+        # Get storage-unit from the System package.
+        val storage_unit = stdlib.storage_unit();
+        # Compute the offset position (position is already a multiple of
+        # storage-unit, only compute first_bit, see RM 13.5.1).
+        val first_bit = node.f_range.f_range.f_left.p_eval_as_int();
+
+        # LKQL has no mod operation. True when storage-unit is not aligned.
+        first_bit / storage_unit * storage_unit != first_bit
+    }
