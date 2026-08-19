@@ -1,0 +1,5 @@
+driver: 'checker'
+rule_name: Identifier_Suffixes
+project: 'prj.gpr'
+rule_arguments:
+    identifier_suffixes.default: 'true'

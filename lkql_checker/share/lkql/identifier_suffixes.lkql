@@ -4,15 +4,15 @@ import stdlib
             parametric_exemption=true,
             category="Style", subcategory="Readability")
 fun identifier_suffixes(unit,
-                        type_suffix: string = "",
-                        access_suffix: string = "",
-                        access_access_suffix: string = "",
-                        class_access_suffix: string = "",
-                        class_subtype_suffix: string = "",
-                        constant_suffix: string = "",
-                        renaming_suffix: string = "",
-                        access_obj_suffix: string = "",
-                        interrupt_suffix: string = "",
+                        type_suffix: string = "<unset>",
+                        access_suffix: string = "<unset>",
+                        access_access_suffix: string = "<unset>",
+                        class_access_suffix: string = "<unset>",
+                        class_subtype_suffix: string = "<unset>",
+                        constant_suffix: string = "<unset>",
+                        renaming_suffix: string = "<unset>",
+                        access_obj_suffix: string = "<unset>",
+                        interrupt_suffix: string = "<unset>",
                         default: bool = false) =
     |" Flag the declaration of each identifier that does not have a suffix
     |" corresponding to the kind of entity being declared.
@@ -157,111 +157,157 @@ fun identifier_suffixes(unit,
     |"       Const_C : constant Int := 1;
     |"
     |"    end Foo;
-    [
-        {message: n.text & " does not end with " &
-                  match n.parent
-                  | SubpSpec when interrupt_suffix != "" =>
-                      "interrupt suffix " & interrupt_suffix
-                  | TypeDecl(p_is_access_type(): true,
-                             p_accessed_type():
-                                 ClasswideTypeDecl |
-                                 SubtypeDecl(p_canonical_type():
-                                             ClasswideTypeDecl))
-                    when class_access_suffix != ""  =>
-                      "access-to-class suffix " & class_access_suffix
-                  | BaseSubtypeDecl(p_base_subtype(): ClasswideTypeDecl)
-                    when class_subtype_suffix != "" =>
-                      "class-wide suffix " & class_subtype_suffix
-                  | p@TypeDecl(p_is_access_type(): true)
-                    when access_suffix != "" =>
-                      if access_access_suffix != "" and
-                         p.p_accessed_type() is
-                             BaseTypeDecl(p_is_access_type(): true)
-                      then "access-to-access suffix " & access_suffix & access_access_suffix
-                      else "access suffix " & access_suffix
-                  | TypeDecl => "type suffix " & type_suffix
-                  | PackageRenamingDecl => "renaming suffix " & renaming_suffix
-                  | p => if p.parent is not ObjectDecl or
-                              constant_suffix == "" or
-                              p.parent.f_type_expr.p_designated_type_decl()
-                               .p_is_access_type()
-                           then "access object suffix " & access_obj_suffix
-                           else "constant suffix " & constant_suffix,
-         loc: n}
-        for n in from unit.root select node@DefiningName when match node.parent
-        # Interrupt handlers
-        | s@SubpSpec when interrupt_suffix != "" =>
-            s is SubpSpec(any parent(depth=4): ProtectedDef, parent: d@SubpDecl)
-            when (d.p_has_aspect("Interrupt_Handler") or
-                  d.p_has_aspect("Attach_Handler")) and
-                 not node.f_name.text.ends_with(interrupt_suffix)
+    {
+        # Define real expected suffixes
+        val type_suffix = (
+            if type_suffix == "<unset>" and default
+            then "_T"
+            else type_suffix
+        );
+        val access_suffix = (
+            if access_suffix == "<unset>" and default
+            then "_A"
+            else access_suffix
+        );
+        val constant_suffix = (
+            if constant_suffix == "<unset>" and default
+            then "_C"
+            else constant_suffix
+        );
+        val renaming_suffix = (
+            if renaming_suffix == "<unset>" and default
+            then "_R"
+            else renaming_suffix
+        );
 
-        # 'Class access
-        | p@TypeDecl(p_is_access_type(): true,
-                     p_accessed_type():
-                         ClasswideTypeDecl |
-                         SubtypeDecl(p_canonical_type(): ClasswideTypeDecl))
-          when class_access_suffix != ""
-        =>
-            p.p_previous_part() is (null | IncompleteTypeDecl) and
-            not node.f_name.text.ends_with(class_access_suffix)
+        # Perform the checking process
+        [
+            {
+                message: n.text & " does not end with " & (
+                    match n.parent
+                    | SubpSpec when interrupt_suffix != "<unset>" =>
+                        "interrupt suffix " & interrupt_suffix
+                    | TypeDecl(
+                        p_is_access_type(): true,
+                        p_accessed_type(): ClasswideTypeDecl | SubtypeDecl(
+                            p_canonical_type(): ClasswideTypeDecl
+                        )
+                    ) when class_access_suffix != "<unset>"  =>
+                        "access-to-class suffix " & class_access_suffix
+                    | BaseSubtypeDecl(
+                        p_base_subtype(): ClasswideTypeDecl
+                    ) when class_subtype_suffix != "<unset>" =>
+                        "class-wide suffix " & class_subtype_suffix
+                    | p@TypeDecl(p_is_access_type(): true) when access_suffix != "<unset>" =>
+                        if (
+                            access_access_suffix != "<unset>"
+                            and p.p_accessed_type() is BaseTypeDecl(p_is_access_type(): true)
+                        )
+                        then "access-to-access suffix " & access_suffix & access_access_suffix
+                        else "access suffix " & access_suffix
+                    | TypeDecl => "type suffix " & type_suffix
+                    | PackageRenamingDecl => "renaming suffix " & renaming_suffix
+                    | p =>
+                        if (
+                            p.parent is not ObjectDecl
+                            or constant_suffix == "<unset>"
+                            or p.parent.f_type_expr
+                                .p_designated_type_decl()
+                                .p_is_access_type()
+                        )
+                        then "access object suffix " & access_obj_suffix
+                        else "constant suffix " & constant_suffix
+                ),
+                loc: n
+            }
+            for n in from unit.root select node@DefiningName when match node.parent
+            # Interrupt handlers
+            | s@SubpSpec when interrupt_suffix != "<unset>" =>
+                s is SubpSpec(any parent(depth=4): ProtectedDef, parent: d@SubpDecl)
+                when (
+                    (d.p_has_aspect("Interrupt_Handler")
+                    or d.p_has_aspect("Attach_Handler"))
+                    and not node.f_name.text.ends_with(interrupt_suffix)
+                )
 
-        # 'Class subtype
-        | p@BaseSubtypeDecl(p_base_subtype(): ClasswideTypeDecl)
-          when class_subtype_suffix != ""
-        =>
-            p.p_previous_part() is (null | IncompleteTypeDecl) and
-            not node.f_name.text.ends_with(class_subtype_suffix)
+            # 'Class access
+            | p@TypeDecl(
+                p_is_access_type(): true,
+                p_accessed_type(): ClasswideTypeDecl | SubtypeDecl(
+                    p_canonical_type(): ClasswideTypeDecl
+                )
+            ) when class_access_suffix != "<unset>" =>
+                p.p_previous_part() is (null | IncompleteTypeDecl)
+                and not node.f_name.text.ends_with(class_access_suffix)
 
-        # Other access types
-        | p@TypeDecl(p_is_access_type(): true) when access_suffix != ""
-        =>
-            p.p_previous_part() is (null | IncompleteTypeDecl) and
-            not node.f_name.text.ends_with(
-                if access_access_suffix != ""
-                    and p.p_accessed_type() is t@BaseTypeDecl
-                        when t.p_is_access_type()
-                then access_suffix & access_access_suffix
-                else access_suffix
-            )
+            # 'Class subtype
+            | p@BaseSubtypeDecl(
+                p_base_subtype(): ClasswideTypeDecl
+            ) when class_subtype_suffix != "<unset>" =>
+                p.p_previous_part() is (null | IncompleteTypeDecl)
+                and not node.f_name.text.ends_with(class_subtype_suffix)
 
-        # Exclude IncompleteTypeDecl
-        | IncompleteTypeDecl => false
+            # Other access types
+            | p@TypeDecl(p_is_access_type(): true) when access_suffix != "<unset>" =>
+                p.p_previous_part() is (null | IncompleteTypeDecl)
+                and not node.f_name.text.ends_with(
+                    if (
+                        access_access_suffix != "<unset>"
+                        and p.p_accessed_type() is t@BaseTypeDecl when t.p_is_access_type()
+                    )
+                    then access_suffix & access_access_suffix
+                    else access_suffix
+                )
 
-        # Other types
-        | p@TypeDecl =>
-            type_suffix != "" and
-            p.p_previous_part() is (null | IncompleteTypeDecl) and
-            not node.f_name.text.ends_with(type_suffix)
+            # Exclude IncompleteTypeDecl
+            | IncompleteTypeDecl => false
 
-        | p@PackageRenamingDecl =>
-            renaming_suffix != "" and
-            not node.f_name.text.ends_with(renaming_suffix)
+            # Other types
+            | p@TypeDecl =>
+                type_suffix != "<unset>"
+                and p.p_previous_part() is (null | IncompleteTypeDecl)
+                and not node.f_name.text.ends_with(type_suffix)
 
-        # Look one level up for remaining cases
-        | p => node.p_previous_part() == null and match p.parent
-            # Access data objects
-            | (ObjectDecl(f_type_expr: TypeExpr(p_designated_type_decl():
-                                         BaseTypeDecl(p_is_access_type(): true))) |
-               ComponentDecl(f_component_def:
-                   ComponentDef(f_type_expr:
-                       TypeExpr(p_designated_type_decl():
-                                BaseTypeDecl(p_is_access_type(): true)))) |
-               ParamSpec(f_type_expr:
-                         TypeExpr(p_designated_type_decl():
-                                  BaseTypeDecl(p_is_access_type(): true))) |
-               DiscriminantSpec(f_type_expr:
-                                TypeExpr(p_designated_type_decl():
-                                BaseTypeDecl(p_is_access_type(): true))))
-              when access_obj_suffix != ""
-            =>
-                not node.f_name.text.ends_with(access_obj_suffix)
+            | p@PackageRenamingDecl =>
+                renaming_suffix != "<unset>"
+                and not node.f_name.text.ends_with(renaming_suffix)
 
-            # Constants
-            | ObjectDecl(p_is_constant_object(): true)
-              when constant_suffix != ""
-            =>
-                not node.f_name.text.ends_with(constant_suffix)
+            # Look one level up for remaining cases
+            | p =>
+                node.p_previous_part() == null and (
+                    match p.parent
+                    # Access data objects
+                    | (
+                        ObjectDecl(
+                            f_type_expr: TypeExpr(
+                                p_designated_type_decl(): BaseTypeDecl(p_is_access_type(): true)
+                            )
+                        )
+                        | ComponentDecl(
+                            f_component_def: ComponentDef(
+                                f_type_expr: TypeExpr(
+                                    p_designated_type_decl(): BaseTypeDecl(p_is_access_type(): true)
+                                )
+                            )
+                        )
+                        | ParamSpec(
+                            f_type_expr: TypeExpr(
+                                p_designated_type_decl(): BaseTypeDecl(p_is_access_type(): true)
+                            )
+                        )
+                        | DiscriminantSpec(
+                            f_type_expr: TypeExpr(
+                                p_designated_type_decl(): BaseTypeDecl(p_is_access_type(): true)
+                            )
+                        )
+                    ) when access_obj_suffix != "<unset>" =>
+                        not node.f_name.text.ends_with(access_obj_suffix)
 
-            | * => false
-    ]
+                    # Constants
+                    | ObjectDecl(p_is_constant_object(): true) when constant_suffix != "<unset>" =>
+                        not node.f_name.text.ends_with(constant_suffix)
+
+                    | * => false
+                )
+        ]
+    }
