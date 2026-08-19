@@ -58,7 +58,7 @@ fun is_overriding_subprogram(node) =
                           # we can't override late primitives).
                           and stdlib.any(
                              [i for i in t.p_get_primitives(only_inherited=true)
-                             if match_signature(i, p, bt, bt)]
+                             if match_signature(i, p, t, bt)]
                           )
                        ]
                     )
