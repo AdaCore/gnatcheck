@@ -125,6 +125,7 @@ package body Lkql_Checker is
 
          Lkql     : constant String :=
            Compose (Compose (Prefix, "share"), "lkql");
+         Stubs    : constant String := Compose (Lkql, "stubs");
          Kp       : constant String := Compose (Lkql, "kp");
          Specific : constant String := Compose (Kp, "specific");
 
@@ -133,6 +134,7 @@ package body Lkql_Checker is
          Lib_LAL : constant String := Compose (Lib, "libadalang");
       begin
          Add_Path ("LKQL_PATH", Lkql);
+         Add_Path ("LKQL_PATH", Stubs);
          Add_Path ("LKQL_PATH", Kp);
          Add_Path ("LKQL_PATH", Specific);
          Add_Path ("LKQL_PATH", Lib);
