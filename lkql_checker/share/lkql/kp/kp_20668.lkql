@@ -1,0 +1,42 @@
+import stdlib
+
+fun is_static(expr) =
+    |" Return true if ``expr`` is a evaluable at compile-time.
+    |"
+    |" Record and array aggregates are never considered "static expressions"
+    |" per the Ada standard, so ``p_is_static_expr`` cannot be used to detect
+    |" this case. This function recurse on all components to get whether all
+    |" of them are static expressions.
+    match stdlib.strip_conversions(expr)
+    | agg@BaseAggregate => (
+        agg.p_aggregate_params().all((p) => is_static(p.actual))
+        and (
+            match agg.f_ancestor_expr
+            | n@Name =>
+                stdlib.ultimate_alias(n) is ObjectDecl(
+                    f_default_expr: e@Expr
+                ) when is_static(e)
+            | e@Expr => is_static(e)
+            | null => true
+        )
+    )
+    | e => e.p_is_static_expr()
+
+@check(help="flag subprogram calls passing as actual a constant record object with static initialization and reversed storage order",
+       message="possible occurrence of KP 20668")
+fun kp_20668(node) =
+    |" Flag calls to subprograms passing, as an actual parameter, a constant
+    |" object of a record type subject to a ``Scalar_Storage_Order`` aspect or
+    |" clause that gives it the reverse storage order with regard to the native
+    |" storage order of the target, and whose initialization expression is a
+    |" static aggregate.
+    node is CallExpr(p_is_call(): true) when node.p_call_params().any(
+        (p) => p.actual is name@Name
+            when stdlib.ultimate_alias(name) is decl@ObjectDecl(p_is_constant_object(): true)
+                when (
+                    stdlib.strip_conversions(decl.f_default_expr) is agg@BaseAggregate when is_static(agg)
+                    and p.actual.p_expression_type()?.p_full_view() is t@BaseTypeDecl(
+                        p_is_record_type(): true
+                    ) when stdlib.has_non_default_sso(t)
+                )
+    )

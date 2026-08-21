@@ -1,0 +1,40 @@
+main.adb:91:4: rule violation: possible occurrence of KP 20668
+91 |    P_Rev (C_Rev);                -- FLAG
+   |    ^^^^^^^^^^^^^
+
+main.adb:92:4: rule violation: possible occurrence of KP 20668
+92 |    P_Rev (C_Rev_Delta);          -- FLAG
+   |    ^^^^^^^^^^^^^^^^^^^
+
+main.adb:93:4: rule violation: possible occurrence of KP 20668
+93 |    P_Rev (C_Rev_Rename);         -- FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:94:4: rule violation: possible occurrence of KP 20668
+94 |    P_Ext_Rev (C_Ext_Rev);        -- FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:95:4: rule violation: possible occurrence of KP 20668
+95 |    P_Ext_Rev (C_Ext_Rev_P);      -- FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:96:4: rule violation: possible occurrence of KP 20668
+96 |    P_Rev_Aspect (C_Rev_Aspect);  -- FLAG: SSO specified with an aspect
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.adb:97:4: rule violation: possible occurrence of KP 20668
+97 |    P_Rev (C_Rev_Qual);           -- FLAG
+   |    ^^^^^^^^^^^^^^^^^^
+
+main.adb:98:4: rule violation: possible occurrence of KP 20668
+98 |    P_Rev (C_Rev_Pos);            -- FLAG
+   |    ^^^^^^^^^^^^^^^^^
+
+main.adb:99:4: rule violation: possible occurrence of KP 20668
+99 |    P_Two (C_Rev, C_Rev);         -- FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^
+
+main.adb:100:4: rule violation: possible occurrence of KP 20668
+100 |    P_Outer (C_Outer);            -- FLAG: nested static aggregate
+    |    ^^^^^^^^^^^^^^^^^
+
