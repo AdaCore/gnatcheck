@@ -1,6 +1,18 @@
 {
   "runs": [
     {
+      "artifacts": [
+        {
+          "hashes": {
+            "sha-256": "HASH"
+          },
+          "location": {
+            "uri": "main.adb",
+            "uriBaseId": "URI_BASE_DIR"
+          },
+          "sourceLanguage": "ada"
+        }
+      ],
       "invocations": [
         {
           "arguments": [

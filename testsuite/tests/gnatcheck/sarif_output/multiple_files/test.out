@@ -1,13 +1,25 @@
+Running "set_line_endings main.adb /n"...
+Running "set_line_endings clean.adb /n"...
 {
   "runs": [
     {
       "artifacts": [
         {
           "hashes": {
-            "sha-256": "HASH"
+            "sha-256": "ebb231044f020e268e658504ef029c7d531bacff57460f00259ae2916c690b01"
           },
           "location": {
             "uri": "main.adb",
+            "uriBaseId": "URI_BASE_DIR"
+          },
+          "sourceLanguage": "ada"
+        },
+        {
+          "hashes": {
+            "sha-256": "cee74df7b7c921f83d24f522c5089fccba2db8041073e2b0597b3e99021d9a13"
+          },
+          "location": {
+            "uri": "clean.adb",
             "uriBaseId": "URI_BASE_DIR"
           },
           "sourceLanguage": "ada"
@@ -20,7 +32,6 @@
             "-P",
             "prj.gpr",
             "--sarif=<working-dir>/gnatcheck.sarif",
-            "--rules-dir=./",
             "-rules"
           ],
           "commandLine": "COMMAND_LINE",
@@ -60,9 +71,9 @@
             }
           ],
           "message": {
-            "text": "My custom rule"
+            "text": "goto statement"
           },
-          "ruleId": "custom"
+          "ruleId": "goto_statements"
         }
       ],
       "tool": {
@@ -74,20 +85,12 @@
             {
               "defaultConfiguration": {
                 "enabled": true,
-                "parameters": {
-                  "bool": "true",
-                  "int": "42",
-                  "list": "[false, 0, /"also_from_config/"]",
-                  "str": "/"from_config/""
-                }
+                "parameters": {}
               },
-              "help": {
-                "text": "A little bit of help"
-              },
-              "id": "custom",
-              "name": "CustoM",
+              "id": "goto_statements",
+              "name": "GOTO_Statements",
               "shortDescription": {
-                "text": "My custom rule"
+                "text": "goto statement"
               }
             }
           ],

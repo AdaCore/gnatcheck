@@ -1,0 +1,7 @@
+driver: gnatcheck
+format: sarif
+project: prj.gpr
+pre_python: >
+  set_line_endings("main.adb", "\n");
+  set_line_endings("clean.adb", "\n");
+canonicalize_hashes: False
