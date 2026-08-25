@@ -1,0 +1,24 @@
+pkg.ads:18:7: rule violation: possible occurrence of KP 20662 if compiled with optimization
+18 |       A at 0 range 4 .. 19;    --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^
+
+pkg.ads:19:7: rule violation: possible occurrence of KP 20662 if compiled with optimization
+19 |       B at 2 range 12 .. 27;   --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^
+
+pkg.ads:48:7: rule violation: possible occurrence of KP 20662 if compiled with optimization
+48 |       Nonaligned at 2 range 1 .. 16;   --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+pkg.ads:59:7: rule violation: possible occurrence of KP 20662 if compiled with optimization
+59 |       Data at 0 range 1 .. 16;   --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^
+
+pkg.ads:72:7: rule violation: possible occurrence of KP 20662 if compiled with optimization
+72 |       A at 0 range 4 .. 19;   --  FLAG
+   |       ^^^^^^^^^^^^^^^^^^^^^
+
+pkg.ads:102:7: rule violation: possible occurrence of KP 20662 if compiled with optimization
+102 |       Arr  at 0 range 4 .. 19;   --  FLAG
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^
+
