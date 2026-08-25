@@ -5,6 +5,8 @@
 
 with Ada.Characters.Handling;   use Ada.Characters.Handling;
 with Ada.Command_Line;
+with Ada.Containers.Hashed_Maps;
+with Ada.Containers.Hashed_Sets;
 with Ada.Directories;           use Ada.Directories;
 with Ada.Environment_Variables; use Ada.Environment_Variables;
 with Ada.Exceptions;
@@ -1438,6 +1440,43 @@ package body Lkql_Checker.Diagnostics.Report is
       Uri_Base_Dir_Id      : constant String := "URI_BASE_DIR";
       Additional_Instances : Rule_Instance_Vector.Vector;
 
+      type Base_Dir_Value is record
+         Base_Dir : Virtual_File;
+         Id       : Unbounded_String;
+      end record;
+
+      package Base_Dir_Maps is new
+        Ada.Containers.Hashed_Maps
+          (Key_Type        => Virtual_File,
+           Element_Type    => Base_Dir_Value,
+           Hash            => Full_Name_Hash,
+           Equivalent_Keys => "=");
+
+      package File_Sets is new
+        Ada.Containers.Hashed_Sets
+          (Element_Type        => Virtual_File,
+           Hash                => Full_Name_Hash,
+           Equivalent_Elements => "=",
+           "="                 => "=");
+
+      package Root_Groups_Maps is new
+        Ada.Containers.Hashed_Maps
+          (Key_Type        => Virtual_File,
+           Element_Type    => File_Sets.Set,
+           Hash            => Full_Name_Hash,
+           Equivalent_Keys => "=",
+           "="             => File_Sets."=");
+
+      Base_Dir_Registry : Base_Dir_Maps.Map;
+      --  Registry of URI bases, keyed by filesystem root. This supports
+      --  analyzed sources spanning several filesystem roots (e.g. several
+      --  drives on Windows), for which a single project-relative base URI
+      --  is not enough.
+
+      Root_Groups : Root_Groups_Maps.Map;
+      --  Map grouping analyzed files by their root (e.g. driver letter on
+      --  Windows).
+
       Root       : ST.Root;
       Driver     : ST.toolComponent;
       Run        : ST.run;
@@ -1466,24 +1505,86 @@ package body Lkql_Checker.Diagnostics.Report is
            & File_Unix_Path;
       end To_Uri;
 
+      function Make_Base_Dir_Id (Root : Virtual_File) return String;
+      --  Create a unique SARIF ``uriBaseId`` for the given filesystem
+      --  root, deriving a readable suffix from its name when possible,
+      --  falling back to a sequential number otherwise.
+
+      function Make_Base_Dir_Id (Root : Virtual_File) return String is
+         Raw    : constant String := Root.Display_Full_Name;
+         Suffix : Unbounded_String;
+
+         function Candidate return Unbounded_String
+         is (Uri_Base_Dir_Id & "_" & Suffix);
+
+         function Is_Unique return Boolean
+         is (for all E of Base_Dir_Registry => E.Id /= Candidate);
+      begin
+         for C of Raw loop
+            if Is_Alphanumeric (C) then
+               Append (Suffix, To_Upper (C));
+            end if;
+         end loop;
+
+         --  Try to make a readable base directory id
+         if Suffix /= Null_Unbounded_String then
+            if Is_Unique then
+               return To_String (Candidate);
+            end if;
+         end if;
+
+         --  If we get here, this isn't possible to generate a readable base
+         --  directory identifier. Use the counter
+         for I in Natural'First .. Natural'Last loop
+            Set_Unbounded_String (Suffix, Trim (I'Image, Left));
+            if Is_Unique then
+               return To_String (Candidate);
+            end if;
+         end loop;
+
+         raise Constraint_Error;
+      end Make_Base_Dir_Id;
+
+      function Get_Base_Dir (File_Path : String) return Base_Dir_Value
+      is (Base_Dir_Maps.Element
+            (Base_Dir_Registry.Find
+               (Get_Root (Create_From_UTF8 (File_Path)))));
+      --  Return the registry entry to use as the base of the location of
+      --  the provided file path.
+
       function Make_Artifact_Location
         (File_Path : String; Relative_To_Base_Dir : Boolean := False)
-         return ST.artifactLocation
-      is (if Relative_To_Base_Dir
-          then
-            (uri       =>
-               To_Virtual_String
-                 (String
-                    (Unix_Style_Full_Name
-                       (Create
-                          (Relative_Path
-                             (Create_From_UTF8 (File_Path), Uri_Base_Dir))))),
-             uriBaseId => To_Virtual_String (Uri_Base_Dir_Id),
-             others    => <>)
-          else (uri => To_Virtual_String (To_Uri (File_Path)), others => <>));
+         return ST.artifactLocation;
       --  Create an artifact location SARIF object from the provided file
       --  path. If ``Relative_To_Base_Dir`` is True, the returned artifact
-      --  location is expressed relatively to the ``URI_BASE_DIR``.
+      --  location is expressed relatively to the base directory
+      --  registered for the file's filesystem root.
+
+      function Make_Artifact_Location
+        (File_Path : String; Relative_To_Base_Dir : Boolean := False)
+         return ST.artifactLocation is
+      begin
+         if Relative_To_Base_Dir then
+            declare
+               Base : constant Base_Dir_Value := Get_Base_Dir (File_Path);
+            begin
+               return
+                 (uri       =>
+                    To_Virtual_String
+                      (String
+                         (Unix_Style_Full_Name
+                            (Create
+                               (Relative_Path
+                                  (Create_From_UTF8 (File_Path),
+                                   Base.Base_Dir))))),
+                  uriBaseId => To_Virtual_String (To_String (Base.Id)),
+                  others    => <>);
+            end;
+         else
+            return
+              (uri => To_Virtual_String (To_Uri (File_Path)), others => <>);
+         end if;
+      end Make_Artifact_Location;
 
       function Make_Location
         (File_Path : String; Line : Natural; Column : Natural)
@@ -1617,6 +1718,62 @@ package body Lkql_Checker.Diagnostics.Report is
          return Res;
       end Make_Artifact;
    begin
+      --  Group every analyzed file that will appear in the report by
+      --  its filesystem root
+      for Diag of Collector.All_Error_Messages loop
+         declare
+            File : constant Virtual_File :=
+              Create_From_UTF8 (Source_Name (Diag.SF));
+            Root : constant Virtual_File := Get_Root (File);
+         begin
+            if Root_Groups.Contains (Root) then
+               Root_Groups (Root).Include (File);
+            else
+               Root_Groups.Insert (Root, [File]);
+            end if;
+         end;
+      end loop;
+
+      --  Build the registry of URI bases: one entry for the project
+      --  directory (or the working directory), and one additional entry
+      --  per other filesystem root actually referenced by the analyzed
+      --  sources (e.g. another drive on Windows), using the greatest
+      --  common path of the sources found on that root as base
+      --  directory. This must be done before any location is built, as
+      --  the greatest common path of a root is only known once every
+      --  source on that root has been seen.
+      Base_Dir_Registry.Insert
+        (Get_Root (Uri_Base_Dir),
+         (Base_Dir => Uri_Base_Dir,
+          Id       => To_Unbounded_String (Uri_Base_Dir_Id)));
+
+      --  For each root not already covered by the primary base
+      --  directory, register a new one using the greatest common path
+      --  of its files
+      for C in Root_Groups.Iterate loop
+         declare
+            Root        : constant Virtual_File := Root_Groups_Maps.Key (C);
+            Group_Files : constant File_Sets.Set :=
+              Root_Groups_Maps.Element (C);
+            Files       :
+              constant GNATCOLL.VFS.File_Array
+                         (1 .. Natural (Group_Files.Length)) :=
+                [for F of Group_Files => F];
+            Base_Dir    : constant Virtual_File :=
+              (if Files'Length = 1
+               then Get_Parent (Files (1))
+               else Greatest_Common_Path (Files));
+         begin
+            Base_Dir.Ensure_Directory;
+            if not Base_Dir_Registry.Contains (Root) then
+               Base_Dir_Registry.Insert
+                 (Root,
+                  (Base_Dir => Base_Dir,
+                   Id       => To_Unbounded_String (Make_Base_Dir_Id (Root))));
+            end if;
+         end;
+      end loop;
+
       --  Set driver "constant" values
       Driver.name := To_Virtual_String (Lkql_Checker_Mode_Image);
       Driver.organization := To_Virtual_String ("AdaCore");
@@ -1699,31 +1856,40 @@ package body Lkql_Checker.Diagnostics.Report is
       --  Place the driver in the SARIF run object
       Run.tool := (driver => Driver, others => <>);
 
-      --  Set the base URI of the run
+      --  Set the base URI(s) of the run
       Run.originalUriBaseIds.Append ((Kind => Start_Object));
-      Run.originalUriBaseIds.Append
-        ((Kind => Key_Name, Key_Name => To_Virtual_String (Uri_Base_Dir_Id)));
-      Run.originalUriBaseIds.Append ((Kind => Start_Object));
-      Run.originalUriBaseIds.Append
-        ((Kind => Key_Name, Key_Name => To_Virtual_String ("uri")));
-      Run.originalUriBaseIds.Append
-        ((Kind         => String_Value,
-          String_Value =>
-            To_Virtual_String
-              (To_Uri (Uri_Base_Dir.Display_Full_Name (Normalize => True)))));
-      Run.originalUriBaseIds.Append
-        ((Kind => Key_Name, Key_Name => To_Virtual_String ("description")));
-      Run.originalUriBaseIds.Append ((Kind => Start_Object));
-      Run.originalUriBaseIds.Append
-        ((Kind => Key_Name, Key_Name => To_Virtual_String ("text")));
-      Run.originalUriBaseIds.Append
-        ((Kind         => String_Value,
-          String_Value =>
-            To_Virtual_String
-              ("Project directory if one has been used, working directory"
-               & " otherwise")));
-      Run.originalUriBaseIds.Append ((Kind => End_Object));
-      Run.originalUriBaseIds.Append ((Kind => End_Object));
+      for E of Base_Dir_Registry loop
+         Run.originalUriBaseIds.Append
+           ((Kind     => Key_Name,
+             Key_Name => To_Virtual_String (To_String (E.Id))));
+         Run.originalUriBaseIds.Append ((Kind => Start_Object));
+         Run.originalUriBaseIds.Append
+           ((Kind => Key_Name, Key_Name => To_Virtual_String ("uri")));
+         Run.originalUriBaseIds.Append
+           ((Kind         => String_Value,
+             String_Value =>
+               To_Virtual_String
+                 (To_Uri (E.Base_Dir.Display_Full_Name (Normalize => True)))));
+         Run.originalUriBaseIds.Append
+           ((Kind => Key_Name, Key_Name => To_Virtual_String ("description")));
+         Run.originalUriBaseIds.Append ((Kind => Start_Object));
+         Run.originalUriBaseIds.Append
+           ((Kind => Key_Name, Key_Name => To_Virtual_String ("text")));
+         Run.originalUriBaseIds.Append
+           ((Kind         => String_Value,
+             String_Value =>
+               To_Virtual_String
+                 (if To_String (E.Id) = Uri_Base_Dir_Id
+                  then
+                    "Project directory if one has been used, working"
+                    & " directory otherwise"
+                  else
+                    "Root directory of analyzed source files sharing a"
+                    & " filesystem root distinct from "
+                    & Uri_Base_Dir_Id)));
+         Run.originalUriBaseIds.Append ((Kind => End_Object));
+         Run.originalUriBaseIds.Append ((Kind => End_Object));
+      end loop;
       Run.originalUriBaseIds.Append ((Kind => End_Object));
 
       --  Iterate over all diagnostics and build SARIF results
