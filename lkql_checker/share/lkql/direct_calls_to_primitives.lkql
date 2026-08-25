@@ -74,8 +74,9 @@ fun direct_calls_to_primitives(node, except_constructors: bool = false) =
     |"
     |"    end Root.Child;
     node is
-        BaseId(p_is_static_call(): true)
-        when stdlib.ultimate_subprogram_alias(node.p_referenced_decl()) is
+        name@(BaseId | Op)
+        when name.p_is_static_call()
+         and stdlib.ultimate_subprogram_alias(node.p_referenced_decl()) is
              decl@BasicDecl(p_subp_spec_or_null():
                             spec@BaseSubpSpec(p_primitive_subp_tagged_type():
                                               t@BaseTypeDecl))
