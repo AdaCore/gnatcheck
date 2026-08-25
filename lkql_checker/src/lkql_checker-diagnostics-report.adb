@@ -1662,15 +1662,30 @@ package body Lkql_Checker.Diagnostics.Report is
          return Res;
       end Make_Config;
 
+      Env_Var_White_List : constant Case_Insensitive_String_Sets.Set :=
+        ["PATH",
+         "LD_LIBRARY_PATH",
+         "GNATCHECK_WORKER",
+         "GPR_PROJECT_PATH",
+         "GPR_TOOL",
+         "TERM",
+         "LKQL_PATH"];
+      --  Set of environment variables to include in the SARIF report. If you
+      --  change this list, please keep it synced with the one with the same
+      --  name in "testsuite/drivers/gnatcheck_driver.py".
+
       procedure Add_Env_Var (Name, Value : String);
       --  Add an environment variable to the SARIF invocation object.
 
       procedure Add_Env_Var (Name, Value : String) is
       begin
-         Invocation.environmentVariables.Append
-           ((Kind => Key_Name, Key_Name => To_Virtual_String (Name)));
-         Invocation.environmentVariables.Append
-           ((Kind => String_Value, String_Value => To_Virtual_String (Value)));
+         if Env_Var_White_List.Contains (Name) then
+            Invocation.environmentVariables.Append
+              ((Kind => Key_Name, Key_Name => To_Virtual_String (Name)));
+            Invocation.environmentVariables.Append
+              ((Kind         => String_Value,
+                String_Value => To_Virtual_String (Value)));
+         end if;
       end Add_Env_Var;
 
       function Compute_Sha256 (File_Path : String) return String;
