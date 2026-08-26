@@ -18,8 +18,8 @@ selector static_calls
         [get_body(a)
          for a in stdlib.children_no_nested(b)
          if a is (GenericInstantiation |
-                 BaseId when a.p_is_static_call() or
-                             a.p_referenced_decl() is TaskTypeDecl)].to_list)
+                  Name when a.p_is_static_call() or
+                            a.p_referenced_decl() is TaskTypeDecl)].to_list)
     | *      => ()
 
 @memoized
@@ -44,8 +44,8 @@ fun bodies(name) =
 fun calls_helper(b) =
       concat([bodies(a) for a in stdlib.children_no_nested(b)
               if a is (GenericInstantiation |
-                      (BaseId when a.p_is_direct_call() or
-                                   a.p_referenced_decl() is TaskTypeDecl))].
+                       Name when a.p_is_direct_call() or
+                                 a.p_referenced_decl() is TaskTypeDecl)].
              to_list)
 
 @memoized
