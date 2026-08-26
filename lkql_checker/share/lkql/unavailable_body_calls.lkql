@@ -29,6 +29,7 @@ fun unavailable_body_calls(node, indirect_calls: bool = false) =
     |"       Unknown;     --  FLAG
     |"       X (1);       --  FLAG (if Indirect_Calls is enabled)
     node is Name
-    when (indirect_calls and node.p_is_access_call()) or
-         node is BaseId(p_is_static_call(): true,
-                        p_referenced_decl(): SubpDecl(p_body_part(): null))
+    when (indirect_calls and node.p_is_access_call())
+      or (node is (BaseId | Op)
+          when node.p_is_static_call()
+           and node.p_referenced_decl() is SubpDecl(p_body_part(): null))

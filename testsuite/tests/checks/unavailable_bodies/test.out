@@ -1,20 +1,24 @@
-calls.adb:30:4: rule violation: call to unavailable body
-30 |    Unknown;     --  FLAG
+calls.adb:37:4: rule violation: call to unavailable body
+37 |    Unknown;     --  FLAG
    |    ^^^^^^^
 
-calls.adb:31:4: rule violation: call to unavailable body
-31 |    X.all (1);   --  FLAG (2)
+calls.adb:38:4: rule violation: call to unavailable body
+38 |    X.all (1);   --  FLAG (2)
    |    ^^^^^^^^^
 
-calls.adb:31:4: rule violation: call to unavailable body
-31 |    X.all (1);   --  FLAG (2)
+calls.adb:38:4: rule violation: call to unavailable body
+38 |    X.all (1);   --  FLAG (2)
    |    ^^^^^
 
-calls.adb:32:4: rule violation: call to unavailable body
-32 |    X (1);       --  FLAG
+calls.adb:39:4: rule violation: call to unavailable body
+39 |    X (1);       --  FLAG
    |    ^^^^^
 
-calls.adb:33:4: rule violation: call to unavailable body
-33 |    Y.all;       --  FLAG
+calls.adb:40:4: rule violation: call to unavailable body
+40 |    Y.all;       --  FLAG
    |    ^^^^^
+
+calls.adb:46:24: rule violation: call to unavailable body
+46 |       Dummy := Ops_Val = Ops_Val;  --  FLAG
+   |                        ^
 
