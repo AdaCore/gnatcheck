@@ -26,9 +26,23 @@ procedure Calls is
       end P;
    end P_G;
 
+   package Ops is
+      type T is null record;
+
+      function "=" (X, Y : T) return Boolean
+         with Import;
+   end Ops;
+
 begin
    Unknown;     --  FLAG
    X.all (1);   --  FLAG (2)
    X (1);       --  FLAG
    Y.all;       --  FLAG
+   declare
+      use Ops;
+      Ops_Val : T;
+      Dummy   : Boolean;
+   begin
+      Dummy := Ops_Val = Ops_Val;  --  FLAG
+   end;
 end Calls;
