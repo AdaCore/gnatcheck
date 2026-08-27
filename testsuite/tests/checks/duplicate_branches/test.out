@@ -7,3 +7,7 @@ dup.adb:4:7: rule violation: code duplicated at line 13
 11 ||       end;
    ||__________^
 
+ops.adb:7:7: rule violation: code duplicated at line 9
+7 |       X := A + B + C + D + E + F + G + H;   --  FLAG with line 9
+  |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
