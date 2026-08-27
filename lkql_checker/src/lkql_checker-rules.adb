@@ -1687,15 +1687,7 @@ package body Lkql_Checker.Rules is
          --  and process the parameter.
 
          if Lower_Param = "default" then
-            Set (Tagged_Instance.Type_Suffix, "_T");
-            Set (Tagged_Instance.Access_Suffix, "_A");
-            Set (Tagged_Instance.Access_Access_Suffix, "");
-            Set (Tagged_Instance.Class_Access_Suffix, "");
-            Set (Tagged_Instance.Class_Subtype_Suffix, "");
-            Set (Tagged_Instance.Constant_Suffix, "_C");
-            Set (Tagged_Instance.Renaming_Suffix, "_R");
-            Set (Tagged_Instance.Access_Obj_Suffix, "");
-            Set (Tagged_Instance.Interrupt_Suffix, "");
+            Tagged_Instance.Default := On;
 
          elsif Has_Prefix (Norm_Param, "type_suffix=") then
             Set
@@ -2769,20 +2761,23 @@ package body Lkql_Checker.Rules is
             declare
                Id_Suf_Instance : constant Identifier_Suffixes_Instance :=
                  Identifier_Suffixes_Instance (Instance.all);
-               Access_Suffix   : constant Text_Type :=
-                 To_Text
-                   ((if not Id_Suf_Instance.Access_Access_Suffix.Is_Set
-                     then Id_Suf_Instance.Access_Suffix.Value
-                     else
-                       Id_Suf_Instance.Access_Suffix.Value
-                       & '('
-                       & Id_Suf_Instance.Access_Access_Suffix.Value
-                       & ')'));
             begin
                for I in Args.First_Index .. Args.Last_Index loop
                   if Args (I).Name = "access_suffix" then
                      Set_Unbounded_Wide_Wide_String
-                       (Args (I).Value, '"' & Access_Suffix & '"');
+                       (Args (I).Value,
+                        '"'
+                        & To_Text
+                            ((if not Id_Suf_Instance
+                                       .Access_Access_Suffix
+                                       .Is_Set
+                              then Id_Suf_Instance.Access_Suffix.Value
+                              else
+                                Id_Suf_Instance.Access_Suffix.Value
+                                & '('
+                                & Id_Suf_Instance.Access_Access_Suffix.Value
+                                & ')'))
+                        & '"');
                   elsif Args (I).Name = "access_access_suffix" then
                      To_Delete := I;
                   end if;
@@ -3251,17 +3246,8 @@ package body Lkql_Checker.Rules is
    begin
       --  Process the "default" boolean parameter
       if Params_Object.Has_Field ("default") then
-         if Expect_Literal (Params_Object, "default") then
-            Set (Instance.Type_Suffix, "_T");
-            Set (Instance.Access_Suffix, "_A");
-            Set (Instance.Access_Access_Suffix, "");
-            Set (Instance.Class_Access_Suffix, "");
-            Set (Instance.Class_Subtype_Suffix, "");
-            Set (Instance.Constant_Suffix, "_C");
-            Set (Instance.Renaming_Suffix, "_R");
-            Set (Instance.Access_Obj_Suffix, "");
-            Set (Instance.Interrupt_Suffix, "");
-         end if;
+         Instance.Default :=
+           From_Boolean (Expect_Literal (Params_Object, "default"));
          Params_Object.Unset_Field ("default");
       end if;
 
@@ -3555,6 +3541,8 @@ package body Lkql_Checker.Rules is
      (Instance : in out Identifier_Suffixes_Instance;
       Args     : in out Rule_Argument_Vectors.Vector) is
    begin
+      Append_Bool_Param
+        (Args, To_Unbounded_Text (To_Text ("default")), Instance.Default);
       Append_String_Param (Args, "type_suffix", Instance.Type_Suffix);
       Append_String_Param (Args, "access_suffix", Instance.Access_Suffix);
       Append_String_Param
@@ -3846,6 +3834,11 @@ package body Lkql_Checker.Rules is
    begin
       Print_Rule_Instance_To_File
         (Rule_Instance (Instance), Rule_File, Indent_Level);
+
+      if Instance.Default = On then
+         Put (Rule_File, ":Default");
+         First_Param := False;
+      end if;
 
       Print ("Type_Suffix", Instance.Type_Suffix);
       Print ("Access_Suffix", Instance.Access_Suffix);
@@ -4212,6 +4205,10 @@ package body Lkql_Checker.Rules is
 
    begin
       XML_Report (XML_Head (Instance), Indent_Level);
+
+      if Instance.Default = On then
+         XML_Report (XML_Param ("Default"), Indent_Level + 1);
+      end if;
 
       Print ("Type_Suffix", Instance.Type_Suffix);
 

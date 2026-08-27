@@ -482,6 +482,7 @@ package Lkql_Checker.Rules is
       Access_Obj_Suffix,
       Interrupt_Suffix : Optional_Unbounded_Wide_Wide_String :=
         (Is_Set => False);
+      Default          : Tri_State := Unset;
    end record;
    --  Represents an instance of a rule about identifier suffixes
 

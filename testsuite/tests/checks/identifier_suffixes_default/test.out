@@ -1,0 +1,16 @@
+suffix.ads:4:9: rule violation: Int does not end with type suffix _T
+4 |    type Int   is range 0 .. 100;   -- FLAG
+  |         ^^^
+
+suffix.ads:8:9: rule violation: Int_PTR does not end with access suffix _A
+8 |    type Int_PTR is access Int;     -- FLAG
+  |         ^^^^^^^
+
+suffix.ads:10:4: rule violation: Const does not end with constant suffix _C
+10 |    Const   : constant Int := 1;    -- FLAG
+   |    ^^^^^
+
+suffix.ads:13:12: rule violation: Renamed does not end with renaming suffix _R
+13 |    package Renamed renames Ada;    -- FLAG
+   |            ^^^^^^^
+
