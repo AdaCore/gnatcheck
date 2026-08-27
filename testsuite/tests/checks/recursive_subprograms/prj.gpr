@@ -1,3 +1,5 @@
 project Prj is
-    for Source_Dirs use ("simple", "generic", "dispatching", "inst_stub_body");
+    for Source_Dirs use
+      ("simple", "generic", "dispatching", "inst_stub_body", "operators",
+       "attributes");
 end Prj;
