@@ -1,6 +1,6 @@
 fun check_size(n, min_size, min_stmt) =
     (from n select Stmt).length >= min_stmt or
-    (from n select SingleTokNode).length >= min_size
+    (from n select (SingleTokNode | Op)).length >= min_size
 
 fun check_list(l, min_size, min_stmt) =
     [e for e in l if check_size(e, min_size, min_stmt) and
@@ -49,7 +49,8 @@ fun duplicate_branches(unit, min_size: int = 14, min_stmt: int = 4) =
     |"
     |" .. param:: min_size
     |"    An integer literal. All statement sequences that contain at least *min_size*
-    |"    lexical elements (`SingleTokNode` in Libadalang terms) are flagged.
+    |"    lexical elements (`SingleTokNode` or `Op` in Libadalang terms) are
+    |"    flagged.
     |"
     |" You have to use the ``param_name=value`` formatting to pass arguments through
     |" the ``+R`` options. Example: ``+RDuplicate_Branches:min_stmt=20,min_size=42``.
