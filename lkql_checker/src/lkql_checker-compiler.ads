@@ -79,20 +79,26 @@ package Lkql_Checker.Compiler is
    --  warning ON/OFF. If Restrictions rules are specified, this file contains
    --  the corresponding Restriction_Warnings pragmas.
 
-   type Unparsable_Handling_Mode is (Hide, Forward, Report_As_Error);
-   --  The way an unparsable line should be treated by the ``Analyze_Output``
-   --  procedure.
+   procedure Parse_Gprbuild_Text_Output
+     (Collector          : in out Diagnostic_Collector;
+      File_Name          : String;
+      Errors             : out Boolean;
+      Forward_Unparsable : Boolean := True);
+   --  Parses the given file that contains a GPRbuild output and store all the
+   --  relevant messages.
+   --
+   --  If some compiler errors are detected, set Errors to True.
+   --  ``Report_Unparsable`` tells whether to emit an error when an unparsable
+   --  line is encountered in the output. If it is false, the line is simply
+   --  forwarded in the tool output.
 
-   procedure Analyze_Output
-     (Collector           : in out Diagnostic_Collector;
-      File_Name           : String;
-      Errors              : out Boolean;
-      Unparsable_Handling : Unparsable_Handling_Mode := Report_As_Error);
-   --  Parses the given file (typically error output of gprbuild or the worker)
-   --  and store all the relevant messages.
-   --  Following the ``Unparsable_Handling`` parameter, this function may
-   --  report internal error when an unparsable message is encountered in the
-   --  output.
+   function Parse_SARIF_Worker_Output
+     (Collector : in out Diagnostic_Collector; File_Name : String)
+      return Boolean;
+   --  Parse the SARIF output produced by the checker worker when running in
+   --  checking mode. Stores rule violations as diagnostics in  ``Collector``
+   --  and processes tool execution notifications. Return whether the
+   --  processing has been a success.
 
    function Load_SARIF_Root
      (File_Name : String; Root : out SARIF.Types.Root) return Boolean;
@@ -107,6 +113,18 @@ package Lkql_Checker.Compiler is
    --  notifications, test if it is about an Ada source:
    --    * if so, store a ``Compilation_Error`` diagnostic in ``Collector``
    --    * if not, increase ``Error_Counter`` by 1 and display the error
+
+   function Instantiations_Chain
+     (Locations : SARIF.Types.threadFlowLocation_Vector) return String;
+   --  Build the instantiation chain string from a SARIF result's codeFlows.
+   --  Returns "" if the provided vector is empty.
+   --
+   --  Format: "[instance at file:line:col [file:line:col]]", where each level
+   --  corresponds to one threadFlow (innermost first), nested with square
+   --  brackets.
+   --
+   --  This function assumes that each codeFlow object has a valid physical
+   --  location.
 
    procedure Process_Restriction_Param
      (Parameter : String; Instance : Rule_Instance_Access);

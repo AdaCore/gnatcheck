@@ -626,15 +626,58 @@ package body Lkql_Checker.Compiler is
       end loop;
    end Process_SARIF_Notifications;
 
-   ----------------------------
-   -- Analyze_Builder_Output --
-   ----------------------------
+   --------------------------
+   -- Instantiations_Chain --
+   --------------------------
 
-   procedure Analyze_Output
-     (Collector           : in out Diagnostic_Collector;
-      File_Name           : String;
-      Errors              : out Boolean;
-      Unparsable_Handling : Unparsable_Handling_Mode := Report_As_Error)
+   function Instantiations_Chain
+     (Locations : SARIF.Types.threadFlowLocation_Vector) return String
+   is
+      use Ada.Strings.Unbounded;
+      use SARIF.Types;
+
+      Result : Unbounded_String;
+   begin
+      --  Build the chain from outermost to innermost, as specified in the
+      --  SARIF convention.
+      for I in 1 .. Locations.Length loop
+         declare
+            Phys : constant physicalLocation :=
+              Locations (I).location.Value.physicalLocation.Value;
+
+            Path : constant String :=
+              URI_To_Path (Phys.artifactLocation.Value.uri);
+
+            Location_String : constant String :=
+              (if Tool_Args.Full_Source_Locations.Get
+               then Path
+               else Simple_Name (Path))
+              & ":"
+              & Sloc_Image
+                  (Phys.region.Value.startLine.Value,
+                   Phys.region.Value.startColumn.Value);
+         begin
+            if Result = Null_Unbounded_String then
+               Set_Unbounded_String (Result, Location_String);
+            else
+               Insert (Result, 1, Location_String & " [");
+               Append (Result, "]");
+            end if;
+         end;
+      end loop;
+
+      return "[instance at " & To_String (Result) & ']';
+   end Instantiations_Chain;
+
+   --------------------------------
+   -- Parse_Gprbuild_Text_Output --
+   --------------------------------
+
+   procedure Parse_Gprbuild_Text_Output
+     (Collector          : in out Diagnostic_Collector;
+      File_Name          : String;
+      Errors             : out Boolean;
+      Forward_Unparsable : Boolean := True)
    is
       Line     : String (1 .. 1024);
       Line_Len : Natural;
@@ -643,10 +686,6 @@ package body Lkql_Checker.Compiler is
       procedure Analyze_Line (Msg : String);
       --  Analyze one line containing a builder output. Insert the relevant
       --  messages into the diagnostics table.
-
-      procedure Process_Worker_Message
-        (Message : String; Printer : access procedure (S, L : String));
-      --  Helper to process messages received from the Worker
 
       ------------------
       -- Analyze_Line --
@@ -671,18 +710,9 @@ package body Lkql_Checker.Compiler is
 
          procedure Unparsable_Line is
          begin
-            case Unparsable_Handling is
-               when Forward         =>
-                  Print (Msg);
-
-               when Report_As_Error =>
-                  Error ("unparsable worker output: """ & Msg & '"');
-                  Errors := True;
-                  Detected_Internal_Error := @ + 1;
-
-               when Hide            =>
-                  null;
-            end case;
+            if Forward_Unparsable then
+               Print (Msg);
+            end if;
          end Unparsable_Line;
 
       begin
@@ -734,58 +764,8 @@ package body Lkql_Checker.Compiler is
             return;
          end if;
 
-         --  A checking message emitted by the worker
-         if Msg (Msg_Start .. Msg_Start + 6) = "check: " then
-            if Msg (Msg_End) /= ']' then
-               Unparsable_Line;
-               return;
-            end if;
-
-            declare
-               Last       : constant Natural :=
-                 Index
-                   (Source  => Msg (Msg_Start .. Msg_End),
-                    Pattern => "[",
-                    Going   => Backward);
-               Name_Split : constant Natural :=
-                 Index (Source => Msg (Last + 1 .. Msg_End), Pattern => "|");
-
-               Rule_Name     : constant String :=
-                 (if Name_Split /= 0
-                  then Msg (Name_Split + 1 .. Msg_End - 1)
-                  elsif Last /= 0
-                  then Msg (Last + 1 .. Msg_End - 1)
-                  else "");
-               Instance_Name : constant String :=
-                 (if Name_Split /= 0
-                  then Msg (Last + 1 .. Name_Split - 1)
-                  else "");
-
-               Instance : Rule_Instance_Access := null;
-            begin
-               if Last = 0 then
-                  Unparsable_Line;
-                  return;
-               end if;
-               Instance :=
-                 Get_Instance
-                   (if Instance_Name = ""
-                    then To_Lower (Rule_Name)
-                    else To_Lower (Instance_Name));
-               Store_Diagnostic
-                 (Collector,
-                  Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
-                  Message        => Msg (Msg_Start + 7 .. Last - 2),
-                  Sloc           => Sloc,
-                  Kind           => Rule_Violation,
-                  SF             => SF,
-                  Rule           => Instance.Rule,
-                  Instance       => Instance);
-               return;
-            end;
-
          --  An error message has been emitted
-         elsif Msg (Msg_Start .. Msg_Start + 6) = "error: " then
+         if Msg (Msg_Start .. Msg_Start + 6) = "error: " then
             Message_Kind := Error;
 
             if Msg_End - Msg_Start > 21
@@ -848,24 +828,6 @@ package body Lkql_Checker.Compiler is
                else Get_Rule_Id (Message_Kind)));
       end Analyze_Line;
 
-      ----------------------------
-      -- Process_Worker_Message --
-      ----------------------------
-
-      procedure Process_Worker_Message
-        (Message : String; Printer : access procedure (S, L : String))
-      is
-         Decoded_Message : constant Read_Result := Read (Message);
-      begin
-         if Decoded_Message.Success then
-            Printer
-              (Decoded_Message.Value.Get ("message"),
-               Decoded_Message.Value.Get ("location"));
-         else
-            Printer (Message, "");
-         end if;
-      end Process_Worker_Message;
-
       --  Start of processing for Analyze_Output
 
    begin
@@ -923,25 +885,6 @@ package body Lkql_Checker.Compiler is
                   end if;
                end;
             end if;
-         elsif Line_Len >= 16 and then Line (1 .. 13) = "WORKER_INFO: " then
-            Process_Worker_Message (Line (14 .. Line_Len), Info'Access);
-         elsif Line_Len >= 16 and then Line (1 .. 16) = "WORKER_WARNING: " then
-            Process_Worker_Message (Line (17 .. Line_Len), Warning'Access);
-         elsif Line_Len >= 14 and then Line (1 .. 14) = "WORKER_ERROR: " then
-            Process_Worker_Message (Line (15 .. Line_Len), Error'Access);
-            Detected_Internal_Error := @ + 1;
-            Errors := True;
-         elsif Line_Len >= 23
-           and then Line (1 .. 23) = "WORKER_JSON_INSTANCES: "
-         then
-            --  Ignore the JSON instances data. This is analyzed in
-            --  Process_LKQL_Rule_File.
-
-            --  The current line can be longer than Line_Len, skip the rest of
-            --  the line if that's the case.
-            if Line_Len = Line'Length then
-               Skip_Line (File);
-            end if;
          else
             Analyze_Line (Line (1 .. Line_Len));
          end if;
@@ -958,7 +901,88 @@ package body Lkql_Checker.Compiler is
          Error ("unknown bug detected when analyzing tool output:");
          Report_Unhandled_Exception (Ex);
          Errors := True;
-   end Analyze_Output;
+   end Parse_Gprbuild_Text_Output;
+
+   -------------------------------
+   -- Parse_SARIF_Worker_Output --
+   -------------------------------
+
+   function Parse_SARIF_Worker_Output
+     (Collector : in out Diagnostic_Collector; File_Name : String)
+      return Boolean
+   is
+      use SARIF.Types;
+      use VSS.Strings.Conversions;
+
+      Root : SARIF.Types.Root;
+   begin
+      if not Load_SARIF_Root (File_Name, Root) then
+         return False;
+      end if;
+
+      declare
+         Run : SARIF.Types.run renames Root.runs (1);
+      begin
+         --  Process tool execution notifications
+         if not Run.invocations.Is_Null and then Run.invocations.Length >= 1
+         then
+            Process_SARIF_Notifications
+              (Collector,
+               Run.invocations (1).toolExecutionNotifications,
+               Detected_Internal_Error);
+         end if;
+
+         --  Process rule violations from SARIF results
+         if not Run.results.Is_Null then
+            for I in 1 .. Run.results.Length loop
+               declare
+                  Res : SARIF.Types.result renames Run.results (I);
+
+                  --  Get the instance that has been violated
+                  Instance : constant Rule_Instance_Access :=
+                    Get_Instance (To_UTF_8_String (Res.ruleId));
+
+                  --  Get the location of the violation
+                  Phys : constant SARIF.Types.physicalLocation :=
+                    Res.locations (1).physicalLocation.Value;
+                  Path : constant String :=
+                    URI_To_Path (Phys.artifactLocation.Value.uri);
+                  SF   : constant SF_Id := File_Find (Path);
+                  Sloc : constant Source_Location :=
+                    (Line_Number (Phys.region.Value.startLine.Value),
+                     Column_Number (Phys.region.Value.startColumn.Value));
+               begin
+                  if Instance /= null and then Present (SF) then
+                     Store_Diagnostic
+                       (Collector,
+                        Full_File_Name =>
+                          Lkql_Checker.Source_Table.File_Name (SF),
+                        Message        =>
+                          To_UTF_8_String (Res.message.text)
+                          & (if Tool_Args.Show_Instantiation_Chain.Get
+                               and then Res.codeFlows.Length = 1
+                               and then Res.codeFlows (1).threadFlows.Length
+                                        = 1
+                             then
+                               ' '
+                               & Instantiations_Chain
+                                   (Res.codeFlows (1).threadFlows (1)
+                                      .locations)
+                             else ""),
+                        Sloc           => Sloc,
+                        Kind           => Rule_Violation,
+                        SF             => SF,
+                        Rule           => Instance.Rule,
+                        Instance       => Instance);
+                  end if;
+               end;
+            end loop;
+         end if;
+      end;
+
+      --  Return the success
+      return True;
+   end Parse_SARIF_Worker_Output;
 
    ----------------
    -- Annotation --
@@ -2096,7 +2120,7 @@ package body Lkql_Checker.Compiler is
       end if;
 
       if Tool_Args.Show_Instantiation_Chain.Get then
-         Args.Append ("--show-instantiation-chain");
+         Args.Append ("--report-instantiation-chain");
       end if;
 
       for Dir of Tool_Args.Rules_Dirs.Get loop
