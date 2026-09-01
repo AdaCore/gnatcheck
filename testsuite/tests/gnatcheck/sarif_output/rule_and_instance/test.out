@@ -17,11 +17,11 @@
         {
           "arguments": [
             "-q",
+            "--show-rule",
             "-P",
             "prj.gpr",
             "--sarif=<working-dir>/gnatcheck.sarif",
             "--rules-dir=./",
-            "--show-rule",
             "-rules"
           ],
           "commandLine": "COMMAND_LINE",
@@ -61,7 +61,7 @@
             }
           ],
           "message": {
-            "text": "My custom rule [Other_Instance|custom]"
+            "text": "My custom rule"
           },
           "ruleId": "other_instance"
         },
@@ -82,7 +82,7 @@
             }
           ],
           "message": {
-            "text": "My custom rule [custom]"
+            "text": "My custom rule"
           },
           "ruleId": "custom"
         }

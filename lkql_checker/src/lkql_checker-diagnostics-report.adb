@@ -656,7 +656,7 @@ package body Lkql_Checker.Diagnostics.Report is
         & Image (Self.Sloc)
         & ": "
         & Tag_String
-        & To_String (Self.Text);
+        & To_String (Self.Annotated_Message);
    end Image;
 
    -----------------------------
@@ -1344,7 +1344,8 @@ package body Lkql_Checker.Diagnostics.Report is
       Exempted    : constant Boolean :=
         Diag.Kind = Rule_Violation
         and then Diag.Justification /= Null_Unbounded_String;
-      Message     : constant String := Strip_Tag (To_String (Diag.Text));
+      Message     : constant String :=
+        Strip_Tag (To_String (Diag.Annotated_Message));
       M_Start     : Natural := Message'First;
    begin
       XML_Report_No_EOL
@@ -1924,7 +1925,7 @@ package body Lkql_Checker.Diagnostics.Report is
                     To_Virtual_String
                       (To_Lower (Instance_Name (Diag.Instance.all)));
                   Res.level := (Is_Set => True, Value => SE.warning);
-                  Res.message.text := To_Virtual_String (Diag.Text);
+                  Res.message.text := To_Virtual_String (Diag.Message);
                   Res.locations.Append (Loc);
                   if Diag.Justification /= Null_Unbounded_String then
                      declare
@@ -1953,7 +1954,8 @@ package body Lkql_Checker.Diagnostics.Report is
                      then SE.warning
                      else SE.error);
                begin
-                  Notif.message.text := To_Virtual_String (Diag.Text);
+                  Notif.message.text :=
+                    To_Virtual_String (Diag.Annotated_Message);
                   Notif.level := (Is_Set => True, Value => Level);
                   Notif.locations.Append (Loc);
                   Invocation.toolExecutionNotifications.Append (Notif);

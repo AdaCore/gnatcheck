@@ -46,7 +46,9 @@ gnatcheck help:
            specify the name of the XML report file (enforces '-xml')
  --sarif <file>            specify the name of the SARIF report file
  -t                        print the total execution time (wall clock) on stderr
- --show-rule               append rule names to diagnostics generated
+ --show-rule
+           append rule names to generated diagnostics (text and XML formats
+           only)
  --show-instantiation-chain
            show instantiation chain for reported generic construct
  --check-redefinition      issue warning if a rule parameter is redefined
@@ -149,7 +151,9 @@ gnatcheck help:
            specify the name of the XML report file (enforces '-xml')
  --sarif <file>            specify the name of the SARIF report file
  -t                        print the total execution time (wall clock) on stderr
- --show-rule               append rule names to diagnostics generated
+ --show-rule
+           append rule names to generated diagnostics (text and XML formats
+           only)
  --show-instantiation-chain
            show instantiation chain for reported generic construct
  --check-redefinition      issue warning if a rule parameter is redefined
@@ -252,7 +256,9 @@ gnatcheck help:
            specify the name of the XML report file (enforces '-xml')
  --sarif <file>            specify the name of the SARIF report file
  -t                        print the total execution time (wall clock) on stderr
- --show-rule               append rule names to diagnostics generated
+ --show-rule
+           append rule names to generated diagnostics (text and XML formats
+           only)
  --show-instantiation-chain
            show instantiation chain for reported generic construct
  --check-redefinition      issue warning if a rule parameter is redefined

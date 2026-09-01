@@ -1307,7 +1307,7 @@ package body Lkql_Checker.Diagnostics.Exemptions is
                 (Collector,
                  Name => R_Name,
                  Rule => Diag.Rule,
-                 Diag => To_String (Diag.Text),
+                 Diag => To_String (Diag.Annotated_Message),
                  SF   => SF,
                  Line => Diag_Line,
                  Col  => Diag_Column);
@@ -1322,7 +1322,7 @@ package body Lkql_Checker.Diagnostics.Exemptions is
                    (Collector,
                     Name => I_Name,
                     Rule => Diag.Rule,
-                    Diag => To_String (Diag.Text),
+                    Diag => To_String (Diag.Annotated_Message),
                     SF   => SF,
                     Line => Diag_Line,
                     Col  => Diag_Column);
