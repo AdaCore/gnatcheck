@@ -1,0 +1,3 @@
+driver: gnatcheck
+format: sarif
+project: prj.gpr
