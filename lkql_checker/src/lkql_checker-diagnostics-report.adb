@@ -1628,15 +1628,23 @@ package body Lkql_Checker.Diagnostics.Report is
         (R_Id : Rule_Id; Instance : Rule_Instance_Access)
          return ST.reportingConfiguration
       is
-         Rule   : constant Rule_Info := All_Rules (R_Id);
          I      : Rule_Instance_Access;
          Args   : Rule_Commands.Rule_Argument_Vectors.Vector;
          Params : ST.propertyBag;
          Res    : ST.reportingConfiguration;
       begin
-         --  If no instance has been provided, create the default one
+         --  Set the rule as enabled
+         Res.enabled := True;
+
+         --  If no instance has been provided, create the default one.
+         --  Compiler-based rules have no `Rule_Info` in `All_Rules` and no
+         --  generic default instance, so just report them as enabled.
          if Instance = null then
-            I := Rule.Create_Instance (False);
+            if Is_Compiler_Rule (R_Id) then
+               return Res;
+            end if;
+
+            I := All_Rules (R_Id).Create_Instance (False);
             I.Source_Mode := General;
             I.Rule := R_Id;
          else
@@ -1653,7 +1661,6 @@ package body Lkql_Checker.Diagnostics.Report is
                 String_Value => To_Virtual_String (Arg.Value)));
          end loop;
          Res.parameters := (Is_Set => True, Value => Params);
-         Res.enabled := True;
 
          --  Free the default instance if one has been created
          if Instance = null then
