@@ -255,6 +255,158 @@ list of Ada sources to use during analysis. Here is an example usage:
 
   lkql check main.adb main.ads -r my_rule -a "my_rule.arg=42"
 
+A report produced with ``--format=SARIF --auto-fix-mode=IN_REPORT`` holds the
+fixes the rules suggest, which the :ref:`patch<LKQL_Patch>` sub-command applies
+to the sources. Both switches are needed: only the SARIF format carries the
+fixes, the ``TEXT`` one only displays them.
+
+.. _LKQL_Patch:
+
+``lkql patch``
+^^^^^^^^^^^^^^
+
+.. danger::
+
+  This sub-command is considered as a prototype. Use it at your own risks, and
+  mind the warning below: it modifies your sources.
+
+This sub-command applies to Ada sources the quick fixes contained in a SARIF
+report. It is the counterpart of ``check``: the checker finds violations and
+computes fixes, ``patch`` puts them in the sources. Each fix is displayed with a
+unified diff of what it changes and applied only if you accept it, unless
+``--auto`` is given.
+
+.. warning::
+
+  Unless ``--dry-run`` is given, ``patch`` modifies the sources in place and
+  keeps no backup of them, so applying fixes is destructive. Only run it on
+  sources you can restore, that is on a project under version control.
+
+.. hint::
+
+  ``patch`` is best used on a code base which has already been widely analyzed
+  with GNATcheck, so that the false positives have been caught and exempted
+  before their fixes are applied to the sources, or on a new code base. On an
+  existing one which has never been analyzed, the number of reported fixes can
+  be overwhelming. This is only a recommendation though: the review can be
+  interrupted at any time, and resumed later, as
+  :ref:`described below<LKQL_Patch_Resuming>`.
+
+``patch`` defines the following CLI switches:
+
+``-a, --auto``
+  Apply all the fixes without prompting.
+
+``--dry-run``
+  Go through the fixes but do not modify any file, only displaying the changes
+  they would make.
+
+``--exclude-rule=<rule>``
+  Do not apply the fixes coming from the given rules. This option is
+  cumulative, and accepts a comma separated list.
+
+``--list-rules``
+  Display the rules the report holds, with the number of fixes each of them
+  provides, then exit without modifying anything.
+
+``-C, --charset=<charset>``
+  Defines the charset to use for source decoding. The default is "utf-8", with
+  a fallback on "iso-8859-1". Sources are written back with the charset used to
+  read them, and their line separators are left as they are.
+
+Additionally to those switches, ``patch`` expects the SARIF report to apply, and
+accepts a list of sources to restrict the fixes to, as described below:
+
+.. code-block::
+
+  lkql patch report.sarif          # review each fix before deciding
+  lkql patch --auto report.sarif   # apply them all
+
+When a fix is displayed, the following answers are accepted, each of them also
+by its full name, and ``a`` and ``A`` differing only by their case:
+
+* ``y``, ``yes``: apply this fix
+* ``n``, ``no``: skip this fix
+* ``a``, ``auto``: apply this fix and all the remaining ones of the same rule
+* ``A``, ``all``: apply this fix and all the remaining ones, whatever their
+  rule
+* ``q``, ``quit``: skip this fix and all the remaining ones
+* ``h``, ``help``: display what the answers mean
+
+Sources are written only once, when all the fixes have been reviewed, so that a
+run which cannot write one of its files leaves the others as they were instead
+of applying a part of the fixes.
+
+Restricting the fixes to apply
+""""""""""""""""""""""""""""""
+
+A report usually covers a whole project, while you may want to deal with one
+part of it at a time. The sources given after the report restrict the fixes to
+those targeting them, the others being left for a later run. Each of them may
+be:
+
+* a directory, which selects every source under it, at any depth,
+* a path, which selects the source it designates,
+* a bare file name, which selects the sources bearing that name, wherever they
+  are in the project.
+
+.. code-block::
+
+  lkql patch report.sarif src/           # every source under "src"
+  lkql patch report.sarif src/main.adb   # that source only
+  lkql patch report.sarif main.adb       # every source named "main.adb"
+
+Fixes can also be restricted per rule, which is useful to deal with a rule you
+trust before reviewing the others, or to leave out one whose fixes you do not
+want:
+
+.. code-block::
+
+  lkql patch --list-rules report.sarif
+  lkql patch --auto --exclude-rule goto_statements report.sarif
+
+The two restrictions combine, and what they leave out is reported at the end of
+the run, so that no fix is silently dropped.
+
+.. _LKQL_Patch_Resuming:
+
+Stopping and resuming
+"""""""""""""""""""""
+
+The fixes applied from a report are recorded next to it, in a
+``<report>.applied`` file, so rerunning the same report is harmless: the fixes
+already applied are reported as such rather than applied a second time, and a
+run stopped with ``q`` continues where it was left. When quitting, you are asked
+whether to keep that record.
+
+.. warning::
+
+  That record holds the text each fix removed and inserted, so it contains
+  fragments of the patched sources in clear. Protecting it, and keeping it out
+  of commits and build artifacts, is left to the user. Removing it is always
+  safe, the next run then considering that no fix has been applied yet, at the
+  risk of applying some of them twice.
+
+When the sources have changed
+"""""""""""""""""""""""""""""
+
+A fix designates the text to change by its position in the source the checker
+analyzed. That position means nothing anymore in a source which has changed
+since, where it designates something else, so ``patch`` refuses the fixes of a
+file it finds modified rather than applying them blindly. The report carries the
+means to detect it, so this is not something to work around: once a source has
+been modified, the only way to fix it is to run the checker again and to apply
+the new report.
+
+.. note::
+
+  A file patched by ``patch`` itself does not count as modified: as long as the
+  record of what has been applied is kept, the tool knows which state the file
+  is in and keeps applying the fixes which are left. Interrupting a review in
+  the middle of a file is therefore safe, and resuming it later goes on with
+  that same file. Only a change ``patch`` knows nothing about, made from an
+  editor, or its record being discarded, makes the fixes of a file unapplicable.
+
 
 ``lkql doc-api``
 ^^^^^^^^^^^^^^^^
