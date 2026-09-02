@@ -1923,7 +1923,10 @@ package body Lkql_Checker.Diagnostics.Report is
                begin
                   Res.ruleId :=
                     To_Virtual_String
-                      (To_Lower (Instance_Name (Diag.Instance.all)));
+                      (To_Lower
+                         (if Diag.Instance /= null
+                          then Instance_Name (Diag.Instance.all)
+                          else Rule_Name (Diag.Rule)));
                   Res.level := (Is_Set => True, Value => SE.warning);
                   Res.message.text := To_Virtual_String (Diag.Message);
                   Res.locations.Append (Loc);
