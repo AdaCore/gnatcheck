@@ -3633,6 +3633,28 @@ package body Lkql_Checker.Rules is
       end loop;
    end Map_Parameters;
 
+   overriding
+   procedure Map_Parameters
+     (Instance : in out Compiler_Instance;
+      Args     : in out Rule_Argument_Vectors.Vector) is
+   begin
+      if Instance.Rule = Restrictions_Id then
+         Append_Array_Param
+           (Args,
+            "arg",
+            (Is_Set => True,
+             Value  =>
+               To_Unbounded_Text (To_Text (Join (Instance.Arguments, ",")))));
+      else
+         Append_String_Param
+           (Args,
+            "arg",
+            (Is_Set => True,
+             Value  =>
+               To_Unbounded_Text (To_Text (Join (Instance.Arguments, "")))));
+      end if;
+   end Map_Parameters;
+
    ---------------------------------
    -- Print_Rule_Instance_To_File --
    ---------------------------------

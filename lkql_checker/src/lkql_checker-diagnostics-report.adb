@@ -1440,6 +1440,8 @@ package body Lkql_Checker.Diagnostics.Report is
         Create_From_UTF8 (Checker_Prj.Get_Project_Dir);
       Uri_Base_Dir_Id      : constant String := "URI_BASE_DIR";
       Additional_Instances : Rule_Instance_Vector.Vector;
+      Compiler_Rule_Ids    : constant array (1 .. 3) of Rule_Id :=
+        (Restrictions_Id, Style_Checks_Id, Warnings_Id);
 
       type Base_Dir_Value is record
          Base_Dir : Virtual_File;
@@ -1874,6 +1876,39 @@ package body Lkql_Checker.Diagnostics.Report is
               (Is_Set => True, Value => Make_Config (R_Id, Instance));
             Driver.rules.Append (Descriptor);
          end;
+      end loop;
+
+      --  Compiler-based rules (warnings, style checks and restrictions)
+      --  have no `Rule_Info` in `All_Rules`, so they are not covered by the
+      --  loops above: add their descriptors here, together with those of
+      --  their instances/aliases.
+      for R_Id of Compiler_Rule_Ids loop
+         if Is_Enabled (R_Id) then
+            declare
+               Instance        : aliased Compiler_Instance :=
+                 (Is_Alias    => False,
+                  Rule        => R_Id,
+                  Source_Mode => General,
+                  others      => <>);
+               Instance_Access : constant Rule_Instance_Access :=
+                 Instance'Unchecked_Access;
+               Descriptor      : ST.reportingDescriptor;
+            begin
+               for I of All_Rule_Instances loop
+                  if I.Rule = R_Id then
+                     Instance.Arguments.Append_Vector
+                       (Compiler_Instance (I.all).Arguments);
+                  end if;
+               end loop;
+
+               Descriptor.id := To_Virtual_String (Rule_Name (R_Id));
+               Descriptor.name := To_Virtual_String (Rule_Name (R_Id));
+               Descriptor.defaultConfiguration :=
+                 (Is_Set => True,
+                  Value  => Make_Config (R_Id, Instance_Access));
+               Driver.rules.Append (Descriptor);
+            end;
+         end if;
       end loop;
 
       --  Place the driver in the SARIF run object
