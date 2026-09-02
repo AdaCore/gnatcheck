@@ -15,6 +15,7 @@ with Ada.Text_IO;               use Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO; use GNAT.Calendar.Time_IO;
 with GNAT.OS_Lib;           use GNAT.OS_Lib;
+with GNAT.SHA256;
 
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 
@@ -1570,6 +1571,51 @@ package body Lkql_Checker.Diagnostics.Report is
          Invocation.environmentVariables.Append
            ((Kind => String_Value, String_Value => To_Virtual_String (Value)));
       end Add_Env_Var;
+
+      function Compute_Sha256 (File_Path : String) return String;
+      --  Compute the SHA-256 digest of the file designated by ``File_Path``,
+      --  as a lower-case hexadecimal string. Returns an empty string if the
+      --  file cannot be read.
+
+      function Compute_Sha256 (File_Path : String) return String is
+         Content : GNAT.OS_Lib.String_Access :=
+           Read_File (Create_From_UTF8 (File_Path));
+      begin
+         if Content = null then
+            return "";
+         end if;
+
+         return Res : constant String := GNAT.SHA256.Digest (Content.all) do
+            Free (Content);
+         end return;
+      end Compute_Sha256;
+
+      function Make_Artifact (SF : SF_Id) return ST.artifact;
+      --  Build a SARIF artifact object describing the source file SF,
+      --  including its location and SHA-256 hash.
+
+      function Make_Artifact (SF : SF_Id) return ST.artifact is
+         File_Path : constant String := Source_Name (SF);
+         Hash      : constant String := Compute_Sha256 (File_Path);
+         Res       : ST.artifact;
+      begin
+         Res.location :=
+           (Is_Set => True,
+            Value  =>
+              Make_Artifact_Location
+                (File_Path, Relative_To_Base_Dir => True));
+         Res.sourceLanguage := To_Virtual_String ("ada");
+         if Hash /= "" then
+            Res.hashes.Append ((Kind => Start_Object));
+            Res.hashes.Append
+              ((Kind => Key_Name, Key_Name => To_Virtual_String ("sha-256")));
+            Res.hashes.Append
+              ((Kind         => String_Value,
+                String_Value => To_Virtual_String (Hash)));
+            Res.hashes.Append ((Kind => End_Object));
+         end if;
+         return Res;
+      end Make_Artifact;
    begin
       --  Set driver "constant" values
       Driver.name := To_Virtual_String (Lkql_Checker_Mode_Image);
@@ -1755,6 +1801,14 @@ package body Lkql_Checker.Diagnostics.Report is
       Invocation.executionSuccessful :=
         Exit_Code = E_Success or else Exit_Code = E_Violation;
       Run.invocations.Append (Invocation);
+
+      --  List all scanned sources as SARIF artifacts, together with their
+      --  SHA-256 hash.
+      for SF in First_SF_Id .. Last_Argument_Source loop
+         if Source_Info (SF) /= Ignore_Unit then
+            Run.artifacts.Append (Make_Artifact (SF));
+         end if;
+      end loop;
 
       --  Assemble results in the SARIF root
       Root.runs.Append (Run);

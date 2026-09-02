@@ -130,6 +130,8 @@ class GnatcheckDriver(BaseDriver):
 
         - ``canonicalize_worker`` (bool): Whether to replace the GNATcheck worker
           name by a constant string in then test output. Default is True.
+        - ``canonicalize_hashes`` (bool): Whether to replace sha-256 hashes with
+          a constant string. Default is True.
         - ``pre_python``/``post_python`` (str): Python code to be executed
           before/after the test.
         - ``perf``: Enable and configure the performance testing. Perf arguments:
@@ -690,6 +692,9 @@ class GnatcheckDriver(BaseDriver):
                                         )
                             elif output_format == "sarif":
                                 json_content = json.load(f)
+                                canonicalize_hashes = test_data.get(
+                                    "canonicalize_hashes", True
+                                )
                                 for run in json_content.get("runs", []):
                                     driver = run["tool"]["driver"]
 
@@ -719,6 +724,15 @@ class GnatcheckDriver(BaseDriver):
                                         "originalUriBaseIds", {}
                                     ).items():
                                         base_uri["uri"] = "BASE_URI"
+
+                                    # Canonicalize artifact hashes to avoid
+                                    # spurious updates of baselines.
+                                    if canonicalize_hashes:
+                                        for artifact in run.get("artifacts", []):
+                                            if "hashes" in artifact:
+                                                artifact["hashes"] = dict.fromkeys(
+                                                    artifact["hashes"], "HASH"
+                                                )
 
                                     # Finally sort enabled rules
                                     driver["rules"].sort(key=lambda r: r["id"])
