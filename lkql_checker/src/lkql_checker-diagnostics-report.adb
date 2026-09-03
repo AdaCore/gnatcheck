@@ -1440,6 +1440,8 @@ package body Lkql_Checker.Diagnostics.Report is
         Create_From_UTF8 (Checker_Prj.Get_Project_Dir);
       Uri_Base_Dir_Id      : constant String := "URI_BASE_DIR";
       Additional_Instances : Rule_Instance_Vector.Vector;
+      Compiler_Rule_Ids    : constant array (1 .. 3) of Rule_Id :=
+        (Restrictions_Id, Style_Checks_Id, Warnings_Id);
 
       type Base_Dir_Value is record
          Base_Dir : Virtual_File;
@@ -1628,15 +1630,23 @@ package body Lkql_Checker.Diagnostics.Report is
         (R_Id : Rule_Id; Instance : Rule_Instance_Access)
          return ST.reportingConfiguration
       is
-         Rule   : constant Rule_Info := All_Rules (R_Id);
          I      : Rule_Instance_Access;
          Args   : Rule_Commands.Rule_Argument_Vectors.Vector;
          Params : ST.propertyBag;
          Res    : ST.reportingConfiguration;
       begin
-         --  If no instance has been provided, create the default one
+         --  Set the rule as enabled
+         Res.enabled := True;
+
+         --  If no instance has been provided, create the default one.
+         --  Compiler-based rules have no `Rule_Info` in `All_Rules` and no
+         --  generic default instance, so just report them as enabled.
          if Instance = null then
-            I := Rule.Create_Instance (False);
+            if Is_Compiler_Rule (R_Id) then
+               return Res;
+            end if;
+
+            I := All_Rules (R_Id).Create_Instance (False);
             I.Source_Mode := General;
             I.Rule := R_Id;
          else
@@ -1653,7 +1663,6 @@ package body Lkql_Checker.Diagnostics.Report is
                 String_Value => To_Virtual_String (Arg.Value)));
          end loop;
          Res.parameters := (Is_Set => True, Value => Params);
-         Res.enabled := True;
 
          --  Free the default instance if one has been created
          if Instance = null then
@@ -1869,6 +1878,39 @@ package body Lkql_Checker.Diagnostics.Report is
          end;
       end loop;
 
+      --  Compiler-based rules (warnings, style checks and restrictions)
+      --  have no `Rule_Info` in `All_Rules`, so they are not covered by the
+      --  loops above: add their descriptors here, together with those of
+      --  their instances/aliases.
+      for R_Id of Compiler_Rule_Ids loop
+         if Is_Enabled (R_Id) then
+            declare
+               Instance        : aliased Compiler_Instance :=
+                 (Is_Alias    => False,
+                  Rule        => R_Id,
+                  Source_Mode => General,
+                  others      => <>);
+               Instance_Access : constant Rule_Instance_Access :=
+                 Instance'Unchecked_Access;
+               Descriptor      : ST.reportingDescriptor;
+            begin
+               for I of All_Rule_Instances loop
+                  if I.Rule = R_Id then
+                     Instance.Arguments.Append_Vector
+                       (Compiler_Instance (I.all).Arguments);
+                  end if;
+               end loop;
+
+               Descriptor.id := To_Virtual_String (Rule_Name (R_Id));
+               Descriptor.name := To_Virtual_String (Rule_Name (R_Id));
+               Descriptor.defaultConfiguration :=
+                 (Is_Set => True,
+                  Value  => Make_Config (R_Id, Instance_Access));
+               Driver.rules.Append (Descriptor);
+            end;
+         end if;
+      end loop;
+
       --  Place the driver in the SARIF run object
       Run.tool := (driver => Driver, others => <>);
 
@@ -1923,7 +1965,10 @@ package body Lkql_Checker.Diagnostics.Report is
                begin
                   Res.ruleId :=
                     To_Virtual_String
-                      (To_Lower (Instance_Name (Diag.Instance.all)));
+                      (To_Lower
+                         (if Diag.Instance /= null
+                          then Instance_Name (Diag.Instance.all)
+                          else Rule_Name (Diag.Rule)));
                   Res.level := (Is_Set => True, Value => SE.warning);
                   Res.message.text := To_Virtual_String (Diag.Message);
                   Res.locations.Append (Loc);

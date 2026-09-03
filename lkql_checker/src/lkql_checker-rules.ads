@@ -701,4 +701,9 @@ package Lkql_Checker.Rules is
    overriding
    function Has_Parameters (Instance : Compiler_Instance) return Boolean;
 
+   overriding
+   procedure Map_Parameters
+     (Instance : in out Compiler_Instance;
+      Args     : in out Rule_Argument_Vectors.Vector);
+
 end Lkql_Checker.Rules;

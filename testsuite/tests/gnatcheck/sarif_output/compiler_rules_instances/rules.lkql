@@ -1,0 +1,5 @@
+val rules = @{
+   Warnings: [{Arg: "c"}, {Arg: "f", instance_name: "Other_Warnings"}],
+   Style_Checks: [{Arg: "n"}, {Arg: "r", instance_name: "Other_Style_Checks"}],
+   Restrictions: [{Arg: ["No_Allocators"]}, {Arg: ["No_Calendar"], instance_name: "My_Restrictions"}]
+}

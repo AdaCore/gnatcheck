@@ -1,0 +1,215 @@
+{
+  "runs": [
+    {
+      "artifacts": [
+        {
+          "hashes": {
+            "sha-256": "HASH"
+          },
+          "location": {
+            "uri": "main.adb",
+            "uriBaseId": "URI_BASE_DIR"
+          },
+          "sourceLanguage": "ada"
+        }
+      ],
+      "invocations": [
+        {
+          "arguments": [
+            "-q",
+            "-P",
+            "prj.gpr",
+            "--sarif=<working-dir>/gnatcheck.sarif",
+            "-rules"
+          ],
+          "commandLine": "COMMAND_LINE",
+          "endTimeUtc": "END_TIME",
+          "environmentVariables": "ENV_VARS",
+          "executionSuccessful": true,
+          "exitCode": 1,
+          "startTimeUtc": "START_TIME",
+          "workingDirectory": {
+            "uri": "WORKING_DIR"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "URI_BASE_DIR": {
+          "description": {
+            "text": "Project directory if one has been used, working directory otherwise"
+          },
+          "uri": "BASE_URI"
+        }
+      },
+      "results": [
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "main.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 6,
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "violation of restriction /"No_Calendar/""
+          },
+          "ruleId": "restrictions"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "main.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 27,
+                  "startLine": 4
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "violation of restriction /"No_Allocators/""
+          },
+          "ruleId": "restrictions"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "main.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 10,
+                  "startLine": 5
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "bad casing of /"Integer/" declared in Standard [-gnatyn]"
+          },
+          "ruleId": "style_checks"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "main.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 19,
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "formal parameter /"I/" is not referenced [-gnatwf]"
+          },
+          "ruleId": "warnings"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "main.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 7,
+                  "startLine": 13
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "bad casing of /"Int/" declared at line 5 [-gnatyr]"
+          },
+          "ruleId": "style_checks"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "main.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 9,
+                  "startLine": 17
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "condition is always True [-gnatwc]"
+          },
+          "ruleId": "warnings"
+        }
+      ],
+      "tool": {
+        "driver": {
+          "informationUri": "https://docs.adacore.com/live/wave/lkql/html/gnatcheck_rm/gnatcheck_rm.html",
+          "name": "gnatcheck",
+          "organization": "AdaCore",
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "parameters": {
+                  "arg": "[/"No_Calendar/", /"No_Allocators/"]"
+                }
+              },
+              "id": "restrictions",
+              "name": "restrictions"
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "parameters": {
+                  "arg": "/"rn/""
+                }
+              },
+              "id": "style_checks",
+              "name": "style_checks"
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "parameters": {
+                  "arg": "/"cf/""
+                }
+              },
+              "id": "warnings",
+              "name": "warnings"
+            }
+          ],
+          "version": "VERSION"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}
