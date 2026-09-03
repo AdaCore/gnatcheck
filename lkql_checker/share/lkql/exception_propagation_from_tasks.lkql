@@ -21,4 +21,4 @@ fun exception_propagation_from_tasks(node) =
     |"    exception
     |"       when Constraint_Error => null;
     |"    end T;
-    node is TaskBody when stdlib.propagate_exceptions(node)
+    node is TaskBody when stdlib.propagate_exceptions(node.f_stmts)
