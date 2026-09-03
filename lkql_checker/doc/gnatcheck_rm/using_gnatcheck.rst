@@ -210,9 +210,11 @@ The following switches control the general ``gnatcheck`` behavior
 
 ``--show-rule``
   Add the corresponding rule name to the diagnosis generated for its
-  violation.  If the rule has a user-defined synonym, both gnatcheck and
+  violation. If the rule has a user-defined synonym, both gnatcheck and
   user-defined rule names are used as rule annotation:
   ``[user_synonym|gnatcheck_rule_name]``.
+  This flag doesn't have any effect on SARIF report since the rule name is
+  already attached to the ``result`` object.
 
   .. index:: --show-instantiation-chain
 

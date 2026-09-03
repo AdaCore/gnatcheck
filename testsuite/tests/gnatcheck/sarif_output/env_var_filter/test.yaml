@@ -1,0 +1,5 @@
+driver: gnatcheck
+format: sarif
+project: prj.gpr
+gnatcheck_env:
+  SHOULD_NOT_APPEAR: A custom environment variable that shouldn't appear in the SARIF report

@@ -1,7 +1,6 @@
 driver: gnatcheck
 format: sarif
 project: prj.gpr
+show_rule: True
 rules_dirs:
   - ./
-extra_args:
-  - --show-rule

@@ -17,11 +17,9 @@
         {
           "arguments": [
             "-q",
-            "--show-rule",
             "-P",
             "prj.gpr",
             "--sarif=<working-dir>/gnatcheck.sarif",
-            "--rules-dir=./",
             "-rules"
           ],
           "commandLine": "COMMAND_LINE",
@@ -61,30 +59,9 @@
             }
           ],
           "message": {
-            "text": "My custom rule"
+            "text": "goto statement"
           },
-          "ruleId": "other_instance"
-        },
-        {
-          "level": "warning",
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "main.adb",
-                  "uriBaseId": "URI_BASE_DIR"
-                },
-                "region": {
-                  "startColumn": 4,
-                  "startLine": 3
-                }
-              }
-            }
-          ],
-          "message": {
-            "text": "My custom rule"
-          },
-          "ruleId": "custom"
+          "ruleId": "goto_statements"
         }
       ],
       "tool": {
@@ -98,34 +75,11 @@
                 "enabled": true,
                 "parameters": {}
               },
-              "help": {
-                "text": "A little bit of help"
-              },
-              "id": "custom",
-              "name": "custom",
+              "id": "goto_statements",
+              "name": "GOTO_Statements",
               "shortDescription": {
-                "text": "My custom rule"
+                "text": "goto statement"
               }
-            },
-            {
-              "defaultConfiguration": {
-                "enabled": true,
-                "parameters": {
-                  "bool": "true",
-                  "int": "42",
-                  "list": "[false, 0, /"also_from_instance/"]",
-                  "str": "/"from_instance/""
-                }
-              },
-              "id": "other_instance",
-              "name": "Other_Instance",
-              "relationships": [
-                {
-                  "target": {
-                    "id": "custom"
-                  }
-                }
-              ]
             }
           ],
           "version": "VERSION"

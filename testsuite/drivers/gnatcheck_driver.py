@@ -14,6 +14,8 @@ from e3.testsuite.driver.diff import (
     OutputRefiner,
 )
 
+from e3.testsuite.driver.classic import TestAbortWithFailure
+
 from functools import reduce
 
 
@@ -691,6 +693,15 @@ class GnatcheckDriver(BaseDriver):
                                             )
                                         )
                             elif output_format == "sarif":
+                                env_var_whitelist = {
+                                    "path",
+                                    "ld_library_path",
+                                    "gnatcheck_worker",
+                                    "gpr_project_path",
+                                    "gpr_tool",
+                                    "term",
+                                    "lkql_path",
+                                }
                                 json_content = json.load(f)
                                 canonicalize_hashes = test_data.get(
                                     "canonicalize_hashes", True
@@ -701,13 +712,22 @@ class GnatcheckDriver(BaseDriver):
                                     # Canonicalize the driver version
                                     driver["version"] = "VERSION"
 
-                                    # Canonicalize invocation objects
+                                    # Canonicalize and check invocation objects
                                     for invocation in run.get("invocations", []):
+                                        # Check dumped environment variables
+                                        for n in invocation[
+                                            "environmentVariables"
+                                        ].keys():
+                                            if n.lower() not in env_var_whitelist:
+                                                raise TestAbortWithFailure(
+                                                    "Invalid environment variable "
+                                                    f"dumped in the SARIF output: {n}"
+                                                )
+                                        invocation["environmentVariables"] = "ENV_VARS"
                                         invocation["commandLine"] = "COMMAND_LINE"
                                         invocation["workingDirectory"][
                                             "uri"
                                         ] = "WORKING_DIR"
-                                        invocation["environmentVariables"] = "ENV_VARS"
                                         invocation["startTimeUtc"] = "START_TIME"
                                         invocation["endTimeUtc"] = "END_TIME"
                                         invocation["arguments"] = [

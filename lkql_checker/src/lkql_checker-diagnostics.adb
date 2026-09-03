@@ -23,7 +23,7 @@ package body Lkql_Checker.Diagnostics is
         or else (L.File = R.File and then L.Sloc < R.Sloc)
         or else (L.File = R.File
                  and then L.Sloc = R.Sloc
-                 and then L.Text < R.Text);
+                 and then L.Annotated_Message < R.Annotated_Message);
    end "<";
 
    ----------------
@@ -105,14 +105,18 @@ package body Lkql_Checker.Diagnostics is
            then Full_File_Name
            else Simple_Name (Full_File_Name));
       Tmp       : Diagnostic :=
-        (Text          => To_Unbounded_String (Message),
-         Sloc          => Sloc,
-         File          => File_Name,
-         Justification => Null_Unbounded_String,
-         Kind          => Kind,
-         Rule          => Rule,
-         Instance      => Instance,
-         SF            => SF);
+        (Sloc              => Sloc,
+         File              => File_Name,
+         Message           => To_Unbounded_String (Message),
+         Annotated_Message =>
+           To_Unbounded_String
+             (Message
+              & (if Instance /= null then Instance.Annotate_Diag else "")),
+         Justification     => Null_Unbounded_String,
+         Kind              => Kind,
+         Rule              => Rule,
+         Instance          => Instance,
+         SF                => SF);
    begin
       --  We need this check to avoid diagnostics duplication. Our set
       --  container has broken "<" relation, so Insert may add diagnostics

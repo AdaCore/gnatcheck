@@ -6,8 +6,10 @@
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Indefinite_Hashed_Sets;
 with Ada.Containers.Indefinite_Vectors;
+with Ada.Strings.Equal_Case_Insensitive;
 with Ada.Strings.Hash;
 
+with Ada.Strings.Hash_Case_Insensitive;
 with GNATCOLL.Utils; use GNATCOLL.Utils;
 
 package Lkql_Checker.String_Utilities is
@@ -126,9 +128,9 @@ package Lkql_Checker.String_Utilities is
         Hash            => Ada.Strings.Hash,
         Equivalent_Keys => "=");
 
-   -----------------------
-   -- Simple String set --
-   -----------------------
+   ------------------------
+   -- Simple String sets --
+   ------------------------
 
    package String_Sets is new
      Ada.Containers.Indefinite_Hashed_Sets
@@ -136,5 +138,12 @@ package Lkql_Checker.String_Utilities is
         Hash                => Ada.Strings.Hash,
         Equivalent_Elements => "=",
         "="                 => "=");
+
+   package Case_Insensitive_String_Sets is new
+     Ada.Containers.Indefinite_Hashed_Sets
+       (Element_Type        => String,
+        Hash                => Ada.Strings.Hash_Case_Insensitive,
+        Equivalent_Elements => Ada.Strings.Equal_Case_Insensitive,
+        "="                 => Ada.Strings.Equal_Case_Insensitive);
 
 end Lkql_Checker.String_Utilities;

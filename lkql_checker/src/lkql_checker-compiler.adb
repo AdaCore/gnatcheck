@@ -484,8 +484,7 @@ package body Lkql_Checker.Compiler is
                Store_Diagnostic
                  (Collector,
                   Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
-                  Message        =>
-                    Msg (Msg_Start + 7 .. Last - 2) & Instance.Annotate_Diag,
+                  Message        => Msg (Msg_Start + 7 .. Last - 2),
                   Sloc           => Sloc,
                   Kind           => Rule_Violation,
                   SF             => SF,

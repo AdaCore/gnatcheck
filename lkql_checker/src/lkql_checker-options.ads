@@ -515,7 +515,9 @@ package Lkql_Checker.Options is
           (Parser  => Parser,
            Enabled => Mode in Gnatcheck_Mode,
            Long    => "--show-rule",
-           Help    => "append rule names to diagnostics generated");
+           Help    =>
+             "append rule names to generated diagnostics (text and XML"
+             & " formats only)");
 
       package Show_Instantiation_Chain is new
         Parse_Flag

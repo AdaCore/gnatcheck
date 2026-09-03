@@ -99,14 +99,15 @@ private
    -------------------------
 
    type Diagnostic is record
-      File          : Unbounded_String;
-      Sloc          : Source_Location;
-      Text          : Unbounded_String;
-      Justification : Unbounded_String;
-      Kind          : Diagnostic_Kind;
-      Rule          : Rule_Id;
-      Instance      : Rule_Instance_Access;
-      SF            : SF_Id;
+      File              : Unbounded_String;
+      Sloc              : Source_Location;
+      Message           : Unbounded_String;
+      Annotated_Message : Unbounded_String;
+      Justification     : Unbounded_String;
+      Kind              : Diagnostic_Kind;
+      Rule              : Rule_Id;
+      Instance          : Rule_Instance_Access;
+      SF                : SF_Id;
    end record;
 
    function "<" (L, R : Diagnostic) return Boolean;
