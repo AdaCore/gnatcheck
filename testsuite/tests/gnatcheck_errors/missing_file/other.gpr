@@ -1,0 +1,3 @@
+project Other is
+   for Source_Dirs use ("other_src");
+end Other;
