@@ -36,4 +36,4 @@ fun exception_propagation_from_export(node) =
     |"       end Proc;
     |"    end P;
     node is SubpBody
-    when is_exported(node) and stdlib.propagate_exceptions(node)
+    when is_exported(node) and stdlib.propagate_exceptions(node.f_stmts)
