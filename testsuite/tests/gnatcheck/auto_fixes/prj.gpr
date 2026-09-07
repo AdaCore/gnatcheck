@@ -1,0 +1,7 @@
+project Prj is
+   for Source_Dirs use ("src", "other_src");
+
+   package Check is
+      for Rule_File use "rules.lkql";
+   end Check;
+end Prj;

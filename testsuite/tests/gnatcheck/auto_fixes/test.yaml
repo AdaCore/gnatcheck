@@ -1,0 +1,10 @@
+driver: gnatcheck
+format: sarif
+project: prj.gpr
+emit_fixes: True
+
+tests:
+  - label: With partial formatting
+    disable_formatting: False
+  - label: Without partial formatting
+    disable_formatting: True

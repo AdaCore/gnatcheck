@@ -125,6 +125,9 @@ class GnatcheckDriver(BaseDriver):
           gnatcheck.
         - ``lkql_rule_file`` (str): If passed, will be forwarded as `--rule-file`
           to gnatcheck.
+        - ``emit_fixes`` (bool): Whether to emit auto-fixes.
+        - ``disable_formatting`` (bool): If fixes are enabled, provide the
+          ``--disable-formatting`` to disable formatting for emitted fixes.
         - ``rules_dirs`` (list[str]): A list of directories to pass to gnatcheck
           as rule containing directories.
         - ``extra_rule_options`` (list[str]): Extra arguments for the rules
@@ -604,6 +607,14 @@ class GnatcheckDriver(BaseDriver):
             # Add the LKQL rule file
             if test_data.get("lkql_rule_file", None):
                 args.append(f"--rule-file={test_data['lkql_rule_file']}")
+
+            # Add fix emission flag if required
+            if test_data.get("emit_fixes"):
+                args.append("--emit-fixes")
+
+            # Add the formatting disable flag if required
+            if test_data.get("disable_formatting"):
+                args.append("--disable-formatting")
 
             # Finally add all extra arguments given in the test
             for extra_arg in test_data.get("extra_args", []):
