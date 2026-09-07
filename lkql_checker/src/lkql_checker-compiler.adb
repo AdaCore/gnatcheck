@@ -929,15 +929,19 @@ package body Lkql_Checker.Compiler is
                     Get_Instance (To_UTF_8_String (Res.ruleId));
 
                   --  Get the location of the violation
-                  Phys : constant SARIF.Types.physicalLocation :=
+                  Phys     : constant SARIF.Types.physicalLocation :=
                     Res.locations (1).physicalLocation.Value;
-                  Path : constant String :=
+                  Path     : constant String :=
                     URI_To_Path
                       (To_UTF_8_String (Phys.artifactLocation.Value.uri));
-                  SF   : constant SF_Id := File_Find (Path);
-                  Sloc : constant Source_Location :=
+                  SF       : constant SF_Id := File_Find (Path);
+                  Sloc     : constant Source_Location :=
                     (Line_Number (Phys.region.Value.startLine.Value),
                      Column_Number (Phys.region.Value.startColumn.Value));
+                  Auto_Fix : constant Optional_Auto_Fix :=
+                    (if not Res.fixes.Is_Null and then Res.fixes.Length >= 1
+                     then (Is_Set => True, Value => Res.fixes (1))
+                     else (Is_Set => False));
                begin
                   if Instance /= null and then Present (SF) then
                      Store_Diagnostic
@@ -960,7 +964,8 @@ package body Lkql_Checker.Compiler is
                         Kind           => Rule_Violation,
                         SF             => SF,
                         Rule           => Instance.Rule,
-                        Instance       => Instance);
+                        Instance       => Instance,
+                        Auto_Fix       => Auto_Fix);
                   end if;
                end;
             end loop;

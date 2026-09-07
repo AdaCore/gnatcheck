@@ -21,6 +21,8 @@ with Lkql_Checker.Rules; use Lkql_Checker.Rules;
 
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
+with SARIF.Types;
+
 package Lkql_Checker.Diagnostics is
 
    --------------------------
@@ -54,6 +56,18 @@ package Lkql_Checker.Diagnostics is
    type Diagnostic_Collector is limited private;
    --  A type to collect all diagnostics emitted during a checker run.
 
+   type Optional_Auto_Fix (Is_Set : Boolean := False) is record
+      case Is_Set is
+         when True =>
+            Value : SARIF.Types.fix;
+
+         when False =>
+            null;
+      end case;
+   end record;
+   --  An optional SARIF fix object describing the auto-fix action for a rule
+   --  violation.
+
    procedure Store_Diagnostic
      (Collector : in out Diagnostic_Collector;
       Text      : String;
@@ -73,7 +87,8 @@ package Lkql_Checker.Diagnostics is
       Kind           : Diagnostic_Kind;
       SF             : SF_Id;
       Rule           : Rule_Id := No_Rule_Id;
-      Instance       : Rule_Instance_Access := null);
+      Instance       : Rule_Instance_Access := null;
+      Auto_Fix       : Optional_Auto_Fix := (Is_Set => False));
    --  Stores the diagnostic in the internal data structure. The same
    --  procedure is used for all diagnostic kinds; in case of
    --  Exemption_Warning, Compiler_Error and Internal_Error, Rule should be
@@ -112,6 +127,7 @@ private
       Rule              : Rule_Id;
       Instance          : Rule_Instance_Access;
       SF                : SF_Id;
+      Auto_Fix          : Optional_Auto_Fix;
    end record;
 
    function "<" (L, R : Diagnostic) return Boolean;

@@ -24,6 +24,7 @@ with GNATCOLL.VFS; use GNATCOLL.VFS;
 with Lkql_Checker.Compiler;               use Lkql_Checker.Compiler;
 with Lkql_Checker.Diagnostics.Exemptions;
 use Lkql_Checker.Diagnostics.Exemptions;
+with Lkql_Checker.File_Utilities;         use Lkql_Checker.File_Utilities;
 with Lkql_Checker.Options;                use Lkql_Checker.Options;
 with Lkql_Checker.Output;                 use Lkql_Checker.Output;
 with Lkql_Checker.Rules;                  use Lkql_Checker.Rules;
@@ -1508,6 +1509,20 @@ package body Lkql_Checker.Diagnostics.Report is
            & File_Unix_Path;
       end To_Uri;
 
+      procedure Add_File_To_Root_Groups (File_Path : String);
+      --  Add the provided file to the ``Root_Groups`` structure.
+
+      procedure Add_File_To_Root_Groups (File_Path : String) is
+         File : constant Virtual_File := Create_From_UTF8 (File_Path);
+         Root : constant Virtual_File := Get_Root (File);
+      begin
+         if Root_Groups.Contains (Root) then
+            Root_Groups (Root).Include (File);
+         else
+            Root_Groups.Insert (Root, [File]);
+         end if;
+      end Add_File_To_Root_Groups;
+
       function Make_Base_Dir_Id (Root : Virtual_File) return String;
       --  Create a unique SARIF ``uriBaseId`` for the given filesystem
       --  root, deriving a readable suffix from its name when possible,
@@ -1672,6 +1687,45 @@ package body Lkql_Checker.Diagnostics.Report is
          return Res;
       end Make_Config;
 
+      function Make_Fix (Original_Fix : ST.fix) return ST.fix;
+      --  Create a SARIF fix object from an original one by relativizing all
+      --  URIs in it.
+
+      function Make_Fix (Original_Fix : ST.fix) return ST.fix is
+         Res : ST.fix;
+      begin
+         --  Forward unchanged values to the result
+         Res.description := Original_Fix.description;
+         Res.properties := Original_Fix.properties;
+
+         --  Now relativize all artifact changes
+         if not Original_Fix.artifactChanges.Is_Null then
+            for I in 1 .. Original_Fix.artifactChanges.Length loop
+               declare
+                  Original_Change : ST.artifactChange renames
+                    Original_Fix.artifactChanges (I);
+                  Change          : ST.artifactChange;
+               begin
+                  --  Forward replacements to the final change object
+                  Change.replacements := Original_Change.replacements;
+
+                  --  Now relativize the artifact location
+                  Change.artifactLocation :=
+                    Make_Artifact_Location
+                      (URI_To_Path
+                         (To_UTF_8_String
+                            (Original_Change.artifactLocation.uri)),
+                       Relative_To_Base_Dir => True);
+
+                  Res.artifactChanges.Append (Change);
+               end;
+            end loop;
+         end if;
+
+         --  Finally, return the result
+         return Res;
+      end Make_Fix;
+
       Env_Var_White_List : constant Case_Insensitive_String_Sets.Set :=
         ["PATH",
          "LD_LIBRARY_PATH",
@@ -1746,17 +1800,22 @@ package body Lkql_Checker.Diagnostics.Report is
       --  Group every analyzed file that will appear in the report by
       --  its filesystem root
       for Diag of Collector.All_Error_Messages loop
-         declare
-            File : constant Virtual_File :=
-              Create_From_UTF8 (Source_Name (Diag.SF));
-            Root : constant Virtual_File := Get_Root (File);
-         begin
-            if Root_Groups.Contains (Root) then
-               Root_Groups (Root).Include (File);
-            else
-               Root_Groups.Insert (Root, [File]);
-            end if;
-         end;
+         Add_File_To_Root_Groups (Source_Name (Diag.SF));
+
+         --  Also add files referenced in the diagnostics auto-fix if there
+         --  is one.
+         if Diag.Auto_Fix.Is_Set then
+            for I in 1 .. Diag.Auto_Fix.Value.artifactChanges.Length loop
+               declare
+                  Change : ST.artifactChange renames
+                    Diag.Auto_Fix.Value.artifactChanges (I);
+               begin
+                  Add_File_To_Root_Groups
+                    (URI_To_Path
+                       (To_UTF_8_String (Change.artifactLocation.uri)));
+               end;
+            end loop;
+         end if;
       end loop;
 
       --  Build the registry of URI bases: one entry for the project
@@ -1983,6 +2042,13 @@ package body Lkql_Checker.Diagnostics.Report is
                         Res.suppressions.Append (Supp);
                      end;
                   end if;
+
+                  --  If the diagnostics has an auto-fix object, refine it to
+                  --  relativize its URIs and add it to the result.
+                  if Diag.Auto_Fix.Is_Set then
+                     Res.fixes.Append (Make_Fix (Diag.Auto_Fix.Value));
+                  end if;
+
                   Run.results.Append (Res);
                end;
 
