@@ -102,7 +102,7 @@ package body Lkql_Checker.Compiler is
    --  Returns the Id corresponding to the given compiler check
 
    function Path_Index (Source, Pattern : String) return Integer;
-   --  Returns the index of the first occurence of the path represented by
+   --  Returns the index of the first occurrence of the path represented by
    --  ``Pattern`` inside the ``Source`` string.
    --  This function treats the provided path as case-insensitive on Windows
    --  systems.
