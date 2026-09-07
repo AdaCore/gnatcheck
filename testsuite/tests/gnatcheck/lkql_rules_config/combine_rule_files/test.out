@@ -29,8 +29,7 @@ main.adb:9:07: rule violation: goto statement [goto_statements]
 Rule file with an invalid importation
 =====================================
 
-invalid_import.lkql:1:1: error: Cannot import, module not found "null_stmt"
-gnatcheck: error: Error(s) in the LKQL rule file (invalid_import.lkql)
+invalid_import.lkql:1:1: error: cannot import, module not found "null_stmt"
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -38,8 +37,8 @@ try "gnatcheck --help" for more information.
 Rule file with circular importation
 ===================================
 
-part_two.lkql:1:1: error: Circular dependency in LKQL modules (circular_import.lkql -> part_one.lkql -> part_two.lkql -> part_one.lkql)
-gnatcheck: error: Error(s) in the LKQL rule file (circular_import.lkql)
+part_two.lkql:1:1: error: circular dependency in LKQL modules (part_one.lkql -> part_two.lkql -> part_one.lkql)
+part_one.lkql:1:1: error: circular dependency in LKQL modules (part_two.lkql -> part_one.lkql -> part_two.lkql)
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -47,8 +46,7 @@ try "gnatcheck --help" for more information.
 Rule file with ambiguous importation
 ====================================
 
-ambiguous_import.lkql:1:1: error: Ambiguous importation, multiple "null_stmt" modules found (<working-dir>/other_rule_configs/null_stmt.lkql & <working-dir>/rule_configs/null_stmt.lkql)
-gnatcheck: error: Error(s) in the LKQL rule file (ambiguous_import.lkql)
+ambiguous_import.lkql:1:1: error: ambiguous importation, multiple "null_stmt" modules found (<working-dir>/other_rule_configs/null_stmt.lkql & <working-dir>/rule_configs/null_stmt.lkql)
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

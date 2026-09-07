@@ -125,6 +125,7 @@ package body Lkql_Checker is
 
          Lkql     : constant String :=
            Compose (Compose (Prefix, "share"), "lkql");
+         Stubs    : constant String := Compose (Lkql, "stubs");
          Kp       : constant String := Compose (Lkql, "kp");
          Specific : constant String := Compose (Kp, "specific");
 
@@ -133,6 +134,7 @@ package body Lkql_Checker is
          Lib_LAL : constant String := Compose (Lib, "libadalang");
       begin
          Add_Path ("LKQL_PATH", Lkql);
+         Add_Path ("LKQL_PATH", Stubs);
          Add_Path ("LKQL_PATH", Kp);
          Add_Path ("LKQL_PATH", Specific);
          Add_Path ("LKQL_PATH", Lib);
@@ -342,25 +344,24 @@ package body Lkql_Checker is
                   --  Analyze the GPRbuild output, forwarding non-diagnostic
                   --  message if the debug mode is enabled of if the there
                   --  was a real error (invalid config or internal error).
-                  Analyze_Output
+                  Parse_Gprbuild_Text_Output
                     (Collector,
                      Global_Report_Dir.all & "gprbuild.err",
                      Status,
-                     Unparsable_Handling =>
-                       (if Tool_Args.Debug_Mode.Get or else Exit_Code in 1 | 7
-                        then Forward
-                        else Hide));
+                     Forward_Unparsable =>
+                       Tool_Args.Debug_Mode.Get or else Exit_Code in 1 | 7);
                   exit when Current = Total_Jobs;
 
                else
                   for Job in Handles'Range loop
                      if Handles (Job) = Handle then
                         Handles (Job) := Invalid_Handle;
-                        Analyze_Output
-                          (Collector, File_Name ("out", Job), Status);
                         Process_Found := True;
 
-                        if not Tool_Args.Debug_Mode.Get then
+                        if Parse_SARIF_Worker_Output
+                             (Collector, File_Name ("out", Job))
+                          and then not Tool_Args.Debug_Mode.Get
+                        then
                            Delete_File (File_Name ("out", Job), Status);
                            Delete_File (File_Name ("files", Job), Status);
                         end if;
@@ -408,8 +409,7 @@ package body Lkql_Checker is
               Spawn_Checker_Worker
                 (File_Name ("rules", 0),
                  File_Name ("out", Job),
-                 File_Name ("files", Job),
-                 File_Name ("log", Job));
+                 File_Name ("files", Job));
 
             if Next_SF > Last_Argument_Source then
                Total_Jobs := @ - Num_Jobs + Job;

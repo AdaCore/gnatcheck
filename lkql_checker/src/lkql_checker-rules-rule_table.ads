@@ -91,6 +91,14 @@ package Lkql_Checker.Rules.Rule_Table is
    --  This procedure calls the worker with the `--parse-lkql-config` option
    --  to extract all information from the LKQL file.
 
+   function Parse_SARIF_Rule_Instances
+     (Collector                 : in out Diagnostic_Collector;
+      File_Name, LKQL_Rule_File : String) return Boolean;
+   --  Parse the SARIF output produced by the worker when parsing an LKQL
+   --  rule file. Populates rule instances from the tool's rule descriptors
+   --  and processes tool execution notifications. Return whether the rule
+   --  configuration processing was a success.
+
    procedure Process_Compiler_Instances;
    --  Procedure to process instantiated compiler-based rules and prepare all
    --  related information (tag maps, compiler options...).

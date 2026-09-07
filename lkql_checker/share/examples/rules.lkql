@@ -32,7 +32,7 @@ val rules = @{
     Identifier_Casing: {Others: "mixed"},
     # Flag any defining identifier if it casing does not follow the rules: the
     # first letter and every letter after underscore are uppercase, all the
-    # other lettres are lowercase
+    # other characters are lowercase
 
     Identifier_Suffixes: {
         Type_Suffix:         "_Type",

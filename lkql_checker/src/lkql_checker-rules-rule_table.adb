@@ -26,6 +26,14 @@ with Lkql_Checker.Options;          use Lkql_Checker.Options;
 with Lkql_Checker.Output;           use Lkql_Checker.Output;
 with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
+with SARIF.Types;
+
+with VSS.JSON.Push_Writers;
+with VSS.JSON.Streams;
+with VSS.Stream_Element_Vectors.Conversions;
+with VSS.Strings.Conversions;
+with VSS.Text_Streams.Memory_UTF8_Output;
+
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Liblkqllang.Analysis;
@@ -133,14 +141,15 @@ package body Lkql_Checker.Rules.Rule_Table is
    --  that the instance cannot be instantiated at ``Instantiation_Location``
    --  because it has already be registered.
 
-   procedure Process_Rule_Object
-     (LKQL_Rule_File_Name : String;
-      Instance_Id         : String;
-      Instance_Object     : GNATCOLL.JSON.JSON_Value);
-   --  Process a JSON object representing a rule option coming from the JSON
-   --  configuration file.
-   --  This function populates the `All_Rules` table according to the given
-   --  rule object.
+   procedure Process_Instance_Object
+     (LKQL_Rule_File_Name, Rule_Name, Instance_Name : String;
+      Source_Mode                                   : Source_Modes;
+      Params_Object                                 : JSON_Value);
+   --  Process a rule instance configuration extracted from a SARIF file with
+   --  all its parameters in a JSON object.
+   --
+   --  This function populates the ``All_Rules`` and ``All_Rule_Instances``
+   --  tables according to the given configuration.
 
    ----------------------------
    -- Get_Or_Create_Instance --
@@ -963,19 +972,6 @@ package body Lkql_Checker.Rules.Rule_Table is
       Parser_Handle         : Process_Handle;
       Exit_Code             : Integer;
       Success               : Boolean;
-      Analyze_Error         : Boolean;
-      Config_JSON           : Read_Result;
-
-      procedure Rule_Object_Mapper
-        (Instance_Id : UTF8_String; Instance_Object : JSON_Value);
-      --  Stub procedure to call the instance JSON object processing function
-
-      procedure Rule_Object_Mapper
-        (Instance_Id : UTF8_String; Instance_Object : JSON_Value) is
-      begin
-         Process_Rule_Object
-           (LKQL_RF_Name, String (Instance_Id), Instance_Object);
-      end Rule_Object_Mapper;
 
    begin
       --  Ensure that the provided rule file exists
@@ -991,52 +987,186 @@ package body Lkql_Checker.Rules.Rule_Table is
       Exit_Code := Wait (Parser_Handle);
 
       if Exit_Code /= 0 then
-         Error ("can not call the LKQL rule file parser");
-         Rule_Option_Problem_Detected := True;
+         Error ("error when calling the LKQL rule file parser");
+         Detected_Internal_Error := @ + 1;
       else
-         declare
-            Worker_Output_File : File_Type;
-         begin
-            Open (Worker_Output_File, In_File, JSON_Config_File_Name);
-
-            while not End_Of_File (Worker_Output_File) loop
-               declare
-                  Line : constant String := Get_Line (Worker_Output_File);
-               begin
-                  if Line (1 .. 23) = "WORKER_JSON_INSTANCES: " then
-                     Config_JSON := Read (Line (24 .. Line'Last));
-                     exit;
-                  end if;
-               end;
-            end loop;
-
-            Close (Worker_Output_File);
-         end;
-
-         --  Process diagnostics from worker's output
-         Analyze_Output (Collector, JSON_Config_File_Name, Analyze_Error);
-
-         --  If the JSON parsing failed, it means that LKQL rule file
-         --  processing failed and diagnostics are in the output file and
-         --  they have been already processed.
-         if Analyze_Error
-           or else not Config_JSON.Success
-           or else Config_JSON.Value = JSON_Null
+         if Parse_SARIF_Rule_Instances
+              (Collector, JSON_Config_File_Name, LKQL_RF_Name)
          then
-            Rule_Option_Problem_Detected := True;
-
-         --  Else, populate the global rule table with the rule config
-
+            if not Tool_Args.Debug_Mode.Get then
+               Delete_File (JSON_Config_File_Name, Success);
+            end if;
          else
-            Map_JSON_Object (Config_JSON.Value, Rule_Object_Mapper'Access);
-         end if;
-
-         --  Delete the temporary JSON files if not it debug mode
-         if not Tool_Args.Debug_Mode.Get then
-            Delete_File (JSON_Config_File_Name, Success);
+            Rule_Option_Problem_Detected := True;
          end if;
       end if;
    end Process_LKQL_Rule_File;
+
+   --------------------------------
+   -- Parse_SARIF_Rule_Instances --
+   --------------------------------
+
+   function Parse_SARIF_Rule_Instances
+     (Collector                 : in out Diagnostic_Collector;
+      File_Name, LKQL_Rule_File : String) return Boolean
+   is
+      use SARIF.Types;
+      use VSS.JSON.Streams;
+      use VSS.Strings.Conversions;
+
+      Root          : SARIF.Types.Root;
+      Error_Counter : Integer := 0;
+
+      function To_JSON (Events : SARIF.Types.Any_Object) return JSON_Value;
+      --  Serialize VSS JSON events to a JSON string and parse it as a
+      --  GNATCOLL JSON value. Wraps the events in a JSON object.
+
+      function To_JSON (Events : SARIF.Types.Any_Object) return JSON_Value is
+         Mem    :
+           aliased VSS
+                     .Text_Streams
+                     .Memory_UTF8_Output
+                     .Memory_UTF8_Output_Stream;
+         Writer : VSS.JSON.Push_Writers.JSON_Simple_Push_Writer;
+         Ok     : Boolean := True;
+      begin
+         Writer.Set_Stream (Mem'Unchecked_Access);
+         Writer.Start_Document (Ok);
+         Writer.Start_Object (Ok);
+         for Event of Events loop
+            case Event.Kind is
+               when Start_Object  =>
+                  Writer.Start_Object (Ok);
+
+               when End_Object    =>
+                  Writer.End_Object (Ok);
+
+               when Start_Array   =>
+                  Writer.Start_Array (Ok);
+
+               when End_Array     =>
+                  Writer.End_Array (Ok);
+
+               when Key_Name      =>
+                  Writer.Key_Name (Event.Key_Name, Ok);
+
+               when String_Value  =>
+                  Writer.String_Value (Event.String_Value, Ok);
+
+               when Number_Value  =>
+                  Writer.Number_Value (Event.Number_Value, Ok);
+
+               when Boolean_Value =>
+                  Writer.Boolean_Value (Event.Boolean_Value, Ok);
+
+               when Null_Value    =>
+                  Writer.Null_Value (Ok);
+
+               when others        =>
+                  null;
+            end case;
+         end loop;
+         Writer.End_Object (Ok);
+         Writer.End_Document (Ok);
+         return
+           Read
+             (VSS.Stream_Element_Vectors.Conversions.Unchecked_To_String
+                (Mem.Buffer))
+             .Value;
+      end To_JSON;
+
+   begin
+      if not Load_SARIF_Root (File_Name, Root) then
+         return False;
+      end if;
+
+      declare
+         Run : SARIF.Types.run renames Root.runs (1);
+      begin
+         --  Process tool execution notifications, exiting the procedure if
+         --  there is an error.
+         if not Run.invocations.Is_Null and then Run.invocations.Length >= 1
+         then
+            Process_SARIF_Notifications
+              (Collector,
+               Run.invocations (1).toolExecutionNotifications,
+               Error_Counter);
+            if Error_Counter > 0 then
+               return False;
+            end if;
+         end if;
+
+         --  Process rule descriptors that carry instance configuration.
+         --  Descriptors without defaultConfiguration.parameters are pure rule
+         --  descriptors (no active instance) and are skipped.
+         declare
+            Rules : SARIF.Types.reportingDescriptor_Vector renames
+              Run.tool.driver.rules;
+         begin
+            for I in 1 .. Rules.Length loop
+               declare
+                  Desc : SARIF.Types.reportingDescriptor renames Rules (I);
+               begin
+                  if Desc.defaultConfiguration.Is_Set
+                    and then Desc.defaultConfiguration.Value.parameters.Is_Set
+                  then
+                     declare
+                        --  A descriptor with a relationship is an alias:
+                        --  its id is the instance name, the relationship
+                        --  target id is the underlying rule name.
+                        Has_Rel : constant Boolean :=
+                          not Desc.relationships.Is_Null
+                          and then Desc.relationships.Length >= 1;
+
+                        Config : constant JSON_Value :=
+                          To_JSON
+                            (Desc
+                               .defaultConfiguration
+                               .Value
+                               .parameters
+                               .Value
+                               .Additional_Properties);
+
+                        Rule_Id            : constant String :=
+                          (if Has_Rel
+                           then
+                             To_UTF_8_String (Desc.relationships (1).target.id)
+                           else To_UTF_8_String (Desc.id));
+                        Instance_Name      : constant String :=
+                          (if Has_Rel
+                           then To_UTF_8_String (Desc.name)
+                           else "");
+                        Source_Mode_String : constant String :=
+                          (if Config.Has_Field ("sourceMode")
+                           then Config.Get ("sourceMode")
+                           else "GENERAL");
+                        Source_Mode        : constant Source_Modes :=
+                          (if Source_Mode_String = "SPARK"
+                           then Spark_Only
+                           elsif Source_Mode_String = "ADA"
+                           then Ada_Only
+                           else General);
+                        Params             : constant JSON_Value :=
+                          (if Config.Has_Field ("args")
+                           then Config.Get ("args")
+                           else Create_Object);
+                     begin
+                        Process_Instance_Object
+                          (LKQL_Rule_File,
+                           Rule_Id,
+                           Instance_Name,
+                           Source_Mode,
+                           Params);
+                     end;
+                  end if;
+               end;
+            end loop;
+         end;
+      end;
+
+      --  Return the success
+      return True;
+   end Parse_SARIF_Rule_Instances;
 
    ------------------------------
    -- Process_Single_Rule_Name --
@@ -1353,28 +1483,19 @@ package body Lkql_Checker.Rules.Rule_Table is
    -- Process_Rule_Object --
    -------------------------
 
-   procedure Process_Rule_Object
-     (LKQL_Rule_File_Name : String;
-      Instance_Id         : String;
-      Instance_Object     : JSON_Value)
+   procedure Process_Instance_Object
+     (LKQL_Rule_File_Name, Rule_Name, Instance_Name : String;
+      Source_Mode                                   : Source_Modes;
+      Params_Object                                 : JSON_Value)
    is
-      pragma Unreferenced (Instance_Id);
-
-      Output_Rule_File   : constant String :=
+      Output_Rule_File : constant String :=
         (if Tool_Args.Full_Source_Locations.Get
          then LKQL_Rule_File_Name
          else Simple_Name (LKQL_Rule_File_Name))
         & ":1:1";
-      Rule_Name          : constant String := Instance_Object.Get ("ruleName");
-      Instance_Name      : constant String :=
-        (if Instance_Object.Has_Field ("instanceName")
-         then Instance_Object.Get ("instanceName")
-         else "");
-      R_Id               : constant Rule_Id := Get_Rule (Rule_Name);
-      Instance           : Rule_Instance_Access;
-      Source_Mode_String : constant String :=
-        Expect (Instance_Object, "sourceMode");
-      Params_Object      : JSON_Value := Instance_Object.Get ("arguments");
+      R_Id             : constant Rule_Id := Get_Rule (Rule_Name);
+      pragma Assert (Present (R_Id));
+      Instance         : Rule_Instance_Access;
 
       function Precise_Rule_Name return String
       is (""""
@@ -1388,11 +1509,6 @@ package body Lkql_Checker.Rules.Rule_Table is
       --  Emit an error when there is an error during the processing of rules
       --  defined in `LKQL_Rule_File_Name`.
 
-      procedure Report_Extra_Arg
-        (Arg_Name : UTF8_String; Arg_Value : JSON_Value);
-      --  Report an given argument that hasn't been used during the LKQL rule
-      --  file processing.
-
       ------------------------
       -- Error_In_Rule_File --
       ------------------------
@@ -1403,33 +1519,17 @@ package body Lkql_Checker.Rules.Rule_Table is
          Bad_Rule_Detected := True;
       end Error_In_Rule_File;
 
-      ----------------------
-      -- Report_Extra_Arg --
-      ----------------------
-
-      procedure Report_Extra_Arg
-        (Arg_Name : UTF8_String; Arg_Value : JSON_Value)
-      is
-         pragma Unreferenced (Arg_Value);
-      begin
-         Error_In_Rule_File
-           ("extra argument for rule "
-            & Precise_Rule_Name
-            & ": '"
-            & Arg_Name
-            & "'");
-      end Report_Extra_Arg;
-
    begin
       --  If the rule is a compiler check then get the argument and process it
       if Is_Compiler_Rule (R_Id) then
-         --  Ensure the source mode is "BOTH"
-         if Source_Mode_String /= "GENERAL" then
+
+         --  Compiler rules cannot be restricted to a specific source mode
+         if Source_Mode /= General then
             Error_In_Rule_File
-              ("cannot run compiler base rule """
+              ("cannot run compiler based rule """
                & Rule_Name
                & """ only on "
-               & Source_Mode_String
+               & Image (Source_Mode)
                & " code");
          end if;
 
@@ -1452,35 +1552,24 @@ package body Lkql_Checker.Rules.Rule_Table is
             --  Others expects a simple string
 
             else
-               declare
-                  S : constant String := Expect_Literal (Params_Object, "arg");
-               begin
-                  Tagged_Instance.Arguments.Append (S);
-               end;
+               Tagged_Instance.Arguments.Append
+                 (String'(Expect_Literal (Params_Object, "arg")));
             end if;
-            Params_Object.Unset_Field ("arg");
          end;
 
          --  Turn the newly created instance on
          Turn_Instance_On (Instance);
 
-      --  Else the rule is an LKQL check, check its presence, get the rule
-      --  template and call the processing function.
-      elsif Present (R_Id) then
+      --  Else the rule is an LKQL check so we call the parameter processing
+      --  procedure.
+
+      else
          Instance := All_Rules (R_Id).Create_Instance (Instance_Name /= "");
          Instance.Rule := R_Id;
+         Instance.Source_Mode := Source_Mode;
          Instance.Defined_At := To_Unbounded_String (Output_Rule_File);
          if Instance.Is_Alias then
             Instance.Alias_Name := To_Unbounded_String (Instance_Name);
-         end if;
-
-         --  Start by setting the rule's source mode
-         if Source_Mode_String = "ADA" then
-            Instance.Source_Mode := Ada_Only;
-         elsif Source_Mode_String = "SPARK" then
-            Instance.Source_Mode := Spark_Only;
-         else
-            Instance.Source_Mode := General;
          end if;
 
          --  Process the arguments object with the rule template
@@ -1488,14 +1577,6 @@ package body Lkql_Checker.Rules.Rule_Table is
 
          --  Enable the newly created instance
          Turn_Instance_On (Instance);
-
-         --  Finally check that all arguments have been used, else emit an
-         --  error for each.
-         Params_Object.Map_JSON_Object (Report_Extra_Arg'Access);
-
-      --  Else the rule is not present, emit an error
-      else
-         Error_In_Rule_File ("unknown rule: " & Rule_Name);
       end if;
 
    exception
@@ -1517,7 +1598,7 @@ package body Lkql_Checker.Rules.Rule_Table is
             & Precise_Rule_Name
             & ": "
             & Exception_Message (E));
-   end Process_Rule_Object;
+   end Process_Instance_Object;
 
    --------------------------------
    -- Process_Compiler_Instances --

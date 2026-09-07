@@ -3,3 +3,6 @@ format: sarif
 project: prj.gpr
 rules_dirs:
   - ./
+extra_args:
+  - -log
+post_python: cat("gnatcheck.log")

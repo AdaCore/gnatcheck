@@ -84,7 +84,9 @@
             {
               "defaultConfiguration": {
                 "enabled": true,
-                "parameters": {}
+                "parameters": {
+                  "only_unconditional": "false"
+                }
               },
               "id": "my_goto",
               "name": "My_GOTO",

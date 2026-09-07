@@ -1,4 +1,6 @@
-gnatcheck: error: unparsable worker output: "This line is not parsable"
-gnatcheck: error: unparsable worker output: "Message: should appear"
-gnatcheck: error: unparsable worker output: "This line is not parsable either"
+gnatcheck: error: invalid or empty SARIF output from worker, see <working-dir>/gnatcheck-out1.TMP for raw output
 >>>program returned status code 2
+Running "cat gnatcheck-out1.TMP"...
+This output is not parsable
+Message: should appear
+This line is not parsable either

@@ -27,6 +27,14 @@ with GNATCOLL.VFS;  use GNATCOLL.VFS;
 
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
+with SARIF.Types.Inputs;
+
+with VSS.JSON.Pull_Readers.Simple;
+with VSS.Stream_Element_Vectors.Conversions;
+with VSS.Strings;
+with VSS.Strings.Conversions;
+with VSS.Text_Streams.Memory_UTF8_Input;
+
 package body Lkql_Checker.Compiler is
 
    use Rident;
@@ -52,6 +60,15 @@ package body Lkql_Checker.Compiler is
    --  You can specify output files for the process' stdout and stderr. If
    --  ``Stderr_File`` is an empty string, then stderr is redirected to stdout
    --  and captured in ``Stdout_File``.
+
+   function Spawn_LKQL
+     (Rule_File, Source_File, Output_File : String; Parse_Rule_File : Boolean)
+      return Process_Handle;
+   --  Spawn a non blocking LKQL process with the provided ``Rule_File`` and
+   --  ``Source_File``. Place all output of LKQL in the ``Output_File``.
+   --
+   --  If ``Parse_Rule_File`` is true, only process the provided rule file to
+   --  extract the config from it without running the checking process.
 
    procedure Process_Style_Options (Param : String);
    --  Stores Param as parameter of the compiler -gnaty... option as is,
@@ -85,10 +102,13 @@ package body Lkql_Checker.Compiler is
    --  Returns the Id corresponding to the given compiler check
 
    function Path_Index (Source, Pattern : String) return Integer;
-   --  Returns the index of the first occurence of the path represented by
+   --  Returns the index of the first occurrence of the path represented by
    --  ``Pattern`` inside the ``Source`` string.
    --  This function treats the provided path as case-insensitive on Windows
    --  systems.
+
+   function URI_To_Path (URI : VSS.Strings.Virtual_String) return String;
+   --  Create a file path from the provided URI.
 
    ---------------------------------
    -- Target information fetching --
@@ -335,15 +355,338 @@ package body Lkql_Checker.Compiler is
       end if;
    end Adjust_Message;
 
-   ----------------------------
-   -- Analyze_Builder_Output --
-   ----------------------------
+   -----------------
+   -- URI_To_Path --
+   -----------------
 
-   procedure Analyze_Output
-     (Collector           : in out Diagnostic_Collector;
-      File_Name           : String;
-      Errors              : out Boolean;
-      Unparsable_Handling : Unparsable_Handling_Mode := Report_As_Error)
+   function URI_To_Path (URI : VSS.Strings.Virtual_String) return String is
+      use VSS.Strings.Conversions;
+
+      Prefix          : constant String := "file://";
+      URI_Str         : constant String := To_UTF_8_String (URI);
+      Unix_Style_Path : constant String :=
+        (if Has_Prefix (URI_Str, Prefix)
+         then URI_Str (URI_Str'First + Prefix'Length .. URI_Str'Last)
+         else URI_Str);
+      Is_Absolute     : constant Boolean := Has_Prefix (Unix_Style_Path, "/");
+   begin
+      if GNAT.OS_Lib.Directory_Separator = '\' then
+         --  Handle the case where we're on a Windows system
+         return
+           Replace_Char
+             ((if Is_Absolute
+               then
+                 --  Remove the first "/" because absolute paths on Windows
+                 --  start with the drive letter.
+                 Unix_Style_Path
+                   (Unix_Style_Path'First + 1 .. Unix_Style_Path'Last)
+               else Unix_Style_Path),
+              '/',
+              "\");
+      else
+         return Unix_Style_Path;
+      end if;
+   end URI_To_Path;
+
+   ---------------------
+   -- Load_SARIF_Root --
+   ---------------------
+
+   function Load_SARIF_Root
+     (File_Name : String; Root : out SARIF.Types.Root) return Boolean
+   is
+      File   : constant Virtual_File := Create (+File_Name);
+      Input  :
+        aliased VSS.Text_Streams.Memory_UTF8_Input.Memory_UTF8_Input_Stream;
+      Reader : VSS.JSON.Pull_Readers.Simple.JSON_Simple_Pull_Reader;
+      Ok     : Boolean := True;
+   begin
+      --  Check that the provided file path is a regular file
+      if not Is_Regular_File (File) then
+         Error ('"' & File_Name & """ is not a file");
+         Detected_Internal_Error := @ + 1;
+         return False;
+      end if;
+
+      --  Now load the file content in the JSON reader
+      Input.Set_Data
+        (VSS.Stream_Element_Vectors.Conversions.Unchecked_From_Unbounded_String
+           (Ada.Strings.Unbounded.To_Unbounded_String
+              (Read_File (File).To_String)));
+      Reader.Set_Stream (Input'Unchecked_Access);
+      Reader.Read_Next;
+
+      --  Check that the file content is a valid JSON document
+      if not Reader.Is_Start_Document then
+         Error ("invalid SARIF output from worker: " & File_Name);
+         Detected_Internal_Error := @ + 1;
+         return False;
+      end if;
+
+      --  Then load the file as a SARIF report
+      Reader.Read_Next;
+      SARIF.Types.Inputs.Input_Root (Reader, Root, Ok);
+
+      --  If there was an error during the loading, report it
+      if not Ok then
+         Error
+           ("invalid or empty SARIF output from worker, see "
+            & File_Name
+            & " for raw output");
+         Detected_Internal_Error := @ + 1;
+         return False;
+      end if;
+
+      --  Return the success
+      return True;
+   end Load_SARIF_Root;
+
+   ---------------------------------
+   -- Process_SARIF_Notifications --
+   ---------------------------------
+
+   procedure Process_SARIF_Notifications
+     (Collector     : in out Diagnostic_Collector;
+      Notifs        : SARIF.Types.notification_Vector;
+      Error_Counter : in out Integer)
+   is
+      use SARIF.Types;
+      use SARIF.Types.Enum;
+      use VSS.Strings.Conversions;
+
+      function Lower_First_Char (Source : String) return String
+      is (To_Lower (Source (Source'First))
+          & Source (Source'First + 1 .. Source'Last));
+      --  Get the ``Source`` string with the first character lowered.
+
+      function Filter_Hints
+        (Source : location_Vector; Opt_Out : Boolean) return location_Vector;
+      --  Return a new locations vector with all elements in ``Source`` that
+      --  are / aren't hints location, following ``Opt_Out``.
+
+      function Filter_Hints
+        (Source : location_Vector; Opt_Out : Boolean) return location_Vector
+      is
+         Res : location_Vector;
+      begin
+         if not Source.Is_Null then
+            for I in 1 .. Source.Length loop
+               if Opt_Out xor Source (I).message.Is_Set then
+                  Res.Append (Source (I));
+               end if;
+            end loop;
+         end if;
+         return Res;
+      end Filter_Hints;
+   begin
+      for I in 1 .. Notifs.Length loop
+         declare
+            Notif : notification renames Notifs (I);
+
+            --  Get the message of the notification. Lower the first character
+            --  because LKQL messages start with an upper-case character while
+            --  GNATcheck ones don't.
+            Msg : constant String :=
+              Lower_First_Char (To_UTF_8_String (Notif.message.text));
+
+            --  From all notification locations discriminate those with a
+            --  message (hints) from those without (main location).
+            Locations      : constant location_Vector :=
+              Filter_Hints (Notif.locations, Opt_Out => True);
+            Hint_Locations : constant location_Vector :=
+              Filter_Hints (Notif.locations, Opt_Out => False);
+
+            --  Get the SARIF source location of the notification
+            Sarif_Physical_Location : constant Optional_physicalLocation :=
+              (if Locations.Length >= 1
+               then Locations (1).physicalLocation
+               else (Is_Set => False));
+
+            --  Get the full path of the file this notification is about
+            Path : constant String :=
+              (if Sarif_Physical_Location.Is_Set
+               then
+                 URI_To_Path
+                   (Sarif_Physical_Location.Value.artifactLocation.Value.uri)
+               else "");
+
+            --  Try to get the Ada source file this notification is about
+            Ada_Source_Id : constant SF_Id :=
+              (if Path /= "" then File_Find (Path) else No_SF_Id);
+
+            --  Extract the source location from the SARIF physical location
+            Sloc : constant Source_Location :=
+              (if Sarif_Physical_Location.Is_Set
+               then
+                 (declare
+                    Region : SARIF.Types.region renames
+                      Sarif_Physical_Location.Value.region.Value;
+                  begin
+                    (Line_Number (Region.startLine.Value),
+                     Column_Number (Region.startColumn.Value)))
+               else (1, 2));
+
+            --  Create the location string of the main diagnostic to report
+            Location_String : constant String :=
+              (if Path /= ""
+               then
+                 (if Tool_Args.Full_Source_Locations.Get
+                  then Path
+                  else Simple_Name (Path))
+                 & ":"
+                 & Image (Sloc)
+               else "");
+
+            --  Flag to prevent useless hint processing when the notification
+            --  is recorded as a diagnostic.
+         begin
+            --  Report the main notification to the user
+            if Notif.level.Is_Set and then Notif.level.Value = error then
+               --  If the notification is about an Ada source file, record a
+               --  diagnostic for it.
+               if Present (Ada_Source_Id) then
+                  Store_Diagnostic
+                    (Collector,
+                     Full_File_Name => Path,
+                     Message        => "error: " & Msg,
+                     Sloc           => Sloc,
+                     Kind           => Compiler_Error,
+                     SF             => Ada_Source_Id);
+
+                  --  Do not process hints for such notifications
+                  goto Next;
+               else
+                  Error_Counter := @ + 1;
+                  Error (Msg, Location_String);
+               end if;
+            elsif Notif.level.Is_Set and then Notif.level.Value /= warning then
+               Info (Msg, Location_String);
+            else
+               --  Covers level=warning and absent level (SARIF default).
+
+               --  If the message is about a missing file, handle is specially
+               if Match (Match_Missing_File, Msg) then
+                  --  If the warning is about a missing file but the request
+                  --  origin is not a file that GNATcheck analyzed, skip this
+                  --  notification.
+                  if not Present (Ada_Source_Id) then
+                     goto Next;
+                  end if;
+
+                  --  Otherwise set the corresponding flag to true
+                  Missing_File_Detected := True;
+               end if;
+
+               --  Finally, emit the warning message
+               Warning (Msg, Location_String);
+            end if;
+
+            --  Now handle hints related to this notification
+            for J in 1 .. Hint_Locations.Length loop
+               declare
+                  H : location renames Hint_Locations (J);
+
+                  --  Get the hint message
+                  Hint_Msg : constant String :=
+                    Lower_First_Char (To_UTF_8_String (H.message.Value.text));
+
+                  --  Since a hint always has a location in SARIF reports
+                  --  generated by LKQL workers, get the path
+                  --  unconditionally.
+                  Hint_Path : constant String :=
+                    URI_To_Path
+                      (H.physicalLocation.Value.artifactLocation.Value.uri);
+
+                  --  Get the Ada source this hint is about
+                  Hint_Ada_Source_Id : constant SF_Id := File_Find (Hint_Path);
+
+                  --  The same way, always get the hint source location
+                  Hint_Region : region renames
+                    H.physicalLocation.Value.region.Value;
+                  Hint_Sloc   : constant Source_Location :=
+                    (Line_Number (Hint_Region.startLine.Value),
+                     Column_Number (Hint_Region.startColumn.Value));
+
+                  --  Finally, create the location string for the hint
+                  Hint_Location_String : constant String :=
+                    (if Tool_Args.Full_Source_Locations.Get
+                     then Hint_Path
+                     else Simple_Name (Hint_Path))
+                    & ":"
+                    & Image (Hint_Sloc);
+               begin
+                  --  If the hint is about an Ada source file and its
+                  --  related notification is an error, set the Ada source
+                  --  status accordingly.
+                  if Present (Hint_Ada_Source_Id)
+                    and then Notif.level.Is_Set
+                    and then Notif.level.Value = error
+                  then
+                     Set_Source_Status (Hint_Ada_Source_Id, Error_Detected);
+                  end if;
+
+                  --  Show the hint
+                  Hint (Hint_Msg, Hint_Location_String);
+               end;
+            end loop;
+         end;
+
+         <<Next>>
+      end loop;
+   end Process_SARIF_Notifications;
+
+   --------------------------
+   -- Instantiations_Chain --
+   --------------------------
+
+   function Instantiations_Chain
+     (Locations : SARIF.Types.threadFlowLocation_Vector) return String
+   is
+      use Ada.Strings.Unbounded;
+      use SARIF.Types;
+
+      Result : Unbounded_String;
+   begin
+      --  Build the chain from outermost to innermost, as specified in the
+      --  SARIF convention.
+      for I in 1 .. Locations.Length loop
+         declare
+            Phys : constant physicalLocation :=
+              Locations (I).location.Value.physicalLocation.Value;
+
+            Path : constant String :=
+              URI_To_Path (Phys.artifactLocation.Value.uri);
+
+            Location_String : constant String :=
+              (if Tool_Args.Full_Source_Locations.Get
+               then Path
+               else Simple_Name (Path))
+              & ":"
+              & Sloc_Image
+                  (Phys.region.Value.startLine.Value,
+                   Phys.region.Value.startColumn.Value);
+         begin
+            if Result = Null_Unbounded_String then
+               Set_Unbounded_String (Result, Location_String);
+            else
+               Insert (Result, 1, Location_String & " [");
+               Append (Result, "]");
+            end if;
+         end;
+      end loop;
+
+      return "[instance at " & To_String (Result) & ']';
+   end Instantiations_Chain;
+
+   --------------------------------
+   -- Parse_Gprbuild_Text_Output --
+   --------------------------------
+
+   procedure Parse_Gprbuild_Text_Output
+     (Collector          : in out Diagnostic_Collector;
+      File_Name          : String;
+      Errors             : out Boolean;
+      Forward_Unparsable : Boolean := True)
    is
       Line     : String (1 .. 1024);
       Line_Len : Natural;
@@ -352,10 +695,6 @@ package body Lkql_Checker.Compiler is
       procedure Analyze_Line (Msg : String);
       --  Analyze one line containing a builder output. Insert the relevant
       --  messages into the diagnostics table.
-
-      procedure Process_Worker_Message
-        (Message : String; Printer : access procedure (S, L : String));
-      --  Helper to process messages received from the Worker
 
       ------------------
       -- Analyze_Line --
@@ -380,18 +719,9 @@ package body Lkql_Checker.Compiler is
 
          procedure Unparsable_Line is
          begin
-            case Unparsable_Handling is
-               when Forward         =>
-                  Print (Msg);
-
-               when Report_As_Error =>
-                  Error ("unparsable worker output: """ & Msg & '"');
-                  Errors := True;
-                  Detected_Internal_Error := @ + 1;
-
-               when Hide            =>
-                  null;
-            end case;
+            if Forward_Unparsable then
+               Print (Msg);
+            end if;
          end Unparsable_Line;
 
       begin
@@ -443,58 +773,8 @@ package body Lkql_Checker.Compiler is
             return;
          end if;
 
-         --  A checking message emitted by the worker
-         if Msg (Msg_Start .. Msg_Start + 6) = "check: " then
-            if Msg (Msg_End) /= ']' then
-               Unparsable_Line;
-               return;
-            end if;
-
-            declare
-               Last       : constant Natural :=
-                 Index
-                   (Source  => Msg (Msg_Start .. Msg_End),
-                    Pattern => "[",
-                    Going   => Backward);
-               Name_Split : constant Natural :=
-                 Index (Source => Msg (Last + 1 .. Msg_End), Pattern => "|");
-
-               Rule_Name     : constant String :=
-                 (if Name_Split /= 0
-                  then Msg (Name_Split + 1 .. Msg_End - 1)
-                  elsif Last /= 0
-                  then Msg (Last + 1 .. Msg_End - 1)
-                  else "");
-               Instance_Name : constant String :=
-                 (if Name_Split /= 0
-                  then Msg (Last + 1 .. Name_Split - 1)
-                  else "");
-
-               Instance : Rule_Instance_Access := null;
-            begin
-               if Last = 0 then
-                  Unparsable_Line;
-                  return;
-               end if;
-               Instance :=
-                 Get_Instance
-                   (if Instance_Name = ""
-                    then To_Lower (Rule_Name)
-                    else To_Lower (Instance_Name));
-               Store_Diagnostic
-                 (Collector,
-                  Full_File_Name => Lkql_Checker.Source_Table.File_Name (SF),
-                  Message        => Msg (Msg_Start + 7 .. Last - 2),
-                  Sloc           => Sloc,
-                  Kind           => Rule_Violation,
-                  SF             => SF,
-                  Rule           => Instance.Rule,
-                  Instance       => Instance);
-               return;
-            end;
-
          --  An error message has been emitted
-         elsif Msg (Msg_Start .. Msg_Start + 6) = "error: " then
+         if Msg (Msg_Start .. Msg_Start + 6) = "error: " then
             Message_Kind := Error;
 
             if Msg_End - Msg_Start > 21
@@ -557,24 +837,6 @@ package body Lkql_Checker.Compiler is
                else Get_Rule_Id (Message_Kind)));
       end Analyze_Line;
 
-      ----------------------------
-      -- Process_Worker_Message --
-      ----------------------------
-
-      procedure Process_Worker_Message
-        (Message : String; Printer : access procedure (S, L : String))
-      is
-         Decoded_Message : constant Read_Result := Read (Message);
-      begin
-         if Decoded_Message.Success then
-            Printer
-              (Decoded_Message.Value.Get ("message"),
-               Decoded_Message.Value.Get ("location"));
-         else
-            Printer (Message, "");
-         end if;
-      end Process_Worker_Message;
-
       --  Start of processing for Analyze_Output
 
    begin
@@ -632,25 +894,6 @@ package body Lkql_Checker.Compiler is
                   end if;
                end;
             end if;
-         elsif Line_Len >= 16 and then Line (1 .. 13) = "WORKER_INFO: " then
-            Process_Worker_Message (Line (14 .. Line_Len), Info'Access);
-         elsif Line_Len >= 16 and then Line (1 .. 16) = "WORKER_WARNING: " then
-            Process_Worker_Message (Line (17 .. Line_Len), Warning'Access);
-         elsif Line_Len >= 14 and then Line (1 .. 14) = "WORKER_ERROR: " then
-            Process_Worker_Message (Line (15 .. Line_Len), Error'Access);
-            Detected_Internal_Error := @ + 1;
-            Errors := True;
-         elsif Line_Len >= 23
-           and then Line (1 .. 23) = "WORKER_JSON_INSTANCES: "
-         then
-            --  Ignore the JSON instances data. This is analyzed in
-            --  Process_LKQL_Rule_File.
-
-            --  The current line can be longer than Line_Len, skip the rest of
-            --  the line if that's the case.
-            if Line_Len = Line'Length then
-               Skip_Line (File);
-            end if;
          else
             Analyze_Line (Line (1 .. Line_Len));
          end if;
@@ -667,7 +910,88 @@ package body Lkql_Checker.Compiler is
          Error ("unknown bug detected when analyzing tool output:");
          Report_Unhandled_Exception (Ex);
          Errors := True;
-   end Analyze_Output;
+   end Parse_Gprbuild_Text_Output;
+
+   -------------------------------
+   -- Parse_SARIF_Worker_Output --
+   -------------------------------
+
+   function Parse_SARIF_Worker_Output
+     (Collector : in out Diagnostic_Collector; File_Name : String)
+      return Boolean
+   is
+      use SARIF.Types;
+      use VSS.Strings.Conversions;
+
+      Root : SARIF.Types.Root;
+   begin
+      if not Load_SARIF_Root (File_Name, Root) then
+         return False;
+      end if;
+
+      declare
+         Run : SARIF.Types.run renames Root.runs (1);
+      begin
+         --  Process tool execution notifications
+         if not Run.invocations.Is_Null and then Run.invocations.Length >= 1
+         then
+            Process_SARIF_Notifications
+              (Collector,
+               Run.invocations (1).toolExecutionNotifications,
+               Detected_Internal_Error);
+         end if;
+
+         --  Process rule violations from SARIF results
+         if not Run.results.Is_Null then
+            for I in 1 .. Run.results.Length loop
+               declare
+                  Res : SARIF.Types.result renames Run.results (I);
+
+                  --  Get the instance that has been violated
+                  Instance : constant Rule_Instance_Access :=
+                    Get_Instance (To_UTF_8_String (Res.ruleId));
+
+                  --  Get the location of the violation
+                  Phys : constant SARIF.Types.physicalLocation :=
+                    Res.locations (1).physicalLocation.Value;
+                  Path : constant String :=
+                    URI_To_Path (Phys.artifactLocation.Value.uri);
+                  SF   : constant SF_Id := File_Find (Path);
+                  Sloc : constant Source_Location :=
+                    (Line_Number (Phys.region.Value.startLine.Value),
+                     Column_Number (Phys.region.Value.startColumn.Value));
+               begin
+                  if Instance /= null and then Present (SF) then
+                     Store_Diagnostic
+                       (Collector,
+                        Full_File_Name =>
+                          Lkql_Checker.Source_Table.File_Name (SF),
+                        Message        =>
+                          To_UTF_8_String (Res.message.text)
+                          & (if Tool_Args.Show_Instantiation_Chain.Get
+                               and then Res.codeFlows.Length = 1
+                               and then Res.codeFlows (1).threadFlows.Length
+                                        = 1
+                             then
+                               ' '
+                               & Instantiations_Chain
+                                   (Res.codeFlows (1).threadFlows (1)
+                                      .locations)
+                             else ""),
+                        Sloc           => Sloc,
+                        Kind           => Rule_Violation,
+                        SF             => SF,
+                        Rule           => Instance.Rule,
+                        Instance       => Instance);
+                  end if;
+               end;
+            end loop;
+         end if;
+      end;
+
+      --  Return the success
+      return True;
+   end Parse_SARIF_Worker_Output;
 
    ----------------
    -- Annotation --
@@ -1540,6 +1864,91 @@ package body Lkql_Checker.Compiler is
       return Handle;
    end Spawn_Process;
 
+   ----------------
+   -- Spawn_LKQL --
+   ----------------
+
+   function Spawn_LKQL
+     (Rule_File, Source_File, Output_File : String; Parse_Rule_File : Boolean)
+      return Process_Handle
+   is
+      use Ada.Strings.Unbounded;
+
+      Handle        : Process_Handle;
+      Split_Command : constant String_Vector := Split (Worker_Name, ' ');
+      Worker        : GNAT.OS_Lib.String_Access := null;
+      Args          : String_Vector;
+   begin
+      --  Split the worker command into the name of the executable plus its
+      --  arguments. We do that because the call to Spawn_Process expects the
+      --  full path to the executable and the list of arguments as separate
+      --  arguments.
+      for Arg of Split_Command loop
+         if Worker = null then
+            Worker := Locate_Exec_On_Path (Arg);
+         else
+            Args.Append (Arg);
+         end if;
+      end loop;
+
+      --  Test if the worker executable exists
+      if Worker = null then
+         Error
+           ("cannot locate the worker executable: " & Base_Name (Worker_Name));
+         raise Fatal_Error;
+      end if;
+
+      --  Pass LKQL specific options
+      if Tool_Args.Verbose.Get then
+         Args.Append ("--verbose");
+      end if;
+
+      if Tool_Args.Debug_Mode.Get then
+         Args.Append ("-d");
+      end if;
+
+      for Dir of Tool_Args.Rules_Dirs.Get loop
+         Args.Append ("--rules-dir=" & To_String (Dir));
+      end loop;
+
+      if Source_File /= "" then
+         Args.Append ("--files-from=" & Source_File);
+      end if;
+
+      if Parse_Rule_File then
+         Args.Append ("--parse-lkql-config=" & Rule_File);
+      else
+         Args.Append ("--rules-from=" & Rule_File);
+      end if;
+
+      if Tool_Args.Show_Instantiation_Chain.Get then
+         Args.Append ("--report-instantiation-chain");
+      end if;
+
+      --  Pass GPR options
+      Checker_Prj.Get_Cli_Options (Args);
+
+      if GPR_Args.Aggregated_Project then
+         Args.Append ("-A" & To_String (GPR_Args.Aggregate_Subproject.Get));
+      end if;
+
+      --  Log the spawned command for debug purposes
+      if Tool_Args.Debug_Mode.Get then
+         --  For testing purposes, we don't want to put the full path to the
+         --  worker command, if it is a full path. We just want the base name.
+         Put (Base_Name (Worker.all));
+         for Arg of Args loop
+            Put (" " & Arg);
+         end loop;
+         New_Line;
+      end if;
+
+      --  Call the LKQL executable and return the process handle
+      Handle := Spawn_Process (Worker.all, Args, Output_File);
+      Free (Worker);
+      return Handle;
+   end Spawn_LKQL;
+
    ---------------------------
    -- Process_Style_Options --
    ---------------------------
@@ -1768,76 +2177,11 @@ package body Lkql_Checker.Compiler is
    --------------------------
 
    function Spawn_Checker_Worker
-     (Rule_File   : String;
-      Msg_File    : String;
-      Source_File : String;
-      Log_File    : String) return Process_Handle
-   is
-      use Ada.Strings.Unbounded;
-
-      Handle        : Process_Handle;
-      Split_Command : constant String_Vector := Split (Worker_Name, ' ');
-      Worker        : GNAT.OS_Lib.String_Access := null;
-      Args          : String_Vector;
+     (Rule_File, Msg_File, Source_File : String) return Process_Handle is
    begin
-      --  Split the worker command into the name of the executable plus its
-      --  arguments. We do that because the call to Spawn_Process expects the
-      --  full path to the executable and the list of arguments as separate
-      --  arguments.
-      for Arg of Split_Command loop
-         if Worker = null then
-            Worker := Locate_Exec_On_Path (Arg);
-         else
-            Args.Append (Arg);
-         end if;
-      end loop;
-
-      --  Test if the worker executable exists
-      if Worker = null then
-         Error
-           ("cannot locate the worker executable: " & Base_Name (Worker_Name));
-         raise Fatal_Error;
-      end if;
-
-      --  Pass LKQL specific options
-      if Tool_Args.Debug_Mode.Get then
-         Args.Append ("-d");
-      end if;
-
-      if Tool_Args.Show_Instantiation_Chain.Get then
-         Args.Append ("--show-instantiation-chain");
-      end if;
-
-      for Dir of Tool_Args.Rules_Dirs.Get loop
-         Args.Append ("--rules-dir=" & To_String (Dir));
-      end loop;
-
-      Args.Append ("--files-from=" & Source_File);
-      Args.Append ("--rules-from=" & Rule_File);
-      Args.Append ("--log-file=" & Log_File);
-
-      --  Pass GPR options
-      Checker_Prj.Get_Cli_Options (Args);
-
-      if GPR_Args.Aggregated_Project then
-         Args.Append ("-A" & To_String (GPR_Args.Aggregate_Subproject.Get));
-      end if;
-
-      --  Log the spawned command for debug purposes
-      if Tool_Args.Debug_Mode.Get then
-         --  For testing purposes, we don't want to put the full path to the
-         --  worker command, if it is a full path. We just want the base name.
-         Put (Base_Name (Worker.all));
-         for Arg of Args loop
-            Put (" " & Arg);
-         end loop;
-         New_Line;
-      end if;
-
-      --  Call the GNATcheck worker and return the process handle
-      Handle := Spawn_Process (Worker.all, Args, Msg_File);
-      Free (Worker);
-      return Handle;
+      return
+        Spawn_LKQL
+          (Rule_File, Source_File, Msg_File, Parse_Rule_File => False);
    end Spawn_Checker_Worker;
 
    -----------------------------------
@@ -1845,49 +2189,10 @@ package body Lkql_Checker.Compiler is
    -----------------------------------
 
    function Spawn_LKQL_Rule_File_Parser
-     (LKQL_RF_Name : String; Result_File : String) return Process_Handle
-   is
-      Handle        : Process_Handle;
-      Split_Command : constant String_Vector := Split (Worker_Name, ' ');
-      Worker        : String_Access := null;
-      Args          : String_Vector;
+     (LKQL_RF_Name, Result_File : String) return Process_Handle is
    begin
-      --  Call the checker worker with the '--parse-lkql-config' option to get
-      --  the rule configuration from the provided rule file.
-      for Arg of Split_Command loop
-         if Worker = null then
-            Worker := Locate_Exec_On_Path (Arg);
-         else
-            Args.Append (Arg);
-         end if;
-      end loop;
-
-      if Worker = null then
-         Error
-           ("cannot locate the worker executable: " & Base_Name (Worker_Name));
-         raise Fatal_Error;
-      end if;
-
-      Args.Append ("--parse-lkql-config");
-      Args.Append (LKQL_RF_Name);
-
-      if Tool_Args.Verbose.Get then
-         Args.Append ("--verbose");
-      end if;
-
-      --  Output the called command if in debug mode
-      if Tool_Args.Debug_Mode.Get then
-         Put (Base_Name (Worker.all));
-         for Arg of Args loop
-            Put (" " & Arg);
-         end loop;
-         New_Line;
-      end if;
-
-      --  Spawn the process and return the associated process handle
-      Handle := Spawn_Process (Worker.all, Args, Result_File);
-      Free (Worker);
-      return Handle;
+      return
+        Spawn_LKQL (LKQL_RF_Name, "", Result_File, Parse_Rule_File => True);
    end Spawn_LKQL_Rule_File_Parser;
 
    --------------------

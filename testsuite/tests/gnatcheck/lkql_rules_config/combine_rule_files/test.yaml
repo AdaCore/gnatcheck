@@ -29,7 +29,7 @@ tests:
   - label: Rule file with circular importation
     lkql_rule_file: circular_import.lkql
     lkql_path:
-      - other_rule_configs
+      - circular_rule_configs
   - label: Rule file with ambiguous importation
     lkql_rule_file: ambiguous_import.lkql
     lkql_path:

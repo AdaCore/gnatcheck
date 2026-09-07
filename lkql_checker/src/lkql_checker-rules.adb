@@ -646,19 +646,16 @@ package body Lkql_Checker.Rules is
       Instance_Field : in out Optional_Unbounded_Wide_Wide_String;
       Normalize      : Boolean := False) is
    begin
-      if Params_Object.Has_Field (Param_Name) then
-         declare
-            Field_Val : constant String :=
-              (if Normalize
-               then
-                 Remove_Spaces
-                   (To_Lower (Expect_Literal (Params_Object, Param_Name)))
-               else Expect_Literal (Params_Object, Param_Name));
-         begin
-            Set (Instance_Field, Field_Val);
-            Params_Object.Unset_Field (Param_Name);
-         end;
-      end if;
+      declare
+         Field_Val : constant String :=
+           (if Normalize
+            then
+              Remove_Spaces
+                (To_Lower (Expect_Literal (Params_Object, Param_Name)))
+            else Expect_Literal (Params_Object, Param_Name));
+      begin
+         Set (Instance_Field, Field_Val);
+      end;
    end Process_String_Arg;
 
    --  == XML Help functions
@@ -2340,7 +2337,9 @@ package body Lkql_Checker.Rules is
             Values       : constant String_Vector :=
               Split (To_String (Value.Value), ',');
             List_Elems   : constant String :=
-              Join ([for S of Values => '"' & S & '"'], ", ");
+              (if Value.Value = ""
+               then ""
+               else Join ([for S of Values => '"' & S & '"'], ", "));
             List_Literal : constant Unbounded_Text_Type :=
               To_Unbounded_Text (To_Text ('[' & List_Elems & ']'));
          begin
@@ -3043,36 +3042,27 @@ package body Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_Integer_Parameter_Instance;
-      Params_Object : in out JSON_Value)
+      Params_Object : JSON_Value)
    is
       P_Name : constant String := Param_Name (Instance, 2);
    begin
-      if Params_Object.Has_Field (P_Name)
-        or else not All_Rules (Instance.Rule).Parameters (2).Has_Default
-      then
-         Instance.Param := Expect_Literal (Params_Object, P_Name);
-         Params_Object.Unset_Field (P_Name);
-      end if;
+      Instance.Param := Expect_Literal (Params_Object, P_Name);
    end Process_Instance_Params_Object;
 
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_Boolean_Parameter_Instance;
-      Params_Object : in out JSON_Value)
+      Params_Object : JSON_Value)
    is
       P_Name : constant String := Param_Name (Instance, 2);
    begin
-      if Params_Object.Has_Field (P_Name) then
-         Instance.Param :=
-           From_Boolean (Expect_Literal (Params_Object, P_Name));
-         Params_Object.Unset_Field (P_Name);
-      end if;
+      Instance.Param := From_Boolean (Expect_Literal (Params_Object, P_Name));
    end Process_Instance_Params_Object;
 
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_String_Parameter_Instance;
-      Params_Object : in out JSON_Value)
+      Params_Object : JSON_Value)
    is
       P_Name : constant String := Param_Name (Instance, 2);
    begin
@@ -3083,7 +3073,6 @@ package body Lkql_Checker.Rules is
             File_Name : constant String :=
               Expect_Literal (Params_Object, P_Name);
          begin
-            Params_Object.Unset_Field (P_Name);
             if not Instance.Load_File
                      (To_Load => File_Name, Canonicalize_Line_Endings => True)
             then
@@ -3093,24 +3082,14 @@ package body Lkql_Checker.Rules is
 
       else
          --  Else, handle the parameter as a simple string
-         if Params_Object.Has_Field (P_Name)
-           or else not All_Rules (Instance.Rule).Parameters (2).Has_Default
-         then
-            Instance.Param :=
-              (Is_Set => True,
-               Value  =>
-                 To_Unbounded_Wide_Wide_String
-                   (To_Wide_Wide_String
-                      (Expect_Literal (Params_Object, P_Name))));
-            Params_Object.Unset_Field (P_Name);
-         end if;
+         Set (Instance.Param, Expect_Literal (Params_Object, P_Name));
       end if;
    end Process_Instance_Params_Object;
 
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_Array_Parameter_Instance;
-      Params_Object : in out JSON_Value)
+      Params_Object : JSON_Value)
    is
       P_Name : constant String := Param_Name (Instance, 2);
    begin
@@ -3124,7 +3103,6 @@ package body Lkql_Checker.Rules is
               Load_Dictionary_File
                 (Expand_Env_Variables (Param_Value, Instance));
          begin
-            Params_Object.Unset_Field ("dictionary_file");
             if File_Content /= Null_Unbounded_String then
                Set_Unbounded_String (Instance.File, Param_Value);
                Instance.Param :=
@@ -3137,7 +3115,7 @@ package body Lkql_Checker.Rules is
             end if;
          end;
 
-      elsif Params_Object.Has_Field (P_Name) then
+      else
          --  Else, handle the real array parametrized rules
          declare
             Param_Value : constant String_Vector :=
@@ -3208,68 +3186,59 @@ package body Lkql_Checker.Rules is
                  To_Unbounded_Wide_Wide_String
                    (To_Wide_Wide_String (Join (Res, ","))));
          end;
-         Params_Object.Unset_Field (P_Name);
       end if;
    end Process_Instance_Params_Object;
 
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out One_Integer_Or_Booleans_Parameter_Instance;
-      Params_Object : in out JSON_Value) is
+      Params_Object : JSON_Value) is
    begin
       --  Iterate over all rules parameters and try getting it from the
       --  arguments object.
       for I in 2 .. All_Rules (Instance.Rule).Parameters.Last_Index loop
-         if Params_Object.Has_Field (Param_Name (Instance, I)) then
-            --  Try getting the parameter as an integer
-            begin
-               Instance.Integer_Param :=
-                 Expect_Literal (Params_Object, Param_Name (Instance, I));
+         --  Try getting the parameter as an integer
+         begin
+            Instance.Integer_Param :=
+              Expect_Literal (Params_Object, Param_Name (Instance, I));
 
-            exception
-               --  If it fails, then the argument should be a boolean
-               when Invalid_Type =>
-                  Instance.Boolean_Params (I) :=
-                    From_Boolean
-                      (Expect_Literal
-                         (Params_Object, Param_Name (Instance, I)));
-            end;
-            Params_Object.Unset_Field (Param_Name (Instance, I));
-         end if;
+         exception
+            --  If it fails, then the argument should be a boolean
+            when Invalid_Type =>
+               Instance.Boolean_Params (I) :=
+                 From_Boolean
+                   (Expect_Literal (Params_Object, Param_Name (Instance, I)));
+         end;
       end loop;
    end Process_Instance_Params_Object;
 
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Suffixes_Instance;
-      Params_Object : in out JSON_Value) is
+      Params_Object : JSON_Value)
+   is
+
+      Access_Suffix_Arg         : constant String :=
+        Expect_Literal (Params_Object, "access_suffix");
+      Access_Suffix_Paren_Index : constant Natural :=
+        Index (Access_Suffix_Arg, "(");
    begin
       --  Process the "default" boolean parameter
-      if Params_Object.Has_Field ("default") then
-         Instance.Default :=
-           From_Boolean (Expect_Literal (Params_Object, "default"));
-         Params_Object.Unset_Field ("default");
-      end if;
+      Instance.Default :=
+        From_Boolean (Expect_Literal (Params_Object, "default"));
 
       --  Process the "access_suffix" special string argument
-      if Params_Object.Has_Field ("access_suffix") then
-         declare
-            Arg         : constant String :=
-              Expect_Literal (Params_Object, "access_suffix");
-            Paren_Index : Natural;
-         begin
-            if Has_Suffix (Arg, ")") then
-               Paren_Index := Index (Arg, "(");
-               Set
-                 (Instance.Access_Suffix, Arg (Arg'First .. Paren_Index - 1));
-               Set
-                 (Instance.Access_Access_Suffix,
-                  Arg (Paren_Index + 1 .. Arg'Last - 1));
-            else
-               Set (Instance.Access_Suffix, Arg);
-            end if;
-         end;
-         Params_Object.Unset_Field ("access_suffix");
+      if Has_Suffix (Access_Suffix_Arg, ")") then
+         Set
+           (Instance.Access_Suffix,
+            Access_Suffix_Arg
+              (Access_Suffix_Arg'First .. Access_Suffix_Paren_Index - 1));
+         Set
+           (Instance.Access_Access_Suffix,
+            Access_Suffix_Arg
+              (Access_Suffix_Paren_Index + 1 .. Access_Suffix_Arg'Last - 1));
+      else
+         Set (Instance.Access_Suffix, Access_Suffix_Arg);
       end if;
 
       --  Then process the other arguments
@@ -3291,33 +3260,25 @@ package body Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out Identifier_Prefixes_Instance;
-      Params_Object : in out JSON_Value)
+      Params_Object : JSON_Value)
    is
-      Derived_Param : String_Vector;
+      Derived_Param : constant String_Vector :=
+        Expect_Literal (Params_Object, "derived");
    begin
       --  Process the exclusive boolean argument
-      if Params_Object.Has_Field ("exclusive") then
-         Instance.Exclusive :=
-           From_Boolean (Expect_Literal (Params_Object, "exclusive"));
-         Params_Object.Unset_Field ("exclusive");
-      end if;
+      Instance.Exclusive :=
+        From_Boolean (Expect_Literal (Params_Object, "exclusive"));
 
-      --  Process the "derived" argument
-      if Params_Object.Has_Field ("derived") then
-         Derived_Param := Expect_Literal (Params_Object, "derived");
-
-         --  Check that all elements are correct
-         for S of Derived_Param loop
-            if Index (S, ":") /= 0 then
-               Append (Instance.Derived_Prefix, S, ",");
-            else
-               raise Invalid_Value
-                 with "'derived' elements should contain a colon";
-            end if;
-         end loop;
-
-         Params_Object.Unset_Field ("derived");
-      end if;
+      --  Process the "derived" argument by checking that all elements are
+      --  correct.
+      for S of Derived_Param loop
+         if Index (S, ":") /= 0 then
+            Append (Instance.Derived_Prefix, S, ",");
+         else
+            raise Invalid_Value
+              with "'derived' elements should contain a colon";
+         end if;
+      end loop;
 
       --  The process the other arguments
       Process_String_Arg (Params_Object, "type", Instance.Type_Prefix);
@@ -3338,28 +3299,25 @@ package body Lkql_Checker.Rules is
 
    overriding
    procedure Process_Instance_Params_Object
-     (Instance      : in out Identifier_Casing_Instance;
-      Params_Object : in out JSON_Value) is
+     (Instance : in out Identifier_Casing_Instance; Params_Object : JSON_Value)
+   is
    begin
       --  Process the "exclude" argument
-      if Params_Object.Has_Field ("exclude") then
-         declare
-            Exclude_File : constant String :=
-              Expect_Literal (Params_Object, "exclude");
-            File_Content : constant String :=
-              To_String
-                (Load_Dictionary_File
-                   (Expand_Env_Variables (Exclude_File, Instance)));
-         begin
-            Params_Object.Unset_Field ("exclude");
-            if File_Content /= Null_Unbounded_String then
-               Set (Instance.Exclude_File, Exclude_File);
-               Set (Instance.Exclude, File_Content);
-            else
-               raise Invalid_Value with "cannot load file " & Exclude_File;
-            end if;
-         end;
-      end if;
+      declare
+         Exclude_File : constant String :=
+           Expect_Literal (Params_Object, "exclude");
+         File_Content : constant String :=
+           To_String
+             (Load_Dictionary_File
+                (Expand_Env_Variables (Exclude_File, Instance)));
+      begin
+         if File_Content /= Null_Unbounded_String then
+            Set (Instance.Exclude_File, Exclude_File);
+            Set (Instance.Exclude, File_Content);
+         elsif Exclude_File /= "" then
+            raise Invalid_Value with "cannot load file " & Exclude_File;
+         end if;
+      end;
 
       --  Then process the other arguments
       Process_String_Arg
@@ -3382,7 +3340,7 @@ package body Lkql_Checker.Rules is
 
    overriding
    procedure Process_Instance_Params_Object
-     (Instance : in out Forbidden_Instance; Params_Object : in out JSON_Value)
+     (Instance : in out Forbidden_Instance; Params_Object : JSON_Value)
    is
       procedure Process_List_Field
         (Field_Name : String;
@@ -3396,37 +3354,29 @@ package body Lkql_Checker.Rules is
 
       procedure Process_List_Field
         (Field_Name : String;
-         Field      : in out Optional_Unbounded_Wide_Wide_String) is
+         Field      : in out Optional_Unbounded_Wide_Wide_String)
+      is
+         Val : constant String_Vector :=
+           Expect_Literal (Params_Object, Field_Name);
       begin
-         if Params_Object.Has_Field (Field_Name) then
-            declare
-               Vec : constant String_Vector :=
-                 Expect_Literal (Params_Object, Field_Name);
-            begin
-               Set
-                 (Field,
-                  (Join
-                     ([for S of Vec =>
-                         (if To_Lower (S) = "gnat"
-                          then
-                            (if Rule_Name (Instance) = "forbidden_attributes"
-                             then GNAT_Attributes
-                             elsif Rule_Name (Instance) = "forbidden_pragmas"
-                             then GNAT_Pragmas
-                             else To_Lower (S))
-                          else To_Lower (S))],
-                      ",")));
-            end;
-            Params_Object.Unset_Field (Field_Name);
-         end if;
+         Set
+           (Field,
+            (Join
+               ([for S of Val =>
+                   (if To_Lower (S) = "gnat"
+                    then
+                      (if Rule_Name (Instance) = "forbidden_attributes"
+                       then GNAT_Attributes
+                       elsif Rule_Name (Instance) = "forbidden_pragmas"
+                       then GNAT_Pragmas
+                       else To_Lower (S))
+                    else To_Lower (S))],
+                ",")));
       end Process_List_Field;
    begin
       --  Process the "all" boolean argument
-      if Params_Object.Has_Field ("all") then
-         Instance.All_Flag :=
-           From_Boolean (Expect_Literal (Params_Object, "all"));
-         Params_Object.Unset_Field ("all");
-      end if;
+      Instance.All_Flag :=
+        From_Boolean (Expect_Literal (Params_Object, "all"));
 
       --  Process the "forbidden" and "allowed" list argument
       Process_List_Field ("forbidden", Instance.Forbidden);
@@ -3436,42 +3386,36 @@ package body Lkql_Checker.Rules is
    overriding
    procedure Process_Instance_Params_Object
      (Instance      : in out Silent_Exception_Handlers_Instance;
-      Params_Object : in out JSON_Value)
+      Params_Object : JSON_Value)
    is
-      Subp_Value : String_Vector;
+      Subp_Value : constant String_Vector :=
+        Expect_Literal (Params_Object, "subprograms");
    begin
       --  Process the "subprograms" list argument
-      if Params_Object.Has_Field ("subprograms") then
-         Subp_Value := Expect_Literal (Params_Object, "subprograms");
-         for S of Subp_Value loop
-            if S (S'First) = '|' then
-               Append
-                 (Instance.Subprogram_Regexps, S (S'First + 1 .. S'Last), ",");
-            else
-               Append (Instance.Subprograms, To_Lower (S), ",");
-            end if;
-         end loop;
-         Params_Object.Unset_Field ("subprograms");
-      end if;
+      for S of Subp_Value loop
+         if S (S'First) = '|' then
+            Append
+              (Instance.Subprogram_Regexps, S (S'First + 1 .. S'Last), ",");
+         else
+            Append (Instance.Subprograms, To_Lower (S), ",");
+         end if;
+      end loop;
    end Process_Instance_Params_Object;
 
    overriding
    procedure Process_Instance_Params_Object
-     (Instance : in out Custom_Instance; Params_Object : in out JSON_Value) is
+     (Instance : in out Custom_Instance; Params_Object : JSON_Value) is
    begin
       for I in 2 .. All_Rules (Instance.Rule).Parameters.Last_Index loop
          declare
             P_Name : constant String := Param_Name (Instance, I);
          begin
-            if Params_Object.Has_Field (P_Name) then
-               Instance.Arguments.Append
-                 (Rule_Argument'
-                    (Name  => To_Unbounded_Text (To_Text (P_Name)),
-                     Value =>
-                       To_Unbounded_Text
-                         (To_Text (Expect (Params_Object, P_Name)))));
-               Params_Object.Unset_Field (P_Name);
-            end if;
+            Instance.Arguments.Append
+              (Rule_Argument'
+                 (Name  => To_Unbounded_Text (To_Text (P_Name)),
+                  Value =>
+                    To_Unbounded_Text
+                      (To_Text (Expect (Params_Object, P_Name)))));
          end;
       end loop;
    end Process_Instance_Params_Object;

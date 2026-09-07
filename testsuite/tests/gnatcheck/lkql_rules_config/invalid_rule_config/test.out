@@ -1,7 +1,7 @@
 Invalid type for rules object
 =============================
 
-gnatcheck: error: The value associated to the 'rules' symbol must be an LKQL object, got 2 (config1.lkql)
+config1.lkql:1:1: error: an LKQL rule file must define a "rules" top level object
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -9,7 +9,7 @@ try "gnatcheck --help" for more information.
 Invalid type for ada_rules object
 =================================
 
-gnatcheck: error: The value associated to the 'ada_rules' symbol must be an LKQL object, got 2 (config2.lkql)
+config2.lkql:1:1: error: value associated to "ada_rules" must be an object
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2
@@ -17,7 +17,7 @@ try "gnatcheck --help" for more information.
 Invalid type for spark_rules object
 ===================================
 
-gnatcheck: error: The value associated to the 'spark_rules' symbol must be an LKQL object, got 2 (config3.lkql)
+config3.lkql:1:1: error: value associated to "spark_rules" must be an object
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

@@ -1,4 +1,4 @@
 driver: gnatcheck
 project: prj.gpr
-rules:
-  - +Rrecursive_subprograms
+extra_args:
+  - --no-subprojects

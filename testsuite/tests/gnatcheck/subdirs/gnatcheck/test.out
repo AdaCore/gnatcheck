@@ -6,5 +6,4 @@ main.adb:6:04: error: possible missing "with Ada.Text_IO; use Ada.Text_IO"
    no internal error detected
 Running "ls custom_subdirs/gnatcheck"...
 .gpr-file-index-prj.json
-gnatcheck-log1.TMP
 restriction_pragmas.adc

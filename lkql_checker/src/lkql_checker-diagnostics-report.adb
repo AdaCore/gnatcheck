@@ -2025,6 +2025,11 @@ package body Lkql_Checker.Diagnostics.Report is
       Invocation.startTimeUtc :=
         To_Virtual_String (Image (Start_Time, ISO_Time));
       Invocation.endTimeUtc := To_Virtual_String (Image (End_Time, ISO_Time));
+      if Early_Args.Log_Enabled then
+         Invocation.stderr :=
+           (Is_Set => True,
+            Value  => Make_Artifact_Location (Get_Log_File_Path));
+      end if;
       Invocation.exitCode := (Is_Set => True, Value => Exit_Code);
       Invocation.executionSuccessful :=
         Exit_Code = E_Success or else Exit_Code = E_Violation;

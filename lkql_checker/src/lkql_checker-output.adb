@@ -66,6 +66,15 @@ package body Lkql_Checker.Output is
       Free (Log_File_Name);
    end Close_Log_File;
 
+   ------------------
+   -- Get_Log_File --
+   ------------------
+
+   function Get_Log_File_Path return String is
+   begin
+      return Normalize_Pathname (Log_File_Name.all);
+   end Get_Log_File_Path;
+
    -----------------------
    -- Close_Report_File --
    -----------------------
@@ -130,6 +139,7 @@ package body Lkql_Checker.Output is
         & (if Location /= "" then Location & ": " else "")
         & (case Tag is
              when Info    => "info: ",
+             when Hint    => "hint: ",
              when Warning => "warning: ",
              when Error   => "error: ",
              when None    => "")
@@ -424,6 +434,21 @@ package body Lkql_Checker.Output is
             Log_Message => True);
       end if;
    end Warning;
+
+   ----------
+   -- Hint --
+   ----------
+
+   procedure Hint (Message : String; Location : String := "") is
+   begin
+      Emit_Message
+        (Message,
+         Tag         => Hint,
+         Tool_Name   => Location = "",
+         Location    => Location,
+         New_Line    => True,
+         Log_Message => True);
+   end Hint;
 
    ----------------
 

@@ -4,4 +4,4 @@ main.adb:7:07: rule violation: possible occurrence of KP 19198
    no language violations detected
    no internal error detected
 Running "ls custom_subdirs/gnatkp"...
-gnatkp-log1.TMP
+

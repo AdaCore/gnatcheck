@@ -9,5 +9,4 @@ Running "tree ./"...
 <working-dir>/./hello:
 <working-dir>/./hello/obj:
 <working-dir>/./hello/obj/gnatcheck:
-    gnatcheck-log1.TMP
     gnatcheck.out

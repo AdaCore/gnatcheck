@@ -1,5 +1,5 @@
 @stub_check(category="Style", subcategory="Programming Practice")
-fun restrictions() =
+fun restrictions(_, arg: list) =
     |" Flags violations of Ada predefined and GNAT-specific restrictions
     |" according to the rule parameter(s) specified.
     |"
@@ -46,6 +46,9 @@ fun restrictions() =
     |"                   # ^^^^^^^^^^^^^^^^ The "Max_Task_Entries" name is provided in multiple instances of "Restrictions"
     |"          ]
     |"       }
+    |"
+    |" .. skip_param:: arg
+    |"
     |"
     |" If your code contains pragmas ``Warnings`` with parameter ``Off``, this may
     |" result in false negatives for this rule, because the corresponding warnings

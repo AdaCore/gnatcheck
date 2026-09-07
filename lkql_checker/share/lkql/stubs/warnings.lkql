@@ -1,5 +1,5 @@
 @stub_check(category="Style", subcategory="Programming Practice")
-fun warnings() =
+fun warnings(_, arg: string) =
     |" Flags construct that would result in issuing a GNAT warning if an argument
     |" source would be compiled with warning options corresponding to the rule
     |" parameter(s) specified. For GNAT warnings and corresponding warning control
@@ -48,6 +48,9 @@ fun warnings() =
     |"                  # ^-- The "u" parameter is provided in multiple instances of "Warnings"
     |"          ]
     |"       }
+    |"
+    |" .. skip_param:: arg
+    |"
     |"
     |" Note that ``s`` and ``e`` parameters, corresponding respectively to GNAT
     |" ``-gnatws`` and ``-gnatwe`` options, are not allowed for the ``Warnings``

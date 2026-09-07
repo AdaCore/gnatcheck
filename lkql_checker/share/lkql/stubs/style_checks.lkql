@@ -1,5 +1,5 @@
 @stub_check(category="Style", subcategory="Readability")
-fun style_checks() =
+fun style_checks(_, arg: string) =
     |" Flags violations of the source code presentation and formatting rules
     |" specified in the `Style Checking <https://docs.adacore.com/gnat_ugn-docs/html/gnat_ugn/gnat_ugn/building_executable_programs_with_gnat.html#style-checking>`_
     |" section of the ``GNAT User's Guide`` according to the rule parameter(s)
@@ -56,6 +56,9 @@ fun style_checks() =
     |"                  # ^-- The "x" parameter is provided in multiple instances of "Style_Checks"
     |"          ]
     |"       }
+    |"
+    |" .. skip_param:: arg
+    |"
     |"
     |" This rule allows parametric rule exemptions, the parameters
     |" that are allowed in the definition of exemption sections are the

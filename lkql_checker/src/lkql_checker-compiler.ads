@@ -12,6 +12,8 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with GNATCOLL.OS.Process; use GNATCOLL.OS.Process;
 
+with SARIF.Types;
+
 with Lkql_Checker.Diagnostics; use Lkql_Checker.Diagnostics;
 with Lkql_Checker.Rules;       use Lkql_Checker.Rules;
 
@@ -77,20 +79,52 @@ package Lkql_Checker.Compiler is
    --  warning ON/OFF. If Restrictions rules are specified, this file contains
    --  the corresponding Restriction_Warnings pragmas.
 
-   type Unparsable_Handling_Mode is (Hide, Forward, Report_As_Error);
-   --  The way an unparsable line should be treated by the ``Analyze_Output``
-   --  procedure.
+   procedure Parse_Gprbuild_Text_Output
+     (Collector          : in out Diagnostic_Collector;
+      File_Name          : String;
+      Errors             : out Boolean;
+      Forward_Unparsable : Boolean := True);
+   --  Parses the given file that contains a GPRbuild output and store all the
+   --  relevant messages.
+   --
+   --  If some compiler errors are detected, set Errors to True.
+   --  ``Report_Unparsable`` tells whether to emit an error when an unparsable
+   --  line is encountered in the output. If it is false, the line is simply
+   --  forwarded in the tool output.
 
-   procedure Analyze_Output
-     (Collector           : in out Diagnostic_Collector;
-      File_Name           : String;
-      Errors              : out Boolean;
-      Unparsable_Handling : Unparsable_Handling_Mode := Report_As_Error);
-   --  Parses the given file (typically error output of gprbuild or the worker)
-   --  and store all the relevant messages.
-   --  Following the ``Unparsable_Handling`` parameter, this function may
-   --  report internal error when an unparsable message is encountered in the
-   --  output.
+   function Parse_SARIF_Worker_Output
+     (Collector : in out Diagnostic_Collector; File_Name : String)
+      return Boolean;
+   --  Parse the SARIF output produced by the checker worker when running in
+   --  checking mode. Stores rule violations as diagnostics in  ``Collector``
+   --  and processes tool execution notifications. Return whether the
+   --  processing has been a success.
+
+   function Load_SARIF_Root
+     (File_Name : String; Root : out SARIF.Types.Root) return Boolean;
+   --  Read and parse the SARIF file at ``File_Name`` into ``Root``. Return
+   --  whether the loading has been a success.
+
+   procedure Process_SARIF_Notifications
+     (Collector     : in out Diagnostic_Collector;
+      Notifs        : SARIF.Types.notification_Vector;
+      Error_Counter : in out Integer);
+   --  Emit info/warning output for each SARIF tool notification. On error
+   --  notifications, test if it is about an Ada source:
+   --    * if so, store a ``Compilation_Error`` diagnostic in ``Collector``
+   --    * if not, increase ``Error_Counter`` by 1 and display the error
+
+   function Instantiations_Chain
+     (Locations : SARIF.Types.threadFlowLocation_Vector) return String;
+   --  Build the instantiation chain string from a SARIF result's codeFlows.
+   --  Returns "" if the provided vector is empty.
+   --
+   --  Format: "[instance at file:line:col [file:line:col]]", where each level
+   --  corresponds to one threadFlow (innermost first), nested with square
+   --  brackets.
+   --
+   --  This function assumes that each codeFlow object has a valid physical
+   --  location.
 
    procedure Process_Restriction_Param
      (Parameter : String; Instance : Rule_Instance_Access);
@@ -169,17 +203,14 @@ package Lkql_Checker.Compiler is
    --  file that is supposed to be an opened out file.
 
    function Spawn_Checker_Worker
-     (Rule_File   : String;
-      Msg_File    : String;
-      Source_File : String;
-      Log_File    : String) return Process_Handle;
+     (Rule_File, Msg_File, Source_File : String) return Process_Handle;
    --  Spawn a worker (LKQL) on the main project file with the relevant options
    --  on the rules given by Rule_File, redirecting the output to Msg_File.
    --  Source_File is the name of a file listing all the source files to
-   --  analyze. Log_File is the name of a file used to store worker's logs.
+   --  analyze.
 
    function Spawn_LKQL_Rule_File_Parser
-     (LKQL_RF_Name : String; Result_File : String) return Process_Handle;
+     (LKQL_RF_Name, Result_File : String) return Process_Handle;
    --  Spawn the executable which handles the LKQL rule config file parsing
    --  with the provided `LKQL_RF_Name` then return the process handle
    --  associated to it. Redirects all output made by the process in the
