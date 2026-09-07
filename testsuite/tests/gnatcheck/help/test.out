@@ -63,6 +63,12 @@ gnatcheck help:
  -j <n>                    the maximal number of processes
  -r, --rule <rule>         enable the given rules for the run
  --rule-file <file>        read rule configuration from the given LKQL rule file
+ --emit-fixes
+           include fix objects in the generated SARIF report (noop if no SARIF
+           is generated)
+ --disable-formatting
+           if "--emit-fixes" is provided, disable Ada formatting for emitted fix
+           objects
  --emit-lkql-rule-file
            convert the current legacy rule configuration to a 'rules.lkql' LKQL
            rule file
@@ -168,6 +174,12 @@ gnatcheck help:
  -j <n>                    the maximal number of processes
  -r, --rule <rule>         enable the given rules for the run
  --rule-file <file>        read rule configuration from the given LKQL rule file
+ --emit-fixes
+           include fix objects in the generated SARIF report (noop if no SARIF
+           is generated)
+ --disable-formatting
+           if "--emit-fixes" is provided, disable Ada formatting for emitted fix
+           objects
  --emit-lkql-rule-file
            convert the current legacy rule configuration to a 'rules.lkql' LKQL
            rule file
@@ -273,6 +285,12 @@ gnatcheck help:
  -j <n>                    the maximal number of processes
  -r, --rule <rule>         enable the given rules for the run
  --rule-file <file>        read rule configuration from the given LKQL rule file
+ --emit-fixes
+           include fix objects in the generated SARIF report (noop if no SARIF
+           is generated)
+ --disable-formatting
+           if "--emit-fixes" is provided, disable Ada formatting for emitted fix
+           objects
  --emit-lkql-rule-file
            convert the current legacy rule configuration to a 'rules.lkql' LKQL
            rule file

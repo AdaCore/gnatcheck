@@ -1908,6 +1908,15 @@ package body Lkql_Checker.Compiler is
          Args.Append ("--report-instantiation-chain");
       end if;
 
+      if Tool_Args.Emit_Fixes.Get and then Tool_Args.SARIF_Report_Enabled then
+         Args.Append ("--emit-fixes");
+      end if;
+
+      if Tool_Args.Disable_Formatting.Get and then Tool_Args.Emit_Fixes.Get
+      then
+         Args.Append ("--disable-formatting");
+      end if;
+
       --  Pass GPR options
       Checker_Prj.Get_Cli_Options (Args);
 
