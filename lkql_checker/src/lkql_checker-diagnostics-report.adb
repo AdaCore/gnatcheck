@@ -1537,7 +1537,7 @@ package body Lkql_Checker.Diagnostics.Report is
          end if;
 
          --  If we get here, this isn't possible to generate a readable base
-         --  directory identifier. Use the counter
+         --  directory identifier. Use the counter.
          for I in Natural'First .. Natural'Last loop
             Set_Unbounded_String (Suffix, Trim (I'Image, Left));
             if Is_Unique then
