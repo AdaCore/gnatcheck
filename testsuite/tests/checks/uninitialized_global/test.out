@@ -1,7 +1,7 @@
 pack.ads:2:4: rule violation: uninitialized global variable
 2 |    B : Boolean;                  --  FLAG
   |    ^
-fix proposal: Quick Fix
+fix proposal: Add a default value to the declaration
   in pack.ads:
   1  package Pack is
   2 -   B : Boolean;                  --  FLAG
@@ -12,7 +12,7 @@ fix proposal: Quick Fix
 pack.ads:3:4: rule violation: uninitialized global variable
 3 |    I1 : Integer;                 --  FLAG
   |    ^^
-fix proposal: Quick Fix
+fix proposal: Add a default value to the declaration
   in pack.ads:
   1  package Pack is
   2     B : Boolean;                  --  FLAG
@@ -24,7 +24,7 @@ fix proposal: Quick Fix
 pack.ads:4:4: rule violation: uninitialized global variable
 4 |    C : Character;                --  FLAG
   |    ^
-fix proposal: Quick Fix
+fix proposal: Add a default value to the declaration
   in pack.ads:
   2     B : Boolean;                  --  FLAG
   3     I1 : Integer;                 --  FLAG
@@ -36,7 +36,7 @@ fix proposal: Quick Fix
 pack.ads:5:4: rule violation: uninitialized global variable
 5 |    W_C : Wide_Character;         --  FLAG
   |    ^^^
-fix proposal: Quick Fix
+fix proposal: Add a default value to the declaration
   in pack.ads:
   3     I1 : Integer;                 --  FLAG
   4     C : Character;                --  FLAG
@@ -48,7 +48,7 @@ fix proposal: Quick Fix
 pack.ads:6:4: rule violation: uninitialized global variable
 6 |    W_W_C : Wide_Wide_Character;  --  FLAG
   |    ^^^^^
-fix proposal: Quick Fix
+fix proposal: Add a default value to the declaration
   in pack.ads:
   4     C : Character;                --  FLAG
   5     W_C : Wide_Character;         --  FLAG
@@ -64,7 +64,7 @@ pack.ads:13:7: rule violation: uninitialized global variable
 pack.ads:21:4: rule violation: uninitialized global variable
 21 |    Y1 : Integer;                --  FLAG
    |    ^^
-fix proposal: Quick Fix
+fix proposal: Add a default value to the declaration
   in pack.ads:
   19  
   20  private
@@ -76,7 +76,7 @@ fix proposal: Quick Fix
 pack.adb:2:4: rule violation: uninitialized global variable
 2 |    Z1 : Integer;          --  FLAG
   |    ^^
-fix proposal: Quick Fix
+fix proposal: Add a default value to the declaration
   in pack.adb:
   1  package body Pack is
   2 -   Z1 : Integer;          --  FLAG

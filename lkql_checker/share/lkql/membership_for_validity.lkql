@@ -17,7 +17,8 @@ fun type_of(name) =
 
 @check(message="membership test instead of 'Valid",
        category="Style", subcategory="Portability",
-       auto_fix=(n, ctx) => ctx.replace(n, valid_attr(n)))
+       auto_fix=(n, ctx) => ctx.replace(n, valid_attr(n)),
+       auto_fix_description="Replace the membership test with 'Valid")
 fun membership_for_validity(node) =
     |" Flag membership tests that can be replaced by a ``'Valid`` attribute.
     |" Three forms of membership tests are flagged:

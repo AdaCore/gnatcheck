@@ -1,7 +1,7 @@
 same.adb:11:14: rule violation: same operands
 11 |       return (X + 1) / (x +  1);     --  FLAG
    |              ^^^^^^^^^^^^^^^^^^
-fix proposal: Quick Fix
+fix proposal: Replace the operation with its known result
   in same.adb:
   9      begin
   10        Y := (X + 1) / (X - 1);        --  NOFLAG
@@ -13,7 +13,7 @@ fix proposal: Quick Fix
 same.adb:24:7: rule violation: same operands
 24 |    if (I + 1) = (I + 1)               --  FLAG
    |       ^^^^^^^^^^^^^^^^^
-fix proposal: Quick Fix
+fix proposal: Replace the operation with its known result
   in same.adb:
   22     C : Custom_Int;
   23  begin
@@ -26,7 +26,7 @@ fix proposal: Quick Fix
 same.adb:25:15: rule violation: same operands
 25 |      and then (N mod N) /= (N mod N)  --  FLAG (3)
    |               ^^^^^^^^^^^^^^^^^^^^^^
-fix proposal: Quick Fix
+fix proposal: Replace the operation with its known result
   in same.adb:
   23  begin
   24     if (I + 1) = (I + 1)               --  FLAG
@@ -38,7 +38,7 @@ fix proposal: Quick Fix
 same.adb:25:16: rule violation: same operands
 25 |      and then (N mod N) /= (N mod N)  --  FLAG (3)
    |                ^^^^^^^
-fix proposal: Quick Fix
+fix proposal: Replace the operation with its known result
   in same.adb:
   23  begin
   24     if (I + 1) = (I + 1)               --  FLAG
@@ -50,7 +50,7 @@ fix proposal: Quick Fix
 same.adb:25:29: rule violation: same operands
 25 |      and then (N mod N) /= (N mod N)  --  FLAG (3)
    |                             ^^^^^^^
-fix proposal: Quick Fix
+fix proposal: Replace the operation with its known result
   in same.adb:
   23  begin
   24     if (I + 1) = (I + 1)               --  FLAG

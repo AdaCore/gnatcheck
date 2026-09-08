@@ -1,7 +1,7 @@
 valid.adb:8:7: rule violation: membership test instead of 'Valid
 8 |    if X in My_Int then                           --  FLAG
   |       ^^^^^^^^^^^
-fix proposal: Quick Fix
+fix proposal: Replace the membership test with 'Valid
   in valid.adb:
   6   
   7   begin
@@ -34,7 +34,7 @@ fix proposal: Quick Fix
 valid.adb:10:10: rule violation: membership test instead of 'Valid
 10 |    elsif X in My_Int'First .. My_Int'Last then   --  FLAG
    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-fix proposal: Quick Fix
+fix proposal: Replace the membership test with 'Valid
   in valid.adb:
   8      if X in My_Int then                           --  FLAG
   9         null;
@@ -47,7 +47,7 @@ fix proposal: Quick Fix
 valid.adb:14:10: rule violation: membership test instead of 'Valid
 14 |    elsif Y in Integer then                       --  FLAG
    |          ^^^^^^^^^^^^
-fix proposal: Quick Fix
+fix proposal: Replace the membership test with 'Valid
   in valid.adb:
   8      if X in My_Int then                           --  FLAG
   9         null;
@@ -68,7 +68,7 @@ fix proposal: Quick Fix
 valid.adb:18:10: rule violation: membership test instead of 'Valid
 18 |    elsif Y in Integer'Range then                 --  FLAG
    |          ^^^^^^^^^^^^^^^^^^
-fix proposal: Quick Fix
+fix proposal: Replace the membership test with 'Valid
   in valid.adb:
   8      if X in My_Int then                           --  FLAG
   9         null;

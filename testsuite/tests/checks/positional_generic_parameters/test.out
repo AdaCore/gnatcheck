@@ -1,7 +1,7 @@
 pos.adb:10:7: rule violation: positional generic association
 10 |      (My_Int, Integer);                                --  FLAG (2)
    |       ^^^^^^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   7        (Source => Integer, Target => My_Int);
   8   
@@ -17,7 +17,7 @@ fix proposal: Quick Fix
 pos.adb:10:15: rule violation: positional generic association
 10 |      (My_Int, Integer);                                --  FLAG (2)
    |               ^^^^^^^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   7        (Source => Integer, Target => My_Int);
   8   
@@ -33,7 +33,7 @@ fix proposal: Quick Fix
 pos.adb:19:28: rule violation: positional generic association
 19 |    package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
    |                            ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   17     end G;
   18  
@@ -45,7 +45,7 @@ fix proposal: Quick Fix
 pos.adb:19:31: rule violation: positional generic association
 19 |    package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
    |                               ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   17     end G;
   18  
@@ -57,7 +57,7 @@ fix proposal: Quick Fix
 pos.adb:19:34: rule violation: positional generic association
 19 |    package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
    |                                  ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   17     end G;
   18  
@@ -69,7 +69,7 @@ fix proposal: Quick Fix
 pos.adb:20:28: rule violation: positional generic association
 20 |    package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
    |                            ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   18  
   19     package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
@@ -81,7 +81,7 @@ fix proposal: Quick Fix
 pos.adb:20:31: rule violation: positional generic association
 20 |    package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
    |                               ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   18  
   19     package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
@@ -93,7 +93,7 @@ fix proposal: Quick Fix
 pos.adb:21:28: rule violation: positional generic association
 21 |    package I_G_3 is new G (1, C =>  2, B => 3);  -- FLAG (1)
    |                            ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   19     package I_G_1 is new G (1, 2, 3);  -- FLAG (3)
   20     package I_G_2 is new G (1, 2, C => 3);  -- FLAG (2)
@@ -105,7 +105,7 @@ fix proposal: Quick Fix
 pos.adb:25:29: rule violation: positional generic association
 25 |    package I_RG is new R_G (1, 2, 3); -- FLAG (3)
    |                             ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   23     generic package R_G renames G;
   24  
@@ -117,7 +117,7 @@ fix proposal: Quick Fix
 pos.adb:25:32: rule violation: positional generic association
 25 |    package I_RG is new R_G (1, 2, 3); -- FLAG (3)
    |                                ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   23     generic package R_G renames G;
   24  
@@ -129,7 +129,7 @@ fix proposal: Quick Fix
 pos.adb:25:35: rule violation: positional generic association
 25 |    package I_RG is new R_G (1, 2, 3); -- FLAG (3)
    |                                   ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   23     generic package R_G renames G;
   24  
@@ -141,7 +141,7 @@ fix proposal: Quick Fix
 pos.adb:43:26: rule violation: positional generic association
 43 |    package I_D is new D (1);  -- FLAG
    |                          ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   41     end D;
   42  
@@ -153,7 +153,7 @@ fix proposal: Quick Fix
 pos.adb:51:36: rule violation: positional generic association
 51 |       with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
    |                                    ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   49  
   50     generic
@@ -165,7 +165,7 @@ fix proposal: Quick Fix
 pos.adb:51:39: rule violation: positional generic association
 51 |       with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
    |                                       ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   49  
   50     generic
@@ -177,7 +177,7 @@ fix proposal: Quick Fix
 pos.adb:51:42: rule violation: positional generic association
 51 |       with package F_Pos is new G (1, 2, 3);  -- FLAG (3)
    |                                          ^
-fix proposal: Quick Fix
+fix proposal: Use named generic associations
   in pos.adb:
   49  
   50     generic

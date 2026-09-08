@@ -1,6 +1,7 @@
 @check(message="redundant null statement",
        category="Style", subcategory="Programming Practice",
-       auto_fix=(n, ctx) => ctx.remove(n))
+       auto_fix=(n, ctx) => ctx.remove(n),
+       auto_fix_description="Remove the null statement")
 fun redundant_null_statements(node) =
     |" Flag null statements that serve no purpose and can be removed. If a null
     |" statement has a label it is not flagged.

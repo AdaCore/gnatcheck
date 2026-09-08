@@ -26,7 +26,8 @@ fun add_param_name(param, ctx) =
 
 @check(message="use named notation when passing actual to defaulted parameter",
        remediation="EASY", category="Style", subcategory="Programming Practice",
-       auto_fix=add_param_name)
+       auto_fix=add_param_name,
+       auto_fix_description="Use named associations for defaulted parameters")
 fun positional_actuals_for_defaulted_parameters(node) =
     |" Flag each actual parameter to a subprogram or entry call where the
     |" corresponding formal parameter has a default expression, if positional

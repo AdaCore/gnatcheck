@@ -21,7 +21,8 @@ fun replace_by_while_loop(simple_loop, ctx) =
 
 @check(message="simple LOOP may be replaced by a WHILE loop",
        category="Style", subcategory="Programming Practice",
-       auto_fix=replace_by_while_loop)
+       auto_fix=replace_by_while_loop,
+       auto_fix_description="Replace the simple LOOP with a WHILE loop")
 fun use_while_loops(node) =
     |" Flag simple loop statements that have the exit statement completing
     |" execution of such a loop as the first statement in their sequence of

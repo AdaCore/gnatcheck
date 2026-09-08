@@ -20,7 +20,8 @@ fun add_component_names(agg, ctx) =
 
 @check(message="aggregate with a positional component association",
        remediation="EASY", category="Style", subcategory="Programming Practice",
-       auto_fix=add_component_names)
+       auto_fix=add_component_names,
+       auto_fix_description="Use named component associations")
 fun positional_components(node) =
     |" Flag each array, record and extension aggregate that includes positional
     |" notation.
