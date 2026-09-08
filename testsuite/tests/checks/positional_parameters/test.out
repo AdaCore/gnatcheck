@@ -1,7 +1,7 @@
 pos.adb:36:10: rule violation: positional parameter association
 36 |    T.E1 (10, 11);                       --  FLAG (2)
    |          ^^
-fix proposal:
+fix proposal: Quick Fix
   in pos.adb:
   34  
   35     --  Entry call
@@ -13,7 +13,7 @@ fix proposal:
 pos.adb:36:14: rule violation: positional parameter association
 36 |    T.E1 (10, 11);                       --  FLAG (2)
    |              ^^
-fix proposal:
+fix proposal: Quick Fix
   in pos.adb:
   34  
   35     --  Entry call
@@ -25,7 +25,7 @@ fix proposal:
 pos.adb:37:17: rule violation: positional parameter association
 37 |    T.E2 (True) (10, 11);                --  FLAG (2)
    |                 ^^
-fix proposal:
+fix proposal: Quick Fix
   in pos.adb:
   35     --  Entry call
   36     T.E1 (10, 11);                       --  FLAG (2)
@@ -37,7 +37,7 @@ fix proposal:
 pos.adb:37:21: rule violation: positional parameter association
 37 |    T.E2 (True) (10, 11);                --  FLAG (2)
    |                     ^^
-fix proposal:
+fix proposal: Quick Fix
   in pos.adb:
   35     --  Entry call
   36     T.E1 (10, 11);                       --  FLAG (2)
@@ -49,7 +49,7 @@ fix proposal:
 pos.adb:40:10: rule violation: positional parameter association
 40 |    T.E4 (10, 11);                       --  FLAG (2)
    |          ^^
-fix proposal:
+fix proposal: Quick Fix
   in pos.adb:
   38     T.E3 (True);                         --  NOFLAG
   39     T.E4 (10);                           --  NOFLAG
@@ -61,7 +61,7 @@ fix proposal:
 pos.adb:40:14: rule violation: positional parameter association
 40 |    T.E4 (10, 11);                       --  FLAG (2)
    |              ^^
-fix proposal:
+fix proposal: Quick Fix
   in pos.adb:
   38     T.E3 (True);                         --  NOFLAG
   39     T.E4 (10);                           --  NOFLAG
@@ -73,7 +73,7 @@ fix proposal:
 pos.adb:44:15: rule violation: positional parameter association
 44 |    I := Fun2 (J, K);                    --  FLAG (2)
    |               ^
-fix proposal:
+fix proposal: Quick Fix
   in pos.adb:
   42     --  Function calls
   43     I := Fun1 (J);                       --  NOFLAG because ALL is not set
@@ -85,7 +85,7 @@ fix proposal:
 pos.adb:44:18: rule violation: positional parameter association
 44 |    I := Fun2 (J, K);                    --  FLAG (2)
    |                  ^
-fix proposal:
+fix proposal: Quick Fix
   in pos.adb:
   42     --  Function calls
   43     I := Fun1 (J);                       --  NOFLAG because ALL is not set
@@ -97,7 +97,7 @@ fix proposal:
 pos.adb:52:11: rule violation: positional parameter association
 52 |    Proc3 (I);                           --  FLAG
    |           ^
-fix proposal:
+fix proposal: Quick Fix
   in pos.adb:
   50     Proc2 (I);                           --  NOFLAG
   51     Proc2 (I => 1, B => A);              --  NOFLAG
@@ -109,7 +109,7 @@ fix proposal:
 pos.adb:54:11: rule violation: positional parameter association
 54 |    Proc4 (1, Y => 2);                   -- FLAG
    |           ^
-fix proposal:
+fix proposal: Quick Fix
   in pos.adb:
   52     Proc3 (I);                           --  FLAG
   53     Proc4 (1);                           -- NOFLAG
@@ -121,7 +121,7 @@ fix proposal:
 pos.adb:63:19: rule violation: positional parameter association
 63 |    Var_T.T_Proc3 (10);                  --  FLAG
    |                   ^^
-fix proposal:
+fix proposal: Quick Fix
   in pos.adb:
   61     Var_T.T_Proc2 (Y => 10);             --  NOFLAG
   62  

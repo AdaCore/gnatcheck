@@ -6,7 +6,7 @@ loop1.adb:5:4: rule violation: simple LOOP may be replaced by a WHILE loop
    ||
 14 ||    end loop;
    ||____________^
-fix proposal:
+fix proposal: Quick Fix
   in loop1.adb:
   3   begin
   4      J := 0;
@@ -31,7 +31,7 @@ loop1.adb:28:4: rule violation: simple LOOP may be replaced by a WHILE loop
    ||
 30 ||    end loop Local_Loop;
    ||_______________________^
-fix proposal:
+fix proposal: Quick Fix
   in loop1.adb:
   25     end loop Outer_Loop;
   26  

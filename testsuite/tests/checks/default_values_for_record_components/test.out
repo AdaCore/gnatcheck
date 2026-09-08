@@ -1,7 +1,7 @@
 default_values_for_record_components.ads:3:7: rule violation: default value for record component
 3 |       I : Integer := 0;                    --  FLAG
   |       ^
-fix proposal:
+fix proposal: Quick Fix
   in default_values_for_record_components.ads:
   1  package Default_Values_For_Record_Components is
   2     type Rec (D : Natural := 0) is record   --  NOFLAG
@@ -13,7 +13,7 @@ fix proposal:
 default_values_for_record_components.ads:8:13: rule violation: default value for record component
 8 |             C : Character := 'A';          --  FLAG
   |             ^
-fix proposal:
+fix proposal: Quick Fix
   in default_values_for_record_components.ads:
   6         case D is
   7            when 0 =>

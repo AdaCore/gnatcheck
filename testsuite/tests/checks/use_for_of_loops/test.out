@@ -6,7 +6,7 @@ loop1.adb:3:4: rule violation: FOR loop may be replaced by a FOR OF loop
   ||
 9 ||    end loop;
   ||____________^
-fix proposal:
+fix proposal: Quick Fix
   in loop1.adb:
   1  procedure Loop1 (Str : in out String) is
   2  begin
@@ -29,7 +29,7 @@ loop1.adb:11:4: rule violation: FOR loop may be replaced by a FOR OF loop
    ||
 13 ||    end loop;
    ||____________^
-fix proposal:
+fix proposal: Quick Fix
   in loop1.adb:
   9      end loop;
   10  
@@ -49,7 +49,7 @@ loop2.adb:13:4: rule violation: FOR loop may be replaced by a FOR OF loop
    ||
 15 ||    end loop;
    ||____________^
-fix proposal:
+fix proposal: Quick Fix
   in loop2.adb:
   11     end loop;
   12  
@@ -69,7 +69,7 @@ loop3.adb:35:9: rule violation: FOR loop may be replaced by a FOR OF loop
    ||
 37 ||         end loop;
    ||_________________^
-fix proposal:
+fix proposal: Quick Fix
   in loop3.adb:
   33              Put_Line (L.Other_Content (I)'Image);
   34          end loop;
@@ -93,7 +93,7 @@ loop3.adb:44:9: rule violation: FOR loop may be replaced by a FOR OF loop
    ||
 46 ||         end loop;
    ||_________________^
-fix proposal:
+fix proposal: Quick Fix
   in loop3.adb:
   42              Put_Line (Renamed.Dep_Content (I)'Image);
   43          end loop;
@@ -117,7 +117,7 @@ loop3.adb:63:9: rule violation: FOR loop may be replaced by a FOR OF loop
    ||
 65 ||         end loop;
    ||_________________^
-fix proposal:
+fix proposal: Quick Fix
   in loop3.adb:
   61          Copy : Int_List := L;
   62      begin
@@ -141,7 +141,7 @@ loop3.adb:76:9: rule violation: FOR loop may be replaced by a FOR OF loop
    ||
 78 ||         end loop;
    ||_________________^
-fix proposal:
+fix proposal: Quick Fix
   in loop3.adb:
   74              Put_Line (L.Content (I)'Image);
   75          end loop;
@@ -165,7 +165,7 @@ loop3.adb:90:9: rule violation: FOR loop may be replaced by a FOR OF loop
    ||
 92 ||         end loop;
    ||_________________^
-fix proposal:
+fix proposal: Quick Fix
   in loop3.adb:
   88              Put_Line (O.Inner.Other_Content (I)'Image);
   89          end loop;
@@ -189,7 +189,7 @@ loop3.adb:93:9: rule violation: FOR loop may be replaced by a FOR OF loop
    ||
 95 ||         end loop;
    ||_________________^
-fix proposal:
+fix proposal: Quick Fix
   in loop3.adb:
   91              Put_Line (O.Inner.Undep_Content (I)'Image);
   92          end loop;

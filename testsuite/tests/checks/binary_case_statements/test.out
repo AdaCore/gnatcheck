@@ -6,7 +6,7 @@ binary_case_statements.adb:4:4: rule violation: CASE statement can be replaced w
   ||
 7 ||    end case;
   ||____________^
-fix proposal:
+fix proposal: Quick Fix
   in binary_case_statements.adb:
   2      procedure Test (I : Integer);
   3   begin
@@ -32,7 +32,7 @@ binary_case_statements.adb:9:4: rule violation: CASE statement can be replaced w
    ||
 12 ||    end case;
    ||____________^
-fix proposal:
+fix proposal: Quick Fix
   in binary_case_statements.adb:
   7      end case;
   8   
@@ -57,7 +57,7 @@ binary_case_statements.adb:14:4: rule violation: CASE statement can be replaced 
    ||
 17 ||    end case;
    ||____________^
-fix proposal:
+fix proposal: Quick Fix
   in binary_case_statements.adb:
   12     end case;
   13  

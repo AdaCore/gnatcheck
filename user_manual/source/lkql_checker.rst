@@ -70,18 +70,22 @@ Checks arguments
 
 Checks can take different optional arguments:
 
-* `message`: The custom message that is to be shown for a given check on the
+* ``message``: The custom message that is to be shown for a given check on the
   command line.
 
-* `follow_generic_instantiations`: Whether to follow generic instantiations
-  during the traversal of given Ada units. If `true`, generic instantiations
+* ``follow_generic_instantiations``: Whether to follow generic instantiations
+  during the traversal of given Ada units. If ``true``, generic instantiations
   will be traversed in instantiated form.
 
-* `auto_fix`: A function value which is applied on all node that violates the
+* ``auto_fix``: A function value which is applied on all node that violates the
   associated checker function. This function takes 2 parameters: a ``Node`` and
   a ``RewritingContext``, the execution of the function should provide a fix
   for the violated rule on the given node using the rewriting context.
   This argument is only available on **Boolean checks**.
+
+* ``auto_fix_description``: A short string describing what the ``auto_fix``
+  function does, displayed along with each fix it produces. Defaults to
+  ``Quick Fix``.
 
 Here is an example check:
 
@@ -93,7 +97,8 @@ Here is an example check:
    @check(
       message="integer object declaration",
       follow_generic_instantiations=true,
-      auto_fix=replace_by_null
+      auto_fix=replace_by_null,
+      auto_fix_description="Replace the declaration by a null statement"
    )
    fun int_obj_decl(node) =
       |" Will flag object declarations for which the type is the standard

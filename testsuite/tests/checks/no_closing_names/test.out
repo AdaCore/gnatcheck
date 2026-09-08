@@ -1,7 +1,7 @@
 names.adb:1:14: rule violation: no closing name
 1 | package body Names is  --  FLAG
   |              ^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in names.adb:
   1  -package body Names is  --  FLAG
   2  -   procedure Proc is   --  FLAG
@@ -60,7 +60,7 @@ fix proposal:
 names.adb:2:14: rule violation: no closing name
 2 |    procedure Proc is   --  FLAG
   |              ^^^^
-fix proposal:
+fix proposal: Quick Fix
   in names.adb:
   1  package body Names is  --  FLAG
   2 -   procedure Proc is   --  FLAG
@@ -76,7 +76,7 @@ fix proposal:
 names.adb:12:14: rule violation: no closing name
 12 |    task body Task1 is   --  FLAG
    |              ^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in names.adb:
   10     end Proc2;
   11  
@@ -93,7 +93,7 @@ fix proposal:
 names.adb:20:19: rule violation: no closing name
 20 |    protected body Prot1 is   --  FLAG
    |                   ^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in names.adb:
   18     begin null; end;
   19  
@@ -114,7 +114,7 @@ fix proposal:
 names.adb:21:17: rule violation: no closing name
 21 |       procedure P is         --  FLAG
    |                 ^
-fix proposal:
+fix proposal: Quick Fix
   in names.adb:
   19  
   20     protected body Prot1 is   --  FLAG
@@ -131,7 +131,7 @@ fix proposal:
 names.ads:1:9: rule violation: no closing name
 1 | package Names is       --  FLAG
   |         ^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in names.ads:
   1  -package Names is       --  FLAG
      +package Names is
@@ -181,7 +181,7 @@ fix proposal:
 names.ads:4:12: rule violation: no closing name
 4 |    package Nested is   --  FLAG
   |            ^^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in names.ads:
   2     procedure Proc;
   3  
@@ -198,7 +198,7 @@ fix proposal:
 names.ads:16:9: rule violation: no closing name
 16 |    task Task2 is        --  FLAG
    |         ^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in names.ads:
   14     task type Task1;     --  NOFLAG
   15  
@@ -215,7 +215,7 @@ fix proposal:
 names.ads:21:14: rule violation: no closing name
 21 |    protected Prot1 is       --  FLAG
    |              ^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in names.ads:
   19     end;
   20  

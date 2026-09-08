@@ -6,7 +6,7 @@ member.adb:8:7: rule violation: expression may be replaced by a membership test
    ||
 11 ||      or (A >= 3 and A <= 5)
    ||___________________________^
-fix proposal:
+fix proposal: Quick Fix
   in member.adb:
   6      function Func (A, B, C : Integer) return E is (X);
   7   begin
@@ -27,7 +27,7 @@ member.adb:16:7: rule violation: expression may be replaced by a membership test
    | _______^
 17 ||      or else (A >= 3 and A <= 5)
    ||________________________________^
-fix proposal:
+fix proposal: Quick Fix
   in member.adb:
   14     end if;
   15  
@@ -42,7 +42,7 @@ fix proposal:
 member.adb:42:12: rule violation: expression may be replaced by a membership test
 42 |    Bool := A = B or (A >= 1 and A <= B);  --  FLAG
    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in member.adb:
   40     end;
   41  
@@ -54,7 +54,7 @@ fix proposal:
 member.adb:43:12: rule violation: expression may be replaced by a membership test
 43 |    Bool := A >= 1 and A <= B;             --  FLAG
    |            ^^^^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in member.adb:
   41  
   42     Bool := A = B or (A >= 1 and A <= B);  --  FLAG
@@ -66,7 +66,7 @@ fix proposal:
 member.adb:44:12: rule violation: expression may be replaced by a membership test
 44 |    Bool := A = 100 or A in S;             --  FLAG
    |            ^^^^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in member.adb:
   42     Bool := A = B or (A >= 1 and A <= B);  --  FLAG
   43     Bool := A >= 1 and A <= B;             --  FLAG
@@ -78,7 +78,7 @@ fix proposal:
 member.adb:45:12: rule violation: expression may be replaced by a membership test
 45 |    Bool := A = 100 or A in 1 .. B;        --  FLAG
    |            ^^^^^^^^^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in member.adb:
   43     Bool := A >= 1 and A <= B;             --  FLAG
   44     Bool := A = 100 or A in S;             --  FLAG

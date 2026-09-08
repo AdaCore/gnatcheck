@@ -1,7 +1,7 @@
 pos.ads:23:36: rule violation: use named notation when passing actual to defaulted generic parameter
 23 |                                    2,            --  FLAG
    |                                    ^
-fix proposal:
+fix proposal: Quick Fix
   in pos.ads:
   20       (2, I_Par2 => 3, Fun_1 => Fun_2, Fun_3 => Fun_1);
   21  
@@ -21,7 +21,7 @@ fix proposal:
 pos.ads:24:36: rule violation: use named notation when passing actual to defaulted generic parameter
 24 |                                    Fun_2,        --  FLAG
    |                                    ^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in pos.ads:
   20       (2, I_Par2 => 3, Fun_1 => Fun_2, Fun_3 => Fun_1);
   21  
@@ -41,7 +41,7 @@ fix proposal:
 pos.ads:25:36: rule violation: use named notation when passing actual to defaulted generic parameter
 25 |                                    Fun_1);       --  FLAG
    |                                    ^^^^^
-fix proposal:
+fix proposal: Quick Fix
   in pos.ads:
   20       (2, I_Par2 => 3, Fun_1 => Fun_2, Fun_3 => Fun_1);
   21  
@@ -61,7 +61,7 @@ fix proposal:
 pos.ads:39:41: rule violation: use named notation when passing actual to defaulted generic parameter
 39 |       with package F_Pos is new Pack_D (1, 2); --  FLAG (2)
    |                                         ^
-fix proposal:
+fix proposal: Quick Fix
   in pos.ads:
   37  
   38     generic
@@ -73,7 +73,7 @@ fix proposal:
 pos.ads:39:44: rule violation: use named notation when passing actual to defaulted generic parameter
 39 |       with package F_Pos is new Pack_D (1, 2); --  FLAG (2)
    |                                            ^
-fix proposal:
+fix proposal: Quick Fix
   in pos.ads:
   37  
   38     generic

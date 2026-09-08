@@ -6,7 +6,7 @@ stmt.adb:4:4: rule violation: IF statement may be replaced by an IF expression
   ||
 8 ||    end if;
   ||__________^
-fix proposal:
+fix proposal: Quick Fix
   in stmt.adb:
   2      Y : Integer;
   3   begin
@@ -28,7 +28,7 @@ stmt.adb:16:4: rule violation: IF statement may be replaced by an IF expression
    ||
 22 ||    end if;
    ||__________^
-fix proposal:
+fix proposal: Quick Fix
   in stmt.adb:
   14     end if;
   15  
@@ -52,7 +52,7 @@ stmt.adb:40:4: rule violation: IF statement may be replaced by an IF expression
    ||
 46 ||    end if;
    ||__________^
-fix proposal:
+fix proposal: Quick Fix
   in stmt.adb:
   38     end if;
   39  

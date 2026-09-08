@@ -150,6 +150,14 @@ Rules can take different optional arguments:
   Used by ``gnatcheck --list-rules`` and by the SonarQube integration to
   compute technical debt. Defaults to `MEDIUM`.
 
+* ``auto_fix``: A function taking a node flagged by the rule and a rewriting
+  context, and using the latter to fix the violation. Only available on rules
+  flagging nodes, not on ``@unit_check`` ones.
+
+* ``auto_fix_description``: A short string describing what the ``auto_fix``
+  function does, displayed along with each fix it produces. Defaults to
+  ``Quick Fix``.
+
 Here is an example rule:
 
 .. code-block:: lkql
