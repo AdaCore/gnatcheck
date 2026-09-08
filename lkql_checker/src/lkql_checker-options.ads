@@ -614,6 +614,24 @@ package Lkql_Checker.Options is
            Help        =>
              "read rule configuration from the given LKQL rule file");
 
+      package Emit_Fixes is new
+        Parse_Flag
+          (Parser  => Parser,
+           Enabled => Mode in Gnatcheck_Mode,
+           Long    => "--emit-fixes",
+           Help    =>
+             "include fix objects in the generated SARIF report (noop if no"
+             & " SARIF is generated)");
+
+      package Disable_Formatting is new
+        Parse_Flag
+          (Parser  => Parser,
+           Enabled => Mode in Gnatcheck_Mode,
+           Long    => "--disable-formatting",
+           Help    =>
+             "if ""--emit-fixes"" is provided, disable Ada formatting for"
+             & " emitted fix objects");
+
       package Emit_LKQL_Rule_File is new
         Parse_Flag
           (Parser  => Parser,

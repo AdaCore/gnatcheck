@@ -1,0 +1,549 @@
+With partial formatting
+=======================
+
+{
+  "runs": [
+    {
+      "artifacts": [
+        {
+          "hashes": {
+            "sha-256": "HASH"
+          },
+          "location": {
+            "uri": "src/main.adb",
+            "uriBaseId": "URI_BASE_DIR"
+          },
+          "sourceLanguage": "ada"
+        },
+        {
+          "hashes": {
+            "sha-256": "HASH"
+          },
+          "location": {
+            "uri": "other_src/other.adb",
+            "uriBaseId": "URI_BASE_DIR"
+          },
+          "sourceLanguage": "ada"
+        }
+      ],
+      "invocations": [
+        {
+          "arguments": [
+            "-q",
+            "-P",
+            "prj.gpr",
+            "--sarif=<working-dir>/gnatcheck.sarif",
+            "--emit-fixes",
+            "-rules"
+          ],
+          "commandLine": "COMMAND_LINE",
+          "endTimeUtc": "END_TIME",
+          "environmentVariables": "ENV_VARS",
+          "executionSuccessful": true,
+          "exitCode": 1,
+          "startTimeUtc": "START_TIME",
+          "workingDirectory": {
+            "uri": "WORKING_DIR"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "URI_BASE_DIR": {
+          "description": {
+            "text": "Project directory if one has been used, working directory otherwise"
+          },
+          "uri": "BASE_URI"
+        }
+      },
+      "results": [
+        {
+          "fixes": [
+            {
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "src/main.adb",
+                    "uriBaseId": "URI_BASE_DIR"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "endColumn": 14,
+                        "endLine": 7,
+                        "startColumn": 14,
+                        "startLine": 7
+                      },
+                      "insertedContent": {
+                        "text": "X => "
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 14,
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "positional parameter association"
+          },
+          "ruleId": "positional_parameters"
+        },
+        {
+          "fixes": [
+            {
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "src/main.adb",
+                    "uriBaseId": "URI_BASE_DIR"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "endColumn": 17,
+                        "endLine": 7,
+                        "startColumn": 17,
+                        "startLine": 7
+                      },
+                      "insertedContent": {
+                        "text": "Y => "
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 17,
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "positional parameter association"
+          },
+          "ruleId": "positional_parameters"
+        },
+        {
+          "fixes": [
+            {
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "other_src/other.adb",
+                    "uriBaseId": "URI_BASE_DIR"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "endColumn": 4,
+                        "endLine": 4,
+                        "startColumn": 4,
+                        "startLine": 4
+                      },
+                      "insertedContent": {
+                        "text": "e"
+                      }
+                    },
+                    {
+                      "deletedRegion": {
+                        "endColumn": 9,
+                        "endLine": 4,
+                        "snippet": {
+                          "text": "ull;"
+                        },
+                        "startColumn": 5,
+                        "startLine": 4
+                      },
+                      "insertedContent": {
+                        "text": "d"
+                      }
+                    },
+                    {
+                      "deletedRegion": {
+                        "endColumn": 22,
+                        "endLine": 4,
+                        "snippet": {
+                          "text": " -- FLAG (2)"
+                        },
+                        "startColumn": 10,
+                        "startLine": 4
+                      },
+                      "insertedContent": {
+                        "text": "Other;"
+                      }
+                    },
+                    {
+                      "deletedRegion": {
+                        "endColumn": 1,
+                        "endLine": 6,
+                        "snippet": {
+                          "text": "end Other;/n"
+                        },
+                        "startColumn": 1,
+                        "startLine": 5
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "other_src/other.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 4,
+                  "startLine": 4
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "redundant null statement"
+          },
+          "ruleId": "redundant_null_statements"
+        }
+      ],
+      "tool": {
+        "driver": {
+          "informationUri": "https://docs.adacore.com/live/wave/lkql/html/gnatcheck_rm/gnatcheck_rm.html",
+          "name": "gnatcheck",
+          "organization": "AdaCore",
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "parameters": {
+                  "all": "false"
+                }
+              },
+              "id": "positional_parameters",
+              "name": "positional_parameters",
+              "shortDescription": {
+                "text": "positional parameter association"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "parameters": {}
+              },
+              "id": "redundant_null_statements",
+              "name": "redundant_null_statements",
+              "shortDescription": {
+                "text": "redundant null statement"
+              }
+            }
+          ],
+          "version": "VERSION"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}
+Without partial formatting
+==========================
+
+{
+  "runs": [
+    {
+      "artifacts": [
+        {
+          "hashes": {
+            "sha-256": "HASH"
+          },
+          "location": {
+            "uri": "src/main.adb",
+            "uriBaseId": "URI_BASE_DIR"
+          },
+          "sourceLanguage": "ada"
+        },
+        {
+          "hashes": {
+            "sha-256": "HASH"
+          },
+          "location": {
+            "uri": "other_src/other.adb",
+            "uriBaseId": "URI_BASE_DIR"
+          },
+          "sourceLanguage": "ada"
+        }
+      ],
+      "invocations": [
+        {
+          "arguments": [
+            "-q",
+            "-P",
+            "prj.gpr",
+            "--sarif=<working-dir>/gnatcheck.sarif",
+            "--emit-fixes",
+            "--disable-formatting",
+            "-rules"
+          ],
+          "commandLine": "COMMAND_LINE",
+          "endTimeUtc": "END_TIME",
+          "environmentVariables": "ENV_VARS",
+          "executionSuccessful": true,
+          "exitCode": 1,
+          "startTimeUtc": "START_TIME",
+          "workingDirectory": {
+            "uri": "WORKING_DIR"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "URI_BASE_DIR": {
+          "description": {
+            "text": "Project directory if one has been used, working directory otherwise"
+          },
+          "uri": "BASE_URI"
+        }
+      },
+      "results": [
+        {
+          "fixes": [
+            {
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "src/main.adb",
+                    "uriBaseId": "URI_BASE_DIR"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "endColumn": 14,
+                        "endLine": 7,
+                        "startColumn": 14,
+                        "startLine": 7
+                      },
+                      "insertedContent": {
+                        "text": "X=>"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 14,
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "positional parameter association"
+          },
+          "ruleId": "positional_parameters"
+        },
+        {
+          "fixes": [
+            {
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "src/main.adb",
+                    "uriBaseId": "URI_BASE_DIR"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "endColumn": 17,
+                        "endLine": 7,
+                        "startColumn": 17,
+                        "startLine": 7
+                      },
+                      "insertedContent": {
+                        "text": "Y=>"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 17,
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "positional parameter association"
+          },
+          "ruleId": "positional_parameters"
+        },
+        {
+          "fixes": [
+            {
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "other_src/other.adb",
+                    "uriBaseId": "URI_BASE_DIR"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "endColumn": 4,
+                        "endLine": 4,
+                        "startColumn": 4,
+                        "startLine": 4
+                      },
+                      "insertedContent": {
+                        "text": "e"
+                      }
+                    },
+                    {
+                      "deletedRegion": {
+                        "endColumn": 9,
+                        "endLine": 4,
+                        "snippet": {
+                          "text": "ull;"
+                        },
+                        "startColumn": 5,
+                        "startLine": 4
+                      },
+                      "insertedContent": {
+                        "text": "d"
+                      }
+                    },
+                    {
+                      "deletedRegion": {
+                        "endColumn": 22,
+                        "endLine": 4,
+                        "snippet": {
+                          "text": " -- FLAG (2)"
+                        },
+                        "startColumn": 10,
+                        "startLine": 4
+                      },
+                      "insertedContent": {
+                        "text": "Other;"
+                      }
+                    },
+                    {
+                      "deletedRegion": {
+                        "endColumn": 1,
+                        "endLine": 6,
+                        "snippet": {
+                          "text": "end Other;/n"
+                        },
+                        "startColumn": 1,
+                        "startLine": 5
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "other_src/other.adb",
+                  "uriBaseId": "URI_BASE_DIR"
+                },
+                "region": {
+                  "startColumn": 4,
+                  "startLine": 4
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "redundant null statement"
+          },
+          "ruleId": "redundant_null_statements"
+        }
+      ],
+      "tool": {
+        "driver": {
+          "informationUri": "https://docs.adacore.com/live/wave/lkql/html/gnatcheck_rm/gnatcheck_rm.html",
+          "name": "gnatcheck",
+          "organization": "AdaCore",
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "parameters": {
+                  "all": "false"
+                }
+              },
+              "id": "positional_parameters",
+              "name": "positional_parameters",
+              "shortDescription": {
+                "text": "positional parameter association"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "parameters": {}
+              },
+              "id": "redundant_null_statements",
+              "name": "redundant_null_statements",
+              "shortDescription": {
+                "text": "redundant null statement"
+              }
+            }
+          ],
+          "version": "VERSION"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}

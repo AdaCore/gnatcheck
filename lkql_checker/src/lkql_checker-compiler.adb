@@ -13,6 +13,7 @@ with Ada.Strings.Unbounded;
 with GNAT.Case_Util;
 with GNAT.Regpat; use GNAT.Regpat;
 
+with Lkql_Checker.File_Utilities;   use Lkql_Checker.File_Utilities;
 with Lkql_Checker.Ids;              use Lkql_Checker.Ids;
 with Lkql_Checker.Options;          use Lkql_Checker.Options;
 with Lkql_Checker.Output;           use Lkql_Checker.Output;
@@ -106,9 +107,6 @@ package body Lkql_Checker.Compiler is
    --  ``Pattern`` inside the ``Source`` string.
    --  This function treats the provided path as case-insensitive on Windows
    --  systems.
-
-   function URI_To_Path (URI : VSS.Strings.Virtual_String) return String;
-   --  Create a file path from the provided URI.
 
    ---------------------------------
    -- Target information fetching --
@@ -355,39 +353,6 @@ package body Lkql_Checker.Compiler is
       end if;
    end Adjust_Message;
 
-   -----------------
-   -- URI_To_Path --
-   -----------------
-
-   function URI_To_Path (URI : VSS.Strings.Virtual_String) return String is
-      use VSS.Strings.Conversions;
-
-      Prefix          : constant String := "file://";
-      URI_Str         : constant String := To_UTF_8_String (URI);
-      Unix_Style_Path : constant String :=
-        (if Has_Prefix (URI_Str, Prefix)
-         then URI_Str (URI_Str'First + Prefix'Length .. URI_Str'Last)
-         else URI_Str);
-      Is_Absolute     : constant Boolean := Has_Prefix (Unix_Style_Path, "/");
-   begin
-      if GNAT.OS_Lib.Directory_Separator = '\' then
-         --  Handle the case where we're on a Windows system
-         return
-           Replace_Char
-             ((if Is_Absolute
-               then
-                 --  Remove the first "/" because absolute paths on Windows
-                 --  start with the drive letter.
-                 Unix_Style_Path
-                   (Unix_Style_Path'First + 1 .. Unix_Style_Path'Last)
-               else Unix_Style_Path),
-              '/',
-              "\");
-      else
-         return Unix_Style_Path;
-      end if;
-   end URI_To_Path;
-
    ---------------------
    -- Load_SARIF_Root --
    ---------------------
@@ -507,7 +472,12 @@ package body Lkql_Checker.Compiler is
               (if Sarif_Physical_Location.Is_Set
                then
                  URI_To_Path
-                   (Sarif_Physical_Location.Value.artifactLocation.Value.uri)
+                   (To_UTF_8_String
+                      (Sarif_Physical_Location
+                         .Value
+                         .artifactLocation
+                         .Value
+                         .uri))
                else "");
 
             --  Try to get the Ada source file this notification is about
@@ -595,7 +565,13 @@ package body Lkql_Checker.Compiler is
                   --  unconditionally.
                   Hint_Path : constant String :=
                     URI_To_Path
-                      (H.physicalLocation.Value.artifactLocation.Value.uri);
+                      (To_UTF_8_String
+                         (H
+                            .physicalLocation
+                            .Value
+                            .artifactLocation
+                            .Value
+                            .uri));
 
                   --  Get the Ada source this hint is about
                   Hint_Ada_Source_Id : constant SF_Id := File_Find (Hint_Path);
@@ -644,6 +620,7 @@ package body Lkql_Checker.Compiler is
    is
       use Ada.Strings.Unbounded;
       use SARIF.Types;
+      use VSS.Strings.Conversions;
 
       Result : Unbounded_String;
    begin
@@ -655,7 +632,7 @@ package body Lkql_Checker.Compiler is
               Locations (I).location.Value.physicalLocation.Value;
 
             Path : constant String :=
-              URI_To_Path (Phys.artifactLocation.Value.uri);
+              URI_To_Path (To_UTF_8_String (Phys.artifactLocation.Value.uri));
 
             Location_String : constant String :=
               (if Tool_Args.Full_Source_Locations.Get
@@ -952,14 +929,19 @@ package body Lkql_Checker.Compiler is
                     Get_Instance (To_UTF_8_String (Res.ruleId));
 
                   --  Get the location of the violation
-                  Phys : constant SARIF.Types.physicalLocation :=
+                  Phys     : constant SARIF.Types.physicalLocation :=
                     Res.locations (1).physicalLocation.Value;
-                  Path : constant String :=
-                    URI_To_Path (Phys.artifactLocation.Value.uri);
-                  SF   : constant SF_Id := File_Find (Path);
-                  Sloc : constant Source_Location :=
+                  Path     : constant String :=
+                    URI_To_Path
+                      (To_UTF_8_String (Phys.artifactLocation.Value.uri));
+                  SF       : constant SF_Id := File_Find (Path);
+                  Sloc     : constant Source_Location :=
                     (Line_Number (Phys.region.Value.startLine.Value),
                      Column_Number (Phys.region.Value.startColumn.Value));
+                  Auto_Fix : constant Optional_Auto_Fix :=
+                    (if not Res.fixes.Is_Null and then Res.fixes.Length >= 1
+                     then (Is_Set => True, Value => Res.fixes (1))
+                     else (Is_Set => False));
                begin
                   if Instance /= null and then Present (SF) then
                      Store_Diagnostic
@@ -982,7 +964,8 @@ package body Lkql_Checker.Compiler is
                         Kind           => Rule_Violation,
                         SF             => SF,
                         Rule           => Instance.Rule,
-                        Instance       => Instance);
+                        Instance       => Instance,
+                        Auto_Fix       => Auto_Fix);
                   end if;
                end;
             end loop;
@@ -1923,6 +1906,15 @@ package body Lkql_Checker.Compiler is
 
       if Tool_Args.Show_Instantiation_Chain.Get then
          Args.Append ("--report-instantiation-chain");
+      end if;
+
+      if Tool_Args.Emit_Fixes.Get and then Tool_Args.SARIF_Report_Enabled then
+         Args.Append ("--emit-fixes");
+      end if;
+
+      if Tool_Args.Disable_Formatting.Get and then Tool_Args.Emit_Fixes.Get
+      then
+         Args.Append ("--disable-formatting");
       end if;
 
       --  Pass GPR options

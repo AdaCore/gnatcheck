@@ -97,7 +97,8 @@ package body Lkql_Checker.Diagnostics is
       Kind           : Diagnostic_Kind;
       SF             : SF_Id;
       Rule           : Rule_Id := No_Rule_Id;
-      Instance       : Rule_Instance_Access := null)
+      Instance       : Rule_Instance_Access := null;
+      Auto_Fix       : Optional_Auto_Fix := (Is_Set => False))
    is
       File_Name : constant Unbounded_String :=
         To_Unbounded_String
@@ -116,7 +117,8 @@ package body Lkql_Checker.Diagnostics is
          Kind              => Kind,
          Rule              => Rule,
          Instance          => Instance,
-         SF                => SF);
+         SF                => SF,
+         Auto_Fix          => Auto_Fix);
    begin
       --  We need this check to avoid diagnostics duplication. Our set
       --  container has broken "<" relation, so Insert may add diagnostics
