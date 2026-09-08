@@ -7,6 +7,8 @@
 
 with Ada.Calendar; use Ada.Calendar;
 
+with SARIF.Types;
+
 package Lkql_Checker.Diagnostics.Report is
 
    procedure Generate_Qualification_Report
@@ -25,6 +27,9 @@ package Lkql_Checker.Diagnostics.Report is
    --  ``Collector`` and write it to ``Output_File``. Rule violations are
    --  emitted as SARIF results; compiler and internal errors are emitted as
    --  tool execution notifications.
+
+   procedure Write_SARIF_Root (Root : SARIF.Types.Root; Output_File : String);
+   --  Serialize ``Root`` as a JSON string and write it to ``Output_File``.
 
    procedure Print_Report_Header;
    --  Generates the report header, including the date, tool version

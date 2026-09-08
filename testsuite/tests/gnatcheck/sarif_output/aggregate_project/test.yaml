@@ -1,0 +1,4 @@
+driver: gnatcheck
+format: sarif
+project: agg.gpr
+lkql_rule_file: rules.lkql

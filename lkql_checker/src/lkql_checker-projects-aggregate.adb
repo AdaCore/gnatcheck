@@ -5,12 +5,17 @@
 
 with Ada.Command_Line;  use Ada.Command_Line;
 with Ada.Containers.Ordered_Sets;
+with Ada.Directories;   use Ada.Directories;
 with Ada.Strings;       use Ada.Strings;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 with Ada.Text_IO;       use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 
+with SARIF.Types;
+
+with Lkql_Checker.Compiler;
+with Lkql_Checker.Diagnostics.Report;
 with Lkql_Checker.Options;          use Lkql_Checker.Options;
 with Lkql_Checker.Output;           use Lkql_Checker.Output;
 with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
@@ -141,13 +146,17 @@ package body Lkql_Checker.Projects.Aggregate is
 
    procedure Process_Aggregated_Projects (My_Project : Arg_Project_Type'Class)
    is
-      Report_File_Name     : constant String :=
+      Report_File_Name       : constant String :=
         (if Tool_Args.Text_Report_Enabled
          then Tool_Args.Text_Report_File_Path
          else "");
-      XML_Report_File_Name : constant String :=
+      XML_Report_File_Name   : constant String :=
         (if Tool_Args.XML_Report_Enabled
          then Tool_Args.XML_Report_File_Path
+         else "");
+      SARIF_Report_File_Name : constant String :=
+        (if Tool_Args.SARIF_Report_Enabled
+         then Tool_Args.SARIF_Report_File_Path
          else "");
 
       Count : Natural := 1;
@@ -172,12 +181,24 @@ package body Lkql_Checker.Projects.Aggregate is
          then ""
          else Prj_XML_File (Prj_XML_Dot .. Prj_XML_Last));
 
-      Prj_Args       : Argument_List (1 .. 2);
-      Out_Args       : Argument_List (1 .. 4);
-      Out_Args_Count : constant Integer :=
+      Prj_SARIF_File   : constant String := SARIF_Report_File_Name;
+      Prj_SARIF_First  : constant Natural := Prj_SARIF_File'First;
+      Prj_SARIF_Last   : constant Natural := Prj_SARIF_File'Last;
+      Prj_SARIF_Dot    : Natural := Index (Prj_SARIF_File, ".", Backward);
+      Prj_SARIF_Suffix : constant String :=
+        (if Prj_SARIF_Dot = 0
+         then ""
+         else Prj_SARIF_File (Prj_SARIF_Dot .. Prj_SARIF_Last));
+
+      Prj_Args         : Argument_List (1 .. 2);
+      Out_Args         : Argument_List (1 .. 4);
+      Out_Args_Count   : constant Integer :=
         (if Tool_Args.Text_Report_Enabled and then Tool_Args.XML_Report_Enabled
          then 4
          else 2);
+      SARIF_Args       : Argument_List (1 .. 2);
+      SARIF_Args_Count : constant Integer :=
+        (if Tool_Args.SARIF_Report_Enabled then 2 else 0);
 
       Args      : Argument_List (1 .. Argument_Count);
       Arg_Count : Natural := 0;
@@ -187,6 +208,10 @@ package body Lkql_Checker.Projects.Aggregate is
 
       Full_Tool_Name : constant String_Access :=
         Locate_Exec_On_Path (Lkql_Checker_Mode_Image);
+
+      Merged_SARIF_Root : SARIF.Types.Root;
+      --  SARIF root aggregating the ``run`` from each aggregated project's
+      --  own SARIF report, to be written as a single top-level SARIF report
 
    begin
       if Full_Tool_Name = null then
@@ -209,6 +234,12 @@ package body Lkql_Checker.Projects.Aggregate is
          Prj_XML_Dot := Prj_XML_Dot - 1;
       end if;
 
+      if Prj_SARIF_Dot = 0 then
+         Prj_SARIF_Dot := Prj_SARIF_Last;
+      else
+         Prj_SARIF_Dot := Prj_SARIF_Dot - 1;
+      end if;
+
       Prj_Args (1) := new String'("-A");
       Out_Args (1) :=
         new String'(if Tool_Args.Text_Report_Enabled then "-o" else "-ox");
@@ -217,6 +248,8 @@ package body Lkql_Checker.Projects.Aggregate is
          Out_Args (3) := new String'("-ox");
       end if;
 
+      SARIF_Args (1) := new String'("--sarif");
+
       for J in 1 .. Argument_Count loop
          declare
             Arg : constant String := Argument (J);
@@ -224,12 +257,13 @@ package body Lkql_Checker.Projects.Aggregate is
             if Skip_Next then
                Skip_Next := False;
             else
-               --  Ignore -o/-ox switches
+               --  Ignore -o/-ox/--sarif switches
 
-               if Arg = "-o" or else Arg = "-ox" then
+               if Arg = "-o" or else Arg = "-ox" or else Arg = "--sarif" then
                   Skip_Next := True;
                elsif Index (Arg, "-o=", Forward) = 0
                  and then Index (Arg, "-ox=", Forward) = 0
+                 and then Index (Arg, "--sarif=", Forward) = 0
                then
                   Arg_Count := @ + 1;
                   Args (Arg_Count) := new String'(Arg);
@@ -274,6 +308,14 @@ package body Lkql_Checker.Projects.Aggregate is
                  & Prj_XML_Suffix);
          end if;
 
+         Free (SARIF_Args (2));
+         SARIF_Args (2) :=
+           new String'
+             (Prj_SARIF_File (Prj_SARIF_First .. Prj_SARIF_Dot)
+              & "_"
+              & Image (Count)
+              & Prj_SARIF_Suffix);
+
          Report_Aggregated_Project
            (Aggregate_Prj          => My_Project,
             Aggregated_Prj_Name    => Prj_Args (2).all,
@@ -298,6 +340,10 @@ package body Lkql_Checker.Projects.Aggregate is
                Put (" " & Arg.all);
             end loop;
 
+            for Arg of SARIF_Args (1 .. SARIF_Args_Count) loop
+               Put (" " & Arg.all);
+            end loop;
+
             for Arg of Args (1 .. Arg_Count) loop
                Put (" " & Arg.all);
             end loop;
@@ -311,14 +357,47 @@ package body Lkql_Checker.Projects.Aggregate is
               Args         =>
                 Prj_Args
                 & Out_Args (1 .. Out_Args_Count)
+                & SARIF_Args (1 .. SARIF_Args_Count)
                 & Args (1 .. Arg_Count));
 
          Report_Aggregated_Project_Exit_Code
            (Aggregate_Prj => My_Project, Exit_Code => Exit_Code);
 
+         --  If required, load the SARIF report produced by the aggregated
+         --  project into the top-level one, then discard the intermediate
+         --  file.
+
+         if Tool_Args.SARIF_Report_Enabled then
+            declare
+               Child_Root : SARIF.Types.Root;
+            begin
+               if Lkql_Checker.Compiler.Load_SARIF_Root
+                    (SARIF_Args (2).all, Child_Root)
+               then
+                  for I in 1 .. Child_Root.runs.Length loop
+                     Merged_SARIF_Root.runs.Append (Child_Root.runs (I));
+                  end loop;
+               end if;
+
+               if Is_Regular_File (SARIF_Args (2).all)
+                 and then not Tool_Args.Debug_Mode.Get
+               then
+                  Delete_File (SARIF_Args (2).all);
+               end if;
+            end;
+         end if;
+
          Prj_Iterator_Next;
          Count := Count + 1;
       end loop;
+
+      --  If required, emit the top-level SARIF report gathering the "run"
+      --  of every aggregated project.
+
+      if Tool_Args.SARIF_Report_Enabled then
+         Lkql_Checker.Diagnostics.Report.Write_SARIF_Root
+           (Merged_SARIF_Root, Tool_Args.SARIF_Report_File_Path);
+      end if;
 
       Close_Aggregate_Project_Report (My_Project);
    end Process_Aggregated_Projects;

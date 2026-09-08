@@ -34,7 +34,6 @@ with Lkql_Checker.String_Utilities;       use Lkql_Checker.String_Utilities;
 
 with Rule_Commands;
 
-with SARIF.Types;
 with SARIF.Types.Outputs;
 
 with VSS.JSON.Push_Writers;
@@ -1482,12 +1481,6 @@ package body Lkql_Checker.Diagnostics.Report is
       Run        : ST.run;
       Invocation : ST.invocation;
 
-      --  Variables require to emit the SARIF report
-      Writer : VSS.JSON.Push_Writers.JSON_Simple_Push_Writer;
-      Mem    :
-        aliased VSS.Text_Streams.Memory_UTF8_Output.Memory_UTF8_Output_Stream;
-      File   : File_Type;
-
       -------------------
       -- Local helpers --
       -------------------
@@ -2105,13 +2098,25 @@ package body Lkql_Checker.Diagnostics.Report is
          end if;
       end loop;
 
-      --  Assemble results in the SARIF root
+      --  Assemble results in the SARIF root and write the final report
       Root.runs.Append (Run);
+      Write_SARIF_Root (Root, Output_File);
+   end Generate_SARIF_Report;
 
-      --  Write the final SARIF report as JSON in the output file
+   ----------------------
+   -- Write_SARIF_Root --
+   ----------------------
+
+   procedure Write_SARIF_Root (Root : SARIF.Types.Root; Output_File : String)
+   is
+      Writer : VSS.JSON.Push_Writers.JSON_Simple_Push_Writer;
+      Mem    :
+        aliased VSS.Text_Streams.Memory_UTF8_Output.Memory_UTF8_Output_Stream;
+      File   : File_Type;
+   begin
       Writer.Set_Stream (Mem'Unchecked_Access);
       Writer.Start_Document;
-      ST.Outputs.Output_Root (Writer, Root);
+      SARIF.Types.Outputs.Output_Root (Writer, Root);
       Writer.End_Document;
       Open_Or_Create (Output_File, Out_File, File);
       Put_Line
@@ -2119,6 +2124,6 @@ package body Lkql_Checker.Diagnostics.Report is
          VSS.Stream_Element_Vectors.Conversions.Unchecked_To_String
            (Mem.Buffer));
       Close (File);
-   end Generate_SARIF_Report;
+   end Write_SARIF_Root;
 
 end Lkql_Checker.Diagnostics.Report;
