@@ -199,6 +199,7 @@ package body Rule_Commands is
          Impact                   : Regexp_Access;
          Target                   : Regexp_Access;
          Target_Str               : Unbounded_Text_Type;
+         Rule_Params              : Rule_Parameters;
          Remediation_Level        : Remediation_Levels := Medium;
          Parametric_Exemption     : Boolean := False;
          Fn_Name                  : constant Text_Type := Fn.F_Name.Text;
@@ -256,7 +257,6 @@ package body Rule_Commands is
                Delete (Text, 1, 1);
             end if;
          end Get_Text;
-
       begin
          Param_Kind := Find_Param_Kind (Fn.F_Fun_Expr.F_Parameters);
 
@@ -343,6 +343,13 @@ package body Rule_Commands is
             end;
          end if;
 
+         for P of Fn.F_Fun_Expr.F_Parameters loop
+            Rule_Params.Append
+              (Rule_Parameter'
+                 (Name        => To_Unbounded_Text (P.F_Param_Identifier.Text),
+                  Has_Default => not P.F_Default_Expr.Is_Null));
+         end loop;
+
          Rc :=
            Rule_Command'
              (Name                 => Name,
@@ -351,7 +358,7 @@ package body Rule_Commands is
               Category             => Category,
               Subcategory          => Subcategory,
               Param_Kind           => Param_Kind,
-              Parameters           => Fn.F_Fun_Expr.F_Parameters,
+              Parameters           => Rule_Params,
               Remediation_Level    => Remediation_Level,
               Parametric_Exemption => Parametric_Exemption,
               Impact               => Impact,

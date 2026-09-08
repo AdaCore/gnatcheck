@@ -3,6 +3,7 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
+with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Vectors;
 
 with GNAT.Regexp;
@@ -47,6 +48,15 @@ package Rule_Commands is
 
    type Regexp_Access is access all GNAT.Regexp.Regexp;
 
+   type Rule_Parameter is record
+      Name        : Unbounded_Text_Type;
+      Has_Default : Boolean;
+   end record;
+
+   package Rule_Parameter_Vectors is new
+     Ada.Containers.Indefinite_Vectors (Positive, Rule_Parameter);
+   subtype Rule_Parameters is Rule_Parameter_Vectors.Vector;
+
    type Rule_Command is tagged record
       Name : Unbounded_Text_Type;
       --  Name of the Rule
@@ -67,7 +77,7 @@ package Rule_Commands is
       Param_Kind : Rule_Param_Kind;
       --  Category of parameters.
 
-      Parameters : L.Parameter_Decl_List;
+      Parameters : Rule_Parameters;
       --  List of formal parameters for this rule.
 
       Remediation_Level : Remediation_Levels;

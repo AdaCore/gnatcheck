@@ -2087,14 +2087,7 @@ package body Lkql_Checker.Rules.Rule_Table is
               To_Unbounded_String
                 (To_String (To_Wide_Wide_String (R.Subcategory)));
 
-            for Param of R.Parameters loop
-               Rule.Parameters.Append
-                 (Rule_Parameter'
-                    (Name        =>
-                       To_Unbounded_Text (Param.F_Param_Identifier.Text),
-                     Has_Default => not Param.F_Default_Expr.Is_Null));
-            end loop;
-
+            Rule.Parameters := R.Parameters;
             Rule.Remediation_Level := R.Remediation_Level;
             Rule.Allows_Parametrized_Exemption := R.Parametric_Exemption;
             Rule.Impact := R.Impact;
