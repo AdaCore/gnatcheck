@@ -6,15 +6,11 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with Liblkqllang.Analysis;
-
 with Lkql_Checker.String_Utilities; use Lkql_Checker.String_Utilities;
 
 with Rule_Commands; use Rule_Commands;
 
 package Rules_Factory is
-
-   package L renames Liblkqllang.Analysis;
 
    package Rule_Vectors is new Ada.Containers.Vectors (Positive, Rule_Command);
    subtype Rule_Vector is Rule_Vectors.Vector;
@@ -23,9 +19,7 @@ package Rules_Factory is
    type Path_Array is array (Positive range <>) of Unbounded_String;
    No_Paths : Path_Array (1 .. 0) := [others => <>];
 
-   function All_Rules
-     (Ctx : L.Analysis_Context; Dirs : Path_Array := No_Paths)
-      return Rule_Vector;
+   function All_Rules (Dirs : Path_Array := No_Paths) return Rule_Vector;
    --  Return a vector containing Rule_Command values for every implemented
    --  check.
 

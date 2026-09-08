@@ -14,6 +14,8 @@ with GNATCOLL.Strings;   use GNATCOLL.Strings;
 with GNATCOLL.Utils;
 with GNATCOLL.VFS;       use GNATCOLL.VFS;
 
+with Liblkqllang.Analysis;
+
 package body Rules_Factory is
 
    type Virtual_File_Array is array (Positive range <>) of Virtual_File;
@@ -35,12 +37,13 @@ package body Rules_Factory is
    -- All_Rules --
    ---------------
 
-   function All_Rules
-     (Ctx : L.Analysis_Context; Dirs : Path_Array := No_Paths)
-      return Rule_Vector
-   is
+   function All_Rules (Dirs : Path_Array := No_Paths) return Rule_Vector is
+      use Liblkqllang.Analysis;
+
       package Virtual_File_Sets is new
         Ada.Containers.Ordered_Sets (Element_Type => Virtual_File);
+
+      Ctx : constant Analysis_Context := Create_Context (Charset => "utf-8");
 
       Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
       Rules      : Rule_Vector := Rule_Vectors.Empty_Vector;
