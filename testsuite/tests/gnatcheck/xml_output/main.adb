@@ -1,4 +1,5 @@
 procedure Main is
+   type Invalid is new Integer;  -- FLAG
 begin
    goto lbl;  --  FLAG
 

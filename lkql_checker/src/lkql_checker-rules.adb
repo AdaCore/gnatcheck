@@ -14,11 +14,12 @@ with GNAT.OS_Lib;
 with GNATCOLL.Utils; use GNATCOLL.Utils;
 with GNATCOLL.VFS;   use GNATCOLL.VFS;
 
-with Lkql_Checker.Compiler;         use Lkql_Checker.Compiler;
-with Lkql_Checker.JSON_Utilities;   use Lkql_Checker.JSON_Utilities;
-with Lkql_Checker.Options;          use Lkql_Checker.Options;
-with Lkql_Checker.Output;           use Lkql_Checker.Output;
-with Lkql_Checker.Rules.Rule_Table; use Lkql_Checker.Rules.Rule_Table;
+with Lkql_Checker.Compiler;           use Lkql_Checker.Compiler;
+with Lkql_Checker.Diagnostics.Report; use Lkql_Checker.Diagnostics.Report;
+with Lkql_Checker.JSON_Utilities;     use Lkql_Checker.JSON_Utilities;
+with Lkql_Checker.Options;            use Lkql_Checker.Options;
+with Lkql_Checker.Output;             use Lkql_Checker.Output;
+with Lkql_Checker.Rules.Rule_Table;   use Lkql_Checker.Rules.Rule_Table;
 
 package body Lkql_Checker.Rules is
 
@@ -105,7 +106,7 @@ package body Lkql_Checker.Rules is
    --  Function to get the XML header tag for a rule instance XML display
 
    function XML_Param (Param : String) return String
-   is ("<parameter>" & Param & "</parameter>");
+   is ("<parameter>" & Escape_XML (Param) & "</parameter>");
    --  Function to get a parameter XML tag with `Parm` in it
 
    procedure Print_XML_Params

@@ -1,0 +1,5 @@
+val rules = @{
+    Goto_Statements,
+    Identifier_Suffixes: {Type_Suffix: "_T"},
+    Warnings: "u"
+}
