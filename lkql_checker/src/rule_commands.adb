@@ -21,6 +21,10 @@ package body Rule_Commands is
      (Bool_Param, Int_Param, String_Param, List_Param, Any_Param);
    --  The type of a rule parameter.
 
+   package Param_Type_Vectors is new
+     Ada.Containers.Vectors (Positive, Param_Type);
+   subtype Param_Type_Vector is Param_Type_Vectors.Vector;
+
    function Augment_With_Majors (Impact_Str : String) return String;
    --  Return Impact_Str augmented with the major-version prefix of each entry,
    --  so that a bare major version (e.g. "20") also matches in the compiled
@@ -31,8 +35,8 @@ package body Rule_Commands is
    --  default value.
 
    function Find_Param_Kind
-     (Params : L.Parameter_Decl_List) return Rule_Param_Kind;
-   --  Return the parameter kind for the given function body Node.
+     (Param_Types : Param_Type_Vector) return Rule_Param_Kind;
+   --  Return the rule parameter kind given the function's parameter types.
 
    -------------------------
    -- Augment_With_Majors --
@@ -100,12 +104,12 @@ package body Rule_Commands is
    ---------------------
 
    function Find_Param_Kind
-     (Params : L.Parameter_Decl_List) return Rule_Param_Kind is
+     (Param_Types : Param_Type_Vector) return Rule_Param_Kind is
    begin
-      if Params.Last_Child_Index = 1 then
+      if Param_Types.Last_Index = 1 then
          return No_Param;
-      elsif Params.Last_Child_Index = 2 then
-         case Get_Param_Type (Params.Child (2).As_Parameter_Decl) is
+      elsif Param_Types.Last_Index = 2 then
+         case Param_Types (2) is
             when Int_Param    =>
                return One_Integer;
 
@@ -122,14 +126,11 @@ package body Rule_Commands is
                null;
          end case;
       else
-         if Params.Last_Child_Index <= 10
-           and then Get_Param_Type (Params.Child (2).As_Parameter_Decl)
-                    in Int_Param | Bool_Param
+         if Param_Types.Last_Index <= 10
+           and then Param_Types (2) in Int_Param | Bool_Param
          then
-            for J in 3 .. Params.Last_Child_Index loop
-               if Get_Param_Type (Params.Child (J).As_Parameter_Decl)
-                 /= Bool_Param
-               then
+            for J in 3 .. Param_Types.Last_Index loop
+               if Param_Types (J) /= Bool_Param then
                   return Custom;
                end if;
             end loop;
@@ -204,7 +205,8 @@ package body Rule_Commands is
          Parametric_Exemption     : Boolean := False;
          Fn_Name                  : constant Text_Type := Fn.F_Name.Text;
 
-         Param_Kind : Rule_Param_Kind;
+         Param_Types : Param_Type_Vector;
+         Param_Kind  : Rule_Param_Kind;
 
          use LCO, GNAT.Regexp;
 
@@ -258,7 +260,10 @@ package body Rule_Commands is
             end if;
          end Get_Text;
       begin
-         Param_Kind := Find_Param_Kind (Fn.F_Fun_Expr.F_Parameters);
+         for P of Fn.F_Fun_Expr.F_Parameters loop
+            Param_Types.Append (Get_Param_Type (P.As_Parameter_Decl));
+         end loop;
+         Param_Kind := Find_Param_Kind (Param_Types);
 
          --  Get the "follow_generic_instantiations" settings if the user
          --  specified one. By default it is false.
