@@ -1,0 +1,9 @@
+# lkql version: 2
+
+import foo
+
+@check(message="one_int_default",
+       remediation="TRIVIAL", category="Feature")
+fun one_int_default(node: AdaNode, arg: Any = 2): Bool = foo.foo(node)
+
+

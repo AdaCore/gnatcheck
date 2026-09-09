@@ -13,12 +13,14 @@ with GNATCOLL.JSON; use GNATCOLL.JSON;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Liblkqllang.Analysis;
+with Liblktlang.Analysis;
 
 --  A diagnostic is composed of a collection of individual rule commands
 
 package Rule_Commands is
 
-   package L renames Liblkqllang.Analysis;
+   package Lkql renames Liblkqllang.Analysis;
+   package Lkt renames Liblktlang.Analysis;
 
    Rule_Error : exception;
 
@@ -100,11 +102,20 @@ package Rule_Commands is
 
    function Create_Rule_Command
      (Lkql_File_Path : String;
-      Ctx            : L.Analysis_Context;
+      Ctx            : Lkql.Analysis_Context;
       Impacts        : JSON_Value;
       Rc             : out Rule_Command) return Boolean;
    --  Create a Rule_Command value with the given name and arguments and
    --  store it in ``Rc``. Return ``True`` if this succeeded, ie. the file
-   --  corresponds to a rule file, ``False`` otherwise.
+   --  corresponds to a (LKQL version 1) rule file, ``False`` otherwise.
+
+   function Create_Rule_Command
+     (Lkql_File_Path : String;
+      Ctx            : Lkt.Analysis_Context;
+      Impacts        : JSON_Value;
+      Rc             : out Rule_Command) return Boolean;
+   --  Create a Rule_Command value with the given name and arguments and
+   --  store it in ``Rc``. Return ``True`` if this succeeded, ie. the file
+   --  corresponds to a (LKQL version 2) rule file, ``False`` otherwise.
 
 end Rule_Commands;

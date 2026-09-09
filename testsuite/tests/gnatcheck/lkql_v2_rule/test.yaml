@@ -1,0 +1,20 @@
+driver: gnatcheck
+project: prj.gpr
+rules_dirs:
+  - rules
+
+tests:
+  - label: Legacy rule config
+    rules:
+      - +Rone_bool:arg
+      - +Rone_int:2
+      - +Rone_string:hello
+      - +Rone_list:a,b,c
+      - +Rone_integer_or_booleans:1,arg_2,arg_4
+      - +Rcustom:arg_1=true,arg_2=3
+      - +Rone_bool_default:arg
+      - +Rone_int_default:2
+      - +Rone_string_default:hello
+      - +Rone_list_default:a,b,c
+  - label: LKQL rule file
+    lkql_rule_file: rules.lkql

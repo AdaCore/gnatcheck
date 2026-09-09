@@ -1,0 +1,16 @@
+# lkql version: 2
+
+import foo
+
+@check(message="one_integer_or_booleans",
+       remediation="TRIVIAL", category="Feature")
+fun one_integer_or_booleans(
+    node: AdaNode,
+    arg_1: Int,
+    arg_2: Bool = false,
+    arg_3: Bool = false,
+    arg_4: Bool = false,
+    arg_5: Bool = false
+): Bool = foo.foo(node)
+
+
