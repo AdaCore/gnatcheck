@@ -213,7 +213,7 @@ class GnatcheckDriver(BaseDriver):
 
         # If the "violations" tag exists in the output, parse it as a full XML output
         if violations is not None:
-            for violation in violations:
+            for violation in [e for e in violations if e.tag == "violation"]:
                 file, line_num = violation.attrib["file"], int(violation.attrib["line"])
                 tag_line(file, line_num)
 

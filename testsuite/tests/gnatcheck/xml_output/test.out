@@ -1,15 +1,60 @@
 <?xml version="1.0"?>
 <gnatcheck-report>
-   <violation file="main.adb" line="3" column="4" rule-id="goto_statements">
-      <message>goto statement</message>
-   </violation>
-   <compiler-error file="main.adb" line="7" column="11">
-      <message>extra &quot;;&quot; ignored</message>
-   </compiler-error>
-   <compiler-error file="main.adb" line="8" column="1">
-      <message>&quot;end if;&quot; expected for &quot;if&quot; at line 5</message>
-   </compiler-error>
-   <compiler-error file="main.adb" line="8" column="10">
-      <message>missing &quot;end Main;&quot;</message>
-   </compiler-error>
+   <date>DATE</date>
+   <version>VERSION</version>
+   <command-line>COMMAND_LINE</command-line>
+   <runtime>RUNTIME</runtime>
+   <coding-standard from-file="gnatcheck-rule-list.out">
+      <rule id="goto_statements">
+      </rule>
+      <rule id="warnings"></rule>
+      <rule id="identifier_suffixes">
+         <parameter>Type_Suffix=_T</parameter>
+         <parameter>Access_Suffix=&lt;unset&gt;</parameter>
+         <parameter>Class_Subtype_Suffix=&lt;unset&gt;</parameter>
+         <parameter>Class_Access_Suffix=&lt;unset&gt;</parameter>
+         <parameter>Constant_Suffix=&lt;unset&gt;</parameter>
+         <parameter>Renaming_Suffix=&lt;unset&gt;</parameter>
+         <parameter>Access_Obj_Suffix=&lt;unset&gt;</parameter>
+         <parameter>Interrupt_Suffix=&lt;unset&gt;</parameter>
+      </rule>
+      <rule id="Warnings">
+         <parameter>u</parameter>
+      </rule>
+   </coding-standard>
+   <sources from-file="gnatcheck-source-list.out">
+      <source><working-dir>/main.adb</source>
+   </sources>
+<summary>
+   <fully-compliant-sources>0</fully-compliant-sources>
+   <sources-with-exempted-violations-only>0</sources-with-exempted-violations-only>
+   <sources-with-non-exempted-violations>0</sources-with-non-exempted-violations>
+   <unverified-sources>1</unverified-sources>
+   <total-sources>1</total-sources>
+   <non-exempted-violations>2</non-exempted-violations>
+   <rule-exemption-warnings>0</rule-exemption-warnings>
+   <compilation-errors>3</compilation-errors>
+   <exempted-violations>0</exempted-violations>
+   <gnatcheck-errors>0</gnatcheck-errors>
+</summary>
+<violations>
+   no exempted violations detected
+      <violation file="main.adb" line="2" column="9" rule-id="identifier_suffixes">
+         <message>Invalid does not end with type suffix _T</message>
+      </violation>
+      <violation file="main.adb" line="4" column="4" rule-id="goto_statements">
+         <message>goto statement</message>
+      </violation>
+   no rule exemption problems detected
+      <compiler-error file="main.adb" line="8" column="11">
+         <message>extra &quot;;&quot; ignored</message>
+      </compiler-error>
+      <compiler-error file="main.adb" line="9" column="1">
+         <message>&quot;end if;&quot; expected for &quot;if&quot; at line 6</message>
+      </compiler-error>
+      <compiler-error file="main.adb" line="9" column="10">
+         <message>missing &quot;end Main;&quot;</message>
+      </compiler-error>
+   no internal error detected
+</violations>
 </gnatcheck-report>

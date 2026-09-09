@@ -69,10 +69,6 @@ package body Lkql_Checker.Diagnostics.Report is
    procedure Copy_User_Info;
    --  Copies into the report file the text from user-provided file.
 
-   function Escape_XML (S : String) return String;
-   --  Escape relevant characters from S by their corresponding XML
-   --  symbols
-
    procedure Print_Active_Rules_File;
    --  Prints the reference to the (actual argument or artificially
    --  created) file that contains the list of all the rules that are

@@ -41,4 +41,8 @@ package Lkql_Checker.Diagnostics.Report is
    --  report file can be specified only once!) and leaves
    --  User_Info_File unchanged.
 
+   function Escape_XML (S : String) return String;
+   --  Escape relevant characters from S by their corresponding XML
+   --  symbols
+
 end Lkql_Checker.Diagnostics.Report;
