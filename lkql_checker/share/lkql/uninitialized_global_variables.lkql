@@ -44,7 +44,8 @@ fun add_default_value(obj_decl, ctx) =
 
 @check(message="uninitialized global variable",
        category="Style", subcategory="Programming Practice",
-       auto_fix=add_default_value)
+       auto_fix=add_default_value,
+       auto_fix_description="Add a default value to the declaration")
 fun uninitialized_global_variables(node) =
     |" Flag an object declaration that does not have an explicit initialization if it is
     |" located in a library-level package or generic package or bodies of library-level package

@@ -26,7 +26,8 @@ fun add_param_name(param, ctx) =
 
 @check(message="positional generic association", remediation="EASY",
        category="Style", subcategory="Programming Practice",
-       auto_fix=add_param_name)
+       auto_fix=add_param_name,
+       auto_fix_description="Use named generic associations")
 fun positional_generic_parameters(node) =
     |" Flag each positional actual generic parameter except for the case when
     |" the generic unit being instantiated has exactly one generic formal

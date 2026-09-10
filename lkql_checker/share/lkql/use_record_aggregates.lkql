@@ -33,7 +33,8 @@ fun replace_by_aggregate(node, ctx) =
 
 @check(message="component assignments may be replaced by an aggregate",
        category="Style", subcategory="Programming Practice",
-       auto_fix=replace_by_aggregate)
+       auto_fix=replace_by_aggregate,
+       auto_fix_description="Replace the assignments with an aggregate")
 fun use_record_aggregates(node) =
     |" Flag the first statement in the sequence of assignment statements if the targets
     |" of all these assignment statements are components of the same record objects,

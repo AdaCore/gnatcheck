@@ -39,7 +39,8 @@ fun replace_by_expr(if_stmt, ctx) =
 
 @check(message="IF statement may be replaced by an IF expression",
        category="Style", subcategory="Programming Practice",
-       auto_fix=replace_by_expr)
+       auto_fix=replace_by_expr,
+       auto_fix_description="Replace the IF statement with an IF expression")
 fun use_if_expressions(node) =
     |" Flag ``if`` statements which could be replaced by an ``if`` expression.
     |" This rule detects the following code patterns:

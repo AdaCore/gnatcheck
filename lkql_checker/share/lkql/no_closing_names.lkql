@@ -28,7 +28,8 @@ fun add_closing_name(prog_unit, ctx) =
 
 @check(message="no closing name", remediation="TRIVIAL",
        category="Style", subcategory="Programming Practice",
-       auto_fix=add_closing_name)
+       auto_fix=add_closing_name,
+       auto_fix_description="Add the closing name")
 fun no_closing_names(node, n : int = 0) =
     |" Flag any program unit that is longer than N lines where N is a rule parameter
     |" and does not repeat its name after the trailing ``end`` keyword.

@@ -36,7 +36,8 @@ fun simplify_boolean_expression(node) =
 
 @check(message="redundant boolean expression",
        category="Style", subcategory="Programming Practice",
-       auto_fix=(n, ctx) => ctx.replace(n, simplify_boolean_expression(n)))
+       auto_fix=(n, ctx) => ctx.replace(n, simplify_boolean_expression(n)),
+       auto_fix_description="Simplify the boolean expression")
 fun redundant_boolean_expressions(node) =
     |" Flag constructs including boolean operations that can be simplified. The
     |" following constructs are flagged:

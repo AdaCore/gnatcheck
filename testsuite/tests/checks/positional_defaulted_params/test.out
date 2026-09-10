@@ -1,7 +1,7 @@
 pos.adb:11:16: rule violation: use named notation when passing actual to defaulted parameter
 11 |    Proc (Var1, Var2);   --  FLAG
    |                ^^^^
-fix proposal:
+fix proposal: Use named associations for defaulted parameters
   in pos.adb:
   9   
   10  begin

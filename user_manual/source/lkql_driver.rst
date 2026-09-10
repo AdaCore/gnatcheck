@@ -258,7 +258,10 @@ list of Ada sources to use during analysis. Here is an example usage:
 A report produced with ``--format=SARIF --auto-fix-mode=IN_REPORT`` holds the
 fixes the rules suggest, which the :ref:`patch<LKQL_Patch>` sub-command applies
 to the sources. Both switches are needed: only the SARIF format carries the
-fixes, the ``TEXT`` one only displays them.
+fixes, the ``TEXT`` one only displays them. Each fix comes with a short
+description of what it does, the one the rule provides through the
+``auto_fix_description`` argument of its ``@check`` annotation, or
+``Quick Fix`` by default.
 
 .. _LKQL_Patch:
 
@@ -272,9 +275,9 @@ fixes, the ``TEXT`` one only displays them.
 
 This sub-command applies to Ada sources the quick fixes contained in a SARIF
 report. It is the counterpart of ``check``: the checker finds violations and
-computes fixes, ``patch`` puts them in the sources. Each fix is displayed with a
-unified diff of what it changes and applied only if you accept it, unless
-``--auto`` is given.
+computes fixes, ``patch`` puts them in the sources. Each fix is displayed with
+its description and a unified diff of what it changes, and applied only if you
+accept it, unless ``--auto`` is given.
 
 .. warning::
 

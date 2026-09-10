@@ -6,7 +6,7 @@ paths.adb:15:4: rule violation: CASE statement can be replaced with IF statement
    ||
 18 ||    end case;
    ||____________^
-fix proposal:
+fix proposal: Replace the CASE statement with an IF statement
   in paths.adb:
   13     end case;
   14  

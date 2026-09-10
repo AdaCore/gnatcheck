@@ -2,7 +2,8 @@ import stdlib
 
 @check(message="negation of boolean operator",
        category="Style", subcategory="Programming Practice",
-       auto_fix=(n, ctx) => ctx.replace(n, stdlib.negate_op(stdlib.strip_conversions(n.f_expr))))
+       auto_fix=(n, ctx) => ctx.replace(n, stdlib.negate_op(stdlib.strip_conversions(n.f_expr))),
+       auto_fix_description="Replace the negation with the opposite operator")
 fun boolean_negations(node) =
     |" Flag any infix call to the predefined ``not`` operator for the predefined
     |" Boolean type if its argument is an infix call to a predefined relation

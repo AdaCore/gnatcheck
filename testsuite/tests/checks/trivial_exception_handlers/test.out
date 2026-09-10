@@ -3,7 +3,7 @@ handlers.adb:15:7: rule violation: trivial exception handler
    | _______^
 16 ||          raise;
    ||_______________^
-fix proposal:
+fix proposal: Remove the exception handler
   in handlers.adb:
   13        null;
   14     exception
@@ -17,7 +17,7 @@ handlers.adb:17:7: rule violation: trivial exception handler
    | _______^
 18 ||          raise;
    ||_______________^
-fix proposal:
+fix proposal: Remove the exception handler
   in handlers.adb:
   15        when Constraint_Error =>  --  FLAG
   16           raise;
@@ -33,7 +33,7 @@ handlers.adb:21:4: rule violation: trivial exception handler
    | ____^
 22 ||       raise;
    ||____________^
-fix proposal:
+fix proposal: Remove the exception handler
   in handlers.adb:
   19     end;
   20  exception
@@ -47,7 +47,7 @@ handlers.adb:23:4: rule violation: trivial exception handler
    | ____^
 24 ||       raise;
    ||____________^
-fix proposal:
+fix proposal: Remove the exception handler
   in handlers.adb:
   21     when Constraint_Error =>  --  FLAG
   22        raise;

@@ -12,7 +12,8 @@ fun replace_by_simple_loop(while_loop, ctx) =
 
 @check(message="WHILE loop may be replaced by a simple LOOP",
        category="Style", subcategory="Programming Practice",
-       auto_fix=replace_by_simple_loop)
+       auto_fix=replace_by_simple_loop,
+       auto_fix_description="Replace the WHILE loop with a simple LOOP")
 fun use_simple_loops(node) =
     |" Flag ``while`` loop statements that have a condition statically known
     |" to be ``TRUE``. Such loop statements can be replaced by simple loops.

@@ -6,7 +6,7 @@ test.adb:4:4: rule violation: redundant boolean expression
   ||
 8 ||    end if;
   ||__________^
-fix proposal:
+fix proposal: Simplify the boolean expression
   in test.adb:
   2      X : Boolean;
   3   begin
@@ -29,7 +29,7 @@ test.adb:10:4: rule violation: redundant boolean expression
    ||
 14 ||    end if;
    ||__________^
-fix proposal:
+fix proposal: Simplify the boolean expression
   in test.adb:
   8      end if;
   9   
@@ -51,7 +51,7 @@ test.adb:16:10: rule violation: redundant boolean expression
    ||
 18 ||          else False);
    ||___________________^
-fix proposal:
+fix proposal: Simplify the boolean expression
   in test.adb:
   14     end if;
   15  
@@ -67,7 +67,7 @@ fix proposal:
 test.adb:20:9: rule violation: redundant boolean expression
 20 |    X := X = Standard.true;     --  FLAG
    |         ^^^^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Simplify the boolean expression
   in test.adb:
   18           else False);
   19  
@@ -79,7 +79,7 @@ fix proposal:
 test.adb:22:7: rule violation: redundant boolean expression
 22 |    if not (J > 1) then         --  FLAG
    |       ^^^^^^^^^^^
-fix proposal:
+fix proposal: Simplify the boolean expression
   in test.adb:
   20     X := X = Standard.true;     --  FLAG
   21  
@@ -92,7 +92,7 @@ fix proposal:
 test.adb:30:10: rule violation: redundant boolean expression
 30 |       if Y = True then    --  FLAG
    |          ^^^^^^^^
-fix proposal:
+fix proposal: Simplify the boolean expression
   in test.adb:
   28        Y : Bool_N;
   29     begin
@@ -105,7 +105,7 @@ fix proposal:
 test.adb:35:11: rule violation: redundant boolean expression
 35 |    return X = Standard.False;  --  FLAG
    |           ^^^^^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Simplify the boolean expression
   in test.adb:
   33     end;
   34  

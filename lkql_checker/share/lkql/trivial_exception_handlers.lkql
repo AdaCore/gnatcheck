@@ -1,6 +1,7 @@
 @check(message="trivial exception handler",
        category="Style", subcategory="Programming Practice",
-       auto_fix=(n, ctx) => ctx.remove(n))
+       auto_fix=(n, ctx) => ctx.remove(n),
+       auto_fix_description="Remove the exception handler")
 fun trivial_exception_handlers(node) =
     |" Flag exception handlers that contain a raise statement with no exception name
     |" as their first statement unless the enclosing handled sequence of

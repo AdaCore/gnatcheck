@@ -16,7 +16,8 @@ fun replace_op(bin_op, ctx) =
 
 @check(message="same operands",
        category="Style", subcategory="Programming Practice",
-       auto_fix=replace_op)
+       auto_fix=replace_op,
+       auto_fix_description="Replace the operation with its known result")
 fun same_operands(node) =
     |" Flags infix calls to binary operators ``/``, ``=``, ``/=``, ``>``, ``>=``,
     |" ``<``, ``<=``, ``-``, ``mod``, ``rem`` (except when operating on floating

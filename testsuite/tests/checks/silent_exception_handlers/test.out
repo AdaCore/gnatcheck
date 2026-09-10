@@ -3,7 +3,7 @@ exc.adb:11:7: rule violation: silent exception handler
    | _______^
 12 ||          null;
    ||______________^
-fix proposal:
+fix proposal: Add a raise statement at the end of the handler
   in exc.adb:
   11        when others =>   --  FLAG
   12           null;
@@ -19,7 +19,7 @@ exc_2.adb:11:4: rule violation: silent exception handler
    ||
 20 ||       end if;
    ||_____________^
-fix proposal:
+fix proposal: Add a raise statement at the end of the handler
   in exc_2.adb:
   19           Log ("");
   20        end if;
@@ -35,7 +35,7 @@ exc_2.adb:21:4: rule violation: silent exception handler
    ||
 25 ||       end loop;
    ||_______________^
-fix proposal:
+fix proposal: Add a raise statement at the end of the handler
   in exc_2.adb:
   24           Log ("");
   25        end loop;
@@ -46,7 +46,7 @@ fix proposal:
 exc_2.adb:26:9: rule violation: silent exception handler
 26 |    when E : others =>        --  FLAG
    |         ^
-fix proposal:
+fix proposal: Add a raise statement at the end of the handler
   in exc_2.adb:
   29           Log (Exception_Message (E));
   30        end loop;

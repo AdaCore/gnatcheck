@@ -1,7 +1,7 @@
 proc.adb:4:25: rule violation: negation of boolean operator
 4 |    Is_Data_Available := not (Buffer_Length = 0);   --  FLAG
   |                         ^^^^^^^^^^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Replace the negation with the opposite operator
   in proc.adb:
   2     Is_Data_Available : Boolean := Buffer_Length > 0;   --  NOFLAG
   3  begin
@@ -13,7 +13,7 @@ fix proposal:
 proc.adb:6:7: rule violation: negation of boolean operator
 6 |    if not (not Is_Data_Available) then             --  FLAG
   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Replace the negation with the opposite operator
   in proc.adb:
   4     Is_Data_Available := not (Buffer_Length = 0);   --  FLAG
   5  
@@ -26,7 +26,7 @@ fix proposal:
 proc2.adb:37:12: rule violation: negation of boolean operator
 37 |    Bool := not (not Bool);             --  FLAG
    |            ^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Replace the negation with the opposite operator
   in proc2.adb:
   35     end Renamed_Relation;
   36  
@@ -38,7 +38,7 @@ fix proposal:
 proc2.adb:41:12: rule violation: negation of boolean operator
 41 |    Bool := not (Var1 > Var2);          --  FLAG
    |            ^^^^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Replace the negation with the opposite operator
   in proc2.adb:
   39     Bool := "not" (not Bool);           --  NOFLAG
   40  

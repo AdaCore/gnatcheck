@@ -79,7 +79,10 @@ With partial formatting
                     }
                   ]
                 }
-              ]
+              ],
+              "description": {
+                "text": "Use named parameter associations"
+              }
             }
           ],
           "level": "warning",
@@ -125,7 +128,10 @@ With partial formatting
                     }
                   ]
                 }
-              ]
+              ],
+              "description": {
+                "text": "Use named parameter associations"
+              }
             }
           ],
           "level": "warning",
@@ -210,7 +216,10 @@ With partial formatting
                     }
                   ]
                 }
-              ]
+              ],
+              "description": {
+                "text": "Remove the null statement"
+              }
             }
           ],
           "level": "warning",
@@ -354,7 +363,10 @@ Without partial formatting
                     }
                   ]
                 }
-              ]
+              ],
+              "description": {
+                "text": "Use named parameter associations"
+              }
             }
           ],
           "level": "warning",
@@ -400,7 +412,10 @@ Without partial formatting
                     }
                   ]
                 }
-              ]
+              ],
+              "description": {
+                "text": "Use named parameter associations"
+              }
             }
           ],
           "level": "warning",
@@ -485,7 +500,10 @@ Without partial formatting
                     }
                   ]
                 }
-              ]
+              ],
+              "description": {
+                "text": "Remove the null statement"
+              }
             }
           ],
           "level": "warning",

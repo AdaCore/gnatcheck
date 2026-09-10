@@ -1,7 +1,7 @@
 pos.ads:12:23: rule violation: aggregate with a positional component association
 12 |    Var_Arr_1 : Arr := (1, 2, 3, others => 0);  --  FLAG
    |                       ^^^^^^^^^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Use named component associations
   in pos.ads:
   10     end record;
   11  
@@ -13,7 +13,7 @@ fix proposal:
 pos.ads:17:23: rule violation: aggregate with a positional component association
 17 |    Var_Rec_2 : Rec := (2, C_Bool => False, C_Char => 'b');   --  FLAG
    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Use named component associations
   in pos.ads:
   15  
   16     Var_Rec_1 : Rec := (C_Int => 1, C_Bool => True, C_Char => 'a');  --  NOFLAG
@@ -25,7 +25,7 @@ fix proposal:
 pos.ads:18:23: rule violation: aggregate with a positional component association
 18 |    Var_Rec_3 : Rec := (1, True, 'c');                        --  FLAG
    |                       ^^^^^^^^^^^^^^
-fix proposal:
+fix proposal: Use named component associations
   in pos.ads:
   16     Var_Rec_1 : Rec := (C_Int => 1, C_Bool => True, C_Char => 'a');  --  NOFLAG
   17     Var_Rec_2 : Rec := (2, C_Bool => False, C_Char => 'b');   --  FLAG
