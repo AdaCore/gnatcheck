@@ -1,0 +1,9 @@
+# lkql version: 2
+
+import foo
+
+@check(message="one_list",
+       remediation="TRIVIAL", category="Feature")
+fun one_list(node: AdaNode, arg: List[String]): Bool = foo.foo(node)
+
+

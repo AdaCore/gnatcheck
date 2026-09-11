@@ -1,0 +1,13 @@
+# lkql version: 2
+
+import foo
+
+@check(message="custom",
+       remediation="TRIVIAL", category="Feature")
+fun custom(
+    node: AdaNode,
+    arg_1: Any,
+    arg_2: Int = 2
+): Bool = foo.foo(node)
+
+

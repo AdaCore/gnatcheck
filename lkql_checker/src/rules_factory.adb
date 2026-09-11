@@ -14,6 +14,9 @@ with GNATCOLL.Strings;   use GNATCOLL.Strings;
 with GNATCOLL.Utils;
 with GNATCOLL.VFS;       use GNATCOLL.VFS;
 
+with Liblkqllang.Analysis;
+with Liblktlang.Analysis;
+
 package body Rules_Factory is
 
    type Virtual_File_Array is array (Positive range <>) of Virtual_File;
@@ -31,16 +34,34 @@ package body Rules_Factory is
    --  'kp.json'. This file should be located in one of the directories from
    --  "Rules_Dirs".
 
+   function Is_LKQL_V2_Source (Src : Virtual_File) return Boolean;
+   --  Return whether the given LKQL source file is written in V2 (Lkt).
+   --  This simply checks whether the first line starts with the string
+   --  `# lkql version: 2`.
+
+   -----------------------
+   -- Is_LKQL_V2_Source --
+   -----------------------
+
+   function Is_LKQL_V2_Source (Src : Virtual_File) return Boolean is
+      Content : constant XString := Src.Read_File;
+   begin
+      return Content.Starts_With ("# lkql version: 2");
+   end Is_LKQL_V2_Source;
+
    ---------------
    -- All_Rules --
    ---------------
 
-   function All_Rules
-     (Ctx : L.Analysis_Context; Dirs : Path_Array := No_Paths)
-      return Rule_Vector
-   is
+   function All_Rules (Dirs : Path_Array := No_Paths) return Rule_Vector is
       package Virtual_File_Sets is new
         Ada.Containers.Ordered_Sets (Element_Type => Virtual_File);
+
+      Ctx_V1 : constant Liblkqllang.Analysis.Analysis_Context :=
+        Liblkqllang.Analysis.Create_Context (Charset => "utf-8");
+
+      Ctx_V2 : constant Liblktlang.Analysis.Analysis_Context :=
+        Liblktlang.Analysis.Create_Context (Charset => "utf-8");
 
       Rules_Dirs : constant Virtual_File_Array := Get_Rules_Directories (Dirs);
       Rules      : Rule_Vector := Rule_Vectors.Empty_Vector;
@@ -66,8 +87,13 @@ package body Rules_Factory is
                         Rc : Rule_Command;
 
                         Has_Rule : constant Boolean :=
-                          Create_Rule_Command
-                            (+File.Full_Name, Ctx, Impacts, Rc);
+                          (if Is_LKQL_V2_Source (File)
+                           then
+                             Create_Rule_Command
+                               (+File.Full_Name, Ctx_V2, Impacts, Rc)
+                           else
+                             Create_Rule_Command
+                               (+File.Full_Name, Ctx_V1, Impacts, Rc));
                      begin
                         if Has_Rule then
                            Rules.Append (Rc);

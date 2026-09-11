@@ -1,0 +1,7 @@
+val rules = @{
+    one_bool: {arg: true},
+    one_string: {arg: "hello"},
+    one_list: {arg: ["a", "b", "c"]},
+    one_integer_or_booleans: {arg_1: 1, arg_2: true, arg_4: true},
+    custom: {arg_1: true, arg_2: 3}
+}

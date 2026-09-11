@@ -1,0 +1,105 @@
+Legacy rule config
+==================
+
+1. Summary
+
+   fully compliant sources               : 0
+   sources with exempted violations only : 0
+   sources with non-exempted violations  : 1
+   unverified sources                    : 0
+   total sources                         : 1
+   ignored sources                       : 0
+
+   non-exempted violations               : 20
+   rule exemption warnings               : 0
+   compilation errors                    : 0
+   exempted violations                   : 0
+   internal errors                       : 0
+
+2. Exempted Coding Standard Violations
+
+   no exempted violations detected
+
+3. Non-exempted Coding Standard Violations
+
+main.adb:1:11: rule violation: custom
+main.adb:1:11: rule violation: one_bool
+main.adb:1:11: rule violation: one_bool_default
+main.adb:1:11: rule violation: one_int
+main.adb:1:11: rule violation: one_int_default
+main.adb:1:11: rule violation: one_integer_or_booleans
+main.adb:1:11: rule violation: one_list
+main.adb:1:11: rule violation: one_list_default
+main.adb:1:11: rule violation: one_string
+main.adb:1:11: rule violation: one_string_default
+main.adb:4:07: rule violation: custom
+main.adb:4:07: rule violation: one_bool
+main.adb:4:07: rule violation: one_bool_default
+main.adb:4:07: rule violation: one_int
+main.adb:4:07: rule violation: one_int_default
+main.adb:4:07: rule violation: one_integer_or_booleans
+main.adb:4:07: rule violation: one_list
+main.adb:4:07: rule violation: one_list_default
+main.adb:4:07: rule violation: one_string
+main.adb:4:07: rule violation: one_string_default
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+   no language violations detected
+
+6. Gnatcheck internal errors
+
+   no internal error detected
+
+
+LKQL rule file
+==============
+
+1. Summary
+
+   fully compliant sources               : 0
+   sources with exempted violations only : 0
+   sources with non-exempted violations  : 1
+   unverified sources                    : 0
+   total sources                         : 1
+   ignored sources                       : 0
+
+   non-exempted violations               : 10
+   rule exemption warnings               : 0
+   compilation errors                    : 0
+   exempted violations                   : 0
+   internal errors                       : 0
+
+2. Exempted Coding Standard Violations
+
+   no exempted violations detected
+
+3. Non-exempted Coding Standard Violations
+
+main.adb:1:11: rule violation: custom
+main.adb:1:11: rule violation: one_bool
+main.adb:1:11: rule violation: one_integer_or_booleans
+main.adb:1:11: rule violation: one_list
+main.adb:1:11: rule violation: one_string
+main.adb:4:07: rule violation: custom
+main.adb:4:07: rule violation: one_bool
+main.adb:4:07: rule violation: one_integer_or_booleans
+main.adb:4:07: rule violation: one_list
+main.adb:4:07: rule violation: one_string
+
+4. Rule exemption problems
+
+   no rule exemption problems detected
+
+5. Language violations
+
+   no language violations detected
+
+6. Gnatcheck internal errors
+
+   no internal error detected
+

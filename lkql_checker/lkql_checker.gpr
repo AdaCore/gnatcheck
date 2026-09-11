@@ -1,5 +1,6 @@
 with "libadalang";
 with "liblkqllang";
+with "liblktlang";
 with "gpr2";
 with "sarif_ada";
 

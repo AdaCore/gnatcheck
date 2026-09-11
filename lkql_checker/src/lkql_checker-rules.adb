@@ -14,6 +14,8 @@ with GNAT.OS_Lib;
 with GNATCOLL.Utils; use GNATCOLL.Utils;
 with GNATCOLL.VFS;   use GNATCOLL.VFS;
 
+with Langkit_Support.Text; use Langkit_Support.Text;
+
 with Lkql_Checker.Compiler;           use Lkql_Checker.Compiler;
 with Lkql_Checker.Diagnostics.Report; use Lkql_Checker.Diagnostics.Report;
 with Lkql_Checker.JSON_Utilities;     use Lkql_Checker.JSON_Utilities;

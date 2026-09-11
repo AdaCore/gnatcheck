@@ -3,6 +3,7 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
+with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Vectors;
 
 with GNAT.Regexp;
@@ -12,12 +13,14 @@ with GNATCOLL.JSON; use GNATCOLL.JSON;
 with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Liblkqllang.Analysis;
+with Liblktlang.Analysis;
 
 --  A diagnostic is composed of a collection of individual rule commands
 
 package Rule_Commands is
 
-   package L renames Liblkqllang.Analysis;
+   package Lkql renames Liblkqllang.Analysis;
+   package Lkt renames Liblktlang.Analysis;
 
    Rule_Error : exception;
 
@@ -47,6 +50,15 @@ package Rule_Commands is
 
    type Regexp_Access is access all GNAT.Regexp.Regexp;
 
+   type Rule_Parameter is record
+      Name        : Unbounded_Text_Type;
+      Has_Default : Boolean;
+   end record;
+
+   package Rule_Parameter_Vectors is new
+     Ada.Containers.Indefinite_Vectors (Positive, Rule_Parameter);
+   subtype Rule_Parameters is Rule_Parameter_Vectors.Vector;
+
    type Rule_Command is tagged record
       Name : Unbounded_Text_Type;
       --  Name of the Rule
@@ -67,7 +79,7 @@ package Rule_Commands is
       Param_Kind : Rule_Param_Kind;
       --  Category of parameters.
 
-      Parameters : L.Parameter_Decl_List;
+      Parameters : Rule_Parameters;
       --  List of formal parameters for this rule.
 
       Remediation_Level : Remediation_Levels;
@@ -90,11 +102,20 @@ package Rule_Commands is
 
    function Create_Rule_Command
      (Lkql_File_Path : String;
-      Ctx            : L.Analysis_Context;
+      Ctx            : Lkql.Analysis_Context;
       Impacts        : JSON_Value;
       Rc             : out Rule_Command) return Boolean;
    --  Create a Rule_Command value with the given name and arguments and
    --  store it in ``Rc``. Return ``True`` if this succeeded, ie. the file
-   --  corresponds to a rule file, ``False`` otherwise.
+   --  corresponds to a (LKQL version 1) rule file, ``False`` otherwise.
+
+   function Create_Rule_Command
+     (Lkql_File_Path : String;
+      Ctx            : Lkt.Analysis_Context;
+      Impacts        : JSON_Value;
+      Rc             : out Rule_Command) return Boolean;
+   --  Create a Rule_Command value with the given name and arguments and
+   --  store it in ``Rc``. Return ``True`` if this succeeded, ie. the file
+   --  corresponds to a (LKQL version 2) rule file, ``False`` otherwise.
 
 end Rule_Commands;
