@@ -11,6 +11,7 @@ Welcome to LKQL's documentation!
    :caption: Contents:
 
    language_reference
+   lkql_v2
    lkql_api_doc
    lkql_driver
    lkql_checker
