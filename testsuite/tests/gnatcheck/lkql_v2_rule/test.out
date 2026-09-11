@@ -1,6 +1,11 @@
 Legacy rule config
 ==================
 
+custom.lkql:11:12: warning: undefined entity
+one_bool_default.lkql:9:42: warning: undefined entity
+one_int_default.lkql:9:41: warning: undefined entity
+one_list_default.lkql:9:42: warning: undefined entity
+one_string_default.lkql:9:44: warning: undefined entity
 1. Summary
 
    fully compliant sources               : 0
@@ -59,6 +64,16 @@ main.adb:4:07: rule violation: one_string_default
 LKQL rule file
 ==============
 
+custom.lkql:11:12: warning: undefined entity
+one_bool_default.lkql:9:42: warning: undefined entity
+one_int_default.lkql:9:41: warning: undefined entity
+one_list_default.lkql:9:42: warning: undefined entity
+one_string_default.lkql:9:44: warning: undefined entity
+custom.lkql:11:12: warning: undefined entity
+one_bool_default.lkql:9:42: warning: undefined entity
+one_int_default.lkql:9:41: warning: undefined entity
+one_list_default.lkql:9:42: warning: undefined entity
+one_string_default.lkql:9:44: warning: undefined entity
 1. Summary
 
    fully compliant sources               : 0

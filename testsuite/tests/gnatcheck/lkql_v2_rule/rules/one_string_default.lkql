@@ -1,5 +1,7 @@
 # lkql version: 2
 
+from libadalang import *
+
 import foo
 
 @check(message="one_string_default",
