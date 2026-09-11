@@ -94,6 +94,8 @@ iterative way.
 ``-U, --recursive``
   Process all units in the project tree, excluding externally built project.
 
+``-t, --typecheck-mode=<mode>``
+  Specifies the behaviour of the typechecker (V2 only).
 
 ``-aP=<directory>``
   Add the provided directory to the project search path
