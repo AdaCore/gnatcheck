@@ -1,3 +1,5 @@
 # lkql version: 2
 
+from libadalang import *
+
 fun foo(x: AdaNode): Bool = x is BasicDecl
