@@ -174,6 +174,36 @@ The following switches control the general ``gnatcheck`` behavior
 ``-nt``
   Do not generate the report file in text format. Enforces  ``-xml``.
 
+  .. index:: --sarif
+
+``--sarif=file``
+  Generate the report file in
+  `SARIF 2.1.0 <https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html>`_
+  format, in addition to any other report format that may be requested, and set
+  its name to ``file``.
+
+  .. index:: --emit-fixes
+
+``--emit-fixes``
+  Include fix objects in the generated SARIF report. A fix is emitted for each
+  violation reported by a rule that defines an ``auto_fix`` function,
+  describing the source changes required to resolve the violation. This switch
+  has no effect if no SARIF report is being generated.
+
+  .. note::
+
+    Computing and formatting fixes can be costly for large numbers of
+    violations. If you do not intend to use the fixes, do not enable this
+    switch. If you need it for performance-critical runs, consider using it
+    together with ``--disable-formatting``.
+
+  .. index:: --disable-formatting
+
+``--disable-formatting``
+  When ``--emit-fixes`` is used, skip the Ada source formatting phase
+  normally applied to the source code inserted or modified by generated
+  fixes. This switch has no effect if ``--emit-fixes`` is not specified.
+
   .. index:: -files
 
 ``-files=filename``

@@ -18,6 +18,21 @@ in :ref:`Predefined_Rules`. In addition, it is possible to write new rules
 as described in :ref:`Writing_Your_Own_Rules` using a dedicated pattern
 matching language called `LKQL`, used to implement all the predefined rules.
 
+Beyond simply reporting violations, ``gnatcheck`` can also propose automatic
+fixes for some of its rules, turning coding standard enforcement into a
+largely automated process. These fixes can be reviewed and applied directly
+from your editor or IDE, making it much faster to bring an existing codebase
+into compliance or to keep it clean as it evolves. See the ``--emit-fixes``
+switch, described in :ref:`General_gnatcheck_Switches`, for more information
+on how to enable this feature.
+
+Emitting fixes can be a very costly operation, thus we introduced the
+``--disable-formatting`` to reduce the computation time if you have a lot of
+violations in your codebase.
+
+To see which rules currently support auto-fixing, search for the
+"Auto-fix available" marker in the :ref:`Predefined_Rules` list.
+
 Invoking ``gnatcheck`` on the command line has the form::
 
   $ gnatcheck [switches] {filename}
