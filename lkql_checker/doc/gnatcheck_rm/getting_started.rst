@@ -24,7 +24,8 @@ largely automated process. These fixes can be reviewed and applied directly
 from your editor or IDE, making it much faster to bring an existing codebase
 into compliance or to keep it clean as it evolves. See the ``--emit-fixes``
 switch, described in :ref:`General_gnatcheck_Switches`, for more information
-on how to enable this feature.
+on how to enable this feature, and :ref:`Applying_Auto_Fixes` for the tools that
+apply the fixes it produces.
 
 Emitting fixes can be a very costly operation, thus we introduced the
 ``--disable-formatting`` to reduce the computation time if you have a lot of

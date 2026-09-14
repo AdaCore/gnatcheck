@@ -966,6 +966,56 @@ The content of the XML report is similar to the text report except that
 it explores the set of files processed by gnatcheck and the coding standard
 used for checking these files.
 
+.. _Applying_Auto_Fixes:
+
+Applying Auto-Fixes
+===================
+
+.. index:: Applying auto-fixes
+
+Rules that define an ``auto_fix`` function propose a fix for each violation they
+report, and ``--emit-fixes`` puts those fixes in the SARIF report, as the
+``fixes`` property of the results they belong to (see
+:ref:`General_gnatcheck_Switches`). GNATcheck has no interface of its own for
+applying them: any tool that reads SARIF and supports its fix objects can, whether
+or not it knows anything about GNATcheck.
+
+From the command line
+---------------------
+
+``lkql patch`` applies the fixes of a report to the sources: with ``--auto`` it
+applies them all, and without it displays each fix as a diff and applies it only
+if you accept it. It records what it has applied, so that a review can be
+interrupted and resumed, and it refuses the fixes of a source that has been
+modified since the report was produced. See :ref:`LKQL_Patch`.
+
+In GNAT Studio
+--------------
+
+GNAT Studio reads a SARIF report through its SARIF viewer: load the report with
+:menuselection:`Analyze --> SARIF --> Load SARIF File`, or from the contextual
+menu of a :file:`.sarif` file. The results appear in the Analysis view, where a
+result that carries a fix gets a wrench next to it. Clicking the wrench applies
+the fix. When a result carries several fixes, the wrench opens the list of them
+instead, each with a preview of what it changes.
+
+In Visual Studio Code
+---------------------
+
+The `SARIF Viewer
+<https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer>`__
+extension displays a SARIF report and applies the fixes its results carry.
+Applying a fix goes through that extension's own interface.
+
+Limitations
+~~~~~~~~~~~
+
+One fix may affect the source location of all objects that follow the fix's
+location if it adds or removes a line. The SARIF Viewer extension currently
+handles this imperfectly. In order to avoid impacting the location of the other
+fixes, you might need to apply the fixes in one source file starting with the
+last one.
+
 .. _Rule_exemption:
 
 Rule Exemption
