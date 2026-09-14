@@ -698,62 +698,62 @@ package body Lkql_Checker is
       end if;
 
       if No_Detectors_For_KP_Version then
-         Lkql_Checker.Projects.Clean_Up (Checker_Prj);
-         OS_Exit (E_Success);
+         Exit_Code := E_Success;
       elsif Nothing_To_Do then
-         Lkql_Checker.Projects.Clean_Up (Checker_Prj);
-         OS_Exit (E_Missing_Source);
-      end if;
-
-      if In_Aggregate_Project then
-         --  In this case we spawn a checker for each project being aggregated
-         Lkql_Checker.Projects.Aggregate.Process_Aggregated_Projects
-           (Checker_Prj);
-
+         Exit_Code := E_Missing_Source;
       else
-         --  Implement -j via multiple processes. In the default (-j1, no
-         --  custom worker) mode, process all sources in the main process.
-         Schedule_Files (Collector);
+         if In_Aggregate_Project then
+            --  In this case we spawn a checker for each project being
+            --  aggregated.
+            Lkql_Checker.Projects.Aggregate.Process_Aggregated_Projects
+              (Checker_Prj);
 
-         Generate_Qualification_Report (Collector);
+         else
+            --  Implement -j via multiple processes. In the default (-j1, no
+            --  custom worker) mode, process all sources in the main process.
+            Schedule_Files (Collector);
 
-         Lkql_Checker.Output.Close_Report_Files;
+            Generate_Qualification_Report (Collector);
 
-         if Tool_Failures > 0 then
-            Print
-              ("Total "
-               & Lkql_Checker_Mode_Image
-               & " failures:"
-               & Tool_Failures'Img);
+            Lkql_Checker.Output.Close_Report_Files;
+
+            if Tool_Failures > 0 then
+               Print
+                 ("Total "
+                  & Lkql_Checker_Mode_Image
+                  & " failures:"
+                  & Tool_Failures'Img);
+            end if;
          end if;
+
+         --  Compute the code to use when exiting the process
+         Exit_Code :=
+           (if Tool_Failures /= 0
+              or else Detected_Internal_Error /= 0
+              or else Error_From_Warning
+            then E_Error
+            elsif Missing_Rule_File_Detected
+            then E_Missing_Rule_File
+            elsif Bad_Rule_Detected
+            then E_Missing_Rule
+            elsif Rule_Option_Problem_Detected
+            then E_Bad_Rules
+            elsif Missing_File_Detected
+            then E_Missing_Source
+
+            --  If we are here, no problem with checker execution or rule
+            --  option or missing file definition is detected, so we can trust
+            --  results.
+
+            elsif (Detected_Non_Exempted_Violations > 0
+                   or else Detected_Compiler_Error > 0)
+              and then not Tool_Args.Brief_Mode
+            then E_Violation
+            else E_Success);
       end if;
 
       --  Get the ending time
       Time_End := Ada.Calendar.Clock;
-
-      --  Compute the code to use when exiting the process
-      Exit_Code :=
-        (if Tool_Failures /= 0
-           or else Detected_Internal_Error /= 0
-           or else Error_From_Warning
-         then E_Error
-         elsif Missing_Rule_File_Detected
-         then E_Missing_Rule_File
-         elsif Bad_Rule_Detected
-         then E_Missing_Rule
-         elsif Rule_Option_Problem_Detected
-         then E_Bad_Rules
-         elsif Missing_File_Detected
-         then E_Missing_Source
-
-         --  If we are here, no problem with checker execution or rule option
-         --  or missing file definition is detected, so we can trust results.
-
-         elsif (Detected_Non_Exempted_Violations > 0
-                or else Detected_Compiler_Error > 0)
-           and then not Tool_Args.Brief_Mode
-         then E_Violation
-         else E_Success);
 
       --  If required, emit the SARIF report
       if not In_Aggregate_Project and then Tool_Args.SARIF_Report_Enabled then
