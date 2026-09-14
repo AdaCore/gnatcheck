@@ -1076,21 +1076,23 @@ package body Lkql_Checker.Projects is
          XML_Help;
       end if;
 
-      if In_Aggregate_Project then
-         --  We have to skip most of the checks because this call does not do
-         --  anything except spawning another checker for individual projects
-
-         Set_Global_Result_Dirs (Checker_Prj);
-         goto Processing_Aggregate_Project;
-      end if;
-
-      --  No need to perform similar checks for custom XML file because it can
-      --  be set only with turning ON XML output
-
       if Tool_Args.List_Rules.Get or else Tool_Args.List_Rules_XML.Get then
          Nothing_To_Do := True;
          return;
       end if;
+
+      --  Setup and create output directories and reporting files
+      Lkql_Checker.Projects.Set_Global_Result_Dirs (Checker_Prj);
+      Ada.Directories.Create_Path (Global_Report_Dir.all);
+      Lkql_Checker.Output.Set_Report_Files;
+
+      --  Return now if we are in an aggregate project
+      if In_Aggregate_Project then
+         return;
+      end if;
+
+      --  No need to perform similar checks for custom XML file because it can
+      --  be set only with turning ON XML output
 
       Read_Args_From_Temp_Storage
         (Duplication_Report => not Is_Specified (Checker_Prj),
@@ -1102,7 +1104,6 @@ package body Lkql_Checker.Projects is
          return;
       end if;
 
-      Lkql_Checker.Projects.Set_Global_Result_Dirs (Checker_Prj);
       Checker_Config_File :=
         new String'
           (Normalize_Pathname
@@ -1199,12 +1200,6 @@ package body Lkql_Checker.Projects is
          Nothing_To_Do := True;
          return;
       end if;
-
-      --  If we are here - we have sources to check and rules to apply
-      <<Processing_Aggregate_Project>>
-
-      Ada.Directories.Create_Path (Global_Report_Dir.all);
-      Lkql_Checker.Output.Set_Report_Files;
    end Check_Parameters;
 
 end Lkql_Checker.Projects;
