@@ -980,6 +980,12 @@ report, and ``--emit-fixes`` puts those fixes in the SARIF report, as the
 applying them: any tool that reads SARIF and supports its fix objects can, whether
 or not it knows anything about GNATcheck.
 
+.. warning::
+
+  When generating auto-fix with GNATcheck some of them may collide, in that case
+  you can only apply one of them and you have to run the analysis once again to
+  generate new auto-fixes.
+
 From the command line
 ---------------------
 
