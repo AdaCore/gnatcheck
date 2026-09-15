@@ -1005,6 +1005,9 @@ result that carries a fix gets a wrench next to it. Clicking the wrench applies
 the fix. When a result carries several fixes, the wrench opens the list of them
 instead, each with a preview of what it changes.
 
+.. image:: ../media/gnatstudio-sarif-fix.png
+   :alt: GNAT Studio SARIF fix
+
 In Visual Studio Code
 ---------------------
 
@@ -1012,6 +1015,9 @@ The `SARIF Viewer
 <https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer>`__
 extension displays a SARIF report and applies the fixes its results carry.
 Applying a fix goes through that extension's own interface.
+
+.. image:: ../media/vscode-sarif-fix.png
+   :alt: Visual Studio Code SARIF fix
 
 Limitations
 ~~~~~~~~~~~
