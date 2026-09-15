@@ -95,7 +95,11 @@ html_theme_options = {
     "navigation_depth": 5,
 }
 
-latex_additional_files = ["gnat.sty"]
+latex_additional_files = [
+    "gnat.sty",
+    "media/gnatstudio-sarif-fix.png",
+    "media/vscode-sarif-fix.png",
+]
 
 latex_elements = {
     "preamble": latex_elements.TOC_DEPTH
