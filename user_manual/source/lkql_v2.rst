@@ -100,7 +100,7 @@ Stream builtins:
 * if necessary, convert lists to streams using the ``List.to_stream`` operation
 
 Replacing selectors
-~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^
 
 Streams are a simpler and more general aproach to lazy iteration than
 selectors previously were. This is why selectors have been removed.
