@@ -100,7 +100,7 @@ Stream builtins:
 * if necessary, convert lists to streams using the ``List.to_stream`` operation
 
 Replacing selectors
-~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^
 
 Streams are a simpler and more general aproach to lazy iteration than
 selectors previously were. This is why selectors have been removed.
@@ -183,3 +183,15 @@ Because rewriting constructors expect rewriting nodes as input, users
 should now use ``Node.to_rewriting`` builtin for explicit type
 conversions between a regular node and a rewriting one.
 
+Tooling
+=======
+
+Users of LKQL V2 can find the **Lkql** VSCode extension on the VSCode Marketplace.
+Its features include code highlighting, completion, navigation,
+and various syntactic and semantic diagnostics.
+
+.. warning::
+
+   In order for the extension to work with the ``stdlib`` module,
+   users should add the path ``path_to_gnatsas_install/lib`` to the
+   ``LKQL_PATH`` environement variable.
