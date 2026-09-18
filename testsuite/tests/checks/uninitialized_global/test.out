@@ -1,3 +1,14 @@
+pack.adb:2:4: rule violation: uninitialized global variable
+2 |    Z1 : Integer;          --  FLAG
+  |    ^^
+fix proposal: Add a default value to the declaration
+  in pack.adb:
+  1  package body Pack is
+  2 -   Z1 : Integer;          --  FLAG
+    +   Z1 : Integer := 0;          --  FLAG
+  3     Z2 : Integer := 12;    --  NOFLAG
+  4  
+
 pack.ads:2:4: rule violation: uninitialized global variable
 2 |    B : Boolean;                  --  FLAG
   |    ^
@@ -72,15 +83,4 @@ fix proposal: Add a default value to the declaration
      +   Y1 : Integer := 0;                --  FLAG
   22     Y2 : Integer := 12;          --  NOFLAG
   23     C2 : constant Integer := 1;  --  NOFLAG
-
-pack.adb:2:4: rule violation: uninitialized global variable
-2 |    Z1 : Integer;          --  FLAG
-  |    ^^
-fix proposal: Add a default value to the declaration
-  in pack.adb:
-  1  package body Pack is
-  2 -   Z1 : Integer;          --  FLAG
-    +   Z1 : Integer := 0;          --  FLAG
-  3     Z2 : Integer := 12;    --  NOFLAG
-  4  
 
