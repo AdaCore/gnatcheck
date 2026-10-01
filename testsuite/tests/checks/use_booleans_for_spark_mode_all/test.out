@@ -1,0 +1,116 @@
+main.ads:3:4: rule violation: Use static booleans to configure SPARK_Mode
+3 |    pragma SPARK_Mode (On);    -- FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^
+fix proposal: Replace the value by a static boolean
+  in main.ads:
+  1  package Main is
+  2     procedure Pragma_On_Non_Conflicting is null;
+  3 -   pragma SPARK_Mode (On);    -- FLAG
+    +   pragma SPARK_Mode (True);    -- FLAG
+  4     procedure Pragma_Off_Non_Conflicting is null;
+  5     pragma SPARK_Mode (Off);   -- FLAG
+
+main.ads:5:4: rule violation: Use static booleans to configure SPARK_Mode
+5 |    pragma SPARK_Mode (Off);   -- FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^
+fix proposal: Replace the value by a static boolean
+  in main.ads:
+  3     pragma SPARK_Mode (On);    -- FLAG
+  4     procedure Pragma_Off_Non_Conflicting is null;
+  5 -   pragma SPARK_Mode (Off);   -- FLAG
+    +   pragma SPARK_Mode (False);   -- FLAG
+  6     procedure Pragma_Auto_Non_Conflicting is null;
+  7     pragma SPARK_Mode (Auto);  -- FLAG
+
+main.ads:7:4: rule violation: Use static booleans to configure SPARK_Mode
+7 |    pragma SPARK_Mode (Auto);  -- FLAG
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.ads:9:53: rule violation: Use static booleans to configure SPARK_Mode
+9 |    procedure Aspect_On_Non_Conflicting is null with SPARK_Mode => On;      -- FLAG
+  |                                                     ^^^^^^^^^^^^^^^^
+fix proposal: Replace the value by a static boolean
+  in main.ads:
+  7      pragma SPARK_Mode (Auto);  -- FLAG
+  8   
+  9  -   procedure Aspect_On_Non_Conflicting is null with SPARK_Mode => On;      -- FLAG
+     +   procedure Aspect_On_Non_Conflicting
+     +   is null
+     +   with SPARK_Mode => True;      -- FLAG
+  10     procedure Aspect_Off_Non_Conflicting is null with SPARK_Mode => Off;    -- FLAG
+  11     procedure Aspect_Auto_Non_Conflicting is null with SPARK_Mode => Auto;  -- FLAG
+
+main.ads:10:54: rule violation: Use static booleans to configure SPARK_Mode
+10 |    procedure Aspect_Off_Non_Conflicting is null with SPARK_Mode => Off;    -- FLAG
+   |                                                      ^^^^^^^^^^^^^^^^^
+fix proposal: Replace the value by a static boolean
+  in main.ads:
+  8   
+  9      procedure Aspect_On_Non_Conflicting is null with SPARK_Mode => On;      -- FLAG
+  10 -   procedure Aspect_Off_Non_Conflicting is null with SPARK_Mode => Off;    -- FLAG
+     +   procedure Aspect_Off_Non_Conflicting
+     +   is null
+     +   with SPARK_Mode => False;    -- FLAG
+  11     procedure Aspect_Auto_Non_Conflicting is null with SPARK_Mode => Auto;  -- FLAG
+  12  
+
+main.ads:11:55: rule violation: Use static booleans to configure SPARK_Mode
+11 |    procedure Aspect_Auto_Non_Conflicting is null with SPARK_Mode => Auto;  -- FLAG
+   |                                                       ^^^^^^^^^^^^^^^^^^
+
+main.ads:17:4: rule violation: Use static booleans to configure SPARK_Mode
+17 |    pragma SPARK_Mode (On);    -- FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^
+fix proposal: Replace the value by a static boolean
+  in main.ads:
+  15  
+  16     procedure Pragma_On_Conflicting is null;
+  17 -   pragma SPARK_Mode (On);    -- FLAG
+     +   pragma SPARK_Mode (True);    -- FLAG
+  18     procedure Pragma_Off_Conflicting is null;
+  19     pragma SPARK_Mode (Off);   -- FLAG
+
+main.ads:19:4: rule violation: Use static booleans to configure SPARK_Mode
+19 |    pragma SPARK_Mode (Off);   -- FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^
+fix proposal: Replace the value by a static boolean
+  in main.ads:
+  17     pragma SPARK_Mode (On);    -- FLAG
+  18     procedure Pragma_Off_Conflicting is null;
+  19 -   pragma SPARK_Mode (Off);   -- FLAG
+     +   pragma SPARK_Mode (False);   -- FLAG
+  20     procedure Pragma_Auto_Conflicting is null;
+  21     pragma SPARK_Mode (Auto);  -- FLAG
+
+main.ads:21:4: rule violation: Use static booleans to configure SPARK_Mode
+21 |    pragma SPARK_Mode (Auto);  -- FLAG
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+main.ads:23:49: rule violation: Use static booleans to configure SPARK_Mode
+23 |    procedure Aspect_On_Conflicting is null with SPARK_Mode => On;      -- FLAG
+   |                                                 ^^^^^^^^^^^^^^^^
+fix proposal: Replace the value by a static boolean
+  in main.ads:
+  21     pragma SPARK_Mode (Auto);  -- FLAG
+  22  
+  23 -   procedure Aspect_On_Conflicting is null with SPARK_Mode => On;      -- FLAG
+     +   procedure Aspect_On_Conflicting is null with SPARK_Mode => True;      -- FLAG
+  24     procedure Aspect_Off_Conflicting is null with SPARK_Mode => Off;    -- FLAG
+  25     procedure Aspect_Auto_Conflicting is null with SPARK_Mode => Auto;  -- FLAG
+
+main.ads:24:50: rule violation: Use static booleans to configure SPARK_Mode
+24 |    procedure Aspect_Off_Conflicting is null with SPARK_Mode => Off;    -- FLAG
+   |                                                  ^^^^^^^^^^^^^^^^^
+fix proposal: Replace the value by a static boolean
+  in main.ads:
+  22  
+  23     procedure Aspect_On_Conflicting is null with SPARK_Mode => On;      -- FLAG
+  24 -   procedure Aspect_Off_Conflicting is null with SPARK_Mode => Off;    -- FLAG
+     +   procedure Aspect_Off_Conflicting is null with SPARK_Mode => False;    -- FLAG
+  25     procedure Aspect_Auto_Conflicting is null with SPARK_Mode => Auto;  -- FLAG
+  26  end Main;
+
+main.ads:25:51: rule violation: Use static booleans to configure SPARK_Mode
+25 |    procedure Aspect_Auto_Conflicting is null with SPARK_Mode => Auto;  -- FLAG
+   |                                                   ^^^^^^^^^^^^^^^^^^
+
