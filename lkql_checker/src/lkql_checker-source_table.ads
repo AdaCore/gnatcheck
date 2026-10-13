@@ -14,8 +14,6 @@ with Lkql_Checker.Ids;         use Lkql_Checker.Ids;
 with Lkql_Checker.Options;     use Lkql_Checker.Options;
 with Lkql_Checker.Projects;    use Lkql_Checker.Projects;
 
-with GNATCOLL.Projects; use GNATCOLL.Projects;
-
 with Libadalang.Analysis; use Libadalang.Analysis;
 
 package Lkql_Checker.Source_Table is
