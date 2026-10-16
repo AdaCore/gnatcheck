@@ -5,12 +5,11 @@
 
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Vectors;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with GNAT.Regexp;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
-
-with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Liblkqllang.Analysis;
 with Liblktlang.Analysis;
@@ -25,10 +24,10 @@ package Rule_Commands is
    Rule_Error : exception;
 
    type Rule_Argument is record
-      Name : Unbounded_Text_Type;
+      Name : Unbounded_String;
       --  Name of the argument
 
-      Value : Unbounded_Text_Type;
+      Value : Unbounded_String;
       --  Value of the argument, as a string.
    end record;
 
@@ -51,7 +50,7 @@ package Rule_Commands is
    type Regexp_Access is access all GNAT.Regexp.Regexp;
 
    type Rule_Parameter is record
-      Name        : Unbounded_Text_Type;
+      Name        : Unbounded_String;
       Has_Default : Boolean;
    end record;
 
@@ -60,20 +59,20 @@ package Rule_Commands is
    subtype Rule_Parameters is Rule_Parameter_Vectors.Vector;
 
    type Rule_Command is tagged record
-      Name : Unbounded_Text_Type;
+      Name : Unbounded_String;
       --  Name of the Rule
 
-      Message : Unbounded_Text_Type;
+      Message : Unbounded_String;
       --  Message for violations of the rule.
 
-      Help : Unbounded_Text_Type;
+      Help : Unbounded_String;
       --  Short help message associated with the rule.
       --  Defaults to Message if not specified.
 
-      Category : Unbounded_Text_Type;
+      Category : Unbounded_String;
       --  Category of this rule, if relevant
 
-      Subcategory : Unbounded_Text_Type;
+      Subcategory : Unbounded_String;
       --  Subcategory of this rule, if relevant
 
       Param_Kind : Rule_Param_Kind;
@@ -95,7 +94,7 @@ package Rule_Commands is
       --  For a KP detector, regexp to match relevant target triplets impacted,
       --  if any. Ignored if null.
 
-      Target_String : Unbounded_Text_Type;
+      Target_String : Unbounded_String;
       --  Raw target pattern string (e.g. "x86_64-*"), set when Target is
       --  non-null. Used for diagnostic messages.
    end record;

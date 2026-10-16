@@ -3,8 +3,9 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
-with Ada.Characters.Conversions;      use Ada.Characters.Conversions;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
+
+with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Lkql_Checker.String_Utilities;
 
@@ -26,6 +27,14 @@ package body Rule_Commands is
      Ada.Containers.Vectors (Positive, Param_Type);
    subtype Param_Type_Vector is Param_Type_Vectors.Vector;
 
+   function Node_Text (Source : Lkql.Lkql_Node'Class) return String
+   is (To_UTF8 (Source.Text));
+   --  Return the LKQL node text as a ``String``.
+
+   function Node_Text (Source : Lkt.Lkt_Node'Class) return String
+   is (To_UTF8 (Source.Text));
+   --  Return the Lkt node text as a ``String``.
+
    function Augment_With_Majors (Impact_Str : String) return String;
    --  Return Impact_Str augmented with the major-version prefix of each entry,
    --  so that a bare major version (e.g. "20") also matches in the compiled
@@ -45,23 +54,23 @@ package body Rule_Commands is
 
    procedure Set_Impact_Pattern
      (Impacts         : JSON_Value;
-      Rule_Name       : Text_Type;
-      Annotation_Kind : Text_Type;
+      Rule_Name       : String;
+      Annotation_Kind : String;
       Impact          : out Regexp_Access);
    --  Looks up the impact pattern for the given rule name. Assign it to
    --  Impact if found, otherwise raise an exception.
 
    procedure Set_Target_Pattern
-     (Target_Text     : Text_Type;
-      Annotation_Kind : Text_Type;
+     (Target_Text     : String;
+      Annotation_Kind : String;
       Target          : out Regexp_Access;
-      Target_Str      : out Unbounded_Wide_Wide_String);
+      Target_Str      : out Unbounded_String);
    --  Extract the given "target" pattern to an actual regexp object, or raise
    --  an exception if the pattern failed to parse.
 
    procedure Set_Remediation_Level
-     (Remediation_Text  : Text_Type;
-      Annotation_Kind   : Text_Type;
+     (Remediation_Text  : String;
+      Annotation_Kind   : String;
       Remediation_Level : out Remediation_Levels);
    --  Parse the remediation level from the given text into an actual
    --  Remediation_Levels value. Raise an exception if that was unsuccessful.
@@ -94,8 +103,8 @@ package body Rule_Commands is
       package LCO renames Liblkqllang.Common;
 
       Type_Ann  : constant Lkql.Identifier := Param.F_Type_Annotation;
-      Type_Name : constant Text_Type :=
-        (if Type_Ann.Is_Null then "any" else Type_Ann.Text);
+      Type_Name : constant String :=
+        (if Type_Ann.Is_Null then "any" else Node_Text (Type_Ann));
    begin
       if Type_Name = "bool" then
          return Bool_Param;
@@ -136,7 +145,7 @@ package body Rule_Commands is
    function Get_Param_Type (Param : Lkt.Fun_Param_Decl) return Param_Type is
       package LCO renames Liblktlang.Common;
 
-      Type_Name : constant Text_Type := Param.F_Decl_Type.Text;
+      Type_Name : constant String := Node_Text (Param.F_Decl_Type);
    begin
       if Type_Name = "Bool" then
          return Bool_Param;
@@ -154,7 +163,7 @@ package body Rule_Commands is
          --  the default value.
          case Param.F_Default_Val.Kind is
             when LCO.Lkt_Id_Range      =>
-               if Param.F_Default_Val.Text in "true" | "false" then
+               if Node_Text (Param.F_Default_Val) in "true" | "false" then
                   return Bool_Param;
                end if;
 
@@ -223,14 +232,13 @@ package body Rule_Commands is
 
    procedure Set_Impact_Pattern
      (Impacts         : JSON_Value;
-      Rule_Name       : Text_Type;
-      Annotation_Kind : Text_Type;
+      Rule_Name       : String;
+      Annotation_Kind : String;
       Impact          : out Regexp_Access)
    is
       use GNAT.Regexp;
 
-      Impact_Value : constant JSON_Value :=
-        Impacts.Get (To_UTF8 (To_Lower (Rule_Name)));
+      Impact_Value : constant JSON_Value := Impacts.Get (Rule_Name);
    begin
       if Impact_Value /= JSON_Null then
          Impact :=
@@ -242,8 +250,7 @@ package body Rule_Commands is
       end if;
    exception
       when others =>
-         raise Rule_Error
-           with "invalid impact entry for " & To_String (Annotation_Kind);
+         raise Rule_Error with "invalid impact entry for " & Annotation_Kind;
    end Set_Impact_Pattern;
 
    ------------------------
@@ -251,15 +258,15 @@ package body Rule_Commands is
    ------------------------
 
    procedure Set_Target_Pattern
-     (Target_Text     : Text_Type;
-      Annotation_Kind : Text_Type;
+     (Target_Text     : String;
+      Annotation_Kind : String;
       Target          : out Regexp_Access;
-      Target_Str      : out Unbounded_Wide_Wide_String)
+      Target_Str      : out Unbounded_String)
    is
       use GNAT.Regexp;
 
-      Str            : constant String := To_String (Target_Text);
-      Target_Pattern : constant String := Str (Str'First + 1 .. Str'Last - 1);
+      Target_Pattern : constant String :=
+        Target_Text (Target_Text'First + 1 .. Target_Text'Last - 1);
    begin
       Target :=
         new Regexp'
@@ -267,13 +274,11 @@ package body Rule_Commands is
              ("{" & Target_Pattern & "}",
               Glob           => True,
               Case_Sensitive => False));
-      Target_Str :=
-        To_Unbounded_Wide_Wide_String (To_Wide_Wide_String (Target_Pattern));
+      Target_Str := To_Unbounded_String (Target_Pattern);
 
    exception
       when others =>
-         raise Rule_Error
-           with "invalid argument for @" & To_String (Annotation_Kind);
+         raise Rule_Error with "invalid argument for @" & Annotation_Kind;
    end Set_Target_Pattern;
 
    ---------------------------
@@ -281,18 +286,17 @@ package body Rule_Commands is
    ---------------------------
 
    procedure Set_Remediation_Level
-     (Remediation_Text  : Text_Type;
-      Annotation_Kind   : Text_Type;
-      Remediation_Level : out Remediation_Levels)
-   is
-      Str : constant String := To_String (Remediation_Text);
+     (Remediation_Text  : String;
+      Annotation_Kind   : String;
+      Remediation_Level : out Remediation_Levels) is
    begin
       Remediation_Level :=
-        Remediation_Levels'Value (Str (Str'First + 1 .. Str'Last - 1));
+        Remediation_Levels'Value
+          (Remediation_Text
+             (Remediation_Text'First + 1 .. Remediation_Text'Last - 1));
    exception
       when others =>
-         raise Rule_Error
-           with "invalid argument for @" & To_String (Annotation_Kind);
+         raise Rule_Error with "invalid argument for @" & Annotation_Kind;
    end Set_Remediation_Level;
 
    -------------------------
@@ -320,9 +324,16 @@ package body Rule_Commands is
                  (Member_Refs.Decl_Annotation_F_Name,
                   Text_Is ("check") or Text_Is ("unit_check")))
           .As_Decl_Annotation;
+
+      function Argument_With_Name (Name : String) return Lkql.Arg
+      is (Check_Annotation.P_Arg_With_Name
+            (To_Unbounded_Text (To_Text (Name))));
+      --  Look up in the annotation node for the argument with the required
+      --  ``Name``.
    begin
       if Check_Annotation.Is_Null
-        or else Check_Annotation.F_Name.Text not in "check" | "unit_check"
+        or else Node_Text (Check_Annotation.F_Name)
+                not in "check" | "unit_check"
       then
          return False;
       end if;
@@ -331,38 +342,35 @@ package body Rule_Commands is
          Fn                       : constant Lkql.Fun_Decl :=
            Check_Annotation.Parent.As_Fun_Decl;
          Rule_Name_Arg            : constant Lkql.Arg :=
-           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("rule_name"));
+           Argument_With_Name ("rule_name");
          Msg_Arg                  : constant Lkql.Arg :=
-           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("message"));
+           Argument_With_Name ("message");
          Help_Arg                 : constant Lkql.Arg :=
-           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("help"));
+           Argument_With_Name ("help");
          Category_Arg             : constant Lkql.Arg :=
-           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("category"));
+           Argument_With_Name ("category");
          Subcategory_Arg          : constant Lkql.Arg :=
-           Check_Annotation.P_Arg_With_Name
-             (To_Unbounded_Text ("subcategory"));
+           Argument_With_Name ("subcategory");
          Parametric_Exemption_Arg : constant Lkql.Arg :=
-           Check_Annotation.P_Arg_With_Name
-             (To_Unbounded_Text ("parametric_exemption"));
+           Argument_With_Name ("parametric_exemption");
          Remediation_Arg          : constant Lkql.Arg :=
-           Check_Annotation.P_Arg_With_Name
-             (To_Unbounded_Text ("remediation"));
+           Argument_With_Name ("remediation");
          Target_Arg               : constant Lkql.Arg :=
-           Check_Annotation.P_Arg_With_Name (To_Unbounded_Text ("target"));
-         Name                     : Unbounded_Text_Type;
-         Msg                      : Unbounded_Text_Type;
-         Help                     : Unbounded_Text_Type;
-         Category                 : Unbounded_Text_Type;
-         Subcategory              : Unbounded_Text_Type;
+           Argument_With_Name ("target");
+         Name                     : Unbounded_String;
+         Msg                      : Unbounded_String;
+         Help                     : Unbounded_String;
+         Category                 : Unbounded_String;
+         Subcategory              : Unbounded_String;
          Impact                   : Regexp_Access;
          Target                   : Regexp_Access;
-         Target_Str               : Unbounded_Text_Type;
+         Target_Str               : Unbounded_String;
          Rule_Params              : Rule_Parameters;
          Remediation_Level        : Remediation_Levels := Medium;
          Parametric_Exemption     : Boolean := False;
-         Fn_Name                  : constant Text_Type := Fn.F_Name.Text;
-         Annotation_Kind          : constant Text_Type :=
-           Check_Annotation.F_Name.Text;
+         Fn_Name                  : constant String := Node_Text (Fn.F_Name);
+         Annotation_Kind          : constant String :=
+           Node_Text (Check_Annotation.F_Name);
 
          Param_Types : Param_Type_Vector;
          Param_Kind  : Rule_Param_Kind;
@@ -373,8 +381,8 @@ package body Rule_Commands is
 
          procedure Get_Text
            (Arg     : Lkql.Arg;
-            Default : Unbounded_Text_Type;
-            Text    : out Unbounded_Text_Type);
+            Default : Unbounded_String;
+            Text    : out Unbounded_String);
          --  Get text value from Arg and store result in Text. Defaults to
          --  Default if Arg is null.
 
@@ -388,7 +396,7 @@ package body Rule_Commands is
                raise Rule_Error
                  with
                    "argument for @"
-                   & To_String (Annotation_Kind)
+                   & Annotation_Kind
                    & " must be a string literal";
             end if;
          end Check_String;
@@ -399,8 +407,8 @@ package body Rule_Commands is
 
          procedure Get_Text
            (Arg     : Lkql.Arg;
-            Default : Unbounded_Text_Type;
-            Text    : out Unbounded_Text_Type) is
+            Default : Unbounded_String;
+            Text    : out Unbounded_String) is
          begin
             if Arg.Is_Null then
                Text := Default;
@@ -411,7 +419,9 @@ package body Rule_Commands is
 
                --  Store the literal, getting rid of the starting & end quotes
 
-               Text := To_Unbounded_Text (Arg.P_Expr.As_String_Literal.Text);
+               Text :=
+                 To_Unbounded_String
+                   (Node_Text (Arg.P_Expr.As_String_Literal));
                Delete (Text, Length (Text), Length (Text));
                Delete (Text, 1, 1);
             end if;
@@ -427,23 +437,27 @@ package body Rule_Commands is
 
          if not Parametric_Exemption_Arg.Is_Null then
             Parametric_Exemption :=
-              Parametric_Exemption_Arg.P_Expr.Text = "true";
+              Node_Text (Parametric_Exemption_Arg.P_Expr) = "true";
          end if;
 
-         Get_Text (Rule_Name_Arg, To_Unbounded_Text (Fn_Name), Name);
+         Get_Text (Rule_Name_Arg, To_Unbounded_String (Fn_Name), Name);
          Get_Text (Msg_Arg, Name, Msg);
          Get_Text (Help_Arg, Msg, Help);
-         Get_Text (Category_Arg, To_Unbounded_Text ("Misc"), Category);
-         Get_Text (Subcategory_Arg, To_Unbounded_Text (""), Subcategory);
+         Get_Text (Category_Arg, To_Unbounded_String ("Misc"), Category);
+         Get_Text (Subcategory_Arg, To_Unbounded_String (""), Subcategory);
 
          if Impacts /= JSON_Null then
-            Set_Impact_Pattern (Impacts, Fn_Name, Annotation_Kind, Impact);
+            Set_Impact_Pattern
+              (Impacts,
+               To_UTF8 (To_Lower (Fn.F_Name.Text)),
+               Annotation_Kind,
+               Impact);
          end if;
 
          if not Target_Arg.Is_Null then
             Check_String (Target_Arg);
             Set_Target_Pattern
-              (Target_Arg.P_Expr.As_String_Literal.Text,
+              (Node_Text (Target_Arg.P_Expr.As_String_Literal),
                Annotation_Kind,
                Target,
                Target_Str);
@@ -452,7 +466,7 @@ package body Rule_Commands is
          if not Remediation_Arg.Is_Null then
             Check_String (Remediation_Arg);
             Set_Remediation_Level
-              (Remediation_Arg.P_Expr.As_String_Literal.Text,
+              (Node_Text (Remediation_Arg.P_Expr.As_String_Literal),
                Annotation_Kind,
                Remediation_Level);
          end if;
@@ -460,7 +474,8 @@ package body Rule_Commands is
          for P of Fn.F_Fun_Expr.F_Parameters loop
             Rule_Params.Append
               (Rule_Parameter'
-                 (Name        => To_Unbounded_Text (P.F_Param_Identifier.Text),
+                 (Name        =>
+                    To_Unbounded_String (Node_Text (P.F_Param_Identifier)),
                   Has_Default => not P.F_Default_Expr.Is_Null));
          end loop;
 
@@ -504,24 +519,24 @@ package body Rule_Commands is
           .As_Decl_Annotation;
    begin
       if Check_Annotation.Is_Null
-        or else Check_Annotation.F_Name.Text not in "check" | "unit_check"
+        or else Node_Text (Check_Annotation.F_Name)
+                not in "check" | "unit_check"
       then
          return False;
       end if;
 
       declare
-         function Get_Annotation_Arg
-           (Arg_Name : Text_Type) return Lkt.Argument;
+         function Get_Annotation_Arg (Arg_Name : String) return Lkt.Argument;
 
          ------------------------
          -- Get_Annotation_Arg --
          ------------------------
 
-         function Get_Annotation_Arg (Arg_Name : Text_Type) return Lkt.Argument
-         is
+         function Get_Annotation_Arg (Arg_Name : String) return Lkt.Argument is
          begin
             for Arg of Check_Annotation.F_Args.F_Args loop
-               if To_Lower (Arg.F_Name.Text) = To_Lower (Arg_Name) then
+               if To_UTF8 (To_Lower (Arg.F_Name.Text)) = To_Lower (Arg_Name)
+               then
                   return Arg.As_Argument;
                end if;
             end loop;
@@ -546,20 +561,21 @@ package body Rule_Commands is
            Get_Annotation_Arg ("remediation");
          Target_Arg               : constant Lkt.Argument :=
            Get_Annotation_Arg ("target");
-         Name                     : Unbounded_Text_Type;
-         Msg                      : Unbounded_Text_Type;
-         Help                     : Unbounded_Text_Type;
-         Category                 : Unbounded_Text_Type;
-         Subcategory              : Unbounded_Text_Type;
+         Name                     : Unbounded_String;
+         Msg                      : Unbounded_String;
+         Help                     : Unbounded_String;
+         Category                 : Unbounded_String;
+         Subcategory              : Unbounded_String;
          Impact                   : Regexp_Access;
          Target                   : Regexp_Access;
-         Target_Str               : Unbounded_Text_Type;
+         Target_Str               : Unbounded_String;
          Rule_Params              : Rule_Parameters;
          Remediation_Level        : Remediation_Levels := Medium;
          Parametric_Exemption     : Boolean := False;
-         Fn_Name                  : constant Text_Type := Fn.F_Syn_Name.Text;
-         Annotation_Kind          : constant Text_Type :=
-           Check_Annotation.F_Name.Text;
+         Fn_Name                  : constant String :=
+           Node_Text (Fn.F_Syn_Name);
+         Annotation_Kind          : constant String :=
+           Node_Text (Check_Annotation.F_Name);
 
          Param_Types : Param_Type_Vector;
          Param_Kind  : Rule_Param_Kind;
@@ -570,8 +586,8 @@ package body Rule_Commands is
 
          procedure Get_Text
            (Arg     : Lkt.Argument;
-            Default : Unbounded_Text_Type;
-            Text    : out Unbounded_Text_Type);
+            Default : Unbounded_String;
+            Text    : out Unbounded_String);
          --  Get text value from Arg and store result in Text. Defaults to
          --  Default if Arg is null.
 
@@ -585,7 +601,7 @@ package body Rule_Commands is
                raise Rule_Error
                  with
                    "argument for @"
-                   & To_String (Annotation_Kind)
+                   & Annotation_Kind
                    & " must be a string literal";
             end if;
          end Check_String;
@@ -596,8 +612,8 @@ package body Rule_Commands is
 
          procedure Get_Text
            (Arg     : Lkt.Argument;
-            Default : Unbounded_Text_Type;
-            Text    : out Unbounded_Text_Type) is
+            Default : Unbounded_String;
+            Text    : out Unbounded_String) is
          begin
             if Arg.Is_Null then
                Text := Default;
@@ -606,7 +622,8 @@ package body Rule_Commands is
                Check_String (Arg);
 
                --  Store the literal, getting rid of the starting & end quotes
-               Text := To_Unbounded_Text (Arg.F_Value.As_String_Lit.Text);
+               Text :=
+                 To_Unbounded_String (Node_Text (Arg.F_Value.As_String_Lit));
                Delete (Text, Length (Text), Length (Text));
                Delete (Text, 1, 1);
             end if;
@@ -622,22 +639,26 @@ package body Rule_Commands is
 
          if not Parametric_Exemption_Arg.Is_Null then
             Parametric_Exemption :=
-              Parametric_Exemption_Arg.F_Value.Text = "true";
+              Node_Text (Parametric_Exemption_Arg.F_Value) = "true";
          end if;
 
-         Get_Text (Rule_Name_Arg, To_Unbounded_Text (Fn_Name), Name);
+         Get_Text (Rule_Name_Arg, To_Unbounded_String (Fn_Name), Name);
          Get_Text (Msg_Arg, Name, Msg);
          Get_Text (Help_Arg, Msg, Help);
-         Get_Text (Category_Arg, To_Unbounded_Text ("Misc"), Category);
-         Get_Text (Subcategory_Arg, To_Unbounded_Text (""), Subcategory);
+         Get_Text (Category_Arg, To_Unbounded_String ("Misc"), Category);
+         Get_Text (Subcategory_Arg, To_Unbounded_String (""), Subcategory);
          if Impacts /= JSON_Null then
-            Set_Impact_Pattern (Impacts, Fn_Name, Annotation_Kind, Impact);
+            Set_Impact_Pattern
+              (Impacts,
+               To_UTF8 (To_Lower (Fn.F_Syn_Name.Text)),
+               Annotation_Kind,
+               Impact);
          end if;
 
          if not Target_Arg.Is_Null then
             Check_String (Target_Arg);
             Set_Target_Pattern
-              (Target_Arg.F_Value.As_String_Lit.Text,
+              (Node_Text (Target_Arg.F_Value.As_String_Lit),
                Annotation_Kind,
                Target,
                Target_Str);
@@ -646,7 +667,7 @@ package body Rule_Commands is
          if not Remediation_Arg.Is_Null then
             Check_String (Remediation_Arg);
             Set_Remediation_Level
-              (Remediation_Arg.F_Value.As_String_Lit.Text,
+              (Node_Text (Remediation_Arg.F_Value.As_String_Lit),
                Annotation_Kind,
                Remediation_Level);
          end if;
@@ -654,7 +675,8 @@ package body Rule_Commands is
          for P of Fn.F_Params loop
             Rule_Params.Append
               (Rule_Parameter'
-                 (Name        => To_Unbounded_Text (P.F_Syn_Name.Text),
+                 (Name        =>
+                    To_Unbounded_String (Node_Text (P.F_Syn_Name)),
                   Has_Default => not P.F_Default_Val.Is_Null));
          end loop;
 

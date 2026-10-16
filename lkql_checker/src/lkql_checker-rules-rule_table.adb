@@ -3,16 +3,14 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later
 --
 
-with Ada.Characters.Conversions;      use Ada.Characters.Conversions;
-with Ada.Characters.Handling;         use Ada.Characters.Handling;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Containers.Ordered_Sets;
-with Ada.Directories;                 use Ada.Directories;
-with Ada.Exceptions;                  use Ada.Exceptions;
-with Ada.Strings;                     use Ada.Strings;
-with Ada.Strings.Fixed;               use Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;           use Ada.Strings.Unbounded;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
-with Ada.Text_IO;                     use Ada.Text_IO;
+with Ada.Directories;         use Ada.Directories;
+with Ada.Exceptions;          use Ada.Exceptions;
+with Ada.Strings;             use Ada.Strings;
+with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
+with Ada.Text_IO;             use Ada.Text_IO;
 
 with GNAT.OS_Lib; use GNAT.OS_Lib;
 with GNAT.Regexp; use GNAT.Regexp;
@@ -33,8 +31,6 @@ with VSS.JSON.Streams;
 with VSS.Stream_Element_Vectors.Conversions;
 with VSS.Strings.Conversions;
 with VSS.Text_Streams.Memory_UTF8_Output;
-
-with Langkit_Support.Text; use Langkit_Support.Text;
 
 with Rule_Commands; use Rule_Commands;
 with Rules_Factory; use Rules_Factory;
@@ -1936,9 +1932,9 @@ package body Lkql_Checker.Rules.Rule_Table is
                      Print
                        (4 * Indent_String
                         & "<arg name="""
-                        & To_String (To_Text (Arg.Name))
+                        & To_String (Arg.Name)
                         & """ value="""
-                        & Escape_String (To_String (To_Text (Arg.Value)))
+                        & Escape_String (To_String (Arg.Value))
                         & """ />");
                   end loop;
                   Print (3 * Indent_String & "</instance>");
@@ -2002,11 +1998,7 @@ package body Lkql_Checker.Rules.Rule_Table is
             for I in 2 .. Rule.Parameters.Last_Index loop
                if not Rule.Parameters.Element (I).Has_Default then
                   Non_Defaulted_Params.Append
-                    ('"'
-                     & To_String
-                         (To_Wide_Wide_String
-                            (Rule.Parameters.Element (I).Name))
-                     & '"');
+                    ('"' & To_String (Rule.Parameters.Element (I).Name) & '"');
                end if;
             end loop;
 
@@ -2047,8 +2039,7 @@ package body Lkql_Checker.Rules.Rule_Table is
 
       for R of All_Rules_Vec loop
          declare
-            Name    : constant String :=
-              To_String (To_Wide_Wide_String (R.Name));
+            Name    : constant String := To_String (R.Name);
             Id      : constant Rule_Id := Find_Rule_Id (Name);
             Id_Text : constant String := Get_Id_Text (Id);
          begin
@@ -2064,15 +2055,11 @@ package body Lkql_Checker.Rules.Rule_Table is
 
             Rule := Create_Rule (R.Param_Kind, Id_Text);
             Rule.Name := To_Unbounded_String (Name);
-            Rule.Message :=
-              To_Unbounded_String
-                (To_String (To_Wide_Wide_String (R.Message)));
-            Rule.Help_Info :=
-              To_Unbounded_String (To_String (To_Wide_Wide_String (R.Help)));
+            Rule.Message := R.Message;
+            Rule.Help_Info := R.Help;
 
             declare
-               Category : constant String :=
-                 To_String (To_Wide_Wide_String (R.Category));
+               Category : constant String := To_String (R.Category);
             begin
                if Category = "Feature" then
                   Rule.Category := To_Unbounded_String ("Feature Usage Rules");
@@ -2083,18 +2070,14 @@ package body Lkql_Checker.Rules.Rule_Table is
                end if;
             end;
 
-            Rule.Subcategory :=
-              To_Unbounded_String
-                (To_String (To_Wide_Wide_String (R.Subcategory)));
+            Rule.Subcategory := R.Subcategory;
 
             Rule.Parameters := R.Parameters;
             Rule.Remediation_Level := R.Remediation_Level;
             Rule.Allows_Parametrized_Exemption := R.Parametric_Exemption;
             Rule.Impact := R.Impact;
             Rule.Target := R.Target;
-            Rule.Target_String :=
-              To_Unbounded_String
-                (To_String (To_Wide_Wide_String (R.Target_String)));
+            Rule.Target_String := R.Target_String;
             All_Rules.Insert (Id, Rule);
          end;
       end loop;
