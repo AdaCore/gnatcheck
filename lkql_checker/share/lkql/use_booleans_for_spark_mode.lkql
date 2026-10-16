@@ -1,0 +1,77 @@
+# lkql version: 2
+
+from libadalang import *
+import libadalang_rewriting as r
+
+|" Get the value associated to a spark mode specification. The provided
+|" ``node`` should be either a ``AspectAssoc`` or a ``PragmaNode``.
+fun get_spark_mode_value(node: AdaNode): Expr =
+    match node {
+        case a@AspectAssoc => a.f_expr
+        case p@PragmaNode => p.f_args.children.at(0)?.as[BaseAssoc]?.p_assoc_expr()
+        case _ => null
+    }
+
+|" Given a SPARK_Mode specification node (either a ``AspectAssoc`` or a
+|" ``PragmaNode``) using the ``On`` / ``Off`` notation, replace its value by
+|" the corresponding boolean literal.
+fun replace_spark_mode_by_boolean(
+    spark_mode_spec: AdaNode,
+    ctx: RewritingContext
+): RewritingContext = {
+    val spark_mode_value = get_spark_mode_value(spark_mode_spec).as[Identifier];
+    if spark_mode_value.p_name_is("on") or spark_mode_value.p_name_is("off") then
+        ctx.replace(
+            spark_mode_value.to_rewriting,
+            r.Identifier(_token=(
+                if spark_mode_value.p_name_is("on") then
+                    "True"
+                else
+                    "False"
+            ))
+        )
+    else
+        ctx
+}
+
+|" Flag ``SPARK_Mode`` specification aspects and pragmas that use the ``On`` /
+|" ``Off`` / ``Auto`` notation when the latter is conflicting with an existing
+|" and visible Ada entity.
+|"
+|" .. param:: all
+|"    If true, flag all aspects and pragmas, even if the value isn't
+|"    conflicting with an Ada entity.
+|"
+|" .. rubric:: Example
+|"
+|" .. code-block:: ada
+|"    :emphasize-lines: 1, 6
+|"
+|"    procedure P1 with Spark_Mode => On;  --  FLAG if `all` is `True`
+|"    procedure P2 with SPARK_Mode => True;
+|"
+|"    On : constant Boolean := True;
+|"
+|"    procedure P3 with SPARK_Mode => On;  --  FLAG in any case
+@check(
+    message="Use static booleans to configure SPARK_Mode",
+    category="Style",
+    subcategory="Programming Practice",
+    rule_name="Use_Booleans_For_SPARK_Mode",
+    auto_fix=replace_spark_mode_by_boolean,
+    auto_fix_description="Replace the value by a static boolean"
+)
+fun use_booleans_for_spark_mode(node: AdaNode, all: Bool = false): Bool =
+    node is (AspectAssoc | PragmaNode) when {
+        val name = match node {
+            case a@AspectAssoc => a.f_id
+            case p@PragmaNode => p.f_id
+        };
+        name.p_name_is("spark_mode")
+        and get_spark_mode_value(node) is i@Identifier when
+            (i.p_name_is("on") or i.p_name_is("off") or i.p_name_is("auto"))
+            and (
+                all
+                or i.p_referenced_decl() is BasicDecl(p_is_visible(i): true)
+            )
+    }

@@ -1,0 +1,7 @@
+driver: checker
+rule_name: Use_Booleans_For_Spark_Mode
+input_sources:
+  - main.ads
+auto_fix: True
+rule_arguments:
+    use_booleans_for_spark_mode.all: 'true'
