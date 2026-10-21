@@ -14,8 +14,9 @@ The general description of this language can be found in the
 The APIs available in LKQL are described in the :ref:`LKQL_API_doc`.
 
 In addition to the examples available in this document, you will find all the
-predefined checks implemented in GNATcheck under the :file:`share/lkql`
-directory which can be used as examples and starting points for your own rules.
+predefined checks implemented in GNATcheck under the
+:file:`lib/gnatcheck/share/lkql` directory which can be used as examples and
+starting points for your own rules.
 
 This chapter gives some additional information on how to use this language to
 create your own rules and checkers.
@@ -24,10 +25,11 @@ How To Write Rules
 ------------------
 
 Rules are written in the LKQL language, and put either in the predefined
-:file:`share/lkql` directory or under any other directory specified
-via the ``--rules-dir`` switch. Each :file:`.lkql` file found in these directories
-will be loaded by gnatcheck and represents a distinct rule (or a set of helper
-functions). The naming convention of the rules is ``lowercase_with_underscores``.
+:file:`lib/gnatcheck/share/lkql` directory or under any other directory
+specified via the ``--rules-dir`` switch. Each :file:`.lkql` file found in these
+directories will be loaded by gnatcheck and represents a distinct rule (or a set
+of helper functions). The naming convention of the rules is
+``lowercase_with_underscores``.
 
 Here is a simple rule example, that will just flag every body node:
 
