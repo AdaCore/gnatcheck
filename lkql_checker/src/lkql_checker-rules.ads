@@ -7,11 +7,10 @@
 --  rule table and rule checking process. It contains some basic type
 --  declarations.
 
-with Ada.Characters.Handling;         use Ada.Characters.Handling;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Ada.Containers.Vectors;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
-with Ada.Strings.Unbounded;           use Ada.Strings.Unbounded;
-with Ada.Text_IO;                     use Ada.Text_IO;
+with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
+with Ada.Text_IO;             use Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
 with GNATCOLL.JSON; use GNATCOLL.JSON;
@@ -174,17 +173,16 @@ package Lkql_Checker.Rules is
    end record;
    --  This record store all needed read-only information about a rule.
 
-   type Optional_Unbounded_Wide_Wide_String (Is_Set : Boolean := False) is
-   record
+   type Optional_Unbounded_String (Is_Set : Boolean := False) is record
       case Is_Set is
          when True =>
-            Value : Unbounded_Wide_Wide_String;
+            Value : Unbounded_String;
 
          when False =>
             null;
       end case;
    end record;
-   --  Optional wrapper for Unbounded_Wide_Wide_String. ``Is_Set`` is False
+   --  Optional wrapper for Unbounded_String. ``Is_Set`` is False
    --  when no value has been assigned yet; True when Value holds the actual
    --  string.
 
@@ -364,7 +362,7 @@ package Lkql_Checker.Rules is
    --------------------------------------
 
    type One_String_Parameter_Instance is new Rule_Instance with record
-      Param : Optional_Unbounded_Wide_Wide_String := (Is_Set => False);
+      Param : Optional_Unbounded_String := (Is_Set => False);
       File  : Unbounded_String := Null_Unbounded_String;
    end record;
    --  Represents an instance of a rule with only one string parameter
@@ -475,8 +473,7 @@ package Lkql_Checker.Rules is
       Constant_Suffix,
       Renaming_Suffix,
       Access_Obj_Suffix,
-      Interrupt_Suffix : Optional_Unbounded_Wide_Wide_String :=
-        (Is_Set => False);
+      Interrupt_Suffix : Optional_Unbounded_String := (Is_Set => False);
       Default          : Tri_State := Unset;
    end record;
    --  Represents an instance of a rule about identifier suffixes
@@ -518,7 +515,7 @@ package Lkql_Checker.Rules is
       Derived_Prefix,
       Constant_Prefix,
       Exception_Prefix,
-      Enum_Prefix : Optional_Unbounded_Wide_Wide_String := (Is_Set => False);
+      Enum_Prefix : Optional_Unbounded_String := (Is_Set => False);
       Exclusive   : Tri_State := Unset;
    end record;
    --  Represents an instance of a rule about identifier prefixes
@@ -558,7 +555,7 @@ package Lkql_Checker.Rules is
       Exception_Casing,
       Others_Casing,
       Exclude,
-      Exclude_File : Optional_Unbounded_Wide_Wide_String := (Is_Set => False);
+      Exclude_File : Optional_Unbounded_String := (Is_Set => False);
    end record;
    --  Represents an instance of a rule about identifiers casing
 
@@ -592,8 +589,7 @@ package Lkql_Checker.Rules is
 
    type Forbidden_Instance is new Rule_Instance with record
       All_Flag           : Tri_State := Unset;
-      Forbidden, Allowed : Optional_Unbounded_Wide_Wide_String :=
-        (Is_Set => False);
+      Forbidden, Allowed : Optional_Unbounded_String := (Is_Set => False);
    end record;
    --  Represents an instance of a rule about forbiddening things
 
@@ -624,7 +620,7 @@ package Lkql_Checker.Rules is
    -----------------------------------------
 
    type Silent_Exception_Handlers_Instance is new Rule_Instance with record
-      Subprograms, Subprogram_Regexps : Optional_Unbounded_Wide_Wide_String :=
+      Subprograms, Subprogram_Regexps : Optional_Unbounded_String :=
         (Is_Set => False);
    end record;
    --  Represents an instance of a rule about silent exception handlers

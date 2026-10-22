@@ -19,7 +19,6 @@ with GNATCOLL.Strings; use GNATCOLL.Strings;
 
 with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 with Langkit_Support.Text;  use Langkit_Support.Text;
-
 with Libadalang.Expr_Eval;
 
 package body Lkql_Checker.Diagnostics.Exemptions is
@@ -32,8 +31,11 @@ package body Lkql_Checker.Diagnostics.Exemptions is
 
    type Exemption_Kinds is (Not_An_Exemption, Exempt_On, Exempt_Off);
 
-   function Get_Exemption_Kind
-     (Image : Wide_Wide_String) return Exemption_Kinds;
+   function Lower_Text (Source : LAL.Analysis.Ada_Node'Class) return String
+   is (To_UTF8 (To_Lower (Source.Text)));
+   --  Return the lowered node text as a ``String``.
+
+   function Get_Exemption_Kind (Image : String) return Exemption_Kinds;
    --  Returns Exemption_Kinds value represented by Image. Returns
    --  Not_An_Exemption if Image does not represent a valid exemption kind.
 
@@ -435,14 +437,11 @@ package body Lkql_Checker.Diagnostics.Exemptions is
    -- Get_Exemption_Kind --
    ------------------------
 
-   function Get_Exemption_Kind
-     (Image : Wide_Wide_String) return Exemption_Kinds
-   is
-      Norm_Image : constant Wide_Wide_String :=
-        To_Lower
-          (if Image (Image'First) = '"'
-           then Image (Image'First + 1 .. Image'Last - 1)
-           else Image);
+   function Get_Exemption_Kind (Image : String) return Exemption_Kinds is
+      Norm_Image : constant String :=
+        (if Image (Image'First) = '"'
+         then Image (Image'First + 1 .. Image'Last - 1)
+         else Image);
    begin
       if Norm_Image = "exempt_on" then
          return Exempt_On;
@@ -525,14 +524,14 @@ package body Lkql_Checker.Diagnostics.Exemptions is
 
    function Is_Exemption_Pragma (El : LAL.Analysis.Pragma_Node) return Boolean
    is
-      Pragma_Name : constant Text_Type := To_Lower (El.F_Id.Text);
+      Pragma_Name : constant String := Lower_Text (El.F_Id);
       Pragma_Args : constant LAL.Analysis.Base_Assoc_List := El.F_Args;
-      Tool_Name   : constant Text_Type := To_Text (Lkql_Checker_Mode_Image);
+      Tool_Name   : constant String := Lkql_Checker_Mode_Image;
    begin
       return
         Pragma_Name in "annotate" | "gnat_annotate"
         and then not Pragma_Args.Is_Null
-        and then To_Lower (Pragma_Args.List_Child (1).P_Assoc_Expr.Text)
+        and then Lower_Text (Pragma_Args.List_Child (1).P_Assoc_Expr)
                  = Tool_Name;
    end Is_Exemption_Pragma;
 
@@ -1140,7 +1139,8 @@ package body Lkql_Checker.Diagnostics.Exemptions is
       --  2. Second parameter should be either "Exempt_On" or
       --     "Exempt_Off"
       Action.Exemption_Control :=
-        Get_Exemption_Kind (Pragma_Args.List_Child (2).P_Assoc_Expr.Text);
+        Get_Exemption_Kind
+          (Lower_Text (Pragma_Args.List_Child (2).P_Assoc_Expr));
 
       --  3. Third parameter should be the name of some existing rule,
       --     may be, with parameter names, but the latter is allowed
