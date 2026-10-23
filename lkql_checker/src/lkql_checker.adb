@@ -38,18 +38,21 @@ package body Lkql_Checker is
    ----------------------
 
    procedure Setup_Search_Paths;
-   --  Initialize LKQL_PATH to include path to built-in rules.
-   --  Assuming this executable is in $PREFIX/bin, this includes the
-   --  $PREFIX/share/lkql and $PREFIX/share/lkql/kp paths. That way, only
-   --  the driver needs to be aware of built-in rules, and worker can be
-   --  located anywhere. This also extends dynamic library search paths
-   --  (PATH for Windows and LD_LIBRARY_PATH on Linux) to point on
-   --  $PREFIX/lib and $PREFIX/lib/libadalang, to allow worker processes
-   --  that rely on dynamic libraries to find their dependencies without
-   --  requiring users to explicitly set these paths.
-   --  Finally add the $PREFIX/bin directory to the PATH to ensure the worker
-   --  of the current installation is chosen over other possible LKQL
-   --  installations.
+   --  Initialize LKQL_PATH to include path to built-in rules. Assuming this
+   --  executable is in $PREFIX/bin, the runtime files (worker, libraries and
+   --  rules) are either located under $ROOT, which is $PREFIX/lib/<tool>
+   --  (where <tool> can be "gnatcheck" or "gnatkp") when this directory
+   --  exists, or default to $PREFIX otherwise. Using a per-tool directory is
+   --  required to have GNATcheck and GNATkp installed in the same prefix
+   --  without sharing any file. This includes the $ROOT/share/lkql and
+   --  $ROOT/share/lkql/kp paths. That way, only the driver needs to be aware
+   --  of built-in rules, and worker can be located anywhere. This also extends
+   --  dynamic library search paths (PATH for Windows and LD_LIBRARY_PATH on
+   --  Linux) to point on $ROOT/lib and $ROOT/lib/libadalang, to allow worker
+   --  processes that rely on dynamic libraries to find their dependencies
+   --  without requiring users to explicitly set these paths. Finally add the
+   --  $ROOT/bin directory to the PATH to ensure the worker of the current
+   --  installation is chosen over other possible LKQL installations.
 
    procedure Print_LKQL_Rules
      (File                   : File_Type;
@@ -123,14 +126,19 @@ package body Lkql_Checker is
          Prefix : constant String :=
            Containing_Directory (Containing_Directory (Executable.all));
 
+         Tool_Root : constant String :=
+           Compose (Compose (Prefix, "lib"), Lkql_Checker_Mode_Image);
+         Root      : constant String :=
+           (if Is_Directory (Tool_Root) then Tool_Root else Prefix);
+
          Lkql     : constant String :=
-           Compose (Compose (Prefix, "share"), "lkql");
+           Compose (Compose (Root, "share"), "lkql");
          Stubs    : constant String := Compose (Lkql, "stubs");
          Kp       : constant String := Compose (Lkql, "kp");
          Specific : constant String := Compose (Kp, "specific");
 
-         Bin     : constant String := Compose (Prefix, "bin");
-         Lib     : constant String := Compose (Prefix, "lib");
+         Bin     : constant String := Compose (Root, "bin");
+         Lib     : constant String := Compose (Root, "lib");
          Lib_LAL : constant String := Compose (Lib, "libadalang");
       begin
          Add_Path ("LKQL_PATH", Lkql);
