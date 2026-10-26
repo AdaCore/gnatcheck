@@ -1,0 +1,8 @@
+Default value for a one-character list parameter
+================================================
+
+
+Explicit value for a one-character list parameter
+=================================================
+
+main.ads:2:04: rule violation: annotated comment

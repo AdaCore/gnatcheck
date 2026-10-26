@@ -77,7 +77,7 @@ package body Lkql_Checker.JSON_Utilities is
       Tuple_Level : Integer := 0;
       In_Item     : Boolean := False;
    begin
-      if Field'Length > 1
+      if Field_Value'Length > 1
         and then Field_Value (Field_Value'First) = '['
         and then Field_Value (Field_Value'Last) = ']'
       then

@@ -1,0 +1,9 @@
+driver: gnatcheck
+format: brief
+input_sources:
+  - main.ads
+tests:
+  - label: Default value for a one-character list parameter
+    lkql_rule_file: rules_default.lkql
+  - label: Explicit value for a one-character list parameter
+    lkql_rule_file: rules_explicit.lkql
