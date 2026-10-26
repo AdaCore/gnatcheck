@@ -11,6 +11,10 @@ def gnatcheck_native_jit():
     anod_test("gnatcheck", qualifier="implementation=native_jit")
     anod_test("gnatcheck", qualifier="implementation=native_jit,private")
 
+def gnatcheck_jit():
+    install()
+    anod_test("gnatcheck", qualifier="implementation=jit")
+
 def gnatcheck_internal_testsuite():
     install()
     anod_test("gnatcheck", qualifier="implementation=native_jit,private,internal")
