@@ -1,6 +1,6 @@
 configuration project Default is
    for Default_Language use "Ada";
-   for Runtime_Dir       ("Ada") use "dir";
+   for Runtime_Dir ("Ada") use "src";
 
    package Naming is
       for Spec_Suffix ("Ada") use ".spec";
