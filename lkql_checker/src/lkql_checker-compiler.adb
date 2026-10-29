@@ -1883,7 +1883,7 @@ package body Lkql_Checker.Compiler is
 
       --  Pass LKQL specific options
       if Tool_Args.Verbose.Get then
-         Args.Append ("--verbose");
+         Args.Append ("--verbosity=INFO");
       end if;
 
       if Tool_Args.Debug_Mode.Get then

@@ -4,11 +4,11 @@ calls.adb:37:4: rule violation: call to unavailable body
 
 calls.adb:38:4: rule violation: call to unavailable body
 38 |    X.all (1);   --  FLAG (2)
-   |    ^^^^^^^^^
+   |    ^^^^^
 
 calls.adb:38:4: rule violation: call to unavailable body
 38 |    X.all (1);   --  FLAG (2)
-   |    ^^^^^
+   |    ^^^^^^^^^
 
 calls.adb:39:4: rule violation: call to unavailable body
 39 |    X (1);       --  FLAG

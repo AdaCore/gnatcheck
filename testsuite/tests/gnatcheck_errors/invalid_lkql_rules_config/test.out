@@ -2,8 +2,8 @@ Invalid syntax
 ==============
 
 invalid_syntax.lkql:1:1: error: cannot parse <val_decl>
-invalid_syntax.lkql:3:1: error: expected Upper_Identifier, got '}'
 invalid_syntax.lkql:3:1: error: end of input expected, got "R_Curl"
+invalid_syntax.lkql:3:1: error: expected Upper_Identifier, got '}'
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

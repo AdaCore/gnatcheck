@@ -1,33 +1,33 @@
 custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:1: hint: error occurred when analyzing <CompilationUnit main.adb:1:1-4:10>
-custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:1: hint: error occurred when analyzing <AdaNodeList main.adb:1:1-1:1>
-custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:1: hint: error occurred when analyzing <LibraryItem main.adb:1:1-4:10>
-custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:1: hint: error occurred when analyzing <PrivateAbsent main.adb:1:1-1:1>
-custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:1: hint: error occurred when analyzing <SubpBody ["Main"] main.adb:1:1-4:10>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:1: hint: error occurred when analyzing <OverridingUnspecified main.adb:1:1-1:1>
 custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:1: hint: error occurred when analyzing <SubpSpec main.adb:1:1-1:15>
+main.adb:1:1: hint: error occurred when analyzing <PrivateAbsent main.adb:1:1-1:1>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:1: hint: error occurred when analyzing <SubpKindProcedure main.adb:1:1-1:10>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:1:1: hint: error occurred when analyzing <SubpSpec main.adb:1:1-1:15>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:1:1: hint: error occurred when analyzing <CompilationUnit main.adb:1:1-4:10>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:1:1: hint: error occurred when analyzing <LibraryItem main.adb:1:1-4:10>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:1:1: hint: error occurred when analyzing <SubpBody ["Main"] main.adb:1:1-4:10>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:11: hint: error occurred when analyzing <DefiningName "Main" main.adb:1:11-1:15>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:11: hint: error occurred when analyzing <Id "Main" main.adb:1:11-1:15>
 custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:18: hint: error occurred when analyzing <DeclarativePart main.adb:1:18-2:1>
-custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:18: hint: error occurred when analyzing <AdaNodeList main.adb:1:18-1:18>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:1:18: hint: error occurred when analyzing <DeclarativePart main.adb:1:18-2:1>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:2:6: hint: error occurred when analyzing <HandledStmts main.adb:2:6-4:1>
 custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:3:4: hint: error occurred when analyzing <StmtList main.adb:3:4-3:9>
-custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:3:4: hint: error occurred when analyzing <NullStmt main.adb:3:4-3:9>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:3:4: hint: error occurred when analyzing <StmtList main.adb:3:4-3:9>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:3:9: hint: error occurred when analyzing <AdaNodeList main.adb:3:9-3:9>
 custom.lkql:2:24: error: type error: expected Int but got Str
@@ -109,35 +109,35 @@ Total gnatcheck failures: 19
 }>>>program returned status code 2
 Running "cat gnatcheck.log"...
 custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:1: hint: error occurred when analyzing <CompilationUnit main.adb:1:1-4:10>
-custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:1: hint: error occurred when analyzing <AdaNodeList main.adb:1:1-1:1>
-custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:1: hint: error occurred when analyzing <LibraryItem main.adb:1:1-4:10>
-custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:1: hint: error occurred when analyzing <PrivateAbsent main.adb:1:1-1:1>
-custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:1: hint: error occurred when analyzing <SubpBody ["Main"] main.adb:1:1-4:10>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:1: hint: error occurred when analyzing <OverridingUnspecified main.adb:1:1-1:1>
 custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:1: hint: error occurred when analyzing <SubpSpec main.adb:1:1-1:15>
+main.adb:1:1: hint: error occurred when analyzing <PrivateAbsent main.adb:1:1-1:1>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:1: hint: error occurred when analyzing <SubpKindProcedure main.adb:1:1-1:10>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:1:1: hint: error occurred when analyzing <SubpSpec main.adb:1:1-1:15>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:1:1: hint: error occurred when analyzing <CompilationUnit main.adb:1:1-4:10>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:1:1: hint: error occurred when analyzing <LibraryItem main.adb:1:1-4:10>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:1:1: hint: error occurred when analyzing <SubpBody ["Main"] main.adb:1:1-4:10>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:11: hint: error occurred when analyzing <DefiningName "Main" main.adb:1:11-1:15>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:11: hint: error occurred when analyzing <Id "Main" main.adb:1:11-1:15>
 custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:1:18: hint: error occurred when analyzing <DeclarativePart main.adb:1:18-2:1>
-custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:1:18: hint: error occurred when analyzing <AdaNodeList main.adb:1:18-1:18>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:1:18: hint: error occurred when analyzing <DeclarativePart main.adb:1:18-2:1>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:2:6: hint: error occurred when analyzing <HandledStmts main.adb:2:6-4:1>
 custom.lkql:2:24: error: type error: expected Int but got Str
-main.adb:3:4: hint: error occurred when analyzing <StmtList main.adb:3:4-3:9>
-custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:3:4: hint: error occurred when analyzing <NullStmt main.adb:3:4-3:9>
+custom.lkql:2:24: error: type error: expected Int but got Str
+main.adb:3:4: hint: error occurred when analyzing <StmtList main.adb:3:4-3:9>
 custom.lkql:2:24: error: type error: expected Int but got Str
 main.adb:3:9: hint: error occurred when analyzing <AdaNodeList main.adb:3:9-3:9>
 custom.lkql:2:24: error: type error: expected Int but got Str

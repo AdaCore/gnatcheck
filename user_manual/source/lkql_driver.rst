@@ -95,7 +95,7 @@ iterative way.
   Process all units in the project tree, excluding externally built project.
 
 ``-t, --typecheck-mode=<mode>``
-  Specifies the behaviour of the typechecker (V2 only).
+  Specifies the behavior of the typechecker (V2 only).
 
 ``-aP=<directory>``
   Add the provided directory to the project search path
@@ -135,8 +135,9 @@ iterative way.
 ``-X=<name=value>``
   Specify an external reference for Project Files
 
-``-v, --verbose``
-  Enable the verbose mode.
+``-v, --verbosity=<level>``
+  Set the verbosity level (``ERROR``, ``WARNING``, ``INFO``). Default is
+  ``WARNING``.
 
 Additionally to those switches, you can provide to the ``run`` sub-command a
 list of Ada sources to use. Here is an example usage:
@@ -215,8 +216,9 @@ This is an internal entry point mainly used to test GNATcheck rules.
 ``-X=<name=value>``
   Specify an external reference for Project Files
 
-``-v, --verbose``
-  Enable the verbose mode.
+``-v, --verbosity=<level>``
+  Set the verbosity level (``ERROR``, ``WARNING``, ``INFO``). Default is
+  ``WARNING``.
 
 ``--missing-file-is-error``
   If an Ada source file is missing, emit an error message instead of a warning
@@ -459,8 +461,9 @@ format.
 ``-O, --output-dir=<directory>``
   Directory path to place generated RST files in.
 
-``-v, --verbose``
-  Enable the verbose mode.
+``-v, --verbosity=<level>``
+  Set the verbosity level (``ERROR``, ``WARNING``, ``INFO``). Default is
+  ``WARNING``.
 
 This sub-command also expect a list of directories containing LKQL rules to
 generate the documentation for. Here is an example usage:

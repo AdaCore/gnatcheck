@@ -37,8 +37,8 @@ try "gnatcheck --help" for more information.
 Rule file with circular importation
 ===================================
 
-part_two.lkql:1:1: error: circular dependency in LKQL modules (part_one.lkql -> part_two.lkql -> part_one.lkql)
 part_one.lkql:1:1: error: circular dependency in LKQL modules (part_two.lkql -> part_one.lkql -> part_two.lkql)
+part_two.lkql:1:1: error: circular dependency in LKQL modules (part_one.lkql -> part_two.lkql -> part_one.lkql)
 gnatcheck: error: no rule to check specified
 try "gnatcheck --help" for more information.
 >>>program returned status code 2

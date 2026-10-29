@@ -183,7 +183,13 @@ declared:
   # This will display the functional value "use_closure"
   print(make_closure(12))
 
-.. note::
+Annotations
+"""""""""""
+
+You can annotate function declarations to modify their behavior. Available
+annotations are:
+
+``@memoized``
 
   Functions can be memoized via the @memoized annotation. In a language
   such as lkql that is purely functional, this will give a way for users to
@@ -198,6 +204,21 @@ declared:
               else fib(a - 1) + fib (a - 2))
 
     print(fib(30))
+
+``@deprecated``
+
+  You can flag a function as deprecated to make the LKQL engine emit warnings
+  when it is called. You can also specify a language major version as parameter
+  of this annotation to restrict warnings to specific versions of the language.
+  Here is an example:
+
+  .. code-block:: lkql
+
+    @deprecated
+    fun always_deprecated() = ()
+
+    @deprecated(2)
+    fun deprecated_from_lkql_v2() = ()
 
 
 Value Declaration
@@ -1564,4 +1585,3 @@ patterns can be used to match other values:
   match obj
   | {a@..., b: "hello"} => "Bind keys that are not b to var a"
   | {a@...}             => "Bind all the object to a"
-

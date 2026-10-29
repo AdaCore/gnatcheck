@@ -1,3 +1,23 @@
+overloaded_operators.adb:40:13: rule violation: overloading of an operator symbol
+40 |    function "-" is new F1_G (Small);                           --  FLAG
+   |             ^^^
+
+overloaded_operators.adb:41:13: rule violation: overloading of an operator symbol
+41 |    function "not" is new F1_G (Big);                           --  FLAG
+   |             ^^^^^
+
+overloaded_operators.adb:43:13: rule violation: overloading of an operator symbol
+43 |    function "*" is new F2_G (Small);                           --  FLAG
+   |             ^^^
+
+overloaded_operators.adb:44:13: rule violation: overloading of an operator symbol
+44 |    function "and" is new F2_G (Big);                           --  FLAG
+   |             ^^^^^
+
+overloaded_operators.adb:60:28: rule violation: overloading of an operator symbol
+60 |                   function "+" (L, R : Large) return Large;    --  FLAG
+   |                            ^^^
+
 overloaded_operators.ads:32:13: rule violation: overloading of an operator symbol
 32 |    function "+" (L, R : Int) return Int;                         --  FLAG
    |             ^^^
@@ -41,24 +61,4 @@ overloaded_operators.ads:50:21: rule violation: overloading of an operator symbo
 overloaded_operators.ads:51:21: rule violation: overloading of an operator symbol
 51 |       with function "abs" (L : T_F) return T_F;                  --  FLAG
    |                     ^^^^^
-
-overloaded_operators.adb:40:13: rule violation: overloading of an operator symbol
-40 |    function "-" is new F1_G (Small);                           --  FLAG
-   |             ^^^
-
-overloaded_operators.adb:41:13: rule violation: overloading of an operator symbol
-41 |    function "not" is new F1_G (Big);                           --  FLAG
-   |             ^^^^^
-
-overloaded_operators.adb:43:13: rule violation: overloading of an operator symbol
-43 |    function "*" is new F2_G (Small);                           --  FLAG
-   |             ^^^
-
-overloaded_operators.adb:44:13: rule violation: overloading of an operator symbol
-44 |    function "and" is new F2_G (Big);                           --  FLAG
-   |             ^^^^^
-
-overloaded_operators.adb:60:28: rule violation: overloading of an operator symbol
-60 |                   function "+" (L, R : Large) return Large;    --  FLAG
-   |                            ^^^
 

@@ -1,3 +1,7 @@
+num.adb:2:25: rule violation: integer literal as index value
+2 |     X : Integer := Var (2);      --  FLAG
+  |                         ^
+
 num.ads:15:41: rule violation: integer literal as index value
 15 |    C1        : constant Integer := Var (1);  --  FLAG
    |                                         ^
@@ -9,8 +13,4 @@ num.ads:16:41: rule violation: integer literal as index value
 num.ads:17:42: rule violation: integer literal as index value
 17 |    C_Minus_1 : constant Integer := Var (-1); --  FLAG
    |                                          ^
-
-num.adb:2:25: rule violation: integer literal as index value
-2 |     X : Integer := Var (2);      --  FLAG
-  |                         ^
 
