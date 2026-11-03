@@ -1,0 +1,33 @@
+# lkql version: 2
+
+from libadalang import *
+
+|" Return whether the provided alternatives list contains a choice that is
+|" subject to a static predicate.
+fun have_statically_predicated_choice(choices: AlternativesList): Bool =
+    choices.children.any(
+        (c) =>
+            c is Name(
+                p_referenced_decl(): BaseTypeDecl (
+                    p_is_statically_predicated(): true
+                )
+            )
+    )
+
+|" Flag case constructs which selector expression is static and that have a
+|" choice that defines a static predicate.
+@check(
+    help="flag case constructs with a static selector and a choice that is subject to a static predicate",
+    message="possible occurrence of KP 20806"
+)
+fun kp_20806(node: AdaNode): Bool =
+    node is a@AlternativesList(parent: p@(CaseExprAlternative | CaseStmtAlternative)) when {
+        val case_construct = p.parent.parent;
+        val expr = match case_construct {
+            case c@CaseStmt => c.f_expr
+            case c@CaseExpr => c.f_expr
+        };
+
+        expr.p_is_static_expr()
+        and have_statically_predicated_choice(a)
+    }

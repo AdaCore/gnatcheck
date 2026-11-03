@@ -1,0 +1,16 @@
+main.adb:11:12: rule violation: possible occurrence of KP 20806
+11 |       when One    =>  -- FLAG
+   |            ^^^
+
+main.adb:14:12: rule violation: possible occurrence of KP 20806
+14 |       when Two    =>  -- FLAG
+   |            ^^^
+
+main.adb:26:14: rule violation: possible occurrence of KP 20806
+26 |         when One    => False,  -- FLAG
+   |              ^^^
+
+main.adb:27:14: rule violation: possible occurrence of KP 20806
+27 |         when Two    => True,   -- FLAG
+   |              ^^^
+
