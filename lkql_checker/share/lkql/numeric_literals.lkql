@@ -61,12 +61,11 @@ fun numeric_literals(node, n : int = 1, all: bool = false, statements_only: bool
      and (not node.parent is BinOp(f_op: OpPow)
               when node.parent.f_right == node)
      # exclude indexing of an array attribute
-     and (not node.parent is ParamAssoc(
-              parent: AssocList(
-                  parent: AttributeRef(
-                      f_attribute: id@Identifier
+     and (not node.parent is
+             AttributeRef(
+                 f_attribute: id@Identifier
                       when id.p_name_is("First")
                         or id.p_name_is("Last")
-                        or id.p_name_is("Length")))))
+                        or id.p_name_is("Length")))
      # check all other cases
      and check_parents(node.parent, statements_only))

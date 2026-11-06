@@ -7,7 +7,7 @@ fun valid_attr(node) =
     new AttributeRef(
         f_prefix=node.f_expr,
         f_attribute=new Identifier("Valid"),
-        f_args=new AssocList()
+        f_arg=null
     )
 
 fun type_of(name) =
