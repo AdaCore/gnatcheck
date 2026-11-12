@@ -1,18 +1,30 @@
-ascii.ads:1:1: rule violation: non printable ASCII character at column 12
+ascii.ads:1:1: rule violation: non printable ASCII character at column 12 (ASCII.HT)
 1 | --  invalid	comment          --  FLAG
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-ascii.ads:3:4: rule violation: non printable ASCII character at column 14
+ascii.ads:3:4: rule violation: non printable ASCII character at column 14 (outside ASCII range)
 3 |    Non_ASCII_é : Integer;        --  FLAG
   |    ^^^^^^^^^^^
 
-ascii.ads:4:4: rule violation: non printable ASCII character at column 23
+ascii.ads:4:4: rule violation: non printable ASCII character at column 23 (ASCII.FF)
 4 |    --  another invalidcomment  --  FLAG
   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-ascii.ads:5:42: rule violation: non printable ASCII character at line 6 column 1
+ascii.ads:5:42: rule violation: non printable ASCII character at line 6 column 1 (ASCII.HT)
 5 |     V : Integer;                  --  FLAG
   | __________________________________________^
 6 || 	Tab_Indent : Integer;
   ||________^
+
+ascii.ads:8:1: rule violation: non printable ASCII character at column 10 (outside ASCII range)
+8 | --  DEL:                        --  FLAG
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ascii.ads:9:1: rule violation: non printable ASCII character at column 28 (outside ASCII range)
+9 | --  Character upper bound: ÿ      --  FLAG
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ascii.ads:10:1: rule violation: non printable ASCII character at column 23 (outside Character type range)
+10 | --  Beyond Character: Ā           --  FLAG
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -1,5 +1,41 @@
 val non_printable = pattern("[^\r\n -~]")
 
+# Describe a character matched by non_printable using the legacy diagnostics.
+# DEL (127) is outside the ASCII range for this rule, just like 128 .. 255.
+fun bad_symbol_description(ch) = match ch
+    | "^[\x7F-\xFF]$" => "outside ASCII range"
+    | "^\x00$" => "ASCII.NUL"
+    | "^\x01$" => "ASCII.SOH"
+    | "^\x02$" => "ASCII.STX"
+    | "^\x03$" => "ASCII.ETX"
+    | "^\x04$" => "ASCII.EOT"
+    | "^\x05$" => "ASCII.ENQ"
+    | "^\x06$" => "ASCII.ACK"
+    | "^\x07$" => "ASCII.BEL"
+    | "^\x08$" => "ASCII.BS"
+    | "^\x09$" => "ASCII.HT"
+    | "^\x0B$" => "ASCII.VT"
+    | "^\x0C$" => "ASCII.FF"
+    | "^\x0E$" => "ASCII.SO"
+    | "^\x0F$" => "ASCII.SI"
+    | "^\x10$" => "ASCII.DLE"
+    | "^\x11$" => "ASCII.DC1"
+    | "^\x12$" => "ASCII.DC2"
+    | "^\x13$" => "ASCII.DC3"
+    | "^\x14$" => "ASCII.DC4"
+    | "^\x15$" => "ASCII.NAK"
+    | "^\x16$" => "ASCII.SYN"
+    | "^\x17$" => "ASCII.ETB"
+    | "^\x18$" => "ASCII.CAN"
+    | "^\x19$" => "ASCII.EM"
+    | "^\x1A$" => "ASCII.SUB"
+    | "^\x1B$" => "ASCII.ESC"
+    | "^\x1C$" => "ASCII.FS"
+    | "^\x1D$" => "ASCII.GS"
+    | "^\x1E$" => "ASCII.RS"
+    | "^\x1F$" => "ASCII.US"
+    | * => "outside Character type range"
+
 # Build the violation message, pointing at the first non-printable
 # character. Whitespace trivia can span several lines, so the character's
 # line and column are computed from the token text that precedes it.
@@ -20,6 +56,7 @@ fun printable_ascii_message(tok) = {
     "non printable ASCII character at " &
     (if multiline then "line " & img(tok.start_line + breaks) & " " else "")
     & "column " & img(col)
+    & " (" & bad_symbol_description(tok.text.substring(idx, idx)) & ")"
 }
 
 @unit_check(help="non-printable characters", remediation="EASY",
