@@ -16,3 +16,84 @@ stmt.adb:32:4: rule violation: IF statement may be replaced by a CASE statement
 38 ||    end if;
    ||__________^
 
+stmt.adb:86:7: rule violation: IF statement may be replaced by a CASE statement
+86 |        if I = 1 or I = 2 then    --  FLAG
+   | _______^
+   ||
+   || ~~~ 5 other lines ~~~
+   ||
+92 ||       end if;
+   ||_____________^
+
+stmt.adb:94:7: rule violation: IF statement may be replaced by a CASE statement
+94  |        if I in 1 .. 5 then       --  FLAG
+    | _______^
+    ||
+    || ~~~ 5 other lines ~~~
+    ||
+100 ||       end if;
+    ||_____________^
+
+stmt.adb:102:7: rule violation: IF statement may be replaced by a CASE statement
+102 |        if I >= 1 and I <= 5 then --  FLAG
+    | _______^
+    ||
+    || ~~~ 3 other lines ~~~
+    ||
+106 ||       end if;
+    ||_____________^
+
+stmt.adb:108:7: rule violation: IF statement may be replaced by a CASE statement
+108 |        if (I >= 1) and (I <= 5) then  --  FLAG
+    | _______^
+    ||
+    || ~~~ 3 other lines ~~~
+    ||
+112 ||       end if;
+    ||_____________^
+
+stmt.adb:114:7: rule violation: IF statement may be replaced by a CASE statement
+114 |        if I = 1 or I in 8 .. 10 then  --  FLAG
+    | _______^
+    ||
+    || ~~~ 3 other lines ~~~
+    ||
+118 ||       end if;
+    ||_____________^
+
+stmt.adb:126:7: rule violation: IF statement may be replaced by a CASE statement
+126 |        if I = 1 or else I = 2 then           --  FLAG
+    | _______^
+    ||
+    || ~~~ 7 other lines ~~~
+    ||
+134 ||       end if;
+    ||_____________^
+
+stmt.adb:129:10: rule violation: IF statement may be replaced by a CASE statement
+129 |           if K = 1 then                      --  FLAG
+    | __________^
+    ||
+    || ~~~ 3 other lines ~~~
+    ||
+133 ||          end if;
+    ||________________^
+
+stmt.adb:142:7: rule violation: IF statement may be replaced by a CASE statement
+142 |        if I in Natural then                  --  FLAG
+    | _______^
+    ||
+    || ~~~ 3 other lines ~~~
+    ||
+146 ||       end if;
+    ||_____________^
+
+stmt.adb:176:7: rule violation: IF statement may be replaced by a CASE statement
+176 |        if My_Pkg.My_Obj = 3 or My_Pkg.My_Obj = 4 then --  FLAG
+    | _______^
+    ||
+    || ~~~ 3 other lines ~~~
+    ||
+180 ||       end if;
+    ||_____________^
+
