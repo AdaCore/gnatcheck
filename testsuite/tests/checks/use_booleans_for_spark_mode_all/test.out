@@ -34,8 +34,7 @@ fix proposal: Replace the value by a static boolean
   7      pragma SPARK_Mode (Auto);  -- FLAG
   8   
   9  -   procedure Aspect_On_Non_Conflicting is null with SPARK_Mode => On;      -- FLAG
-     +   procedure Aspect_On_Non_Conflicting
-     +   is null
+     +   procedure Aspect_On_Non_Conflicting is null
      +   with SPARK_Mode => True;      -- FLAG
   10     procedure Aspect_Off_Non_Conflicting is null with SPARK_Mode => Off;    -- FLAG
   11     procedure Aspect_Auto_Non_Conflicting is null with SPARK_Mode => Auto;  -- FLAG
@@ -48,8 +47,7 @@ fix proposal: Replace the value by a static boolean
   8   
   9      procedure Aspect_On_Non_Conflicting is null with SPARK_Mode => On;      -- FLAG
   10 -   procedure Aspect_Off_Non_Conflicting is null with SPARK_Mode => Off;    -- FLAG
-     +   procedure Aspect_Off_Non_Conflicting
-     +   is null
+     +   procedure Aspect_Off_Non_Conflicting is null
      +   with SPARK_Mode => False;    -- FLAG
   11     procedure Aspect_Auto_Non_Conflicting is null with SPARK_Mode => Auto;  -- FLAG
   12  
@@ -94,7 +92,8 @@ fix proposal: Replace the value by a static boolean
   21     pragma SPARK_Mode (Auto);  -- FLAG
   22  
   23 -   procedure Aspect_On_Conflicting is null with SPARK_Mode => On;      -- FLAG
-     +   procedure Aspect_On_Conflicting is null with SPARK_Mode => True;      -- FLAG
+     +   procedure Aspect_On_Conflicting is null
+     +   with SPARK_Mode => True;      -- FLAG
   24     procedure Aspect_Off_Conflicting is null with SPARK_Mode => Off;    -- FLAG
   25     procedure Aspect_Auto_Conflicting is null with SPARK_Mode => Auto;  -- FLAG
 
@@ -106,7 +105,8 @@ fix proposal: Replace the value by a static boolean
   22  
   23     procedure Aspect_On_Conflicting is null with SPARK_Mode => On;      -- FLAG
   24 -   procedure Aspect_Off_Conflicting is null with SPARK_Mode => Off;    -- FLAG
-     +   procedure Aspect_Off_Conflicting is null with SPARK_Mode => False;    -- FLAG
+     +   procedure Aspect_Off_Conflicting is null
+     +   with SPARK_Mode => False;    -- FLAG
   25     procedure Aspect_Auto_Conflicting is null with SPARK_Mode => Auto;  -- FLAG
   26  end Main;
 
