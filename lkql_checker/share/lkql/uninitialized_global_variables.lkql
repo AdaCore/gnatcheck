@@ -13,19 +13,19 @@ fun default_value(type_decl) =
             new AttributeRef(
                 f_prefix=new Identifier("Character"),
                 f_attribute=new Identifier("First"),
-                f_args=new AssocList()
+                f_arg=null
             )
         else if r == type_decl.p_std_wide_char_type() then
             new AttributeRef(
                 f_prefix=new Identifier("Wide_Character"),
                 f_attribute=new Identifier("First"),
-                f_args=new AssocList()
+                f_arg=null
             )
         else if r == type_decl.p_std_wide_wide_char_type() then
             new AttributeRef(
                 f_prefix=new Identifier("Wide_Wide_Character"),
                 f_attribute=new Identifier("First"),
-                f_args=new AssocList()
+                f_arg=null
             )
         else ()
     }

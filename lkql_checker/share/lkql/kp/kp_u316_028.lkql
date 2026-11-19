@@ -8,10 +8,7 @@ fun is_array_attr(attr) =
 
 @check(message="possible occurrence of KP U316-028")
 fun kp_u316_028(node) =
-    node is AttributeRef
+    node is AttributeRef(f_arg: not null)
     when is_array_attr(node.f_attribute)
-     and node.f_args is l@AssocList
-     when l.children_count == 1
-      and l[1].f_r_expr is not IntLiteral
-      and l[1].f_r_expr.p_referenced_decl() is not NumberDecl
-
+      and node.f_arg is not IntLiteral
+      and node.f_arg.p_referenced_decl() is not NumberDecl
