@@ -1,0 +1,19 @@
+# lkql version: 2
+
+from libadalang import *
+
+|" Flag 'Valid on an object whose subtype is subject to a predicate with a
+|" specified Predicate_Failure.
+@check(
+    help="flag 'Valid on subtypes with a predicate and Predicate_Failure",
+    message="possible occurrence of KP 20804"
+)
+fun kp_20804(node: AdaNode): Bool =
+    node is AttributeRef(
+        f_attribute: Identifier(p_name_is("Valid"): true),
+        f_prefix: Name(p_expression_type(): t@BaseTypeDecl)
+    ) when (
+        t.p_has_aspect("Static_Predicate")
+        or t.p_has_aspect("Dynamic_Predicate")
+        or t.p_has_aspect("Predicate")
+    ) and t.p_has_aspect("Predicate_Failure")
