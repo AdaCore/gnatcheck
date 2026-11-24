@@ -1,0 +1,16 @@
+test.adb:34:13: rule violation: possible occurrence of KP 20804
+34 |    Valid := X'Valid;          -- FLAG
+   |             ^^^^^^^
+
+test.adb:35:13: rule violation: possible occurrence of KP 20804
+35 |    Valid := S'Valid;          -- FLAG
+   |             ^^^^^^^
+
+test.adb:36:13: rule violation: possible occurrence of KP 20804
+36 |    Valid := D'Valid;          -- FLAG
+   |             ^^^^^^^
+
+test.adb:37:13: rule violation: possible occurrence of KP 20804
+37 |    Valid := P.N'vAlId;        -- FLAG
+   |             ^^^^^^^^^
+
